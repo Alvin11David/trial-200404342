@@ -20,6 +20,7 @@ import { Route as AppHousekeepingRouteImport } from './routes/_app.housekeeping'
 import { Route as AppGuestsRouteImport } from './routes/_app.guests'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
+import { Route as AppReservationsNewRouteImport } from './routes/_app.reservations.new'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -75,6 +76,11 @@ const AppBillingRoute = AppBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AppRoute,
 } as any)
+const AppReservationsNewRoute = AppReservationsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AppReservationsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -84,9 +90,10 @@ export interface FileRoutesByFullPath {
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
   '/reports': typeof AppReportsRoute
-  '/reservations': typeof AppReservationsRoute
+  '/reservations': typeof AppReservationsRouteWithChildren
   '/rooms': typeof AppRoomsRoute
   '/settings': typeof AppSettingsRoute
+  '/reservations/new': typeof AppReservationsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -96,9 +103,10 @@ export interface FileRoutesByTo {
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
   '/reports': typeof AppReportsRoute
-  '/reservations': typeof AppReservationsRoute
+  '/reservations': typeof AppReservationsRouteWithChildren
   '/rooms': typeof AppRoomsRoute
   '/settings': typeof AppSettingsRoute
+  '/reservations/new': typeof AppReservationsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -110,9 +118,10 @@ export interface FileRoutesById {
   '/_app/guests': typeof AppGuestsRoute
   '/_app/housekeeping': typeof AppHousekeepingRoute
   '/_app/reports': typeof AppReportsRoute
-  '/_app/reservations': typeof AppReservationsRoute
+  '/_app/reservations': typeof AppReservationsRouteWithChildren
   '/_app/rooms': typeof AppRoomsRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/reservations/new': typeof AppReservationsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -127,6 +136,7 @@ export interface FileRouteTypes {
     | '/reservations'
     | '/rooms'
     | '/settings'
+    | '/reservations/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -139,6 +149,7 @@ export interface FileRouteTypes {
     | '/reservations'
     | '/rooms'
     | '/settings'
+    | '/reservations/new'
   id:
     | '__root__'
     | '/'
@@ -152,6 +163,7 @@ export interface FileRouteTypes {
     | '/_app/reservations'
     | '/_app/rooms'
     | '/_app/settings'
+    | '/_app/reservations/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -239,8 +251,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBillingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/reservations/new': {
+      id: '/_app/reservations/new'
+      path: '/new'
+      fullPath: '/reservations/new'
+      preLoaderRoute: typeof AppReservationsNewRouteImport
+      parentRoute: typeof AppReservationsRoute
+    }
   }
 }
+
+interface AppReservationsRouteChildren {
+  AppReservationsNewRoute: typeof AppReservationsNewRoute
+}
+
+const AppReservationsRouteChildren: AppReservationsRouteChildren = {
+  AppReservationsNewRoute: AppReservationsNewRoute,
+}
+
+const AppReservationsRouteWithChildren = AppReservationsRoute._addFileChildren(
+  AppReservationsRouteChildren,
+)
 
 interface AppRouteChildren {
   AppBillingRoute: typeof AppBillingRoute
@@ -248,7 +279,7 @@ interface AppRouteChildren {
   AppGuestsRoute: typeof AppGuestsRoute
   AppHousekeepingRoute: typeof AppHousekeepingRoute
   AppReportsRoute: typeof AppReportsRoute
-  AppReservationsRoute: typeof AppReservationsRoute
+  AppReservationsRoute: typeof AppReservationsRouteWithChildren
   AppRoomsRoute: typeof AppRoomsRoute
   AppSettingsRoute: typeof AppSettingsRoute
 }
@@ -259,7 +290,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppGuestsRoute: AppGuestsRoute,
   AppHousekeepingRoute: AppHousekeepingRoute,
   AppReportsRoute: AppReportsRoute,
-  AppReservationsRoute: AppReservationsRoute,
+  AppReservationsRoute: AppReservationsRouteWithChildren,
   AppRoomsRoute: AppRoomsRoute,
   AppSettingsRoute: AppSettingsRoute,
 }

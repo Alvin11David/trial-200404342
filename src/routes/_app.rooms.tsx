@@ -1,96 +1,265 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BedDouble, Wifi, Coffee, Wind } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  BedDouble,
+  CheckCircle2,
+  Filter,
+  LogIn,
+  Sparkles,
+  Wrench,
+  Ban,
+  GripVertical,
+  User,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/rooms")({
-  head: () => ({ meta: [{ title: "Rooms — Jambo ERP" }] }),
-  component: RoomsPage,
+  head: () => ({ meta: [{ title: "Room Status Board — Jambo ERP" }] }),
+  component: RoomsBoard,
 });
 
-type RoomStatus = "Occupied" | "Available" | "Dirty" | "OOS";
-
-const floors = [1, 2, 3, 4, 5] as const;
-const rooms: { number: string; floor: number; type: string; status: RoomStatus; rate: string; guest?: string }[] = [];
-const types = ["Standard", "Deluxe", "Suite", "Standard", "Deluxe", "Standard"];
-const statuses: RoomStatus[] = ["Occupied", "Available", "Occupied", "Occupied", "Dirty", "Available", "Occupied", "OOS"];
-floors.forEach((f) => {
-  for (let i = 1; i <= 8; i++) {
-    const number = `${f}${String(i).padStart(2, "0")}`;
-    const status = statuses[(f + i) % statuses.length];
-    rooms.push({
-      number,
-      floor: f,
-      type: types[i % types.length],
-      status,
-      rate: `UGX ${(180 + i * 40).toLocaleString()}K`,
-      guest: status === "Occupied" ? ["S. Nakato", "J. Okello", "P. Sharma", "D. Mensah"][i % 4] : undefined,
-    });
-  }
-});
-
-const statusMeta: Record<RoomStatus, { dot: string; label: string; ring: string }> = {
-  Occupied: { dot: "bg-primary", label: "Occupied", ring: "ring-primary/30" },
-  Available: { dot: "bg-success", label: "Available", ring: "ring-success/30" },
-  Dirty: { dot: "bg-warning", label: "Needs cleaning", ring: "ring-warning/30" },
-  OOS: { dot: "bg-destructive", label: "Out of service", ring: "ring-destructive/30" },
+type Status = "Available" | "Occupied" | "Dirty" | "Maintenance" | "Blocked";
+type Room = {
+  id: string;
+  floor: number;
+  type: "Standard" | "Deluxe" | "Suite";
+  status: Status;
+  guest?: string;
+  note?: string;
 };
 
-function RoomsPage() {
-  return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Rooms</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Live floor plan · 40 rooms across 5 floors</p>
-      </div>
+const initial: Room[] = (() => {
+  const types: Room["type"][] = ["Standard", "Deluxe", "Suite", "Standard", "Deluxe"];
+  const statuses: Status[] = ["Available", "Occupied", "Occupied", "Dirty", "Available", "Maintenance", "Occupied", "Blocked"];
+  const guests = ["S. Nakato", "J. Okello", "P. Sharma", "D. Mensah", "A. Wanjiku", "M. Lopez", "K. Boateng", "L. Asiimwe"];
+  const notes: Partial<Record<Status, string>> = {
+    Maintenance: "AC repair",
+    Blocked: "Owner stay",
+    Dirty: "Awaiting turnover",
+  };
+  const list: Room[] = [];
+  for (let f = 1; f <= 5; f++) {
+    for (let i = 1; i <= 8; i++) {
+      const id = `${f}${String(i).padStart(2, "0")}`;
+      const status = statuses[(f * 3 + i) % statuses.length];
+      list.push({
+        id,
+        floor: f,
+        type: types[i % types.length],
+        status,
+        guest: status === "Occupied" ? guests[(f + i) % guests.length] : undefined,
+        note: notes[status],
+      });
+    }
+  }
+  return list;
+})();
 
-      <div className="glass rounded-2xl p-5">
-        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-          {(Object.keys(statusMeta) as RoomStatus[]).map((k) => (
-            <div key={k} className="flex items-center gap-2">
-              <span className={cn("h-2 w-2 rounded-full", statusMeta[k].dot)} />
-              {statusMeta[k].label}
-            </div>
-          ))}
+const columns: { id: Status; icon: React.ComponentType<{ className?: string }>; color: string }[] = [
+  { id: "Available",   icon: CheckCircle2, color: "oklch(0.72 0.16 162)" },
+  { id: "Occupied",    icon: BedDouble,    color: "oklch(0.68 0.18 258)" },
+  { id: "Dirty",       icon: Sparkles,     color: "oklch(0.78 0.16 75)"  },
+  { id: "Maintenance", icon: Wrench,       color: "oklch(0.65 0.22 25)"  },
+  { id: "Blocked",     icon: Ban,          color: "oklch(0.6 0.04 280)"  },
+];
+
+function RoomsBoard() {
+  const [rooms, setRooms] = useState<Room[]>(initial);
+  const [floor, setFloor] = useState<string>("All");
+  const [type, setType] = useState<string>("All");
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [hoverCol, setHoverCol] = useState<Status | null>(null);
+
+  const filtered = useMemo(
+    () => rooms.filter((r) =>
+      (floor === "All" || r.floor === Number(floor)) &&
+      (type === "All" || r.type === type)
+    ),
+    [rooms, floor, type],
+  );
+
+  const counts = useMemo(() => {
+    const c: Record<Status, number> = { Available: 0, Occupied: 0, Dirty: 0, Maintenance: 0, Blocked: 0 };
+    filtered.forEach((r) => c[r.status]++);
+    return c;
+  }, [filtered]);
+
+  const onDrop = (status: Status) => {
+    if (!dragId) return;
+    setRooms((prev) =>
+      prev.map((r) =>
+        r.id === dragId ? { ...r, status, guest: status === "Occupied" ? r.guest : undefined } : r,
+      ),
+    );
+    setDragId(null);
+    setHoverCol(null);
+  };
+
+  return (
+    <div className="mx-auto max-w-[1600px] space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Room Status Board</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Drag rooms between columns to update their status.</p>
         </div>
       </div>
 
-      {floors.map((floor) => (
-        <div key={floor} className="glass rounded-2xl p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display text-lg font-semibold">Floor {floor}</h3>
-            <span className="text-xs text-muted-foreground">8 rooms</span>
-          </div>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
-            {rooms.filter((r) => r.floor === floor).map((r) => {
-              const meta = statusMeta[r.status];
-              return (
-                <div
-                  key={r.number}
-                  className={cn(
-                    "group relative overflow-hidden rounded-xl border border-border/60 bg-card/40 p-4 transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/20",
-                    "ring-1", meta.ring,
-                  )}
-                >
-                  <div className="flex items-start justify-between">
-                    <BedDouble className="h-4 w-4 text-muted-foreground" />
-                    <span className={cn("h-2 w-2 rounded-full", meta.dot, "animate-pulse-glow")} />
-                  </div>
-                  <div className="mt-3 font-display text-xl font-bold tracking-tight">{r.number}</div>
-                  <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{r.type}</div>
-                  {r.guest && (
-                    <div className="mt-2 truncate text-xs text-foreground/80">{r.guest}</div>
-                  )}
-                  <div className="mt-3 flex items-center gap-2 text-muted-foreground/80">
-                    <Wifi className="h-3 w-3" />
-                    <Coffee className="h-3 w-3" />
-                    <Wind className="h-3 w-3" />
+      {/* Filters */}
+      <div className="glass flex flex-wrap items-center gap-3 rounded-2xl p-4">
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">Filter</div>
+        <select
+          value={floor}
+          onChange={(e) => setFloor(e.target.value)}
+          className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
+        >
+          {["All", 1, 2, 3, 4, 5].map((f) => (
+            <option key={f} value={f} className="bg-card">
+              {f === "All" ? "All floors" : `Floor ${f}`}
+            </option>
+          ))}
+        </select>
+        <select
+          value={type}
+          onChange={(e) => setType(e.target.value)}
+          className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
+        >
+          {["All", "Standard", "Deluxe", "Suite"].map((t) => (
+            <option key={t} value={t} className="bg-card">
+              {t === "All" ? "All room types" : t}
+            </option>
+          ))}
+        </select>
+        <button className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/30 px-3 py-2 text-xs text-muted-foreground hover:text-foreground">
+          <Filter className="h-3.5 w-3.5" /> More
+        </button>
+      </div>
+
+      {/* Board */}
+      <div className="grid gap-4 xl:grid-cols-5">
+        {columns.map((col) => {
+          const Icon = col.icon;
+          const list = filtered.filter((r) => r.status === col.id);
+          const active = hoverCol === col.id;
+          return (
+            <div
+              key={col.id}
+              onDragOver={(e) => { e.preventDefault(); setHoverCol(col.id); }}
+              onDragLeave={() => setHoverCol((h) => (h === col.id ? null : h))}
+              onDrop={() => onDrop(col.id)}
+              className={cn(
+                "glass flex h-full flex-col rounded-2xl p-4 transition-all",
+                active && "ring-2 ring-offset-2 ring-offset-background",
+              )}
+              style={active ? { boxShadow: `0 0 0 2px ${col.color}, 0 0 40px ${col.color}` } : undefined}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="grid h-8 w-8 place-items-center rounded-xl"
+                    style={{
+                      background: `linear-gradient(135deg, ${col.color}, color-mix(in oklab, ${col.color} 55%, black))`,
+                      boxShadow: `0 4px 14px -4px ${col.color}`,
+                    }}
+                  >
+                    <Icon className="h-4 w-4 text-white/95" />
+                  </span>
+                  <div>
+                    <div className="font-display text-sm font-semibold">{col.id}</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {counts[col.id]} room{counts[col.id] !== 1 && "s"}
+                    </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+                <span
+                  className="h-1.5 w-1.5 rounded-full animate-pulse-glow"
+                  style={{ background: col.color, boxShadow: `0 0 8px ${col.color}` }}
+                />
+              </div>
+
+              <div className="flex-1 space-y-2.5">
+                {list.map((r) => (
+                  <RoomCard key={r.id} room={r} accent={col.color} onDragStart={() => setDragId(r.id)} />
+                ))}
+                {list.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-border/50 p-6 text-center text-xs text-muted-foreground">
+                    Drop here
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
+  );
+}
+
+function RoomCard({
+  room, accent, onDragStart,
+}: {
+  room: Room;
+  accent: string;
+  onDragStart: () => void;
+}) {
+  return (
+    <div
+      draggable
+      onDragStart={onDragStart}
+      className="group relative cursor-grab overflow-hidden rounded-xl border border-border/60 bg-card/50 p-3 backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg active:cursor-grabbing"
+    >
+      <div
+        className="absolute left-0 top-0 h-full w-[3px]"
+        style={{ background: accent, boxShadow: `0 0 10px ${accent}` }}
+      />
+      <div className="flex items-start justify-between pl-1">
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-display text-lg font-bold tracking-tight">{room.id}</span>
+            <span className="rounded-md border border-border/60 bg-muted/30 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+              {room.type}
+            </span>
+          </div>
+          {room.guest ? (
+            <div className="mt-1 flex items-center gap-1.5 text-xs text-foreground/85">
+              <User className="h-3 w-3 text-muted-foreground" />
+              {room.guest}
+            </div>
+          ) : room.note ? (
+            <div className="mt-1 text-xs italic text-muted-foreground">{room.note}</div>
+          ) : (
+            <div className="mt-1 text-xs text-muted-foreground">Floor {room.floor}</div>
+          )}
+        </div>
+        <GripVertical className="h-4 w-4 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100" />
+      </div>
+
+      <div className="mt-2 flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        {room.status === "Available" && <TinyBtn icon={LogIn} label="Check in" tone="success" />}
+        {room.status === "Dirty" && <TinyBtn icon={Sparkles} label="Mark clean" tone="primary" />}
+        {room.status === "Occupied" && <TinyBtn icon={LogIn} label="View folio" tone="primary" />}
+      </div>
+    </div>
+  );
+}
+
+function TinyBtn({
+  icon: Icon, label, tone,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  tone: "primary" | "success";
+}) {
+  return (
+    <button
+      title={label}
+      className={cn(
+        "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium transition",
+        tone === "primary" && "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
+        tone === "success" && "border-success/40 bg-success/10 text-success hover:bg-success/20",
+      )}
+    >
+      <Icon className="h-3 w-3" />
+      {label}
+    </button>
   );
 }
