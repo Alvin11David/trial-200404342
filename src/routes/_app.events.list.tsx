@@ -33,16 +33,116 @@ type EventItem = {
 };
 
 const events: EventItem[] = [
-  { id: "evt-001", name: "Corporate Strategy Meeting", organisation: "Jambo Sphere Ltd", date: "Jun 12", startTime: "09:00", endTime: "12:00", venue: "Boardroom A", guests: 24, status: "Confirmed" },
-  { id: "evt-002", name: "Wedding Reception", organisation: "Okello Family", date: "Jun 14", startTime: "14:00", endTime: "23:00", venue: "Grand Ballroom", guests: 250, status: "Confirmed" },
-  { id: "evt-003", name: "Product Launch", organisation: "Tech Innovations Ltd", date: "Jun 18", startTime: "10:00", endTime: "16:00", venue: "Conference Hall B", guests: 80, status: "Tentative" },
-  { id: "evt-004", name: "Annual General Meeting", organisation: "East African Hospitality Assoc.", date: "Jun 22", startTime: "08:00", endTime: "17:00", venue: "Grand Ballroom", guests: 300, status: "Confirmed" },
-  { id: "evt-005", name: "Fashion Show", organisation: "Kampala Fashion Week", date: "Jun 28", startTime: "15:00", endTime: "21:00", venue: "Grand Ballroom", guests: 400, status: "Cancelled" },
-  { id: "evt-006", name: "Birthday Party", organisation: "Private Client", date: "Jul 05", startTime: "18:00", endTime: "22:00", venue: "Terrace Garden", guests: 45, status: "Confirmed" },
-  { id: "evt-007", name: "Team Building Workshop", organisation: "Uganda Breweries Ltd", date: "Jul 10", startTime: "09:00", endTime: "15:00", venue: "Conference Hall A", guests: 60, status: "Tentative" },
-  { id: "evt-008", name: "Private Dinner", organisation: "Minister of Tourism", date: "Jul 08", startTime: "19:00", endTime: "22:00", venue: "VIP Lounge", guests: 12, status: "Confirmed" },
-  { id: "evt-009", name: "Cocktail Reception", organisation: "Diplomatic Corps", date: "Jul 15", startTime: "17:00", endTime: "20:00", venue: "Rooftop Terrace", guests: 100, status: "Confirmed" },
-  { id: "evt-010", name: "Conference: Future of Tourism", organisation: "Ministry of Tourism", date: "Jul 20", startTime: "08:00", endTime: "18:00", venue: "Grand Ballroom", guests: 500, status: "Tentative" },
+  {
+    id: "evt-001",
+    name: "Corporate Strategy Meeting",
+    organisation: "Jambo Sphere Ltd",
+    date: "Jun 12",
+    startTime: "09:00",
+    endTime: "12:00",
+    venue: "Boardroom A",
+    guests: 24,
+    status: "Confirmed",
+  },
+  {
+    id: "evt-002",
+    name: "Wedding Reception",
+    organisation: "Okello Family",
+    date: "Jun 14",
+    startTime: "14:00",
+    endTime: "23:00",
+    venue: "Grand Ballroom",
+    guests: 250,
+    status: "Confirmed",
+  },
+  {
+    id: "evt-003",
+    name: "Product Launch",
+    organisation: "Tech Innovations Ltd",
+    date: "Jun 18",
+    startTime: "10:00",
+    endTime: "16:00",
+    venue: "Conference Hall B",
+    guests: 80,
+    status: "Tentative",
+  },
+  {
+    id: "evt-004",
+    name: "Annual General Meeting",
+    organisation: "East African Hospitality Assoc.",
+    date: "Jun 22",
+    startTime: "08:00",
+    endTime: "17:00",
+    venue: "Grand Ballroom",
+    guests: 300,
+    status: "Confirmed",
+  },
+  {
+    id: "evt-005",
+    name: "Fashion Show",
+    organisation: "Kampala Fashion Week",
+    date: "Jun 28",
+    startTime: "15:00",
+    endTime: "21:00",
+    venue: "Grand Ballroom",
+    guests: 400,
+    status: "Cancelled",
+  },
+  {
+    id: "evt-006",
+    name: "Birthday Party",
+    organisation: "Private Client",
+    date: "Jul 05",
+    startTime: "18:00",
+    endTime: "22:00",
+    venue: "Terrace Garden",
+    guests: 45,
+    status: "Confirmed",
+  },
+  {
+    id: "evt-007",
+    name: "Team Building Workshop",
+    organisation: "Uganda Breweries Ltd",
+    date: "Jul 10",
+    startTime: "09:00",
+    endTime: "15:00",
+    venue: "Conference Hall A",
+    guests: 60,
+    status: "Tentative",
+  },
+  {
+    id: "evt-008",
+    name: "Private Dinner",
+    organisation: "Minister of Tourism",
+    date: "Jul 08",
+    startTime: "19:00",
+    endTime: "22:00",
+    venue: "VIP Lounge",
+    guests: 12,
+    status: "Confirmed",
+  },
+  {
+    id: "evt-009",
+    name: "Cocktail Reception",
+    organisation: "Diplomatic Corps",
+    date: "Jul 15",
+    startTime: "17:00",
+    endTime: "20:00",
+    venue: "Rooftop Terrace",
+    guests: 100,
+    status: "Confirmed",
+  },
+  {
+    id: "evt-010",
+    name: "Conference: Future of Tourism",
+    organisation: "Ministry of Tourism",
+    date: "Jul 20",
+    startTime: "08:00",
+    endTime: "18:00",
+    venue: "Grand Ballroom",
+    guests: 500,
+    status: "Tentative",
+  },
 ];
 
 const statusStyles: Record<EventStatus, string> = {
@@ -68,10 +168,16 @@ function EventsListPage() {
     () =>
       events.filter((e) => {
         if (statusFilter !== "All" && e.status !== statusFilter) return false;
-        if (search && !`${e.name} ${e.organisation} ${e.venue} ${e.id}`.toLowerCase().includes(search.toLowerCase())) return false;
+        if (
+          search &&
+          !`${e.name} ${e.organisation} ${e.venue} ${e.id}`
+            .toLowerCase()
+            .includes(search.toLowerCase())
+        )
+          return false;
         return true;
       }),
-    [search, statusFilter, dateFrom, dateTo],
+    [search, statusFilter],
   );
 
   return (
@@ -79,9 +185,7 @@ function EventsListPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Events List</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            All scheduled events and functions.
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">All scheduled events and functions.</p>
         </div>
         <div className="flex items-center gap-2">
           <Link
@@ -105,13 +209,32 @@ function EventsListPage() {
       <div className="grid gap-3 sm:grid-cols-4">
         {[
           { label: "Total Events", value: String(events.length) },
-          { label: "Confirmed", value: String(events.filter((e) => e.status === "Confirmed").length), tone: "success" },
-          { label: "Tentative", value: String(events.filter((e) => e.status === "Tentative").length), tone: "warning" },
-          { label: "Cancelled", value: String(events.filter((e) => e.status === "Cancelled").length), tone: "destructive" },
+          {
+            label: "Confirmed",
+            value: String(events.filter((e) => e.status === "Confirmed").length),
+            tone: "success",
+          },
+          {
+            label: "Tentative",
+            value: String(events.filter((e) => e.status === "Tentative").length),
+            tone: "warning",
+          },
+          {
+            label: "Cancelled",
+            value: String(events.filter((e) => e.status === "Cancelled").length),
+            tone: "destructive",
+          },
         ].map((s) => (
           <div key={s.label} className="glass card-hover rounded-2xl p-4">
             <div className="text-xs text-muted-foreground">{s.label}</div>
-            <div className={cn("mt-1 text-2xl font-bold", s.tone === "success" && "text-success", s.tone === "warning" && "text-warning", s.tone === "destructive" && "text-destructive")}>
+            <div
+              className={cn(
+                "mt-1 text-2xl font-bold",
+                s.tone === "success" && "text-success",
+                s.tone === "warning" && "text-warning",
+                s.tone === "destructive" && "text-destructive",
+              )}
+            >
               {s.value}
             </div>
           </div>
@@ -133,9 +256,19 @@ function EventsListPage() {
 
           <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-xs">
             <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
-            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="bg-transparent text-foreground outline-none w-28" />
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="bg-transparent text-foreground outline-none w-28"
+            />
             <span className="text-muted-foreground">→</span>
-            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="bg-transparent text-foreground outline-none w-28" />
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="bg-transparent text-foreground outline-none w-28"
+            />
           </div>
 
           <select
@@ -143,10 +276,18 @@ function EventsListPage() {
             onChange={(e) => setStatusFilter(e.target.value as EventStatus | "All")}
             className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
           >
-            <option value="All" className="bg-card">All statuses</option>
-            <option value="Confirmed" className="bg-card">Confirmed</option>
-            <option value="Tentative" className="bg-card">Tentative</option>
-            <option value="Cancelled" className="bg-card">Cancelled</option>
+            <option value="All" className="bg-card">
+              All statuses
+            </option>
+            <option value="Confirmed" className="bg-card">
+              Confirmed
+            </option>
+            <option value="Tentative" className="bg-card">
+              Tentative
+            </option>
+            <option value="Cancelled" className="bg-card">
+              Cancelled
+            </option>
           </select>
         </div>
       </div>
@@ -169,7 +310,10 @@ function EventsListPage() {
             </thead>
             <tbody>
               {filtered.map((e) => (
-                <tr key={e.id} className="group border-b border-border/30 transition hover:bg-card/40">
+                <tr
+                  key={e.id}
+                  className="group border-b border-border/30 transition hover:bg-card/40"
+                >
                   <td className="px-4 py-3 font-medium">{e.name}</td>
                   <td className="px-4 py-3 text-muted-foreground">{e.organisation}</td>
                   <td className="px-4 py-3">{e.date}</td>
@@ -179,7 +323,12 @@ function EventsListPage() {
                   <td className="px-4 py-3 text-muted-foreground">{e.venue}</td>
                   <td className="px-4 py-3 tabular-nums">{e.guests.toLocaleString()}</td>
                   <td className="px-4 py-3">
-                    <span className={cn("inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium", statusStyles[e.status])}>
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                        statusStyles[e.status],
+                      )}
+                    >
                       {e.status}
                     </span>
                   </td>
@@ -217,20 +366,32 @@ function EventsListPage() {
                 <h3 className="font-display text-xl font-bold">{detailEvent.name}</h3>
                 <p className="text-sm text-muted-foreground mt-0.5">{detailEvent.organisation}</p>
               </div>
-              <span className={cn("inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium", statusStyles[detailEvent.status])}>
+              <span
+                className={cn(
+                  "inline-flex rounded-full border px-2.5 py-0.5 text-[11px] font-medium",
+                  statusStyles[detailEvent.status],
+                )}
+              >
                 {detailEvent.status}
               </span>
             </div>
 
             <div className="space-y-3 rounded-xl border border-border/50 bg-card/40 p-4">
               <DetailRow icon={CalendarDays} label="Date" value={detailEvent.date} />
-              <DetailRow icon={Clock} label="Time" value={`${detailEvent.startTime} → ${detailEvent.endTime}`} />
+              <DetailRow
+                icon={Clock}
+                label="Time"
+                value={`${detailEvent.startTime} → ${detailEvent.endTime}`}
+              />
               <DetailRow icon={MapPin} label="Venue" value={detailEvent.venue} />
               <DetailRow icon={Users} label="Guests" value={detailEvent.guests.toLocaleString()} />
             </div>
 
             <div className="mt-5 flex justify-end">
-              <button onClick={() => setDetailEvent(null)} className="rounded-xl border border-border/60 bg-card/40 px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground">
+              <button
+                onClick={() => setDetailEvent(null)}
+                className="rounded-xl border border-border/60 bg-card/40 px-5 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+              >
                 Close
               </button>
             </div>
@@ -241,7 +402,15 @@ function EventsListPage() {
   );
 }
 
-function DetailRow({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
+function DetailRow({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  value: string;
+}) {
   return (
     <div className="flex items-center gap-3 text-sm">
       <Icon className="h-4 w-4 text-muted-foreground shrink-0" />

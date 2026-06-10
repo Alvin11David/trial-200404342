@@ -22,9 +22,16 @@ export const Route = createFileRoute("/_app/events/new")({
 });
 
 const venues = [
-  "Grand Ballroom", "Conference Hall A", "Conference Hall B",
-  "Boardroom A", "Boardroom B", "Terrace Garden", "Rooftop Terrace",
-  "VIP Lounge", "Poolside Deck", "Restaurant Private Room",
+  "Grand Ballroom",
+  "Conference Hall A",
+  "Conference Hall B",
+  "Boardroom A",
+  "Boardroom B",
+  "Terrace Garden",
+  "Rooftop Terrace",
+  "VIP Lounge",
+  "Poolside Deck",
+  "Restaurant Private Room",
 ];
 
 const services = [
@@ -73,7 +80,13 @@ function NewEventPage() {
     setTimeout(() => navigate({ to: "/events" }), 1600);
   }
 
-  const canSubmit = form.organisation.trim() && form.eventName.trim() && form.startDate && form.endDate && form.startTime && form.endTime;
+  const canSubmit =
+    form.organisation.trim() &&
+    form.eventName.trim() &&
+    form.startDate &&
+    form.endDate &&
+    form.startTime &&
+    form.endTime;
 
   return (
     <div className="mx-auto max-w-4xl space-y-8">
@@ -86,9 +99,7 @@ function NewEventPage() {
         </Link>
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">New Event</h1>
-          <p className="text-sm text-muted-foreground">
-            Schedule a function, meeting or banquet.
-          </p>
+          <p className="text-sm text-muted-foreground">Schedule a function, meeting or banquet.</p>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <Link
@@ -183,7 +194,9 @@ function NewEventPage() {
                   className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
                 >
                   {venues.map((v) => (
-                    <option key={v} value={v} className="bg-card">{v}</option>
+                    <option key={v} value={v} className="bg-card">
+                      {v}
+                    </option>
                   ))}
                 </select>
               </div>
