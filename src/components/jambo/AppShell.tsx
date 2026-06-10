@@ -25,6 +25,9 @@ import {
   Warehouse,
   FileText,
   ClipboardCheck,
+  CalendarDays,
+  PartyPopper,
+  ListTodo,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
@@ -79,6 +82,14 @@ const nav: { section: string; items: NavItem[] }[] = [
       { label: "Inventory List", to: "/inventory/list", icon: Warehouse },
       { label: "Purchase Orders", to: "/inventory/purchase-orders", icon: FileText },
       { label: "Requisitions", to: "/inventory/requisitions", icon: ClipboardCheck },
+    ],
+  },
+  {
+    section: "Events & Banqueting",
+    items: [
+      { label: "Calendar", to: "/events", icon: CalendarDays },
+      { label: "Events List", to: "/events/list", icon: ListTodo },
+      { label: "New Event", to: "/events/new", icon: PartyPopper },
     ],
   },
   {
