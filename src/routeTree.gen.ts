@@ -17,6 +17,7 @@ import { Route as AppRoomsRouteImport } from './routes/_app.rooms'
 import { Route as AppReservationsRouteImport } from './routes/_app.reservations'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppPosRouteImport } from './routes/_app.pos'
+import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
 import { Route as AppHousekeepingRouteImport } from './routes/_app.housekeeping'
 import { Route as AppGuestsRouteImport } from './routes/_app.guests'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
@@ -24,6 +25,9 @@ import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppReservationsNewRouteImport } from './routes/_app.reservations.new'
 import { Route as AppPosOrdersRouteImport } from './routes/_app.pos.orders'
 import { Route as AppPosMenuRouteImport } from './routes/_app.pos.menu'
+import { Route as AppInventoryRequisitionsRouteImport } from './routes/_app.inventory.requisitions'
+import { Route as AppInventoryPurchaseOrdersRouteImport } from './routes/_app.inventory.purchase-orders'
+import { Route as AppInventoryListRouteImport } from './routes/_app.inventory.list'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -64,6 +68,11 @@ const AppPosRoute = AppPosRouteImport.update({
   path: '/pos',
   getParentRoute: () => AppRoute,
 } as any)
+const AppInventoryRoute = AppInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHousekeepingRoute = AppHousekeepingRouteImport.update({
   id: '/housekeeping',
   path: '/housekeeping',
@@ -99,6 +108,23 @@ const AppPosMenuRoute = AppPosMenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => AppPosRoute,
 } as any)
+const AppInventoryRequisitionsRoute =
+  AppInventoryRequisitionsRouteImport.update({
+    id: '/requisitions',
+    path: '/requisitions',
+    getParentRoute: () => AppInventoryRoute,
+  } as any)
+const AppInventoryPurchaseOrdersRoute =
+  AppInventoryPurchaseOrdersRouteImport.update({
+    id: '/purchase-orders',
+    path: '/purchase-orders',
+    getParentRoute: () => AppInventoryRoute,
+  } as any)
+const AppInventoryListRoute = AppInventoryListRouteImport.update({
+  id: '/list',
+  path: '/list',
+  getParentRoute: () => AppInventoryRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -107,11 +133,15 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
+  '/inventory': typeof AppInventoryRouteWithChildren
   '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
   '/reservations': typeof AppReservationsRouteWithChildren
   '/rooms': typeof AppRoomsRoute
   '/settings': typeof AppSettingsRoute
+  '/inventory/list': typeof AppInventoryListRoute
+  '/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
+  '/inventory/requisitions': typeof AppInventoryRequisitionsRoute
   '/pos/menu': typeof AppPosMenuRoute
   '/pos/orders': typeof AppPosOrdersRoute
   '/reservations/new': typeof AppReservationsNewRoute
@@ -123,11 +153,15 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
+  '/inventory': typeof AppInventoryRouteWithChildren
   '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
   '/reservations': typeof AppReservationsRouteWithChildren
   '/rooms': typeof AppRoomsRoute
   '/settings': typeof AppSettingsRoute
+  '/inventory/list': typeof AppInventoryListRoute
+  '/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
+  '/inventory/requisitions': typeof AppInventoryRequisitionsRoute
   '/pos/menu': typeof AppPosMenuRoute
   '/pos/orders': typeof AppPosOrdersRoute
   '/reservations/new': typeof AppReservationsNewRoute
@@ -141,11 +175,15 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/guests': typeof AppGuestsRoute
   '/_app/housekeeping': typeof AppHousekeepingRoute
+  '/_app/inventory': typeof AppInventoryRouteWithChildren
   '/_app/pos': typeof AppPosRouteWithChildren
   '/_app/reports': typeof AppReportsRoute
   '/_app/reservations': typeof AppReservationsRouteWithChildren
   '/_app/rooms': typeof AppRoomsRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/inventory/list': typeof AppInventoryListRoute
+  '/_app/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
+  '/_app/inventory/requisitions': typeof AppInventoryRequisitionsRoute
   '/_app/pos/menu': typeof AppPosMenuRoute
   '/_app/pos/orders': typeof AppPosOrdersRoute
   '/_app/reservations/new': typeof AppReservationsNewRoute
@@ -159,11 +197,15 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/guests'
     | '/housekeeping'
+    | '/inventory'
     | '/pos'
     | '/reports'
     | '/reservations'
     | '/rooms'
     | '/settings'
+    | '/inventory/list'
+    | '/inventory/purchase-orders'
+    | '/inventory/requisitions'
     | '/pos/menu'
     | '/pos/orders'
     | '/reservations/new'
@@ -175,11 +217,15 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/guests'
     | '/housekeeping'
+    | '/inventory'
     | '/pos'
     | '/reports'
     | '/reservations'
     | '/rooms'
     | '/settings'
+    | '/inventory/list'
+    | '/inventory/purchase-orders'
+    | '/inventory/requisitions'
     | '/pos/menu'
     | '/pos/orders'
     | '/reservations/new'
@@ -192,11 +238,15 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/guests'
     | '/_app/housekeeping'
+    | '/_app/inventory'
     | '/_app/pos'
     | '/_app/reports'
     | '/_app/reservations'
     | '/_app/rooms'
     | '/_app/settings'
+    | '/_app/inventory/list'
+    | '/_app/inventory/purchase-orders'
+    | '/_app/inventory/requisitions'
     | '/_app/pos/menu'
     | '/_app/pos/orders'
     | '/_app/reservations/new'
@@ -266,6 +316,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPosRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/inventory': {
+      id: '/_app/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AppInventoryRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/housekeeping': {
       id: '/_app/housekeeping'
       path: '/housekeeping'
@@ -315,8 +372,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPosMenuRouteImport
       parentRoute: typeof AppPosRoute
     }
+    '/_app/inventory/requisitions': {
+      id: '/_app/inventory/requisitions'
+      path: '/requisitions'
+      fullPath: '/inventory/requisitions'
+      preLoaderRoute: typeof AppInventoryRequisitionsRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
+    '/_app/inventory/purchase-orders': {
+      id: '/_app/inventory/purchase-orders'
+      path: '/purchase-orders'
+      fullPath: '/inventory/purchase-orders'
+      preLoaderRoute: typeof AppInventoryPurchaseOrdersRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
+    '/_app/inventory/list': {
+      id: '/_app/inventory/list'
+      path: '/list'
+      fullPath: '/inventory/list'
+      preLoaderRoute: typeof AppInventoryListRouteImport
+      parentRoute: typeof AppInventoryRoute
+    }
   }
 }
+
+interface AppInventoryRouteChildren {
+  AppInventoryListRoute: typeof AppInventoryListRoute
+  AppInventoryPurchaseOrdersRoute: typeof AppInventoryPurchaseOrdersRoute
+  AppInventoryRequisitionsRoute: typeof AppInventoryRequisitionsRoute
+}
+
+const AppInventoryRouteChildren: AppInventoryRouteChildren = {
+  AppInventoryListRoute: AppInventoryListRoute,
+  AppInventoryPurchaseOrdersRoute: AppInventoryPurchaseOrdersRoute,
+  AppInventoryRequisitionsRoute: AppInventoryRequisitionsRoute,
+}
+
+const AppInventoryRouteWithChildren = AppInventoryRoute._addFileChildren(
+  AppInventoryRouteChildren,
+)
 
 interface AppPosRouteChildren {
   AppPosMenuRoute: typeof AppPosMenuRoute
@@ -348,6 +442,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppGuestsRoute: typeof AppGuestsRoute
   AppHousekeepingRoute: typeof AppHousekeepingRoute
+  AppInventoryRoute: typeof AppInventoryRouteWithChildren
   AppPosRoute: typeof AppPosRouteWithChildren
   AppReportsRoute: typeof AppReportsRoute
   AppReservationsRoute: typeof AppReservationsRouteWithChildren
@@ -360,6 +455,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppGuestsRoute: AppGuestsRoute,
   AppHousekeepingRoute: AppHousekeepingRoute,
+  AppInventoryRoute: AppInventoryRouteWithChildren,
   AppPosRoute: AppPosRouteWithChildren,
   AppReportsRoute: AppReportsRoute,
   AppReservationsRoute: AppReservationsRouteWithChildren,

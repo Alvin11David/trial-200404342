@@ -21,6 +21,10 @@ import {
   ShoppingCart,
   ClipboardList,
   UtensilsCrossed,
+  Package,
+  Warehouse,
+  FileText,
+  ClipboardCheck,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
@@ -66,6 +70,15 @@ const nav: { section: string; items: NavItem[] }[] = [
       { label: "POS Sell", to: "/pos", icon: ShoppingCart },
       { label: "Orders", to: "/pos/orders", icon: ClipboardList },
       { label: "Menu Items", to: "/pos/menu", icon: UtensilsCrossed },
+    ],
+  },
+  {
+    section: "Stores & Inventory",
+    items: [
+      { label: "Stock Dashboard", to: "/inventory", icon: Package },
+      { label: "Inventory List", to: "/inventory/list", icon: Warehouse },
+      { label: "Purchase Orders", to: "/inventory/purchase-orders", icon: FileText },
+      { label: "Requisitions", to: "/inventory/requisitions", icon: ClipboardCheck },
     ],
   },
   {
