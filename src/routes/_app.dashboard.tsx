@@ -117,7 +117,7 @@ function Dashboard() {
         <StatCard
           label="Total Rooms"
           icon={DoorOpen}
-          accent="from-[oklch(0.68_0.18_258)] to-[oklch(0.6_0.2_220)]"
+          accent="from-[oklch(0.74_0.21_71)] to-[oklch(0.60_0.18_55)]"
           headline={
             <div className="flex items-center gap-3">
               <RingChart value={occupiedRooms} max={totalRooms} />
@@ -208,7 +208,7 @@ function Dashboard() {
           <ChartHeader title="Revenue Breakdown" subtitle="This week · UGX millions" />
           <RevenueBarChart />
           <div className="mt-5 flex flex-wrap items-center gap-4 text-xs">
-            <LegendDot color="oklch(0.68 0.18 258)" label="Rooms" />
+            <LegendDot color="oklch(0.74 0.21 71)" label="Rooms" />
             <LegendDot color="oklch(0.72 0.16 162)" label="POS / F&amp;B" />
             <LegendDot color="oklch(0.78 0.16 75)" label="Events" />
           </div>
@@ -223,7 +223,7 @@ function Dashboard() {
           right={
             <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
               <LegendDot color="oklch(0.72 0.16 162)" label="Available" />
-              <LegendDot color="oklch(0.68 0.18 258)" label="Occupied" />
+              <LegendDot color="oklch(0.74 0.21 71)" label="Occupied" />
               <LegendDot color="oklch(0.78 0.16 75)" label="Dirty" />
               <LegendDot color="oklch(0.65 0.22 25)" label="Maintenance" />
             </div>
@@ -297,7 +297,7 @@ function QuickAction({
   tone: "primary" | "success" | "warning" | "info";
 }) {
   const grad: Record<typeof tone, string> = {
-    primary: "from-[oklch(0.68_0.18_258)] to-[oklch(0.6_0.2_220)]",
+    primary: "from-[oklch(0.74_0.21_71)] to-[oklch(0.60_0.18_55)]",
     success: "from-[oklch(0.72_0.16_162)] to-[oklch(0.6_0.18_180)]",
     warning: "from-[oklch(0.78_0.16_75)] to-[oklch(0.7_0.18_50)]",
     info: "from-[oklch(0.7_0.15_240)] to-[oklch(0.65_0.18_220)]",
@@ -384,8 +384,8 @@ function RingChart({ value, max }: { value: number; max: number }) {
       <svg width="56" height="56" viewBox="0 0 56 56" className="-rotate-90">
         <defs>
           <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="oklch(0.78 0.16 258)" />
-            <stop offset="100%" stopColor="oklch(0.72 0.16 162)" />
+            <stop offset="0%" stopColor="oklch(0.74 0.21 71)" />
+            <stop offset="100%" stopColor="oklch(0.80 0.15 85)" />
           </linearGradient>
         </defs>
         <circle cx="28" cy="28" r={r} stroke="oklch(1 0 0 / 0.1)" strokeWidth="5" fill="none" />
@@ -399,7 +399,7 @@ function RingChart({ value, max }: { value: number; max: number }) {
           strokeDasharray={c}
           strokeDashoffset={offset}
           fill="none"
-          style={{ filter: "drop-shadow(0 0 6px oklch(0.68 0.18 258 / 0.6))" }}
+          style={{ filter: "drop-shadow(0 0 6px oklch(0.74 0.21 71 / 0.6))" }}
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center text-[11px] font-bold tabular-nums">
@@ -462,12 +462,12 @@ function OccupancyAreaChart() {
       <svg viewBox={`0 0 ${w} ${h}`} className="h-64 w-full" onMouseLeave={() => setHover(null)}>
         <defs>
           <linearGradient id="occGrad" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="oklch(0.68 0.18 258)" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="oklch(0.68 0.18 258)" stopOpacity="0" />
+            <stop offset="0%" stopColor="oklch(0.74 0.21 71)" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="oklch(0.74 0.21 71)" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="occLine" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stopColor="oklch(0.78 0.16 258)" />
-            <stop offset="100%" stopColor="oklch(0.72 0.16 162)" />
+            <stop offset="0%" stopColor="oklch(0.74 0.21 71)" />
+            <stop offset="100%" stopColor="oklch(0.80 0.15 85)" />
           </linearGradient>
         </defs>
 
@@ -492,12 +492,12 @@ function OccupancyAreaChart() {
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{ filter: "drop-shadow(0 4px 14px oklch(0.68 0.18 258 / 0.4))" }}
+          style={{ filter: "drop-shadow(0 4px 14px oklch(0.74 0.21 71 / 0.4))" }}
         />
 
         {pts.map(([x, y], i) => (
           <g key={i}>
-            <circle cx={x} cy={y} r={hover === i ? 5 : 3} fill="oklch(0.78 0.16 258)" stroke="oklch(0.18 0.03 260)" strokeWidth="2" />
+            <circle cx={x} cy={y} r={hover === i ? 5 : 3} fill="oklch(0.74 0.21 71)" stroke="var(--color-background)" strokeWidth="2" />
             <rect
               x={x - step / 2}
               y={pad.t}
@@ -511,9 +511,9 @@ function OccupancyAreaChart() {
             </text>
             {hover === i && (
               <g>
-                <line x1={x} x2={x} y1={pad.t} y2={pad.t + ih} stroke="oklch(0.78 0.16 258 / 0.4)" strokeDasharray="3 3" />
+                <line x1={x} x2={x} y1={pad.t} y2={pad.t + ih} stroke="oklch(0.74 0.21 71 / 0.4)" strokeDasharray="3 3" />
                 <g transform={`translate(${Math.min(x + 8, w - 70)}, ${Math.max(y - 36, pad.t)})`}>
-                  <rect width="62" height="28" rx="6" fill="oklch(0.22 0.035 262)" stroke="oklch(0.34 0.04 260)" />
+                  <rect width="62" height="28" rx="6" fill="var(--color-card)" stroke="var(--color-border)" />
                   <text x="8" y="12" fontSize="9" fill="oklch(1 0 0 / 0.55)">
                     {days[i]}
                   </text>
@@ -533,7 +533,7 @@ function OccupancyAreaChart() {
 function RevenueBarChart() {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const series = [
-    { label: "Rooms", color: "oklch(0.68 0.18 258)", values: [8.2, 9.1, 8.6, 10.4, 12.8, 14.2, 11.6] },
+    { label: "Rooms", color: "oklch(0.74 0.21 71)", values: [8.2, 9.1, 8.6, 10.4, 12.8, 14.2, 11.6] },
     { label: "POS", color: "oklch(0.72 0.16 162)", values: [3.1, 3.6, 3.2, 4.0, 4.8, 5.4, 4.6] },
     { label: "Events", color: "oklch(0.78 0.16 75)", values: [1.0, 0.6, 1.4, 1.2, 2.6, 3.2, 1.4] },
   ];
@@ -605,7 +605,7 @@ function RevenueBarChart() {
 type Status = "Available" | "Occupied" | "Dirty" | "Maintenance";
 const statusColor: Record<Status, string> = {
   Available: "oklch(0.72 0.16 162)",
-  Occupied: "oklch(0.68 0.18 258)",
+  Occupied: "oklch(0.74 0.21 71)",
   Dirty: "oklch(0.78 0.16 75)",
   Maintenance: "oklch(0.65 0.22 25)",
 };

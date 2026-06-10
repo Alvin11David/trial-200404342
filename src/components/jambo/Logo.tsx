@@ -16,7 +16,7 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
           width: dim,
           height: dim,
           background:
-            "linear-gradient(135deg, oklch(0.78 0.18 258), oklch(0.6 0.2 220))",
+            "linear-gradient(135deg, oklch(0.74 0.21 71), oklch(0.60 0.18 55))",
         }}
       >
         <svg
