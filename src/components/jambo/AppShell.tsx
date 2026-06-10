@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         className="pointer-events-none fixed inset-x-0 top-0 -z-0 h-[40vh] opacity-60"
         style={{
           background:
-            "radial-gradient(ellipse at top, oklch(0.68 0.18 258 / 0.18), transparent 60%)",
+            "radial-gradient(ellipse at top, oklch(0.74 0.21 71 / 0.18), transparent 60%)",
         }}
       />
 
@@ -108,7 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         )}
                       >
                         {active && (
-                          <span className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-primary shadow-[0_0_12px_oklch(0.68_0.18_258_/_0.8)]" />
+                          <span className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-primary shadow-[0_0_12px_oklch(0.74_0.21_71_/_0.8)]" />
                         )}
                         <Icon
                           className={cn(
@@ -139,7 +139,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {!collapsed ? (
             <div className="glass rounded-2xl p-3">
               <div className="flex items-center gap-2">
-                <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.72_0.16_162)] text-sm font-bold text-primary-foreground">
+                <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary to-success text-sm font-bold text-primary-foreground">
                   AK
                 </div>
                 <div className="min-w-0 flex-1">
@@ -152,7 +152,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             </div>
           ) : (
-            <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-primary to-[oklch(0.72_0.16_162)] text-xs font-bold text-primary-foreground">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-primary to-success text-xs font-bold text-primary-foreground">
               AK
             </div>
           )}
@@ -187,7 +187,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="group relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.6_0.2_220)] px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:shadow-primary/50">
+            <button className="group relative inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.78_0.20_75)] px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:shadow-primary/50">
               <Plus className="h-4 w-4" />
               New Booking
             </button>

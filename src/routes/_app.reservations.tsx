@@ -201,7 +201,7 @@ function ReservationsPage() {
                   <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{r.id}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary/50 to-[oklch(0.72_0.16_162)]/50 text-xs font-semibold text-primary-foreground ring-1 ring-border/60">
+                      <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary/50 to-success/50 text-xs font-semibold text-primary-foreground ring-1 ring-border/60">
                         {r.guest.split(" ").map((p) => p[0]).join("")}
                       </div>
                       <div>
@@ -250,7 +250,7 @@ function ReservationsPage() {
       {/* Floating New Reservation FAB */}
       <Link
         to="/reservations/new"
-        className="group fixed bottom-8 right-8 z-30 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-primary via-[oklch(0.65_0.2_220)] to-[oklch(0.72_0.16_162)] px-5 py-4 text-sm font-semibold text-primary-foreground shadow-2xl shadow-primary/40 transition-all hover:scale-105 hover:shadow-primary/60 animate-pulse-glow"
+        className="group fixed bottom-8 right-8 z-30 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-primary via-[oklch(0.78_0.20_75)] to-success px-5 py-4 text-sm font-semibold text-primary-foreground shadow-2xl shadow-primary/40 transition-all hover:scale-105 hover:shadow-primary/60 animate-pulse-glow"
       >
         <span className="pointer-events-none absolute inset-0 -z-10 rounded-2xl bg-primary/40 blur-xl" />
         <Plus className="h-5 w-5 transition-transform group-hover:rotate-90" />

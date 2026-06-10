@@ -197,7 +197,7 @@ function HousekeepingPage() {
                 {/* Assignee */}
                 <div className="col-span-3">
                   <div className="relative">
-                    <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-primary/40 to-[oklch(0.72_0.16_162)]/40 text-[10px] font-semibold">
+                    <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-primary/40 to-success/40 text-[10px] font-semibold">
                       {t.assignee ? t.assignee.split(" ").map((p) => p[0]).join("").slice(0, 2) : <User className="h-3 w-3 text-muted-foreground" />}
                     </div>
                     <select
@@ -262,7 +262,7 @@ function StatTile({
 }) {
   const grad: Record<typeof tone, string> = {
     warning: "from-[oklch(0.78_0.16_75)] to-[oklch(0.7_0.18_50)]",
-    primary: "from-[oklch(0.68_0.18_258)] to-[oklch(0.6_0.2_220)]",
+    primary: "from-[oklch(0.74_0.21_71)] to-[oklch(0.60_0.18_55)]",
     success: "from-[oklch(0.72_0.16_162)] to-[oklch(0.6_0.18_180)]",
     destructive: "from-[oklch(0.7_0.22_25)] to-[oklch(0.6_0.24_15)]",
   };

@@ -37,7 +37,7 @@ function LoginPage() {
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute -left-32 top-20 h-96 w-96 rounded-full opacity-60 blur-3xl animate-float-slow"
-          style={{ background: "radial-gradient(circle, oklch(0.68 0.18 258 / 0.6), transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, oklch(0.74 0.21 71 / 0.6), transparent 70%)" }}
         />
         <div
           className="absolute right-[-6rem] top-[40%] h-[28rem] w-[28rem] rounded-full opacity-50 blur-3xl animate-float-slower"
@@ -169,7 +169,7 @@ function LoginPage() {
                   disabled={loading}
                   className={cn(
                     "group relative w-full overflow-hidden rounded-xl py-6 text-sm font-semibold",
-                    "bg-gradient-to-r from-[oklch(0.7_0.18_258)] via-[oklch(0.65_0.2_240)] to-[oklch(0.72_0.16_180)]",
+                    "bg-gradient-to-r from-[oklch(0.74_0.21_71)] via-[oklch(0.78_0.16_75)] to-[oklch(0.72_0.16_162)]",
                     "text-primary-foreground shadow-lg shadow-primary/30 transition-all",
                     "hover:shadow-xl hover:shadow-primary/40 hover:brightness-110",
                   )}

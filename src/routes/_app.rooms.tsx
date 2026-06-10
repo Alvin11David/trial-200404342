@@ -57,7 +57,7 @@ const initial: Room[] = (() => {
 
 const columns: { id: Status; icon: React.ComponentType<{ className?: string }>; color: string }[] = [
   { id: "Available",   icon: CheckCircle2, color: "oklch(0.72 0.16 162)" },
-  { id: "Occupied",    icon: BedDouble,    color: "oklch(0.68 0.18 258)" },
+  { id: "Occupied",    icon: BedDouble,    color: "oklch(0.74 0.21 71)" },
   { id: "Dirty",       icon: Sparkles,     color: "oklch(0.78 0.16 75)"  },
   { id: "Maintenance", icon: Wrench,       color: "oklch(0.65 0.22 25)"  },
   { id: "Blocked",     icon: Ban,          color: "oklch(0.6 0.04 280)"  },

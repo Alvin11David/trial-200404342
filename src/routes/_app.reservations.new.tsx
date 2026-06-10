@@ -153,7 +153,7 @@ function NewReservation() {
                     className={cn(
                       "grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition-all",
                       done && "border-success/40 bg-success/15 text-success",
-                      active && "border-primary/50 bg-gradient-to-br from-primary/30 to-[oklch(0.72_0.16_162)]/20 text-primary shadow-lg shadow-primary/30",
+                      active && "border-primary/50 bg-gradient-to-br from-primary/30 to-success/20 text-primary shadow-lg shadow-primary/30",
                       !done && !active && "border-border/50 bg-card/40 text-muted-foreground",
                     )}
                   >
@@ -172,7 +172,7 @@ function NewReservation() {
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-500",
-                      (done || active) ? "bg-gradient-to-r from-primary to-[oklch(0.72_0.16_162)]" : "bg-transparent",
+                      (done || active) ? "bg-gradient-to-r from-primary to-success" : "bg-transparent",
                     )}
                     style={{ width: done ? "100%" : active ? "55%" : "0%" }}
                   />
@@ -236,7 +236,7 @@ function NewReservation() {
               disabled={!canNext}
               onClick={() => canNext && go(step + 1)}
               className={cn(
-                "group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.6_0.2_220)] px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition",
+                "group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.78_0.20_75)] px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition",
                 !canNext && "cursor-not-allowed opacity-50",
               )}
             >
@@ -247,7 +247,7 @@ function NewReservation() {
             <button
               onClick={submit}
               disabled={submitted}
-              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[oklch(0.72_0.16_162)] to-[oklch(0.6_0.18_180)] px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-success/30 transition hover:shadow-success/50"
+              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-success to-emerald-600 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-success/30 transition hover:shadow-success/50"
             >
               {submitted ? (
                 <>
@@ -339,7 +339,7 @@ function StepRoomSelection({ selected, onSelect }: { selected: string; onSelect:
                 r.available
                   ? "border-border/60 bg-card/40 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/20"
                   : "cursor-not-allowed border-border/40 bg-muted/20 opacity-50",
-                active && "border-primary/60 bg-gradient-to-br from-primary/15 to-[oklch(0.72_0.16_162)]/10 shadow-xl shadow-primary/30 ring-2 ring-primary/40",
+                active && "border-primary/60 bg-gradient-to-br from-primary/15 to-success/10 shadow-xl shadow-primary/30 ring-2 ring-primary/40",
               )}
             >
               {active && (
@@ -348,7 +348,7 @@ function StepRoomSelection({ selected, onSelect }: { selected: string; onSelect:
                 </span>
               )}
               <div className="flex items-start justify-between">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary/30 to-[oklch(0.72_0.16_162)]/30">
+                <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary/30 to-success/30">
                   <BedDouble className="h-4 w-4 text-primary" />
                 </span>
                 <span className={cn(
@@ -427,7 +427,7 @@ function StepDatesAndPlan({
                 className={cn(
                   "rounded-2xl border p-4 text-left transition-all",
                   active
-                    ? "border-primary/60 bg-gradient-to-br from-primary/15 to-[oklch(0.72_0.16_162)]/10 shadow-lg shadow-primary/30 ring-2 ring-primary/40"
+                    ? "border-primary/60 bg-gradient-to-br from-primary/15 to-success/10 shadow-lg shadow-primary/30 ring-2 ring-primary/40"
                     : "border-border/60 bg-card/30 hover:-translate-y-0.5 hover:border-primary/40",
                 )}
               >
@@ -493,7 +493,7 @@ function StepReview({
         <div className="glass rounded-2xl p-5 lg:col-span-2">
           <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">Guest</h4>
           <div className="mt-3 flex items-center gap-4">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary/50 to-[oklch(0.72_0.16_162)]/50 text-lg font-bold text-primary-foreground">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary/50 to-success/50 text-lg font-bold text-primary-foreground">
               {(form.firstName[0] ?? "?") + (form.lastName[0] ?? "")}
             </div>
             <div>
