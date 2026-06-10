@@ -8,8 +8,6 @@ import {
   MapPin,
   Users,
   Clock,
-  X,
-  Filter,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

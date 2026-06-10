@@ -9,6 +9,7 @@ import {
   Users,
   Clock,
   X,
+  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
