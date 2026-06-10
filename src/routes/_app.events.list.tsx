@@ -1,14 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
-import {
-  Search,
-  Eye,
-  CalendarDays,
-  PartyPopper,
-  MapPin,
-  Users,
-  Clock,
-} from "lucide-react";
+import { Search, Eye, CalendarDays, PartyPopper, MapPin, Users, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/events/list")({
