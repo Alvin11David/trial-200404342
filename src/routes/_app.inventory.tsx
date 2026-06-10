@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo } from "react";
 import {
   Package,
@@ -14,9 +14,14 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/inventory")({
-  head: () => ({ meta: [{ title: "Stock Dashboard — Jambo ERP" }] }),
-  component: StockDashboard,
+  component: InventoryLayout,
 });
+
+function InventoryLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname !== "/inventory") return <Outlet />;
+  return <StockDashboard />;
+}
 
 type StockItem = {
   name: string;

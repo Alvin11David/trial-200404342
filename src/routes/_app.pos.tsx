@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import {
   Search,
@@ -20,9 +20,14 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/pos")({
-  head: () => ({ meta: [{ title: "POS — Jambo ERP" }] }),
-  component: POSPage,
+  component: POSLayout,
 });
+
+function POSLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname !== "/pos") return <Outlet />;
+  return <POSPage />;
+}
 
 type MenuItem = {
   id: string;
