@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import {
   ChevronLeft,
@@ -14,9 +14,14 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/events")({
-  head: () => ({ meta: [{ title: "Events Calendar — Jambo ERP" }] }),
-  component: EventsCalendarPage,
+  component: EventsLayout,
 });
+
+function EventsLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname !== "/events") return <Outlet />;
+  return <EventsCalendarPage />;
+}
 
 type EventStatus = "Confirmed" | "Tentative" | "Cancelled";
 
