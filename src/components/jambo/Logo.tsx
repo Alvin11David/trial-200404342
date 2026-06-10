@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import jamboLogo from "../../../assets/images/Jambo-logo.webp";
 
 type LogoProps = {
   className?: string;
@@ -11,35 +12,16 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <div
-        className="relative grid place-items-center rounded-xl glow-primary animate-pulse-glow"
+        className="relative grid place-items-center rounded-xl overflow-hidden glow-primary animate-pulse-glow bg-transparent"
         style={{
           width: dim,
           height: dim,
-          background:
-            "linear-gradient(135deg, oklch(0.74 0.21 71), oklch(0.60 0.18 55))",
         }}
       >
-        <svg
-          viewBox="0 0 24 24"
-          width={dim * 0.55}
-          height={dim * 0.55}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="text-primary-foreground"
-        >
-          <path d="M3 21V10l9-7 9 7v11" />
-          <path d="M9 21v-7h6v7" />
-          <circle cx="12" cy="8" r="1.2" fill="currentColor" />
-        </svg>
-        <span
-          className="pointer-events-none absolute inset-0 rounded-xl"
-          style={{
-            boxShadow:
-              "inset 0 1px 0 0 oklch(1 0 0 / 0.4), inset 0 -8px 16px 0 oklch(0 0 0 / 0.25)",
-          }}
+        <img
+          src={jamboLogo}
+          alt="Jambo ERP Logo"
+          className="h-full w-full object-contain"
         />
       </div>
       {showText && (

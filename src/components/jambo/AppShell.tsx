@@ -15,9 +15,19 @@ import {
   ChevronRight,
   HelpCircle,
   Plus,
+  Sun,
+  Moon,
+  Monitor,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
+import { useTheme } from "@/hooks/use-theme";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type NavItem = {
   label: string;

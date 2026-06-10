@@ -109,8 +109,8 @@
   --sidebar-ring: oklch(0.74 0.21 71);
 }
 
-/* Dark mode (default) — Jambo Hospitality */
-.dark, :root {
+/* Dark mode — Jambo Hospitality */
+.dark {
   --background: oklch(0.12 0.08 264);          /* #000E30 base navy */
   --foreground: oklch(0.96 0.01 264);
   --card: oklch(0.16 0.09 264);                /* #03133F cards */
@@ -160,7 +160,7 @@
 
   html {
     scroll-behavior: smooth;
-    color-scheme: dark;
+    color-scheme: light dark;
   }
 
   body {
