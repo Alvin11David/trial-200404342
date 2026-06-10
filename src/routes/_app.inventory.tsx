@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/inventory")({
+  head: () => ({ meta: [{ title: "Stock Dashboard — Jambo ERP" }] }),
   component: InventoryLayout,
 });
 

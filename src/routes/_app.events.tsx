@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/events")({
+  head: () => ({ meta: [{ title: "Events Calendar — Jambo ERP" }] }),
   component: EventsLayout,
 });
 

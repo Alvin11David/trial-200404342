@@ -1,12 +1,17 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Filter, MoreHorizontal, Plus, Search, LogIn, LogOut, Eye, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/reservations")({
-  head: () => ({ meta: [{ title: "Reservations — Jambo ERP" }] }),
-  component: ReservationsPage,
+  component: ReservationsLayout,
 });
+
+function ReservationsLayout() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  if (pathname !== "/reservations") return <Outlet />;
+  return <ReservationsPage />;
+}
 
 type Status = "Open" | "Checked In" | "Checked Out" | "Cancelled";
 

@@ -20,6 +20,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/pos")({
+  head: () => ({ meta: [{ title: "POS — Jambo ERP" }] }),
   component: POSLayout,
 });
 
