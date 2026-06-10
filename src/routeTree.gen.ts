@@ -16,11 +16,14 @@ import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppRoomsRouteImport } from './routes/_app.rooms'
 import { Route as AppReservationsRouteImport } from './routes/_app.reservations'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
+import { Route as AppPosRouteImport } from './routes/_app.pos'
 import { Route as AppHousekeepingRouteImport } from './routes/_app.housekeeping'
 import { Route as AppGuestsRouteImport } from './routes/_app.guests'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppReservationsNewRouteImport } from './routes/_app.reservations.new'
+import { Route as AppPosOrdersRouteImport } from './routes/_app.pos.orders'
+import { Route as AppPosMenuRouteImport } from './routes/_app.pos.menu'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -56,6 +59,11 @@ const AppReportsRoute = AppReportsRouteImport.update({
   path: '/reports',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPosRoute = AppPosRouteImport.update({
+  id: '/pos',
+  path: '/pos',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHousekeepingRoute = AppHousekeepingRouteImport.update({
   id: '/housekeeping',
   path: '/housekeeping',
@@ -81,6 +89,16 @@ const AppReservationsNewRoute = AppReservationsNewRouteImport.update({
   path: '/new',
   getParentRoute: () => AppReservationsRoute,
 } as any)
+const AppPosOrdersRoute = AppPosOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AppPosRoute,
+} as any)
+const AppPosMenuRoute = AppPosMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => AppPosRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,10 +107,13 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AppDashboardRoute
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
+  '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
   '/reservations': typeof AppReservationsRouteWithChildren
   '/rooms': typeof AppRoomsRoute
   '/settings': typeof AppSettingsRoute
+  '/pos/menu': typeof AppPosMenuRoute
+  '/pos/orders': typeof AppPosOrdersRoute
   '/reservations/new': typeof AppReservationsNewRoute
 }
 export interface FileRoutesByTo {
@@ -102,10 +123,13 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AppDashboardRoute
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
+  '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
   '/reservations': typeof AppReservationsRouteWithChildren
   '/rooms': typeof AppRoomsRoute
   '/settings': typeof AppSettingsRoute
+  '/pos/menu': typeof AppPosMenuRoute
+  '/pos/orders': typeof AppPosOrdersRoute
   '/reservations/new': typeof AppReservationsNewRoute
 }
 export interface FileRoutesById {
@@ -117,10 +141,13 @@ export interface FileRoutesById {
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/guests': typeof AppGuestsRoute
   '/_app/housekeeping': typeof AppHousekeepingRoute
+  '/_app/pos': typeof AppPosRouteWithChildren
   '/_app/reports': typeof AppReportsRoute
   '/_app/reservations': typeof AppReservationsRouteWithChildren
   '/_app/rooms': typeof AppRoomsRoute
   '/_app/settings': typeof AppSettingsRoute
+  '/_app/pos/menu': typeof AppPosMenuRoute
+  '/_app/pos/orders': typeof AppPosOrdersRoute
   '/_app/reservations/new': typeof AppReservationsNewRoute
 }
 export interface FileRouteTypes {
@@ -132,10 +159,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/guests'
     | '/housekeeping'
+    | '/pos'
     | '/reports'
     | '/reservations'
     | '/rooms'
     | '/settings'
+    | '/pos/menu'
+    | '/pos/orders'
     | '/reservations/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -145,10 +175,13 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/guests'
     | '/housekeeping'
+    | '/pos'
     | '/reports'
     | '/reservations'
     | '/rooms'
     | '/settings'
+    | '/pos/menu'
+    | '/pos/orders'
     | '/reservations/new'
   id:
     | '__root__'
@@ -159,10 +192,13 @@ export interface FileRouteTypes {
     | '/_app/dashboard'
     | '/_app/guests'
     | '/_app/housekeeping'
+    | '/_app/pos'
     | '/_app/reports'
     | '/_app/reservations'
     | '/_app/rooms'
     | '/_app/settings'
+    | '/_app/pos/menu'
+    | '/_app/pos/orders'
     | '/_app/reservations/new'
   fileRoutesById: FileRoutesById
 }
@@ -223,6 +259,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReportsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/pos': {
+      id: '/_app/pos'
+      path: '/pos'
+      fullPath: '/pos'
+      preLoaderRoute: typeof AppPosRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/housekeeping': {
       id: '/_app/housekeeping'
       path: '/housekeeping'
@@ -258,8 +301,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppReservationsNewRouteImport
       parentRoute: typeof AppReservationsRoute
     }
+    '/_app/pos/orders': {
+      id: '/_app/pos/orders'
+      path: '/orders'
+      fullPath: '/pos/orders'
+      preLoaderRoute: typeof AppPosOrdersRouteImport
+      parentRoute: typeof AppPosRoute
+    }
+    '/_app/pos/menu': {
+      id: '/_app/pos/menu'
+      path: '/menu'
+      fullPath: '/pos/menu'
+      preLoaderRoute: typeof AppPosMenuRouteImport
+      parentRoute: typeof AppPosRoute
+    }
   }
 }
+
+interface AppPosRouteChildren {
+  AppPosMenuRoute: typeof AppPosMenuRoute
+  AppPosOrdersRoute: typeof AppPosOrdersRoute
+}
+
+const AppPosRouteChildren: AppPosRouteChildren = {
+  AppPosMenuRoute: AppPosMenuRoute,
+  AppPosOrdersRoute: AppPosOrdersRoute,
+}
+
+const AppPosRouteWithChildren =
+  AppPosRoute._addFileChildren(AppPosRouteChildren)
 
 interface AppReservationsRouteChildren {
   AppReservationsNewRoute: typeof AppReservationsNewRoute
@@ -278,6 +348,7 @@ interface AppRouteChildren {
   AppDashboardRoute: typeof AppDashboardRoute
   AppGuestsRoute: typeof AppGuestsRoute
   AppHousekeepingRoute: typeof AppHousekeepingRoute
+  AppPosRoute: typeof AppPosRouteWithChildren
   AppReportsRoute: typeof AppReportsRoute
   AppReservationsRoute: typeof AppReservationsRouteWithChildren
   AppRoomsRoute: typeof AppRoomsRoute
@@ -289,6 +360,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppDashboardRoute: AppDashboardRoute,
   AppGuestsRoute: AppGuestsRoute,
   AppHousekeepingRoute: AppHousekeepingRoute,
+  AppPosRoute: AppPosRouteWithChildren,
   AppReportsRoute: AppReportsRoute,
   AppReservationsRoute: AppReservationsRouteWithChildren,
   AppRoomsRoute: AppRoomsRoute,

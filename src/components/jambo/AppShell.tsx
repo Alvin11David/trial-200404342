@@ -18,6 +18,9 @@ import {
   Sun,
   Moon,
   Monitor,
+  ShoppingCart,
+  ClipboardList,
+  UtensilsCrossed,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
@@ -55,6 +58,14 @@ const nav: { section: string; items: NavItem[] }[] = [
       { label: "Housekeeping", to: "/housekeeping", icon: Sparkles, badge: "5" },
       { label: "Billing", to: "/billing", icon: Receipt },
       { label: "Reports", to: "/reports", icon: BarChart3 },
+    ],
+  },
+  {
+    section: "Food & Beverage",
+    items: [
+      { label: "POS Sell", to: "/pos", icon: ShoppingCart },
+      { label: "Orders", to: "/pos/orders", icon: ClipboardList },
+      { label: "Menu Items", to: "/pos/menu", icon: UtensilsCrossed },
     ],
   },
   {

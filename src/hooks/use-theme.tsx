@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
+/* eslint-disable react-refresh/only-export-components */
+
 type Theme = "light" | "dark" | "system";
 
 type ThemeProviderProps = {
@@ -23,7 +25,10 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(
-    () => (typeof localStorage !== "undefined" ? (localStorage.getItem(storageKey) as Theme) : defaultTheme) || defaultTheme,
+    () =>
+      (typeof localStorage !== "undefined"
+        ? (localStorage.getItem(storageKey) as Theme)
+        : defaultTheme) || defaultTheme,
   );
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("dark");
 
