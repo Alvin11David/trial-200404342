@@ -18,11 +18,7 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
           height: dim,
         }}
       >
-        <img
-          src={jamboLogo}
-          alt="Jambo ERP Logo"
-          className="h-full w-full object-contain"
-        />
+        <img src={jamboLogo} alt="Jambo ERP Logo" className="h-full w-full object-contain" />
       </div>
       {showText && (
         <div className="flex flex-col leading-tight">

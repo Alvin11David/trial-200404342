@@ -47,16 +47,16 @@ type Form = {
 };
 
 const rooms = [
-  { id: "204", type: "Standard",  rate: 220_000, beds: "1 Queen",  available: true },
-  { id: "205", type: "Standard",  rate: 220_000, beds: "2 Twin",   available: true },
-  { id: "212", type: "Standard",  rate: 220_000, beds: "1 Queen",  available: false },
-  { id: "304", type: "Deluxe",    rate: 380_000, beds: "1 King",   available: true },
-  { id: "308", type: "Deluxe",    rate: 380_000, beds: "1 King",   available: true },
-  { id: "311", type: "Deluxe",    rate: 380_000, beds: "1 King",   available: false },
-  { id: "312", type: "Deluxe",    rate: 380_000, beds: "1 King",   available: true },
-  { id: "501", type: "Suite",     rate: 850_000, beds: "1 King + Sofa", available: false },
-  { id: "502", type: "Suite",     rate: 850_000, beds: "1 King + Sofa", available: true },
-  { id: "503", type: "Suite",     rate: 850_000, beds: "1 King + Sofa", available: true },
+  { id: "204", type: "Standard", rate: 220_000, beds: "1 Queen", available: true },
+  { id: "205", type: "Standard", rate: 220_000, beds: "2 Twin", available: true },
+  { id: "212", type: "Standard", rate: 220_000, beds: "1 Queen", available: false },
+  { id: "304", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
+  { id: "308", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
+  { id: "311", type: "Deluxe", rate: 380_000, beds: "1 King", available: false },
+  { id: "312", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
+  { id: "501", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: false },
+  { id: "502", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: true },
+  { id: "503", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: true },
 ];
 
 const mealPlans = [
@@ -104,9 +104,13 @@ function NewReservation() {
   const total = subtotal + mealTotal + tax;
 
   const canNext =
-    step === 1 ? form.firstName && form.lastName && form.email && form.phone :
-    step === 2 ? !!form.roomId :
-    step === 3 ? form.checkIn && form.checkOut && nights > 0 : true;
+    step === 1
+      ? form.firstName && form.lastName && form.email && form.phone
+      : step === 2
+        ? !!form.roomId
+        : step === 3
+          ? form.checkIn && form.checkOut && nights > 0
+          : true;
 
   const go = (n: number) => {
     setDirection(n > step ? 1 : -1);
@@ -153,7 +157,8 @@ function NewReservation() {
                     className={cn(
                       "grid h-10 w-10 shrink-0 place-items-center rounded-xl border transition-all",
                       done && "border-success/40 bg-success/15 text-success",
-                      active && "border-primary/50 bg-gradient-to-br from-primary/30 to-success/20 text-primary shadow-lg shadow-primary/30",
+                      active &&
+                        "border-primary/50 bg-gradient-to-br from-primary/30 to-success/20 text-primary shadow-lg shadow-primary/30",
                       !done && !active && "border-border/50 bg-card/40 text-muted-foreground",
                     )}
                   >
@@ -163,7 +168,12 @@ function NewReservation() {
                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                       Step {s.id}
                     </div>
-                    <div className={cn("truncate text-sm font-semibold", !active && !done && "text-muted-foreground")}>
+                    <div
+                      className={cn(
+                        "truncate text-sm font-semibold",
+                        !active && !done && "text-muted-foreground",
+                      )}
+                    >
                       {s.label}
                     </div>
                   </div>
@@ -172,7 +182,9 @@ function NewReservation() {
                   <div
                     className={cn(
                       "h-full rounded-full transition-all duration-500",
-                      (done || active) ? "bg-gradient-to-r from-primary to-success" : "bg-transparent",
+                      done || active
+                        ? "bg-gradient-to-r from-primary to-success"
+                        : "bg-transparent",
                     )}
                     style={{ width: done ? "100%" : active ? "55%" : "0%" }}
                   />
@@ -192,20 +204,11 @@ function NewReservation() {
             direction === 1 ? "slide-in-from-right-4" : "slide-in-from-left-4",
           )}
         >
-          {step === 1 && (
-            <StepGuestDetails form={form} set={set} />
-          )}
+          {step === 1 && <StepGuestDetails form={form} set={set} />}
           {step === 2 && (
             <StepRoomSelection selected={form.roomId} onSelect={(id) => set("roomId", id)} />
           )}
-          {step === 3 && (
-            <StepDatesAndPlan
-              form={form}
-              set={set}
-              nights={nights}
-              meal={meal}
-            />
-          )}
+          {step === 3 && <StepDatesAndPlan form={form} set={set} nights={nights} meal={meal} />}
           {step === 4 && (
             <StepReview
               form={form}
@@ -268,21 +271,59 @@ function NewReservation() {
 }
 
 /* ───────────────────────── Step 1 ───────────────────────── */
-function StepGuestDetails({ form, set }: { form: Form; set: <K extends keyof Form>(k: K, v: Form[K]) => void }) {
+function StepGuestDetails({
+  form,
+  set,
+}: {
+  form: Form;
+  set: <K extends keyof Form>(k: K, v: Form[K]) => void;
+}) {
   return (
     <div>
       <SectionTitle title="Guest Details" subtitle="Tell us about the primary guest." />
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field icon={<User className="h-4 w-4" />} label="First name" value={form.firstName} onChange={(v) => set("firstName", v)} />
-        <Field icon={<User className="h-4 w-4" />} label="Last name" value={form.lastName} onChange={(v) => set("lastName", v)} />
-        <Field icon={<Mail className="h-4 w-4" />} label="Email" type="email" value={form.email} onChange={(v) => set("email", v)} />
-        <Field icon={<Phone className="h-4 w-4" />} label="Phone" value={form.phone} onChange={(v) => set("phone", v)} />
+        <Field
+          icon={<User className="h-4 w-4" />}
+          label="First name"
+          value={form.firstName}
+          onChange={(v) => set("firstName", v)}
+        />
+        <Field
+          icon={<User className="h-4 w-4" />}
+          label="Last name"
+          value={form.lastName}
+          onChange={(v) => set("lastName", v)}
+        />
+        <Field
+          icon={<Mail className="h-4 w-4" />}
+          label="Email"
+          type="email"
+          value={form.email}
+          onChange={(v) => set("email", v)}
+        />
+        <Field
+          icon={<Phone className="h-4 w-4" />}
+          label="Phone"
+          value={form.phone}
+          onChange={(v) => set("phone", v)}
+        />
         <Select
           icon={<MapPin className="h-4 w-4" />}
           label="Nationality"
           value={form.nationality}
           onChange={(v) => set("nationality", v)}
-          options={["Uganda", "Kenya", "Tanzania", "Rwanda", "Ghana", "Nigeria", "India", "United Kingdom", "United States", "Other"]}
+          options={[
+            "Uganda",
+            "Kenya",
+            "Tanzania",
+            "Rwanda",
+            "Ghana",
+            "Nigeria",
+            "India",
+            "United Kingdom",
+            "United States",
+            "Other",
+          ]}
         />
         <Select
           icon={<IdCard className="h-4 w-4" />}
@@ -304,7 +345,13 @@ function StepGuestDetails({ form, set }: { form: Form; set: <K extends keyof For
 }
 
 /* ───────────────────────── Step 2 ───────────────────────── */
-function StepRoomSelection({ selected, onSelect }: { selected: string; onSelect: (id: string) => void }) {
+function StepRoomSelection({
+  selected,
+  onSelect,
+}: {
+  selected: string;
+  onSelect: (id: string) => void;
+}) {
   const [type, setType] = useState("All");
   const filtered = rooms.filter((r) => type === "All" || r.type === type);
   return (
@@ -339,7 +386,8 @@ function StepRoomSelection({ selected, onSelect }: { selected: string; onSelect:
                 r.available
                   ? "border-border/60 bg-card/40 hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/20"
                   : "cursor-not-allowed border-border/40 bg-muted/20 opacity-50",
-                active && "border-primary/60 bg-gradient-to-br from-primary/15 to-success/10 shadow-xl shadow-primary/30 ring-2 ring-primary/40",
+                active &&
+                  "border-primary/60 bg-gradient-to-br from-primary/15 to-success/10 shadow-xl shadow-primary/30 ring-2 ring-primary/40",
               )}
             >
               {active && (
@@ -351,15 +399,19 @@ function StepRoomSelection({ selected, onSelect }: { selected: string; onSelect:
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary/30 to-success/30">
                   <BedDouble className="h-4 w-4 text-primary" />
                 </span>
-                <span className={cn(
-                  "text-[10px] uppercase tracking-wider",
-                  r.available ? "text-success" : "text-destructive",
-                )}>
+                <span
+                  className={cn(
+                    "text-[10px] uppercase tracking-wider",
+                    r.available ? "text-success" : "text-destructive",
+                  )}
+                >
                   {r.available ? "● Available" : "● Booked"}
                 </span>
               </div>
               <div className="mt-3 font-display text-2xl font-bold tracking-tight">Room {r.id}</div>
-              <div className="text-xs text-muted-foreground">{r.type} · {r.beds}</div>
+              <div className="text-xs text-muted-foreground">
+                {r.type} · {r.beds}
+              </div>
               <div className="mt-3 flex items-end justify-between">
                 <div>
                   <div className="text-sm font-semibold">UGX {r.rate.toLocaleString()}</div>
@@ -376,16 +428,22 @@ function StepRoomSelection({ selected, onSelect }: { selected: string; onSelect:
 
 /* ───────────────────────── Step 3 ───────────────────────── */
 function StepDatesAndPlan({
-  form, set, nights, meal,
+  form,
+  set,
+  nights,
+  meal,
 }: {
   form: Form;
   set: <K extends keyof Form>(k: K, v: Form[K]) => void;
   nights: number;
-  meal: typeof mealPlans[number];
+  meal: (typeof mealPlans)[number];
 }) {
   return (
     <div>
-      <SectionTitle title="Dates &amp; Meal Plan" subtitle="Pick your stay window and dining preference." />
+      <SectionTitle
+        title="Dates &amp; Meal Plan"
+        subtitle="Pick your stay window and dining preference."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
@@ -409,8 +467,20 @@ function StepDatesAndPlan({
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Nights</div>
           <div className="mt-1 text-2xl font-bold text-gradient-primary tabular-nums">{nights}</div>
         </div>
-        <NumberStepper label="Adults" value={form.adults} onChange={(v) => set("adults", v)} min={1} max={6} />
-        <NumberStepper label="Children" value={form.children} onChange={(v) => set("children", v)} min={0} max={6} />
+        <NumberStepper
+          label="Adults"
+          value={form.adults}
+          onChange={(v) => set("adults", v)}
+          min={1}
+          max={6}
+        />
+        <NumberStepper
+          label="Children"
+          value={form.children}
+          onChange={(v) => set("children", v)}
+          min={0}
+          max={6}
+        />
       </div>
 
       <div className="mt-8">
@@ -433,7 +503,9 @@ function StepDatesAndPlan({
               >
                 <div className="flex items-center justify-between">
                   <span className="font-display font-semibold">{m.label}</span>
-                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{m.id}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {m.id}
+                  </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">{m.desc}</p>
                 <div className="mt-3 text-sm font-semibold">
@@ -463,11 +535,19 @@ function StepDatesAndPlan({
 
 /* ───────────────────────── Step 4 ───────────────────────── */
 function StepReview({
-  form, room, meal, nights, subtotal, mealTotal, tax, total, submitted,
+  form,
+  room,
+  meal,
+  nights,
+  subtotal,
+  mealTotal,
+  tax,
+  total,
+  submitted,
 }: {
   form: Form;
-  room: typeof rooms[number] | undefined;
-  meal: typeof mealPlans[number];
+  room: (typeof rooms)[number] | undefined;
+  meal: (typeof mealPlans)[number];
   nights: number;
   subtotal: number;
   mealTotal: number;
@@ -477,7 +557,10 @@ function StepReview({
 }) {
   return (
     <div>
-      <SectionTitle title="Review &amp; Confirm" subtitle="Double-check everything before booking." />
+      <SectionTitle
+        title="Review &amp; Confirm"
+        subtitle="Double-check everything before booking."
+      />
 
       {submitted && (
         <div className="mb-6 flex items-center gap-3 rounded-2xl border border-success/30 bg-success/10 p-4 text-sm">
@@ -491,44 +574,63 @@ function StepReview({
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="glass rounded-2xl p-5 lg:col-span-2">
-          <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">Guest</h4>
+          <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Guest
+          </h4>
           <div className="mt-3 flex items-center gap-4">
             <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary/50 to-success/50 text-lg font-bold text-primary-foreground">
               {(form.firstName[0] ?? "?") + (form.lastName[0] ?? "")}
             </div>
             <div>
-              <div className="text-lg font-semibold">{form.firstName} {form.lastName}</div>
-              <div className="text-xs text-muted-foreground">{form.email} · {form.phone}</div>
-              <div className="text-xs text-muted-foreground">{form.nationality} · {form.idType}</div>
+              <div className="text-lg font-semibold">
+                {form.firstName} {form.lastName}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {form.email} · {form.phone}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {form.nationality} · {form.idType}
+              </div>
             </div>
           </div>
 
           <div className="my-5 h-px bg-border/50" />
 
-          <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">Stay</h4>
+          <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Stay
+          </h4>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
             <ReviewItem label="Room" value={room ? `${room.id} · ${room.type}` : "—"} />
             <ReviewItem label="Check in" value={form.checkIn || "—"} />
             <ReviewItem label="Check out" value={form.checkOut || "—"} />
             <ReviewItem label="Nights" value={String(nights)} />
-            <ReviewItem label="Guests" value={`${form.adults} adult${form.adults !== 1 ? "s" : ""}${form.children ? `, ${form.children} child` : ""}`} />
+            <ReviewItem
+              label="Guests"
+              value={`${form.adults} adult${form.adults !== 1 ? "s" : ""}${form.children ? `, ${form.children} child` : ""}`}
+            />
             <ReviewItem label="Meal plan" value={meal.label} />
           </div>
 
           {form.notes && (
             <>
               <div className="my-5 h-px bg-border/50" />
-              <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">Notes</h4>
+              <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Notes
+              </h4>
               <p className="mt-2 text-sm">{form.notes}</p>
             </>
           )}
         </div>
 
         <div className="glass-strong rounded-2xl p-5">
-          <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">Summary</h4>
+          <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Summary
+          </h4>
           <ul className="mt-4 space-y-3 text-sm">
             <li className="flex justify-between">
-              <span className="text-muted-foreground">Room × {nights} night{nights !== 1 && "s"}</span>
+              <span className="text-muted-foreground">
+                Room × {nights} night{nights !== 1 && "s"}
+              </span>
               <span className="font-medium tabular-nums">UGX {subtotal.toLocaleString()}</span>
             </li>
             <li className="flex justify-between">
@@ -558,14 +660,22 @@ function StepReview({
 function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) {
   return (
     <div className="mb-6">
-      <h2 className="font-display text-2xl font-bold tracking-tight" dangerouslySetInnerHTML={{ __html: title }} />
+      <h2
+        className="font-display text-2xl font-bold tracking-tight"
+        dangerouslySetInnerHTML={{ __html: title }}
+      />
       <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
     </div>
   );
 }
 
 function Field({
-  label, value, onChange, icon, type = "text", className,
+  label,
+  value,
+  onChange,
+  icon,
+  type = "text",
+  className,
 }: {
   label: string;
   value: string;
@@ -598,7 +708,11 @@ function Field({
 }
 
 function Select({
-  label, value, onChange, options, icon,
+  label,
+  value,
+  onChange,
+  options,
+  icon,
 }: {
   label: string;
   value: string;
@@ -620,7 +734,9 @@ function Select({
           className="block w-full appearance-none bg-transparent px-11 pb-2.5 pt-6 text-sm outline-none"
         >
           {options.map((o) => (
-            <option key={o} value={o} className="bg-card">{o}</option>
+            <option key={o} value={o} className="bg-card">
+              {o}
+            </option>
           ))}
         </select>
         <label className="pointer-events-none absolute left-11 top-1.5 text-[11px] text-muted-foreground">
@@ -632,8 +748,18 @@ function Select({
 }
 
 function NumberStepper({
-  label, value, onChange, min = 0, max = 99,
-}: { label: string; value: number; onChange: (v: number) => void; min?: number; max?: number }) {
+  label,
+  value,
+  onChange,
+  min = 0,
+  max = 99,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+}) {
   return (
     <div className="glass rounded-xl p-4">
       <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
@@ -641,12 +767,16 @@ function NumberStepper({
         <button
           onClick={() => onChange(Math.max(min, value - 1))}
           className="grid h-7 w-7 place-items-center rounded-lg border border-border/60 bg-card/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
-        >−</button>
+        >
+          −
+        </button>
         <span className="text-xl font-bold tabular-nums">{value}</span>
         <button
           onClick={() => onChange(Math.min(max, value + 1))}
           className="grid h-7 w-7 place-items-center rounded-lg border border-border/60 bg-card/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
-        >+</button>
+        >
+          +
+        </button>
       </div>
     </div>
   );

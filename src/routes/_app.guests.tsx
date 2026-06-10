@@ -7,12 +7,54 @@ export const Route = createFileRoute("/_app/guests")({
 });
 
 const guests = [
-  { name: "Sarah Nakato", email: "sarah@example.com", phone: "+256 700 123 456", visits: 8, tier: "Platinum", country: "Uganda" },
-  { name: "James Okello", email: "j.okello@example.com", phone: "+256 772 998 111", visits: 4, tier: "Gold", country: "Uganda" },
-  { name: "Priya Sharma", email: "priya@example.in", phone: "+91 98 7654 3210", visits: 2, tier: "Silver", country: "India" },
-  { name: "David Mensah", email: "d.mensah@example.com", phone: "+233 24 555 6677", visits: 6, tier: "Gold", country: "Ghana" },
-  { name: "Aisha Wanjiku", email: "aisha.w@example.com", phone: "+254 712 334 556", visits: 12, tier: "Platinum", country: "Kenya" },
-  { name: "Mark Tindyebwa", email: "mark.t@example.com", phone: "+256 701 222 778", visits: 1, tier: "Silver", country: "Uganda" },
+  {
+    name: "Sarah Nakato",
+    email: "sarah@example.com",
+    phone: "+256 700 123 456",
+    visits: 8,
+    tier: "Platinum",
+    country: "Uganda",
+  },
+  {
+    name: "James Okello",
+    email: "j.okello@example.com",
+    phone: "+256 772 998 111",
+    visits: 4,
+    tier: "Gold",
+    country: "Uganda",
+  },
+  {
+    name: "Priya Sharma",
+    email: "priya@example.in",
+    phone: "+91 98 7654 3210",
+    visits: 2,
+    tier: "Silver",
+    country: "India",
+  },
+  {
+    name: "David Mensah",
+    email: "d.mensah@example.com",
+    phone: "+233 24 555 6677",
+    visits: 6,
+    tier: "Gold",
+    country: "Ghana",
+  },
+  {
+    name: "Aisha Wanjiku",
+    email: "aisha.w@example.com",
+    phone: "+254 712 334 556",
+    visits: 12,
+    tier: "Platinum",
+    country: "Kenya",
+  },
+  {
+    name: "Mark Tindyebwa",
+    email: "mark.t@example.com",
+    phone: "+256 701 222 778",
+    visits: 1,
+    tier: "Silver",
+    country: "Uganda",
+  },
 ];
 
 const tierStyle: Record<string, string> = {
@@ -33,8 +75,13 @@ function GuestsPage() {
         {guests.map((g) => (
           <div key={g.email} className="glass card-hover rounded-2xl p-5">
             <div className="flex items-start gap-4">
-              <div className={`grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br text-sm font-bold text-primary-foreground ${tierStyle[g.tier]}`}>
-                {g.name.split(" ").map((p) => p[0]).join("")}
+              <div
+                className={`grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br text-sm font-bold text-primary-foreground ${tierStyle[g.tier]}`}
+              >
+                {g.name
+                  .split(" ")
+                  .map((p) => p[0])
+                  .join("")}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -43,7 +90,9 @@ function GuestsPage() {
                     <Star className="h-3 w-3 text-warning" /> {g.tier}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">{g.country} · {g.visits} stays</p>
+                <p className="text-xs text-muted-foreground">
+                  {g.country} · {g.visits} stays
+                </p>
               </div>
             </div>
 
@@ -57,8 +106,12 @@ function GuestsPage() {
             </div>
 
             <div className="mt-4 flex gap-2">
-              <button className="flex-1 rounded-lg border border-border/60 bg-card/30 py-2 text-xs hover:border-primary/40 hover:text-foreground">View profile</button>
-              <button className="flex-1 rounded-lg bg-primary/15 py-2 text-xs font-medium text-primary hover:bg-primary/25">New booking</button>
+              <button className="flex-1 rounded-lg border border-border/60 bg-card/30 py-2 text-xs hover:border-primary/40 hover:text-foreground">
+                View profile
+              </button>
+              <button className="flex-1 rounded-lg bg-primary/15 py-2 text-xs font-medium text-primary hover:bg-primary/25">
+                New booking
+              </button>
             </div>
           </div>
         ))}

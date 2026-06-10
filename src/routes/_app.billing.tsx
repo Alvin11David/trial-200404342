@@ -6,10 +6,34 @@ export const Route = createFileRoute("/_app/billing")({
 });
 
 const invoices = [
-  { id: "INV-10241", guest: "Sarah Nakato", date: "Jun 09", amount: "UGX 1,200,000", status: "Paid" },
-  { id: "INV-10242", guest: "James Okello", date: "Jun 09", amount: "UGX 3,400,000", status: "Paid" },
-  { id: "INV-10243", guest: "Priya Sharma", date: "Jun 10", amount: "UGX 980,000", status: "Pending" },
-  { id: "INV-10244", guest: "David Mensah", date: "Jun 10", amount: "UGX 2,100,000", status: "Overdue" },
+  {
+    id: "INV-10241",
+    guest: "Sarah Nakato",
+    date: "Jun 09",
+    amount: "UGX 1,200,000",
+    status: "Paid",
+  },
+  {
+    id: "INV-10242",
+    guest: "James Okello",
+    date: "Jun 09",
+    amount: "UGX 3,400,000",
+    status: "Paid",
+  },
+  {
+    id: "INV-10243",
+    guest: "Priya Sharma",
+    date: "Jun 10",
+    amount: "UGX 980,000",
+    status: "Pending",
+  },
+  {
+    id: "INV-10244",
+    guest: "David Mensah",
+    date: "Jun 10",
+    amount: "UGX 2,100,000",
+    status: "Overdue",
+  },
 ];
 
 const statusStyle: Record<string, string> = {
@@ -34,7 +58,9 @@ function Billing() {
         ].map((s) => (
           <div key={s.label} className="glass card-hover rounded-2xl p-5">
             <div className="text-xs text-muted-foreground">{s.label}</div>
-            <div className={`mt-1 text-2xl font-bold ${s.tone === "warning" ? "text-warning" : s.tone === "success" ? "text-success" : "text-destructive"}`}>
+            <div
+              className={`mt-1 text-2xl font-bold ${s.tone === "warning" ? "text-warning" : s.tone === "success" ? "text-success" : "text-destructive"}`}
+            >
               {s.value}
             </div>
           </div>
@@ -59,7 +85,9 @@ function Billing() {
                 <td className="px-3 py-3 font-medium">{i.guest}</td>
                 <td className="px-3 py-3 text-muted-foreground">{i.date}</td>
                 <td className="px-3 py-3">
-                  <span className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusStyle[i.status]}`}>
+                  <span
+                    className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium ${statusStyle[i.status]}`}
+                  >
                     {i.status}
                   </span>
                 </td>

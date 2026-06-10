@@ -37,15 +37,21 @@ function LoginPage() {
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute -left-32 top-20 h-96 w-96 rounded-full opacity-60 blur-3xl animate-float-slow"
-          style={{ background: "radial-gradient(circle, oklch(0.74 0.21 71 / 0.6), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.74 0.21 71 / 0.6), transparent 70%)",
+          }}
         />
         <div
           className="absolute right-[-6rem] top-[40%] h-[28rem] w-[28rem] rounded-full opacity-50 blur-3xl animate-float-slower"
-          style={{ background: "radial-gradient(circle, oklch(0.72 0.16 162 / 0.55), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.72 0.16 162 / 0.55), transparent 70%)",
+          }}
         />
         <div
           className="absolute bottom-[-8rem] left-1/3 h-96 w-96 rounded-full opacity-40 blur-3xl animate-float-slow"
-          style={{ background: "radial-gradient(circle, oklch(0.65 0.2 295 / 0.55), transparent 70%)" }}
+          style={{
+            background: "radial-gradient(circle, oklch(0.65 0.2 295 / 0.55), transparent 70%)",
+          }}
         />
       </div>
 
@@ -77,12 +83,13 @@ function LoginPage() {
             </p>
             <h1 className="font-display text-5xl font-bold leading-[1.05] tracking-tight">
               Run your hotel like the{" "}
-              <span className="text-gradient-primary animate-gradient">future</span> just checked in.
+              <span className="text-gradient-primary animate-gradient">future</span> just checked
+              in.
             </h1>
             <p className="mt-5 text-base text-muted-foreground">
-              The all-in-one Property Management System trusted by forward-thinking
-              hospitality teams across the region — reservations, front desk,
-              housekeeping, and revenue in a single beautiful workspace.
+              The all-in-one Property Management System trusted by forward-thinking hospitality
+              teams across the region — reservations, front desk, housekeeping, and revenue in a
+              single beautiful workspace.
             </p>
             <div className="mt-10 grid grid-cols-3 gap-4">
               {[
@@ -111,9 +118,7 @@ function LoginPage() {
 
             <div className="glass-strong rounded-3xl p-8 sm:p-10">
               <div className="mb-8">
-                <h2 className="font-display text-3xl font-bold tracking-tight">
-                  Welcome back
-                </h2>
+                <h2 className="font-display text-3xl font-bold tracking-tight">Welcome back</h2>
                 <p className="mt-2 text-sm text-muted-foreground">
                   Sign in to your Jambo workspace to continue.
                 </p>
@@ -153,10 +158,7 @@ function LoginPage() {
 
                 <div className="flex items-center justify-between text-xs">
                   <label className="inline-flex cursor-pointer items-center gap-2 text-muted-foreground">
-                    <input
-                      type="checkbox"
-                      className="h-3.5 w-3.5 accent-primary"
-                    />
+                    <input type="checkbox" className="h-3.5 w-3.5 accent-primary" />
                     Remember me
                   </label>
                   <Link to="/" className="text-primary hover:underline">

@@ -79,7 +79,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Jambo ERP — Hospitality Management" },
-      { name: "description", content: "Jambo Sphere's modern Property Management System for hotels across East Africa." },
+      {
+        name: "description",
+        content: "Jambo Sphere's modern Property Management System for hotels across East Africa.",
+      },
       { name: "author", content: "Jambo Sphere Ltd" },
       { property: "og:title", content: "Jambo ERP — Hospitality Management" },
       { property: "og:description", content: "Modern PMS for forward-thinking hospitality teams." },

@@ -80,7 +80,7 @@
   --secondary: oklch(0.94 0.02 264);
   --secondary-foreground: oklch(0.18 0.06 264);
   --muted: oklch(0.94 0.02 264);
-  --muted-foreground: oklch(0.50 0.03 264);
+  --muted-foreground: oklch(0.5 0.03 264);
   --accent: oklch(0.94 0.02 264);
   --accent-foreground: oklch(0.18 0.06 264);
   --destructive: oklch(0.62 0.23 25);
@@ -92,7 +92,7 @@
   --info: oklch(0.7 0.15 240);
   --info-foreground: oklch(0.1 0.02 240);
   --border: oklch(0.88 0.02 264);
-  --input: oklch(0.90 0.02 264);
+  --input: oklch(0.9 0.02 264);
   --ring: oklch(0.74 0.21 71);
   --chart-1: oklch(0.74 0.21 71);
   --chart-2: oklch(0.7 0.17 160);
@@ -111,29 +111,29 @@
 
 /* Dark mode — Jambo Hospitality */
 .dark {
-  --background: oklch(0.12 0.08 264);          /* #000E30 base navy */
+  --background: oklch(0.12 0.08 264); /* #000E30 base navy */
   --foreground: oklch(0.96 0.01 264);
-  --card: oklch(0.16 0.09 264);                /* #03133F cards */
+  --card: oklch(0.16 0.09 264); /* #03133F cards */
   --card-foreground: oklch(0.96 0.01 264);
   --popover: oklch(0.16 0.09 264);
   --popover-foreground: oklch(0.96 0.01 264);
-  --primary: oklch(0.74 0.21 71);              /* #FF9000 vibrant orange */
+  --primary: oklch(0.74 0.21 71); /* #FF9000 vibrant orange */
   --primary-foreground: oklch(0.08 0.06 264);
-  --secondary: oklch(0.20 0.09 264);
+  --secondary: oklch(0.2 0.09 264);
   --secondary-foreground: oklch(0.96 0.01 264);
   --muted: oklch(0.18 0.08 264);
   --muted-foreground: oklch(0.65 0.03 264);
-  --accent: oklch(0.24 0.10 264);
+  --accent: oklch(0.24 0.1 264);
   --accent-foreground: oklch(0.96 0.01 264);
-  --destructive: oklch(0.65 0.22 25);           /* #EF4444 */
+  --destructive: oklch(0.65 0.22 25); /* #EF4444 */
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.72 0.16 162);              /* #10B981 emerald */
+  --success: oklch(0.72 0.16 162); /* #10B981 emerald */
   --success-foreground: oklch(0.12 0.02 160);
-  --warning: oklch(0.78 0.16 75);               /* #F59E0B amber */
+  --warning: oklch(0.78 0.16 75); /* #F59E0B amber */
   --warning-foreground: oklch(0.15 0.02 75);
   --info: oklch(0.7 0.15 240);
   --info-foreground: oklch(0.12 0.02 240);
-  --border: oklch(0.24 0.08 264);               /* #22356C borders */
+  --border: oklch(0.24 0.08 264); /* #22356C borders */
   --input: oklch(0.22 0.08 264);
   --ring: oklch(0.74 0.21 71);
 
@@ -149,7 +149,7 @@
   --sidebar-primary-foreground: oklch(0.08 0.06 264);
   --sidebar-accent: oklch(0.18 0.09 264);
   --sidebar-accent-foreground: oklch(0.96 0.01 264);
-  --sidebar-border: oklch(0.20 0.08 264);
+  --sidebar-border: oklch(0.2 0.08 264);
   --sidebar-ring: oklch(0.74 0.21 71);
 }
 
@@ -179,8 +179,7 @@
     inset: 0;
     pointer-events: none;
     z-index: 0;
-    background-image:
-      radial-gradient(circle at 1px 1px, oklch(1 0 0 / 0.04) 1px, transparent 0);
+    background-image: radial-gradient(circle at 1px 1px, oklch(1 0 0 / 0.04) 1px, transparent 0);
     background-size: 28px 28px;
   }
 
@@ -255,12 +254,7 @@
 }
 
 @utility text-gradient-primary {
-  background: linear-gradient(
-    135deg,
-    oklch(0.78 0.20 75),
-    oklch(0.74 0.21 71),
-    oklch(0.82 0.18 85)
-  );
+  background: linear-gradient(135deg, oklch(0.78 0.2 75), oklch(0.74 0.21 71), oklch(0.82 0.18 85));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -297,36 +291,53 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      110deg,
-      transparent 30%,
-      oklch(1 0 0 / 0.08) 50%,
-      transparent 70%
-    );
+    background: linear-gradient(110deg, transparent 30%, oklch(1 0 0 / 0.08) 50%, transparent 70%);
     transform: translateX(-100%);
     animation: shimmer-sweep 2.4s infinite;
   }
 }
 
 @keyframes shimmer-sweep {
-  to { transform: translateX(100%); }
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes float-slow {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(-20px) translateX(10px); }
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+  }
 }
 @keyframes float-slower {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  50% { transform: translateY(15px) translateX(-15px); }
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(15px) translateX(-15px);
+  }
 }
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
 }
 
 @utility animate-float-slow {

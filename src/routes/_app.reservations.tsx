@@ -1,15 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import {
-  Filter,
-  MoreHorizontal,
-  Plus,
-  Search,
-  LogIn,
-  LogOut,
-  Eye,
-  Calendar,
-} from "lucide-react";
+import { Filter, MoreHorizontal, Plus, Search, LogIn, LogOut, Eye, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/reservations")({
@@ -32,15 +23,123 @@ const rows: {
   amount: string;
   source: string;
 }[] = [
-  { id: "RSV-4821", guest: "Sarah Nakato",  email: "sarah@example.com",   room: "Deluxe 304",   type: "Deluxe",   in: "Jun 10", out: "Jun 14", nights: 4, status: "Open",         amount: "UGX 1,200,000", source: "Direct" },
-  { id: "RSV-4822", guest: "James Okello",  email: "j.okello@example.com", room: "Suite 501",   type: "Suite",    in: "Jun 10", out: "Jun 13", nights: 3, status: "Checked In",   amount: "UGX 3,400,000", source: "Booking.com" },
-  { id: "RSV-4823", guest: "Priya Sharma",  email: "priya@example.in",     room: "Standard 212", type: "Standard", in: "Jun 11", out: "Jun 15", nights: 4, status: "Open",         amount: "UGX 980,000",   source: "Expedia" },
-  { id: "RSV-4824", guest: "David Mensah",  email: "d.mensah@example.com", room: "Deluxe 308",  type: "Deluxe",   in: "Jun 12", out: "Jun 18", nights: 6, status: "Open",         amount: "UGX 2,100,000", source: "Direct" },
-  { id: "RSV-4825", guest: "Aisha Wanjiku", email: "aisha.w@example.com",  room: "Suite 502",   type: "Suite",    in: "Jun 12", out: "Jun 16", nights: 4, status: "Checked In",   amount: "UGX 4,600,000", source: "Corporate" },
-  { id: "RSV-4826", guest: "Mark Tindyebwa",email: "mark.t@example.com",   room: "Standard 108", type: "Standard", in: "Jun 13", out: "Jun 14", nights: 1, status: "Cancelled",    amount: "UGX 280,000",   source: "Direct" },
-  { id: "RSV-4827", guest: "Linda Asiimwe", email: "linda@example.com",    room: "Deluxe 311",  type: "Deluxe",   in: "Jun 14", out: "Jun 20", nights: 6, status: "Open",         amount: "UGX 2,520,000", source: "Direct" },
-  { id: "RSV-4828", guest: "Kwame Boateng", email: "k.boateng@example.com",room: "Suite 503",   type: "Suite",    in: "Jun 08", out: "Jun 10", nights: 2, status: "Checked Out",  amount: "UGX 2,200,000", source: "Booking.com" },
-  { id: "RSV-4829", guest: "Maria Lopez",   email: "maria@example.com",    room: "Standard 217",type: "Standard", in: "Jun 09", out: "Jun 11", nights: 2, status: "Checked Out",  amount: "UGX 560,000",   source: "Expedia" },
+  {
+    id: "RSV-4821",
+    guest: "Sarah Nakato",
+    email: "sarah@example.com",
+    room: "Deluxe 304",
+    type: "Deluxe",
+    in: "Jun 10",
+    out: "Jun 14",
+    nights: 4,
+    status: "Open",
+    amount: "UGX 1,200,000",
+    source: "Direct",
+  },
+  {
+    id: "RSV-4822",
+    guest: "James Okello",
+    email: "j.okello@example.com",
+    room: "Suite 501",
+    type: "Suite",
+    in: "Jun 10",
+    out: "Jun 13",
+    nights: 3,
+    status: "Checked In",
+    amount: "UGX 3,400,000",
+    source: "Booking.com",
+  },
+  {
+    id: "RSV-4823",
+    guest: "Priya Sharma",
+    email: "priya@example.in",
+    room: "Standard 212",
+    type: "Standard",
+    in: "Jun 11",
+    out: "Jun 15",
+    nights: 4,
+    status: "Open",
+    amount: "UGX 980,000",
+    source: "Expedia",
+  },
+  {
+    id: "RSV-4824",
+    guest: "David Mensah",
+    email: "d.mensah@example.com",
+    room: "Deluxe 308",
+    type: "Deluxe",
+    in: "Jun 12",
+    out: "Jun 18",
+    nights: 6,
+    status: "Open",
+    amount: "UGX 2,100,000",
+    source: "Direct",
+  },
+  {
+    id: "RSV-4825",
+    guest: "Aisha Wanjiku",
+    email: "aisha.w@example.com",
+    room: "Suite 502",
+    type: "Suite",
+    in: "Jun 12",
+    out: "Jun 16",
+    nights: 4,
+    status: "Checked In",
+    amount: "UGX 4,600,000",
+    source: "Corporate",
+  },
+  {
+    id: "RSV-4826",
+    guest: "Mark Tindyebwa",
+    email: "mark.t@example.com",
+    room: "Standard 108",
+    type: "Standard",
+    in: "Jun 13",
+    out: "Jun 14",
+    nights: 1,
+    status: "Cancelled",
+    amount: "UGX 280,000",
+    source: "Direct",
+  },
+  {
+    id: "RSV-4827",
+    guest: "Linda Asiimwe",
+    email: "linda@example.com",
+    room: "Deluxe 311",
+    type: "Deluxe",
+    in: "Jun 14",
+    out: "Jun 20",
+    nights: 6,
+    status: "Open",
+    amount: "UGX 2,520,000",
+    source: "Direct",
+  },
+  {
+    id: "RSV-4828",
+    guest: "Kwame Boateng",
+    email: "k.boateng@example.com",
+    room: "Suite 503",
+    type: "Suite",
+    in: "Jun 08",
+    out: "Jun 10",
+    nights: 2,
+    status: "Checked Out",
+    amount: "UGX 2,200,000",
+    source: "Booking.com",
+  },
+  {
+    id: "RSV-4829",
+    guest: "Maria Lopez",
+    email: "maria@example.com",
+    room: "Standard 217",
+    type: "Standard",
+    in: "Jun 09",
+    out: "Jun 11",
+    nights: 2,
+    status: "Checked Out",
+    amount: "UGX 560,000",
+    source: "Expedia",
+  },
 ];
 
 const statusStyles: Record<Status, string> = {
@@ -51,7 +150,7 @@ const statusStyles: Record<Status, string> = {
 };
 
 const tabs = ["All", "Open", "Checked In", "Checked Out", "Cancelled"] as const;
-type Tab = typeof tabs[number];
+type Tab = (typeof tabs)[number];
 
 function ReservationsPage() {
   const [tab, setTab] = useState<Tab>("All");
@@ -64,7 +163,11 @@ function ReservationsPage() {
     return rows.filter((r) => {
       if (tab !== "All" && r.status !== tab) return false;
       if (roomType !== "All" && r.type !== roomType) return false;
-      if (query && !`${r.guest} ${r.id} ${r.email} ${r.room}`.toLowerCase().includes(query.toLowerCase())) return false;
+      if (
+        query &&
+        !`${r.guest} ${r.id} ${r.email} ${r.room}`.toLowerCase().includes(query.toLowerCase())
+      )
+        return false;
       return true;
     });
   }, [tab, query, roomType]);
@@ -197,12 +300,18 @@ function ReservationsPage() {
             </thead>
             <tbody>
               {filtered.map((r) => (
-                <tr key={r.id} className="group border-b border-border/30 transition hover:bg-card/40">
+                <tr
+                  key={r.id}
+                  className="group border-b border-border/30 transition hover:bg-card/40"
+                >
                   <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{r.id}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary/50 to-success/50 text-xs font-semibold text-primary-foreground ring-1 ring-border/60">
-                        {r.guest.split(" ").map((p) => p[0]).join("")}
+                        {r.guest
+                          .split(" ")
+                          .map((p) => p[0])
+                          .join("")}
                       </div>
                       <div>
                         <div className="font-medium">{r.guest}</div>
@@ -215,12 +324,21 @@ function ReservationsPage() {
                     <div className="text-xs text-muted-foreground">{r.type}</div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="font-medium">{r.in} → {r.out}</div>
-                    <div className="text-xs text-muted-foreground">{r.nights} night{r.nights !== 1 && "s"}</div>
+                    <div className="font-medium">
+                      {r.in} → {r.out}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {r.nights} night{r.nights !== 1 && "s"}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{r.source}</td>
                   <td className="px-4 py-3">
-                    <span className={cn("inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium", statusStyles[r.status])}>
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                        statusStyles[r.status],
+                      )}
+                    >
                       {r.status}
                     </span>
                   </td>
@@ -228,8 +346,12 @@ function ReservationsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1 opacity-60 transition group-hover:opacity-100">
                       <RowBtn icon={Eye} label="View" />
-                      {r.status === "Open" && <RowBtn icon={LogIn} label="Check in" tone="success" />}
-                      {r.status === "Checked In" && <RowBtn icon={LogOut} label="Check out" tone="warning" />}
+                      {r.status === "Open" && (
+                        <RowBtn icon={LogIn} label="Check in" tone="success" />
+                      )}
+                      {r.status === "Checked In" && (
+                        <RowBtn icon={LogOut} label="Check out" tone="warning" />
+                      )}
                       <RowBtn icon={MoreHorizontal} label="More" />
                     </div>
                   </td>

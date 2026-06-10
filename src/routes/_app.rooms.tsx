@@ -30,8 +30,26 @@ type Room = {
 
 const initial: Room[] = (() => {
   const types: Room["type"][] = ["Standard", "Deluxe", "Suite", "Standard", "Deluxe"];
-  const statuses: Status[] = ["Available", "Occupied", "Occupied", "Dirty", "Available", "Maintenance", "Occupied", "Blocked"];
-  const guests = ["S. Nakato", "J. Okello", "P. Sharma", "D. Mensah", "A. Wanjiku", "M. Lopez", "K. Boateng", "L. Asiimwe"];
+  const statuses: Status[] = [
+    "Available",
+    "Occupied",
+    "Occupied",
+    "Dirty",
+    "Available",
+    "Maintenance",
+    "Occupied",
+    "Blocked",
+  ];
+  const guests = [
+    "S. Nakato",
+    "J. Okello",
+    "P. Sharma",
+    "D. Mensah",
+    "A. Wanjiku",
+    "M. Lopez",
+    "K. Boateng",
+    "L. Asiimwe",
+  ];
   const notes: Partial<Record<Status, string>> = {
     Maintenance: "AC repair",
     Blocked: "Owner stay",
@@ -55,13 +73,14 @@ const initial: Room[] = (() => {
   return list;
 })();
 
-const columns: { id: Status; icon: React.ComponentType<{ className?: string }>; color: string }[] = [
-  { id: "Available",   icon: CheckCircle2, color: "oklch(0.72 0.16 162)" },
-  { id: "Occupied",    icon: BedDouble,    color: "oklch(0.74 0.21 71)" },
-  { id: "Dirty",       icon: Sparkles,     color: "oklch(0.78 0.16 75)"  },
-  { id: "Maintenance", icon: Wrench,       color: "oklch(0.65 0.22 25)"  },
-  { id: "Blocked",     icon: Ban,          color: "oklch(0.6 0.04 280)"  },
-];
+const columns: { id: Status; icon: React.ComponentType<{ className?: string }>; color: string }[] =
+  [
+    { id: "Available", icon: CheckCircle2, color: "oklch(0.72 0.16 162)" },
+    { id: "Occupied", icon: BedDouble, color: "oklch(0.74 0.21 71)" },
+    { id: "Dirty", icon: Sparkles, color: "oklch(0.78 0.16 75)" },
+    { id: "Maintenance", icon: Wrench, color: "oklch(0.65 0.22 25)" },
+    { id: "Blocked", icon: Ban, color: "oklch(0.6 0.04 280)" },
+  ];
 
 function RoomsBoard() {
   const [rooms, setRooms] = useState<Room[]>(initial);
@@ -71,15 +90,22 @@ function RoomsBoard() {
   const [hoverCol, setHoverCol] = useState<Status | null>(null);
 
   const filtered = useMemo(
-    () => rooms.filter((r) =>
-      (floor === "All" || r.floor === Number(floor)) &&
-      (type === "All" || r.type === type)
-    ),
+    () =>
+      rooms.filter(
+        (r) =>
+          (floor === "All" || r.floor === Number(floor)) && (type === "All" || r.type === type),
+      ),
     [rooms, floor, type],
   );
 
   const counts = useMemo(() => {
-    const c: Record<Status, number> = { Available: 0, Occupied: 0, Dirty: 0, Maintenance: 0, Blocked: 0 };
+    const c: Record<Status, number> = {
+      Available: 0,
+      Occupied: 0,
+      Dirty: 0,
+      Maintenance: 0,
+      Blocked: 0,
+    };
     filtered.forEach((r) => c[r.status]++);
     return c;
   }, [filtered]);
@@ -100,7 +126,9 @@ function RoomsBoard() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Room Status Board</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Drag rooms between columns to update their status.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Drag rooms between columns to update their status.
+          </p>
         </div>
       </div>
 
@@ -143,14 +171,19 @@ function RoomsBoard() {
           return (
             <div
               key={col.id}
-              onDragOver={(e) => { e.preventDefault(); setHoverCol(col.id); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setHoverCol(col.id);
+              }}
               onDragLeave={() => setHoverCol((h) => (h === col.id ? null : h))}
               onDrop={() => onDrop(col.id)}
               className={cn(
                 "glass flex h-full flex-col rounded-2xl p-4 transition-all",
                 active && "ring-2 ring-offset-2 ring-offset-background",
               )}
-              style={active ? { boxShadow: `0 0 0 2px ${col.color}, 0 0 40px ${col.color}` } : undefined}
+              style={
+                active ? { boxShadow: `0 0 0 2px ${col.color}, 0 0 40px ${col.color}` } : undefined
+              }
             >
               <div className="mb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -178,7 +211,12 @@ function RoomsBoard() {
 
               <div className="flex-1 space-y-2.5">
                 {list.map((r) => (
-                  <RoomCard key={r.id} room={r} accent={col.color} onDragStart={() => setDragId(r.id)} />
+                  <RoomCard
+                    key={r.id}
+                    room={r}
+                    accent={col.color}
+                    onDragStart={() => setDragId(r.id)}
+                  />
                 ))}
                 {list.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border/50 p-6 text-center text-xs text-muted-foreground">
@@ -195,7 +233,9 @@ function RoomsBoard() {
 }
 
 function RoomCard({
-  room, accent, onDragStart,
+  room,
+  accent,
+  onDragStart,
 }: {
   room: Room;
   accent: string;
@@ -243,7 +283,9 @@ function RoomCard({
 }
 
 function TinyBtn({
-  icon: Icon, label, tone,
+  icon: Icon,
+  label,
+  tone,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;

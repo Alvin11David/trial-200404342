@@ -57,7 +57,10 @@ function AnimatedNumber({
   const formatted =
     format === "compact"
       ? new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(v)
-      : v.toLocaleString("en-US", { maximumFractionDigits: decimals, minimumFractionDigits: decimals });
+      : v.toLocaleString("en-US", {
+          maximumFractionDigits: decimals,
+          minimumFractionDigits: decimals,
+        });
   return (
     <span className="tabular-nums">
       {prefix}
@@ -98,7 +101,11 @@ function Dashboard() {
           <div className="glass inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs">
             <Clock className="h-3.5 w-3.5 text-primary" />
             <span className="font-medium">
-              {new Date().toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "short",
+                day: "numeric",
+              })}
             </span>
           </div>
         </div>
@@ -109,7 +116,12 @@ function Dashboard() {
         <QuickAction icon={Plus} label="New Reservation" sub="Walk-in or call" tone="primary" />
         <QuickAction icon={LogIn} label="Check In" sub="Process arrival" tone="success" />
         <QuickAction icon={LogOut} label="Check Out" sub="Settle &amp; release" tone="warning" />
-        <QuickAction icon={ShoppingBag} label="New POS Order" sub="F&amp;B and retail" tone="info" />
+        <QuickAction
+          icon={ShoppingBag}
+          label="New POS Order"
+          sub="F&amp;B and retail"
+          tone="info"
+        />
       </div>
 
       {/* Top stats row */}
@@ -272,7 +284,12 @@ function Dashboard() {
               { name: "Priya Sharma", room: "Standard 212", time: "In 1h 10m" },
               { name: "Linda Asiimwe", room: "Deluxe 311", time: "In 2h 25m" },
               { name: "Joseph Mugisha", room: "Standard 109", time: "In 3h 15m" },
-              { name: "Fatuma Ahmed", room: "Suite 503", time: "Tomorrow 11:00", tag: "Early bird" },
+              {
+                name: "Fatuma Ahmed",
+                room: "Suite 503",
+                time: "Tomorrow 11:00",
+                tag: "Early bird",
+              },
             ]}
             icon={LogOut}
             tone="warning"
@@ -318,9 +335,14 @@ function QuickAction({
       </span>
       <div className="min-w-0 flex-1">
         <div className="font-display text-sm font-semibold">{label}</div>
-        <div className="truncate text-xs text-muted-foreground" dangerouslySetInnerHTML={{ __html: sub }} />
+        <div
+          className="truncate text-xs text-muted-foreground"
+          dangerouslySetInnerHTML={{ __html: sub }}
+        />
       </div>
-      <span className="text-muted-foreground/60 transition-transform group-hover:translate-x-1">→</span>
+      <span className="text-muted-foreground/60 transition-transform group-hover:translate-x-1">
+        →
+      </span>
     </button>
   );
 }
@@ -350,7 +372,12 @@ function StatCard({
       />
       <div className="relative">
         <div className="flex items-center justify-between">
-          <span className={cn("grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br text-primary-foreground", accent)}>
+          <span
+            className={cn(
+              "grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br text-primary-foreground",
+              accent,
+            )}
+          >
             <Icon className="h-4 w-4" />
           </span>
           {delta && (
@@ -476,7 +503,14 @@ function OccupancyAreaChart() {
           const y = pad.t + ih - (v / 100) * ih;
           return (
             <g key={v}>
-              <line x1={pad.l} x2={pad.l + iw} y1={y} y2={y} stroke="oklch(1 0 0 / 0.05)" strokeDasharray="3 4" />
+              <line
+                x1={pad.l}
+                x2={pad.l + iw}
+                y1={y}
+                y2={y}
+                stroke="oklch(1 0 0 / 0.05)"
+                strokeDasharray="3 4"
+              />
               <text x={4} y={y + 3} fontSize="10" fill="oklch(1 0 0 / 0.4)">
                 {v}%
               </text>
@@ -497,7 +531,14 @@ function OccupancyAreaChart() {
 
         {pts.map(([x, y], i) => (
           <g key={i}>
-            <circle cx={x} cy={y} r={hover === i ? 5 : 3} fill="oklch(0.74 0.21 71)" stroke="var(--color-background)" strokeWidth="2" />
+            <circle
+              cx={x}
+              cy={y}
+              r={hover === i ? 5 : 3}
+              fill="oklch(0.74 0.21 71)"
+              stroke="var(--color-background)"
+              strokeWidth="2"
+            />
             <rect
               x={x - step / 2}
               y={pad.t}
@@ -511,9 +552,22 @@ function OccupancyAreaChart() {
             </text>
             {hover === i && (
               <g>
-                <line x1={x} x2={x} y1={pad.t} y2={pad.t + ih} stroke="oklch(0.74 0.21 71 / 0.4)" strokeDasharray="3 3" />
+                <line
+                  x1={x}
+                  x2={x}
+                  y1={pad.t}
+                  y2={pad.t + ih}
+                  stroke="oklch(0.74 0.21 71 / 0.4)"
+                  strokeDasharray="3 3"
+                />
                 <g transform={`translate(${Math.min(x + 8, w - 70)}, ${Math.max(y - 36, pad.t)})`}>
-                  <rect width="62" height="28" rx="6" fill="var(--color-card)" stroke="var(--color-border)" />
+                  <rect
+                    width="62"
+                    height="28"
+                    rx="6"
+                    fill="var(--color-card)"
+                    stroke="var(--color-border)"
+                  />
                   <text x="8" y="12" fontSize="9" fill="oklch(1 0 0 / 0.55)">
                     {days[i]}
                   </text>
@@ -533,7 +587,11 @@ function OccupancyAreaChart() {
 function RevenueBarChart() {
   const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const series = [
-    { label: "Rooms", color: "oklch(0.74 0.21 71)", values: [8.2, 9.1, 8.6, 10.4, 12.8, 14.2, 11.6] },
+    {
+      label: "Rooms",
+      color: "oklch(0.74 0.21 71)",
+      values: [8.2, 9.1, 8.6, 10.4, 12.8, 14.2, 11.6],
+    },
     { label: "POS", color: "oklch(0.72 0.16 162)", values: [3.1, 3.6, 3.2, 4.0, 4.8, 5.4, 4.6] },
     { label: "Events", color: "oklch(0.78 0.16 75)", values: [1.0, 0.6, 1.4, 1.2, 2.6, 3.2, 1.4] },
   ];
@@ -561,7 +619,14 @@ function RevenueBarChart() {
         const y = pad.t + ih * (1 - p);
         return (
           <g key={p}>
-            <line x1={pad.l} x2={pad.l + iw} y1={y} y2={y} stroke="oklch(1 0 0 / 0.05)" strokeDasharray="3 4" />
+            <line
+              x1={pad.l}
+              x2={pad.l + iw}
+              y1={y}
+              y2={y}
+              stroke="oklch(1 0 0 / 0.05)"
+              strokeDasharray="3 4"
+            />
             <text x={4} y={y + 3} fontSize="9" fill="oklch(1 0 0 / 0.4)">
               {(max * p).toFixed(0)}M
             </text>
@@ -590,7 +655,13 @@ function RevenueBarChart() {
                 />
               );
             })}
-            <text x={x0 + barW / 2} y={h - 10} fontSize="10" textAnchor="middle" fill="oklch(1 0 0 / 0.55)">
+            <text
+              x={x0 + barW / 2}
+              y={h - 10}
+              fontSize="10"
+              textAnchor="middle"
+              fill="oklch(1 0 0 / 0.55)"
+            >
               {d}
             </text>
           </g>
@@ -677,7 +748,10 @@ function GuestTable({
             <Icon className="h-4 w-4" />
           </span>
           <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary/40 to-[oklch(0.72_0.16_162)]/40 text-[11px] font-semibold">
-            {r.name.split(" ").map((p) => p[0]).join("")}
+            {r.name
+              .split(" ")
+              .map((p) => p[0])
+              .join("")}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">

@@ -39,9 +39,7 @@ type NavItem = {
 const nav: { section: string; items: NavItem[] }[] = [
   {
     section: "Overview",
-    items: [
-      { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-    ],
+    items: [{ label: "Dashboard", to: "/dashboard", icon: LayoutDashboard }],
   },
   {
     section: "Front Office",
@@ -61,15 +59,14 @@ const nav: { section: string; items: NavItem[] }[] = [
   },
   {
     section: "System",
-    items: [
-      { label: "Settings", to: "/settings", icon: Settings },
-    ],
+    items: [{ label: "Settings", to: "/settings", icon: Settings }],
   },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   return (
     <div className="relative flex min-h-screen w-full mesh-bg">
@@ -89,7 +86,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           collapsed ? "w-[76px]" : "w-[260px]",
         )}
       >
-        <div className={cn("flex h-16 items-center border-b border-sidebar-border/60 px-4", collapsed && "justify-center px-2")}>
+        <div
+          className={cn(
+            "flex h-16 items-center border-b border-sidebar-border/60 px-4",
+            collapsed && "justify-center px-2",
+          )}
+        >
           {collapsed ? <Logo showText={false} size="sm" /> : <Logo size="sm" />}
         </div>
 
@@ -123,7 +125,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                         <Icon
                           className={cn(
                             "h-[18px] w-[18px] shrink-0 transition",
-                            active ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
+                            active
+                              ? "text-primary"
+                              : "text-muted-foreground group-hover:text-foreground",
                           )}
                         />
                         {!collapsed && (
@@ -154,7 +158,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-sm font-semibold">Amani Kato</div>
-                  <div className="truncate text-[11px] text-muted-foreground">Front Office Manager</div>
+                  <div className="truncate text-[11px] text-muted-foreground">
+                    Front Office Manager
+                  </div>
                 </div>
                 <button className="rounded-lg p-1.5 text-muted-foreground hover:bg-sidebar-accent hover:text-foreground">
                   <HelpCircle className="h-4 w-4" />
@@ -172,7 +178,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-sidebar-border/60 py-1.5 text-xs text-muted-foreground transition hover:border-primary/50 hover:text-foreground"
             aria-label="Toggle sidebar"
           >
-            {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : (
+            {collapsed ? (
+              <ChevronRight className="h-3.5 w-3.5" />
+            ) : (
               <>
                 <ChevronLeft className="h-3.5 w-3.5" />
                 Collapse
@@ -201,6 +209,40 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Plus className="h-4 w-4" />
               New Booking
             </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="rounded-xl border border-border/70 bg-card/40 p-2.5 text-muted-foreground transition hover:border-primary/50 hover:text-foreground">
+                  {resolvedTheme === "dark" ? (
+                    <Moon className="h-4 w-4" />
+                  ) : (
+                    <Sun className="h-4 w-4" />
+                  )}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => setTheme("light")}
+                  className={theme === "light" ? "text-primary font-semibold" : ""}
+                >
+                  <Sun className="mr-2 h-4 w-4" />
+                  Light
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setTheme("dark")}
+                  className={theme === "dark" ? "text-primary font-semibold" : ""}
+                >
+                  <Moon className="mr-2 h-4 w-4" />
+                  Dark
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setTheme("system")}
+                  className={theme === "system" ? "text-primary font-semibold" : ""}
+                >
+                  <Monitor className="mr-2 h-4 w-4" />
+                  System
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <button className="relative rounded-xl border border-border/70 bg-card/40 p-2.5 text-muted-foreground transition hover:border-primary/50 hover:text-foreground">
               <Bell className="h-4 w-4" />
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-destructive animate-pulse-glow" />

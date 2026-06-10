@@ -20,7 +20,10 @@ function Settings() {
         { t: "Integrations", d: "Booking.com, Expedia, payments, accounting." },
         { t: "Notifications", d: "Email, SMS and in-app alerts." },
       ].map((s) => (
-        <div key={s.t} className="glass card-hover flex items-center justify-between rounded-2xl p-5">
+        <div
+          key={s.t}
+          className="glass card-hover flex items-center justify-between rounded-2xl p-5"
+        >
           <div>
             <h3 className="font-display font-semibold">{s.t}</h3>
             <p className="text-sm text-muted-foreground">{s.d}</p>
