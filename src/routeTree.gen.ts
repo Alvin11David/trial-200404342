@@ -18,6 +18,7 @@ import { Route as AppReservationsRouteImport } from './routes/_app.reservations'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppPosRouteImport } from './routes/_app.pos'
 import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
+import { Route as AppHrRouteImport } from './routes/_app.hr'
 import { Route as AppHousekeepingRouteImport } from './routes/_app.housekeeping'
 import { Route as AppGuestsRouteImport } from './routes/_app.guests'
 import { Route as AppEventsRouteImport } from './routes/_app.events'
@@ -74,6 +75,11 @@ const AppPosRoute = AppPosRouteImport.update({
 const AppInventoryRoute = AppInventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppHrRoute = AppHrRouteImport.update({
+  id: '/hr',
+  path: '/hr',
   getParentRoute: () => AppRoute,
 } as any)
 const AppHousekeepingRoute = AppHousekeepingRouteImport.update({
@@ -152,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/events': typeof AppEventsRouteWithChildren
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
+  '/hr': typeof AppHrRoute
   '/inventory': typeof AppInventoryRouteWithChildren
   '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
@@ -175,6 +182,7 @@ export interface FileRoutesByTo {
   '/events': typeof AppEventsRouteWithChildren
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
+  '/hr': typeof AppHrRoute
   '/inventory': typeof AppInventoryRouteWithChildren
   '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
@@ -200,6 +208,7 @@ export interface FileRoutesById {
   '/_app/events': typeof AppEventsRouteWithChildren
   '/_app/guests': typeof AppGuestsRoute
   '/_app/housekeeping': typeof AppHousekeepingRoute
+  '/_app/hr': typeof AppHrRoute
   '/_app/inventory': typeof AppInventoryRouteWithChildren
   '/_app/pos': typeof AppPosRouteWithChildren
   '/_app/reports': typeof AppReportsRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/guests'
     | '/housekeeping'
+    | '/hr'
     | '/inventory'
     | '/pos'
     | '/reports'
@@ -248,6 +258,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/guests'
     | '/housekeeping'
+    | '/hr'
     | '/inventory'
     | '/pos'
     | '/reports'
@@ -272,6 +283,7 @@ export interface FileRouteTypes {
     | '/_app/events'
     | '/_app/guests'
     | '/_app/housekeeping'
+    | '/_app/hr'
     | '/_app/inventory'
     | '/_app/pos'
     | '/_app/reports'
@@ -357,6 +369,13 @@ declare module '@tanstack/react-router' {
       path: '/inventory'
       fullPath: '/inventory'
       preLoaderRoute: typeof AppInventoryRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/hr': {
+      id: '/_app/hr'
+      path: '/hr'
+      fullPath: '/hr'
+      preLoaderRoute: typeof AppHrRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/housekeeping': {
@@ -514,6 +533,7 @@ interface AppRouteChildren {
   AppEventsRoute: typeof AppEventsRouteWithChildren
   AppGuestsRoute: typeof AppGuestsRoute
   AppHousekeepingRoute: typeof AppHousekeepingRoute
+  AppHrRoute: typeof AppHrRoute
   AppInventoryRoute: typeof AppInventoryRouteWithChildren
   AppPosRoute: typeof AppPosRouteWithChildren
   AppReportsRoute: typeof AppReportsRoute
@@ -528,6 +548,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEventsRoute: AppEventsRouteWithChildren,
   AppGuestsRoute: AppGuestsRoute,
   AppHousekeepingRoute: AppHousekeepingRoute,
+  AppHrRoute: AppHrRoute,
   AppInventoryRoute: AppInventoryRouteWithChildren,
   AppPosRoute: AppPosRouteWithChildren,
   AppReportsRoute: AppReportsRoute,
