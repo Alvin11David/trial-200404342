@@ -4,6 +4,7 @@ import { Filter, MoreHorizontal, Plus, Search, LogIn, LogOut, Eye, Calendar } fr
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/reservations")({
+  head: () => ({ meta: [{ title: "Reservations — Jambo ERP" }] }),
   component: ReservationsLayout,
 });
 
