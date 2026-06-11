@@ -24,6 +24,7 @@ import { Route as AppGuestsRouteImport } from './routes/_app.guests'
 import { Route as AppEventsRouteImport } from './routes/_app.events'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
+import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
 import { Route as AppReservationsNewRouteImport } from './routes/_app.reservations.new'
 import { Route as AppPosOrdersRouteImport } from './routes/_app.pos.orders'
 import { Route as AppPosMenuRouteImport } from './routes/_app.pos.menu'
@@ -107,6 +108,11 @@ const AppBillingRoute = AppBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAccountingRoute = AppAccountingRouteImport.update({
+  id: '/accounting',
+  path: '/accounting',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReservationsNewRoute = AppReservationsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -153,6 +159,7 @@ const AppEventsListRoute = AppEventsListRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/accounting': typeof AppAccountingRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/events': typeof AppEventsRouteWithChildren
@@ -177,6 +184,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/accounting': typeof AppAccountingRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/events': typeof AppEventsRouteWithChildren
@@ -203,6 +211,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_app/accounting': typeof AppAccountingRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/events': typeof AppEventsRouteWithChildren
@@ -229,6 +238,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/sitemap.xml'
+    | '/accounting'
     | '/billing'
     | '/dashboard'
     | '/events'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/sitemap.xml'
+    | '/accounting'
     | '/billing'
     | '/dashboard'
     | '/events'
@@ -278,6 +289,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/sitemap.xml'
+    | '/_app/accounting'
     | '/_app/billing'
     | '/_app/dashboard'
     | '/_app/events'
@@ -413,6 +425,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBillingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/accounting': {
+      id: '/_app/accounting'
+      path: '/accounting'
+      fullPath: '/accounting'
+      preLoaderRoute: typeof AppAccountingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/reservations/new': {
       id: '/_app/reservations/new'
       path: '/new'
@@ -528,6 +547,7 @@ const AppReservationsRouteWithChildren = AppReservationsRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppAccountingRoute: typeof AppAccountingRoute
   AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEventsRoute: typeof AppEventsRouteWithChildren
@@ -543,6 +563,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountingRoute: AppAccountingRoute,
   AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEventsRoute: AppEventsRouteWithChildren,
@@ -567,13 +588,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
