@@ -20,6 +20,7 @@ import { Route as AppHousekeepingRouteImport } from './routes/_app.housekeeping'
 import { Route as AppGuestsRouteImport } from './routes/_app.guests'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
+import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
 import { Route as AppReservationsNewRouteImport } from './routes/_app.reservations.new'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -76,6 +77,11 @@ const AppBillingRoute = AppBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAccountingRoute = AppAccountingRouteImport.update({
+  id: '/accounting',
+  path: '/accounting',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppReservationsNewRoute = AppReservationsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -85,6 +91,7 @@ const AppReservationsNewRoute = AppReservationsNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/accounting': typeof AppAccountingRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/guests': typeof AppGuestsRoute
@@ -98,6 +105,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/accounting': typeof AppAccountingRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/guests': typeof AppGuestsRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_app/accounting': typeof AppAccountingRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/guests': typeof AppGuestsRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/sitemap.xml'
+    | '/accounting'
     | '/billing'
     | '/dashboard'
     | '/guests'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/sitemap.xml'
+    | '/accounting'
     | '/billing'
     | '/dashboard'
     | '/guests'
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/sitemap.xml'
+    | '/_app/accounting'
     | '/_app/billing'
     | '/_app/dashboard'
     | '/_app/guests'
@@ -251,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppBillingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/accounting': {
+      id: '/_app/accounting'
+      path: '/accounting'
+      fullPath: '/accounting'
+      preLoaderRoute: typeof AppAccountingRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/reservations/new': {
       id: '/_app/reservations/new'
       path: '/new'
@@ -274,6 +293,7 @@ const AppReservationsRouteWithChildren = AppReservationsRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppAccountingRoute: typeof AppAccountingRoute
   AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppGuestsRoute: typeof AppGuestsRoute
@@ -285,6 +305,7 @@ interface AppRouteChildren {
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountingRoute: AppAccountingRoute,
   AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppGuestsRoute: AppGuestsRoute,
@@ -305,13 +326,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
