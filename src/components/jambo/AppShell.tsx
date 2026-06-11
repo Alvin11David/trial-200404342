@@ -8,6 +8,7 @@ import {
   Sparkles,
   Receipt,
   BarChart3,
+  Wallet,
   Settings,
   Bell,
   Search,
@@ -54,6 +55,7 @@ const nav: { section: string; items: NavItem[] }[] = [
     items: [
       { label: "Housekeeping", to: "/housekeeping", icon: Sparkles, badge: "5" },
       { label: "Billing", to: "/billing", icon: Receipt },
+      { label: "Accounting", to: "/accounting", icon: Wallet },
       { label: "Reports", to: "/reports", icon: BarChart3 },
     ],
   },
