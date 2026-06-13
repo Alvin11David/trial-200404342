@@ -1,722 +1,456 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  ArrowDownRight,
-  ArrowUpRight,
   BedDouble,
+  TrendingUp,
+  DollarSign,
+  Sparkles,
+  ArrowUpRight,
+  ArrowDownRight,
   CalendarCheck2,
   CalendarX2,
-  DollarSign,
-  DoorOpen,
-  LogIn,
-  LogOut,
-  Plus,
-  ShoppingBag,
-  Sparkles,
-  Clock,
+  ClipboardList,
+  ShieldCheck,
+  FileSearch,
+  Receipt,
+  ShoppingCart,
+  Wallet,
+  Users,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useRole, ROLE_META } from "@/lib/role";
+import type { ReactNode } from "react";
 
 export const Route = createFileRoute("/_app/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — Jambo ERP" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — Jambo PMS" }] }),
   component: Dashboard,
 });
 
-/* ───────────────────────── animated counter hook ───────────────────────── */
-function useCountUp(target: number, duration = 1400) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    let raf = 0;
-    const start = performance.now();
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setValue(target * eased);
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration]);
-  return value;
-}
-
-function AnimatedNumber({
-  value,
-  prefix = "",
-  suffix = "",
-  decimals = 0,
-  format = "default",
-}: {
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  decimals?: number;
-  format?: "default" | "compact";
-}) {
-  const v = useCountUp(value);
-  const formatted =
-    format === "compact"
-      ? new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(v)
-      : v.toLocaleString("en-US", {
-          maximumFractionDigits: decimals,
-          minimumFractionDigits: decimals,
-        });
-  return (
-    <span className="tabular-nums">
-      {prefix}
-      {formatted}
-      {suffix}
-    </span>
-  );
-}
-
-/* ───────────────────────── stat data ───────────────────────── */
-const totalRooms = 168;
-const occupiedRooms = 142;
-const expectedIn = 27;
-const expectedOut = 19;
-const revenueToday = 18_400_000;
-const hkPending = 14;
-
 function Dashboard() {
+  const { role } = useRole();
+  const meta = ROLE_META[role];
+
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
-      {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="mx-auto max-w-7xl space-y-6">
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm text-muted-foreground">Welcome back, Amani 👋</p>
-          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight">
-            Property <span className="text-gradient-primary">Command Center</span>
+          <p className="text-xs font-medium uppercase tracking-wider text-primary">{role}</p>
+          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight">
+            Welcome back, {meta.person.split(" ")[0]}
           </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{meta.tagline}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="glass inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
-            </span>
-            <span className="text-muted-foreground">Live</span>
-            <span className="font-medium">· synced 2m ago</span>
-          </div>
-          <div className="glass inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs">
-            <Clock className="h-3.5 w-3.5 text-primary" />
-            <span className="font-medium">
-              {new Date().toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "short",
-                day: "numeric",
-              })}
-            </span>
-          </div>
+        <div className="hidden text-right md:block">
+          <p className="text-xs text-muted-foreground">Property</p>
+          <p className="text-sm font-semibold">Jambo Sphere Hotel · Kampala</p>
         </div>
-      </div>
+      </header>
 
-      {/* Quick Actions */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <QuickAction icon={Plus} label="New Reservation" sub="Walk-in or call" tone="primary" />
-        <QuickAction icon={LogIn} label="Check In" sub="Process arrival" tone="success" />
-        <QuickAction icon={LogOut} label="Check Out" sub="Settle &amp; release" tone="warning" />
-        <QuickAction
-          icon={ShoppingBag}
-          label="New POS Order"
-          sub="F&amp;B and retail"
-          tone="info"
-        />
-      </div>
+      {role === "Owner / GM" && <OwnerGMDashboard />}
+      {role === "Front Desk" && <FrontDeskDashboard />}
+      {role === "Housekeeping" && <HousekeepingDashboard />}
+      {role === "POS / Cashier" && <PosDashboard />}
+      {role === "Reservations / Revenue" && <ReservationsDashboard />}
+      {role === "Accountant" && <AccountantDashboard />}
+      {role === "System Administrator" && <SysadminDashboard />}
+    </div>
+  );
+}
 
-      {/* Top stats row */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <StatCard
-          label="Total Rooms"
-          icon={DoorOpen}
-          accent="from-[oklch(0.74_0.21_71)] to-[oklch(0.60_0.18_55)]"
-          headline={
-            <div className="flex items-center gap-3">
-              <RingChart value={occupiedRooms} max={totalRooms} />
-              <div>
-                <div className="text-2xl font-bold tabular-nums">
-                  <AnimatedNumber value={totalRooms} />
-                </div>
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {Math.round((occupiedRooms / totalRooms) * 100)}% occupancy
-                </div>
-              </div>
-            </div>
-          }
+/* ============================== Owner / GM ============================== */
+
+const ugx = (n: number) => "UGX " + n.toLocaleString();
+
+function OwnerGMDashboard() {
+  return (
+    <>
+      {/* KPIs */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          label="Occupancy"
+          value="78%"
+          delta="+4.2%"
+          deltaPositive
+          icon={<BedDouble className="h-4 w-4" />}
+          accent="primary"
+          extra={<Ring percent={78} />}
         />
-        <StatCard
-          label="Occupied Today"
-          icon={BedDouble}
-          delta="+8 vs yesterday"
-          up
-          accent="from-[oklch(0.72_0.16_162)] to-[oklch(0.65_0.18_180)]"
-          headline={
-            <div className="text-3xl font-bold">
-              <AnimatedNumber value={occupiedRooms} />
-              <span className="ml-1 text-sm font-medium text-muted-foreground">/ {totalRooms}</span>
-            </div>
-          }
+        <KpiCard
+          label="ADR"
+          value={ugx(285000)}
+          delta="+2.1%"
+          deltaPositive
+          icon={<TrendingUp className="h-4 w-4" />}
+          accent="success"
         />
-        <StatCard
-          label="Expected Check-ins"
-          icon={CalendarCheck2}
-          delta="+6 vs yesterday"
-          up
-          accent="from-[oklch(0.78_0.16_75)] to-[oklch(0.7_0.18_50)]"
-          headline={
-            <div className="text-3xl font-bold">
-              <AnimatedNumber value={expectedIn} />
-            </div>
-          }
+        <KpiCard
+          label="RevPAR"
+          value={ugx(222300)}
+          delta="+5.8%"
+          deltaPositive
+          icon={<DollarSign className="h-4 w-4" />}
+          accent="info"
         />
-        <StatCard
-          label="Expected Check-outs"
-          icon={CalendarX2}
-          delta="-3 vs yesterday"
-          accent="from-[oklch(0.65_0.2_295)] to-[oklch(0.6_0.22_320)]"
-          headline={
-            <div className="text-3xl font-bold">
-              <AnimatedNumber value={expectedOut} />
-            </div>
-          }
-        />
-        <StatCard
+        <KpiCard
           label="Today's Revenue"
-          icon={DollarSign}
-          delta="+12.4%"
-          up
-          accent="from-[oklch(0.72_0.16_162)] to-[oklch(0.6_0.18_140)]"
-          headline={
-            <div>
-              <div className="text-2xl font-bold">
-                UGX <AnimatedNumber value={revenueToday} format="compact" />
-              </div>
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                Rooms + POS + Events
-              </div>
-            </div>
-          }
-        />
-        <StatCard
-          label="HK Tasks Pending"
-          icon={Sparkles}
-          delta="3 high priority"
-          accent="from-[oklch(0.78_0.16_75)] to-[oklch(0.65_0.22_25)]"
-          headline={
-            <div className="text-3xl font-bold">
-              <AnimatedNumber value={hkPending} />
-            </div>
-          }
+          value={ugx(4_120_000)}
+          delta="+12.3%"
+          deltaPositive
+          icon={<Wallet className="h-4 w-4" />}
+          accent="warning"
         />
       </div>
 
-      {/* Middle: charts */}
-      <div className="grid gap-6 lg:grid-cols-5">
-        <div className="glass card-hover rounded-2xl p-6 lg:col-span-3">
-          <ChartHeader title="Live Occupancy" subtitle="Last 7 days · % occupied" />
-          <OccupancyAreaChart />
-        </div>
-        <div className="glass card-hover rounded-2xl p-6 lg:col-span-2">
-          <ChartHeader title="Revenue Breakdown" subtitle="This week · UGX millions" />
-          <RevenueBarChart />
-          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs">
-            <LegendDot color="oklch(0.74 0.21 71)" label="Rooms" />
-            <LegendDot color="oklch(0.72 0.16 162)" label="POS / F&amp;B" />
-            <LegendDot color="oklch(0.78 0.16 75)" label="Events" />
+      {/* Charts */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card title="7-day occupancy trend" subtitle="Rolling daily occupancy %" className="lg:col-span-2">
+          <OccupancyChart />
+        </Card>
+        <Card title="Revenue by source" subtitle="Today">
+          <RevenueBars />
+        </Card>
+      </div>
+
+      {/* Tables */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Today's arrivals" subtitle="5 expected check-ins" action={<Link to="/reservations" className="text-xs font-medium text-primary hover:underline">View all →</Link>}>
+          <GuestTable
+            rows={[
+              { name: "Sarah Mwangi", room: "204", time: "14:00", nights: 3, status: "Confirmed" },
+              { name: "James Okello", room: "311", time: "15:30", nights: 2, status: "Confirmed" },
+              { name: "Priya Sharma", room: "108", time: "16:00", nights: 5, status: "Pre-paid" },
+              { name: "David Mensah", room: "402", time: "18:00", nights: 1, status: "Pending" },
+              { name: "Aisha Wanjiku", room: "215", time: "20:00", nights: 4, status: "Confirmed" },
+            ]}
+            kind="arrival"
+          />
+        </Card>
+        <Card title="Today's departures" subtitle="5 scheduled check-outs" action={<Link to="/reservations" className="text-xs font-medium text-primary hover:underline">View all →</Link>}>
+          <GuestTable
+            rows={[
+              { name: "Mark Tindyebwa", room: "112", time: "10:00", nights: 2, status: "Folio open" },
+              { name: "Linda Owino", room: "303", time: "11:00", nights: 4, status: "Cleared" },
+              { name: "Tom Kabuye", room: "201", time: "11:30", nights: 1, status: "Cleared" },
+              { name: "Joan Nansubuga", room: "405", time: "12:00", nights: 3, status: "Folio open" },
+              { name: "Daniel Etyang", room: "118", time: "12:00", nights: 2, status: "Cleared" },
+            ]}
+            kind="departure"
+          />
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card title="Housekeeping needs attention" subtitle="9 rooms in queue" className="lg:col-span-2">
+          <div className="grid gap-2 sm:grid-cols-2">
+            {[
+              { room: "101", note: "Departure clean", priority: "High" },
+              { room: "204", note: "Stayover refresh", priority: "Medium" },
+              { room: "212", note: "Inspection pending", priority: "Low" },
+              { room: "305", note: "Departure clean", priority: "High" },
+              { room: "311", note: "Linen change", priority: "Medium" },
+              { room: "402", note: "Maintenance follow-up", priority: "High" },
+            ].map((r) => (
+              <div key={r.room} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
+                <div>
+                  <div className="text-sm font-semibold">Room {r.room}</div>
+                  <div className="text-[11px] text-muted-foreground">{r.note}</div>
+                </div>
+                <PriorityBadge p={r.priority} />
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
-
-      {/* Room status grid */}
-      <div className="glass rounded-2xl p-6">
-        <ChartHeader
-          title="Room Status Grid"
-          subtitle={`Live · ${totalRooms} rooms`}
-          right={
-            <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-              <LegendDot color="oklch(0.72 0.16 162)" label="Available" />
-              <LegendDot color="oklch(0.74 0.21 71)" label="Occupied" />
-              <LegendDot color="oklch(0.78 0.16 75)" label="Dirty" />
-              <LegendDot color="oklch(0.65 0.22 25)" label="Maintenance" />
-            </div>
-          }
-        />
-        <RoomStatusGrid />
-      </div>
-
-      {/* Bottom: tables */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <div className="glass rounded-2xl p-6">
-          <ChartHeader
-            title="Recent Check-ins"
-            subtitle="Last 5 guests"
-            right={
-              <button className="rounded-lg border border-border/60 px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/50 hover:text-foreground">
-                View all
-              </button>
-            }
-          />
-          <GuestTable
-            rows={[
-              { name: "James Okello", room: "Suite 501", time: "10 min ago", tag: "VIP" },
-              { name: "Aisha Wanjiku", room: "Suite 502", time: "42 min ago", tag: "Returning" },
-              { name: "David Mensah", room: "Deluxe 308", time: "1h 12m ago" },
-              { name: "Maria Lopez", room: "Standard 217", time: "2h 04m ago" },
-              { name: "Kwame Boateng", room: "Deluxe 312", time: "3h 22m ago" },
-            ]}
-            icon={LogIn}
-            tone="success"
-          />
-        </div>
-        <div className="glass rounded-2xl p-6">
-          <ChartHeader
-            title="Upcoming Check-outs"
-            subtitle="Next 5 guests"
-            right={
-              <button className="rounded-lg border border-border/60 px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/50 hover:text-foreground">
-                View all
-              </button>
-            }
-          />
-          <GuestTable
-            rows={[
-              { name: "Sarah Nakato", room: "Deluxe 304", time: "In 38 min", tag: "Late checkout" },
-              { name: "Priya Sharma", room: "Standard 212", time: "In 1h 10m" },
-              { name: "Linda Asiimwe", room: "Deluxe 311", time: "In 2h 25m" },
-              { name: "Joseph Mugisha", room: "Standard 109", time: "In 3h 15m" },
-              {
-                name: "Fatuma Ahmed",
-                room: "Suite 503",
-                time: "Tomorrow 11:00",
-                tag: "Early bird",
-              },
-            ]}
-            icon={LogOut}
-            tone="warning"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ───────────────────────── building blocks ───────────────────────── */
-
-function QuickAction({
-  icon: Icon,
-  label,
-  sub,
-  tone,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  sub: string;
-  tone: "primary" | "success" | "warning" | "info";
-}) {
-  const grad: Record<typeof tone, string> = {
-    primary: "from-[oklch(0.74_0.21_71)] to-[oklch(0.60_0.18_55)]",
-    success: "from-[oklch(0.72_0.16_162)] to-[oklch(0.6_0.18_180)]",
-    warning: "from-[oklch(0.78_0.16_75)] to-[oklch(0.7_0.18_50)]",
-    info: "from-[oklch(0.7_0.15_240)] to-[oklch(0.65_0.18_220)]",
-  };
-  return (
-    <button
-      className={cn(
-        "group glass card-hover relative flex items-center gap-4 overflow-hidden rounded-2xl p-4 text-left",
-      )}
-    >
-      <span
-        className={cn(
-          "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br text-primary-foreground shadow-lg transition-transform group-hover:scale-110",
-          grad[tone],
-        )}
-      >
-        <Icon className="h-5 w-5" />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="font-display text-sm font-semibold">{label}</div>
-        <div
-          className="truncate text-xs text-muted-foreground"
-          dangerouslySetInnerHTML={{ __html: sub }}
-        />
-      </div>
-      <span className="text-muted-foreground/60 transition-transform group-hover:translate-x-1">
-        →
-      </span>
-    </button>
-  );
-}
-
-function StatCard({
-  label,
-  icon: Icon,
-  headline,
-  delta,
-  up,
-  accent,
-}: {
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  headline: React.ReactNode;
-  delta?: string;
-  up?: boolean;
-  accent: string;
-}) {
-  return (
-    <div className="glass card-hover relative overflow-hidden rounded-2xl p-5">
-      <div
-        className={cn(
-          "absolute -right-10 -top-10 h-32 w-32 rounded-full opacity-25 blur-2xl bg-gradient-to-br",
-          accent,
-        )}
-      />
-      <div className="relative">
-        <div className="flex items-center justify-between">
-          <span
-            className={cn(
-              "grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br text-primary-foreground",
-              accent,
-            )}
-          >
-            <Icon className="h-4 w-4" />
-          </span>
-          {delta && (
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium",
-                up
-                  ? "border-success/30 bg-success/10 text-success"
-                  : "border-destructive/30 bg-destructive/10 text-destructive",
-              )}
-            >
-              {up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-              {delta}
-            </span>
-          )}
-        </div>
-        <div className="mt-4 text-xs uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div className="mt-1">{headline}</div>
-      </div>
-    </div>
-  );
-}
-
-function RingChart({ value, max }: { value: number; max: number }) {
-  const pct = useCountUp(Math.round((value / max) * 100));
-  const r = 22;
-  const c = 2 * Math.PI * r;
-  const offset = c - (pct / 100) * c;
-  return (
-    <div className="relative">
-      <svg width="56" height="56" viewBox="0 0 56 56" className="-rotate-90">
-        <defs>
-          <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="oklch(0.74 0.21 71)" />
-            <stop offset="100%" stopColor="oklch(0.80 0.15 85)" />
-          </linearGradient>
-        </defs>
-        <circle cx="28" cy="28" r={r} stroke="oklch(1 0 0 / 0.1)" strokeWidth="5" fill="none" />
-        <circle
-          cx="28"
-          cy="28"
-          r={r}
-          stroke="url(#ringGrad)"
-          strokeWidth="5"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={offset}
-          fill="none"
-          style={{ filter: "drop-shadow(0 0 6px oklch(0.74 0.21 71 / 0.6))" }}
-        />
-      </svg>
-      <div className="absolute inset-0 grid place-items-center text-[11px] font-bold tabular-nums">
-        {Math.round(pct)}%
-      </div>
-    </div>
-  );
-}
-
-function ChartHeader({
-  title,
-  subtitle,
-  right,
-}: {
-  title: string;
-  subtitle?: string;
-  right?: React.ReactNode;
-}) {
-  return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <div>
-        <h3 className="font-display text-lg font-semibold">{title}</h3>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-      </div>
-      {right}
-    </div>
-  );
-}
-
-function LegendDot({ color, label }: { color: string; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-1.5">
-      <span
-        className="h-2 w-2 rounded-full"
-        style={{ background: color, boxShadow: `0 0 8px ${color}` }}
-      />
-      <span dangerouslySetInnerHTML={{ __html: label }} />
-    </span>
-  );
-}
-
-/* ───────────────────────── charts ───────────────────────── */
-
-function OccupancyAreaChart() {
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const values = [62, 71, 68, 78, 88, 94, 84];
-  const [hover, setHover] = useState<number | null>(null);
-  const w = 640;
-  const h = 240;
-  const pad = { l: 32, r: 12, t: 16, b: 28 };
-  const iw = w - pad.l - pad.r;
-  const ih = h - pad.t - pad.b;
-  const step = iw / (values.length - 1);
-  const pts = values.map((v, i) => [pad.l + i * step, pad.t + ih - (v / 100) * ih] as const);
-  const path = pts.map(([x, y], i) => (i === 0 ? `M${x},${y}` : `L${x},${y}`)).join(" ");
-  const area = `${path} L${pad.l + iw},${pad.t + ih} L${pad.l},${pad.t + ih} Z`;
-
-  return (
-    <div className="mt-2">
-      <svg viewBox={`0 0 ${w} ${h}`} className="h-64 w-full" onMouseLeave={() => setHover(null)}>
-        <defs>
-          <linearGradient id="occGrad" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="oklch(0.74 0.21 71)" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="oklch(0.74 0.21 71)" stopOpacity="0" />
-          </linearGradient>
-          <linearGradient id="occLine" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0%" stopColor="oklch(0.74 0.21 71)" />
-            <stop offset="100%" stopColor="oklch(0.80 0.15 85)" />
-          </linearGradient>
-        </defs>
-
-        {/* gridlines */}
-        {[0, 25, 50, 75, 100].map((v) => {
-          const y = pad.t + ih - (v / 100) * ih;
-          return (
-            <g key={v}>
-              <line
-                x1={pad.l}
-                x2={pad.l + iw}
-                y1={y}
-                y2={y}
-                stroke="oklch(1 0 0 / 0.05)"
-                strokeDasharray="3 4"
-              />
-              <text x={4} y={y + 3} fontSize="10" fill="oklch(1 0 0 / 0.4)">
-                {v}%
-              </text>
-            </g>
-          );
-        })}
-
-        <path d={area} fill="url(#occGrad)" />
-        <path
-          d={path}
-          fill="none"
-          stroke="url(#occLine)"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ filter: "drop-shadow(0 4px 14px oklch(0.74 0.21 71 / 0.4))" }}
-        />
-
-        {pts.map(([x, y], i) => (
-          <g key={i}>
-            <circle
-              cx={x}
-              cy={y}
-              r={hover === i ? 5 : 3}
-              fill="oklch(0.74 0.21 71)"
-              stroke="var(--color-background)"
-              strokeWidth="2"
-            />
-            <rect
-              x={x - step / 2}
-              y={pad.t}
-              width={step}
-              height={ih}
-              fill="transparent"
-              onMouseEnter={() => setHover(i)}
-            />
-            <text x={x} y={h - 8} fontSize="11" textAnchor="middle" fill="oklch(1 0 0 / 0.6)">
-              {days[i]}
-            </text>
-            {hover === i && (
-              <g>
-                <line
-                  x1={x}
-                  x2={x}
-                  y1={pad.t}
-                  y2={pad.t + ih}
-                  stroke="oklch(0.74 0.21 71 / 0.4)"
-                  strokeDasharray="3 3"
-                />
-                <g transform={`translate(${Math.min(x + 8, w - 70)}, ${Math.max(y - 36, pad.t)})`}>
-                  <rect
-                    width="62"
-                    height="28"
-                    rx="6"
-                    fill="var(--color-card)"
-                    stroke="var(--color-border)"
-                  />
-                  <text x="8" y="12" fontSize="9" fill="oklch(1 0 0 / 0.55)">
-                    {days[i]}
-                  </text>
-                  <text x="8" y="23" fontSize="12" fontWeight="700" fill="white">
-                    {values[i]}%
-                  </text>
-                </g>
-              </g>
-            )}
-          </g>
-        ))}
-      </svg>
-    </div>
-  );
-}
-
-function RevenueBarChart() {
-  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const series = [
-    {
-      label: "Rooms",
-      color: "oklch(0.74 0.21 71)",
-      values: [8.2, 9.1, 8.6, 10.4, 12.8, 14.2, 11.6],
-    },
-    { label: "POS", color: "oklch(0.72 0.16 162)", values: [3.1, 3.6, 3.2, 4.0, 4.8, 5.4, 4.6] },
-    { label: "Events", color: "oklch(0.78 0.16 75)", values: [1.0, 0.6, 1.4, 1.2, 2.6, 3.2, 1.4] },
-  ];
-  const w = 400;
-  const h = 220;
-  const pad = { l: 28, r: 8, t: 12, b: 28 };
-  const iw = w - pad.l - pad.r;
-  const ih = h - pad.t - pad.b;
-  const max = Math.max(...days.map((_, i) => series.reduce((s, ser) => s + ser.values[i], 0)));
-  const groupW = iw / days.length;
-  const barW = groupW * 0.55;
-
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-56 w-full">
-      <defs>
-        {series.map((s, i) => (
-          <linearGradient key={i} id={`bar-${i}`} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor={s.color} stopOpacity="1" />
-            <stop offset="100%" stopColor={s.color} stopOpacity="0.55" />
-          </linearGradient>
-        ))}
-      </defs>
-
-      {[0, 0.5, 1].map((p) => {
-        const y = pad.t + ih * (1 - p);
-        return (
-          <g key={p}>
-            <line
-              x1={pad.l}
-              x2={pad.l + iw}
-              y1={y}
-              y2={y}
-              stroke="oklch(1 0 0 / 0.05)"
-              strokeDasharray="3 4"
-            />
-            <text x={4} y={y + 3} fontSize="9" fill="oklch(1 0 0 / 0.4)">
-              {(max * p).toFixed(0)}M
-            </text>
-          </g>
-        );
-      })}
-
-      {days.map((d, i) => {
-        const x0 = pad.l + i * groupW + (groupW - barW) / 2;
-        let yCursor = pad.t + ih;
-        return (
-          <g key={d}>
-            {series.map((s, si) => {
-              const v = s.values[i];
-              const segH = (v / max) * ih;
-              yCursor -= segH;
+        </Card>
+        <Card title="Quick reports" subtitle="Generate now">
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { t: "Occupancy", icon: BedDouble },
+              { t: "Revenue", icon: DollarSign },
+              { t: "ADR / RevPAR", icon: TrendingUp },
+              { t: "Audit log", icon: FileSearch },
+            ].map((r) => {
+              const Icon = r.icon;
               return (
-                <rect
-                  key={si}
-                  x={x0}
-                  y={yCursor}
-                  width={barW}
-                  height={Math.max(segH, 0)}
-                  rx={si === series.length - 1 ? 4 : 0}
-                  fill={`url(#bar-${si})`}
-                />
+                <Link
+                  key={r.t}
+                  to="/reports"
+                  className="group rounded-lg border border-border bg-card p-3 transition hover:border-primary/40 hover:bg-primary/5"
+                >
+                  <Icon className="h-4 w-4 text-primary" />
+                  <div className="mt-2 text-xs font-semibold">{r.t}</div>
+                  <div className="mt-0.5 text-[10px] text-muted-foreground">View →</div>
+                </Link>
               );
             })}
-            <text
-              x={x0 + barW / 2}
-              y={h - 10}
-              fontSize="10"
-              textAnchor="middle"
-              fill="oklch(1 0 0 / 0.55)"
-            >
-              {d}
-            </text>
-          </g>
-        );
-      })}
+          </div>
+        </Card>
+      </div>
+    </>
+  );
+}
+
+/* ============================== Other roles ============================== */
+
+function FrontDeskDashboard() {
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Arrivals today" value="12" delta="3 walked-in" icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" />
+        <KpiCard label="Departures today" value="9" delta="2 pending" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" />
+        <KpiCard label="In-house guests" value="86" delta="78% occ" deltaPositive icon={<Users className="h-4 w-4" />} accent="info" />
+        <KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="success" />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Arrivals" action={<Link to="/reservations" className="text-xs text-primary">View all →</Link>}>
+          <GuestTable
+            rows={[
+              { name: "Sarah Mwangi", room: "204", time: "14:00", nights: 3, status: "Confirmed" },
+              { name: "James Okello", room: "311", time: "15:30", nights: 2, status: "Confirmed" },
+              { name: "Priya Sharma", room: "108", time: "16:00", nights: 5, status: "Pre-paid" },
+            ]}
+            kind="arrival"
+          />
+        </Card>
+        <Card title="Departures" action={<Link to="/reservations" className="text-xs text-primary">View all →</Link>}>
+          <GuestTable
+            rows={[
+              { name: "Mark Tindyebwa", room: "112", time: "10:00", nights: 2, status: "Folio open" },
+              { name: "Linda Owino", room: "303", time: "11:00", nights: 4, status: "Cleared" },
+              { name: "Joan Nansubuga", room: "405", time: "12:00", nights: 3, status: "Folio open" },
+            ]}
+            kind="departure"
+          />
+        </Card>
+      </div>
+    </>
+  );
+}
+
+function HousekeepingDashboard() {
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Rooms to clean" value="14" delta="9 high priority" icon={<Sparkles className="h-4 w-4" />} accent="primary" />
+        <KpiCard label="In progress" value="6" delta="3 attendants" icon={<ClipboardList className="h-4 w-4" />} accent="warning" />
+        <KpiCard label="Inspected" value="32" delta="Today" deltaPositive icon={<BedDouble className="h-4 w-4" />} accent="success" />
+        <KpiCard label="Out of order" value="2" delta="Maintenance" icon={<BedDouble className="h-4 w-4" />} accent="info" />
+      </div>
+      <Card title="My assigned rooms">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {["101","102","103","204","205","305","306","402","410"].map((r, i) => (
+            <div key={r} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
+              <div>
+                <div className="text-sm font-semibold">Room {r}</div>
+                <div className="text-[11px] text-muted-foreground">{i % 2 ? "Stayover" : "Departure clean"}</div>
+              </div>
+              <PriorityBadge p={i % 3 === 0 ? "High" : i % 3 === 1 ? "Medium" : "Low"} />
+            </div>
+          ))}
+        </div>
+      </Card>
+    </>
+  );
+}
+
+function PosDashboard() {
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Open tabs" value="7" icon={<ShoppingCart className="h-4 w-4" />} accent="primary" />
+        <KpiCard label="Orders today" value="42" delta="+12 vs. yest." deltaPositive icon={<ClipboardList className="h-4 w-4" />} accent="info" />
+        <KpiCard label="POS revenue" value={ugx(1_980_000)} delta="+8.1%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" />
+        <KpiCard label="Cash drawer" value={ugx(640_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" />
+      </div>
+      <Card title="Recent orders">
+        <p className="text-sm text-muted-foreground">Open the POS to manage active orders.</p>
+        <Link to="/pos" className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open POS →</Link>
+      </Card>
+    </>
+  );
+}
+
+function ReservationsDashboard() {
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Pipeline (7d)" value="38" delta="+6" deltaPositive icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" />
+        <KpiCard label="Forecast Occ (7d)" value="74%" icon={<BedDouble className="h-4 w-4" />} accent="info" />
+        <KpiCard label="ADR" value={ugx(285000)} delta="+2.1%" deltaPositive icon={<TrendingUp className="h-4 w-4" />} accent="success" />
+        <KpiCard label="Cancellations" value="3" delta="-2 vs. wk" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card title="7-day occupancy forecast" className="lg:col-span-2"><OccupancyChart /></Card>
+        <Card title="Channels"><RevenueBars labels={["Direct","OTA","Corporate"]} values={[55,30,15]} /></Card>
+      </div>
+    </>
+  );
+}
+
+function AccountantDashboard() {
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="primary" />
+        <KpiCard label="Payments today" value={ugx(3_120_000)} delta="+12%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" />
+        <KpiCard label="Outstanding" value={ugx(5_120_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" />
+        <KpiCard label="Refunds" value={ugx(80_000)} icon={<ArrowDownRight className="h-4 w-4" />} accent="info" />
+      </div>
+      <Card title="Today's payments">
+        <p className="text-sm text-muted-foreground">View detailed payment log in Billing.</p>
+        <Link to="/billing" className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open billing →</Link>
+      </Card>
+    </>
+  );
+}
+
+function SysadminDashboard() {
+  return (
+    <>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard label="Active users" value="24" icon={<Users className="h-4 w-4" />} accent="primary" />
+        <KpiCard label="Roles" value="7" icon={<ShieldCheck className="h-4 w-4" />} accent="info" />
+        <KpiCard label="Audit events (24h)" value="318" icon={<FileSearch className="h-4 w-4" />} accent="warning" />
+        <KpiCard label="Failed logins" value="2" icon={<ShieldCheck className="h-4 w-4" />} accent="success" />
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Identity & Access" action={<Link to="/identity" className="text-xs text-primary">Manage →</Link>}>
+          <p className="text-sm text-muted-foreground">Manage users, roles and permissions for property staff.</p>
+        </Card>
+        <Card title="Recent audit events" action={<Link to="/audit" className="text-xs text-primary">View log →</Link>}>
+          <p className="text-sm text-muted-foreground">All folio edits, voids and role changes are logged.</p>
+        </Card>
+      </div>
+    </>
+  );
+}
+
+/* ============================== Primitives ============================== */
+
+type Accent = "primary" | "success" | "warning" | "info";
+const accentMap: Record<Accent, string> = {
+  primary: "bg-primary/10 text-primary",
+  success: "bg-success/10 text-success",
+  warning: "bg-warning/10 text-warning",
+  info: "bg-info/10 text-info",
+};
+
+function KpiCard({
+  label, value, delta, deltaPositive, icon, accent = "primary", extra,
+}: {
+  label: string;
+  value: string;
+  delta?: string;
+  deltaPositive?: boolean;
+  icon?: ReactNode;
+  accent?: Accent;
+  extra?: ReactNode;
+}) {
+  return (
+    <div className="card-hover rounded-xl border border-border bg-card p-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="mt-1.5 font-display text-2xl font-bold tracking-tight">{value}</p>
+          {delta && (
+            <p className={"mt-1 inline-flex items-center gap-1 text-[11px] font-medium " + (deltaPositive ? "text-success" : "text-muted-foreground")}>
+              {deltaPositive ? <ArrowUpRight className="h-3 w-3" /> : null}
+              {delta}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {extra}
+          <span className={"grid h-9 w-9 place-items-center rounded-lg " + accentMap[accent]}>{icon}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Card({ title, subtitle, children, action, className }: {
+  title: string;
+  subtitle?: string;
+  children: ReactNode;
+  action?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={"rounded-xl border border-border bg-card p-5 " + (className ?? "")}>
+      <div className="mb-4 flex items-end justify-between gap-2">
+        <div>
+          <h3 className="text-sm font-semibold">{title}</h3>
+          {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
+        </div>
+        {action}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function Ring({ percent }: { percent: number }) {
+  const r = 18;
+  const c = 2 * Math.PI * r;
+  const off = c - (percent / 100) * c;
+  return (
+    <svg width="44" height="44" viewBox="0 0 44 44" className="-mr-1">
+      <circle cx="22" cy="22" r={r} className="stroke-muted" strokeWidth="4" fill="none" />
+      <circle
+        cx="22" cy="22" r={r}
+        className="stroke-primary"
+        strokeWidth="4"
+        fill="none"
+        strokeDasharray={c}
+        strokeDashoffset={off}
+        strokeLinecap="round"
+        transform="rotate(-90 22 22)"
+      />
+      <text x="22" y="25" textAnchor="middle" className="fill-foreground text-[10px] font-bold">{percent}%</text>
     </svg>
   );
 }
 
-/* ───────────────────────── room status grid ───────────────────────── */
+function OccupancyChart() {
+  const data = [62, 68, 71, 65, 74, 79, 78];
+  const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const W = 600, H = 200, P = 28;
+  const max = 100, min = 0;
+  const x = (i: number) => P + (i * (W - 2 * P)) / (data.length - 1);
+  const y = (v: number) => H - P - ((v - min) / (max - min)) * (H - 2 * P);
+  const linePath = data.map((v, i) => (i === 0 ? "M" : "L") + x(i) + " " + y(v)).join(" ");
+  const areaPath = linePath + ` L ${x(data.length - 1)} ${H - P} L ${x(0)} ${H - P} Z`;
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="h-52 w-full">
+      <defs>
+        <linearGradient id="occgrad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {[25,50,75,100].map((g) => (
+        <line key={g} x1={P} x2={W-P} y1={y(g)} y2={y(g)} className="stroke-border" strokeDasharray="3 4" />
+      ))}
+      <path d={areaPath} fill="url(#occgrad)" />
+      <path d={linePath} className="stroke-primary" strokeWidth="2.5" fill="none" />
+      {data.map((v, i) => (
+        <circle key={i} cx={x(i)} cy={y(v)} r="3.5" className="fill-card stroke-primary" strokeWidth="2" />
+      ))}
+      {labels.map((l, i) => (
+        <text key={l} x={x(i)} y={H - 8} textAnchor="middle" className="fill-muted-foreground text-[10px]">{l}</text>
+      ))}
+    </svg>
+  );
+}
 
-type Status = "Available" | "Occupied" | "Dirty" | "Maintenance";
-const statusColor: Record<Status, string> = {
-  Available: "oklch(0.72 0.16 162)",
-  Occupied: "oklch(0.74 0.21 71)",
-  Dirty: "oklch(0.78 0.16 75)",
-  Maintenance: "oklch(0.65 0.22 25)",
-};
-
-function RoomStatusGrid() {
-  // generate 168 rooms across 7 floors
-  const rooms = Array.from({ length: 168 }, (_, i) => {
-    const floor = Math.floor(i / 24) + 1;
-    const num = `${floor}${String((i % 24) + 1).padStart(2, "0")}`;
-    const seed = (i * 7) % 100;
-    const status: Status =
-      seed < 60 ? "Occupied" : seed < 82 ? "Available" : seed < 95 ? "Dirty" : "Maintenance";
-    return { num, floor, status };
-  });
-
+function RevenueBars({ labels = ["Rooms","F&B","Events","Other"], values = [62, 22, 11, 5] }: { labels?: string[]; values?: number[] }) {
+  const colors = ["bg-primary","bg-success","bg-warning","bg-info","bg-chart-5"];
   return (
     <div className="space-y-3">
-      {Array.from({ length: 7 }, (_, f) => f + 1).map((floor) => (
-        <div key={floor} className="flex items-center gap-3">
-          <div className="w-14 shrink-0 text-[11px] uppercase tracking-wider text-muted-foreground">
-            Floor {floor}
+      {labels.map((l, i) => (
+        <div key={l}>
+          <div className="mb-1 flex items-center justify-between text-[11px]">
+            <span className="text-muted-foreground">{l}</span>
+            <span className="font-semibold">{values[i]}%</span>
           </div>
-          <div className="flex flex-1 flex-wrap gap-1.5">
-            {rooms
-              .filter((r) => r.floor === floor)
-              .map((r) => (
-                <div
-                  key={r.num}
-                  title={`Room ${r.num} · ${r.status}`}
-                  className="group relative h-8 w-10 cursor-pointer rounded-md transition-transform hover:z-10 hover:scale-125"
-                  style={{
-                    background: `linear-gradient(135deg, ${statusColor[r.status]}, color-mix(in oklab, ${statusColor[r.status]} 55%, black))`,
-                    boxShadow: `0 0 0 1px oklch(1 0 0 / 0.06) inset, 0 4px 10px -4px ${statusColor[r.status]}`,
-                  }}
-                >
-                  <span className="absolute inset-0 grid place-items-center text-[10px] font-semibold text-white/90 opacity-0 transition-opacity group-hover:opacity-100">
-                    {r.num}
-                  </span>
-                </div>
-              ))}
+          <div className="h-2 overflow-hidden rounded-full bg-muted">
+            <div className={`h-full ${colors[i % colors.length]}`} style={{ width: values[i] + "%" }} />
           </div>
         </div>
       ))}
@@ -724,51 +458,65 @@ function RoomStatusGrid() {
   );
 }
 
-/* ───────────────────────── guest table ───────────────────────── */
-
-function GuestTable({
-  rows,
-  icon: Icon,
-  tone,
-}: {
-  rows: { name: string; room: string; time: string; tag?: string }[];
-  icon: React.ComponentType<{ className?: string }>;
-  tone: "success" | "warning";
+function GuestTable({ rows, kind }: {
+  rows: { name: string; room: string; time: string; nights: number; status: string }[];
+  kind: "arrival" | "departure";
 }) {
   return (
-    <ul className="divide-y divide-border/40">
-      {rows.map((r) => (
-        <li key={r.name} className="flex items-center gap-3 py-3 transition hover:bg-card/30">
-          <span
-            className={cn(
-              "grid h-9 w-9 place-items-center rounded-xl",
-              tone === "success" ? "bg-success/15 text-success" : "bg-warning/15 text-warning",
-            )}
-          >
-            <Icon className="h-4 w-4" />
-          </span>
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-primary/40 to-[oklch(0.72_0.16_162)]/40 text-[11px] font-semibold">
-            {r.name
-              .split(" ")
-              .map((p) => p[0])
-              .join("")}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="truncate font-medium">{r.name}</span>
-              {r.tag && (
-                <span className="rounded-full border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
-                  {r.tag}
-                </span>
-              )}
-            </div>
-            <div className="text-xs text-muted-foreground">{r.room}</div>
-          </div>
-          <div className="text-right">
-            <div className="text-xs font-medium">{r.time}</div>
-          </div>
-        </li>
-      ))}
-    </ul>
+    <div className="overflow-hidden rounded-lg border border-border">
+      <table className="w-full text-sm">
+        <thead className="bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="px-3 py-2 text-left font-semibold">Guest</th>
+            <th className="px-3 py-2 text-left font-semibold">Room</th>
+            <th className="px-3 py-2 text-left font-semibold">{kind === "arrival" ? "ETA" : "ETD"}</th>
+            <th className="px-3 py-2 text-left font-semibold">Nts</th>
+            <th className="px-3 py-2 text-left font-semibold">Status</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {rows.map((r) => (
+            <tr key={r.name} className="hover:bg-muted/30">
+              <td className="px-3 py-2.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                    {r.name.split(" ").map((s) => s[0]).join("").slice(0,2)}
+                  </span>
+                  <span className="font-medium">{r.name}</span>
+                </div>
+              </td>
+              <td className="px-3 py-2.5 font-mono text-xs">{r.room}</td>
+              <td className="px-3 py-2.5 text-muted-foreground">{r.time}</td>
+              <td className="px-3 py-2.5">{r.nights}</td>
+              <td className="px-3 py-2.5"><StatusBadge s={r.status} /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
+}
+
+function StatusBadge({ s }: { s: string }) {
+  const map: Record<string, string> = {
+    Confirmed: "bg-success/10 text-success border-success/20",
+    "Pre-paid": "bg-primary/10 text-primary border-primary/20",
+    Pending: "bg-warning/10 text-warning border-warning/20",
+    "Folio open": "bg-warning/10 text-warning border-warning/20",
+    Cleared: "bg-success/10 text-success border-success/20",
+  };
+  return (
+    <span className={"inline-flex rounded-md border px-1.5 py-0.5 text-[10px] font-semibold " + (map[s] ?? "bg-muted text-muted-foreground border-border")}>
+      {s}
+    </span>
+  );
+}
+
+function PriorityBadge({ p }: { p: string }) {
+  const map: Record<string, string> = {
+    High: "bg-destructive/10 text-destructive",
+    Medium: "bg-warning/10 text-warning",
+    Low: "bg-success/10 text-success",
+  };
+  return <span className={"rounded-md px-2 py-0.5 text-[10px] font-semibold " + (map[p] ?? "bg-muted text-muted-foreground")}>{p}</span>;
 }

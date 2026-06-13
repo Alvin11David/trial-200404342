@@ -18,12 +18,14 @@ import { Route as AppReservationsRouteImport } from './routes/_app.reservations'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppPosRouteImport } from './routes/_app.pos'
 import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
+import { Route as AppIdentityRouteImport } from './routes/_app.identity'
 import { Route as AppHrRouteImport } from './routes/_app.hr'
 import { Route as AppHousekeepingRouteImport } from './routes/_app.housekeeping'
 import { Route as AppGuestsRouteImport } from './routes/_app.guests'
 import { Route as AppEventsRouteImport } from './routes/_app.events'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
+import { Route as AppAuditRouteImport } from './routes/_app.audit'
 import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
 import { Route as AppReservationsNewRouteImport } from './routes/_app.reservations.new'
 import { Route as AppPosOrdersRouteImport } from './routes/_app.pos.orders'
@@ -78,6 +80,11 @@ const AppInventoryRoute = AppInventoryRouteImport.update({
   path: '/inventory',
   getParentRoute: () => AppRoute,
 } as any)
+const AppIdentityRoute = AppIdentityRouteImport.update({
+  id: '/identity',
+  path: '/identity',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppHrRoute = AppHrRouteImport.update({
   id: '/hr',
   path: '/hr',
@@ -106,6 +113,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
 const AppBillingRoute = AppBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAuditRoute = AppAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAccountingRoute = AppAccountingRouteImport.update({
@@ -160,12 +172,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/accounting': typeof AppAccountingRoute
+  '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/events': typeof AppEventsRouteWithChildren
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
   '/hr': typeof AppHrRoute
+  '/identity': typeof AppIdentityRoute
   '/inventory': typeof AppInventoryRouteWithChildren
   '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
@@ -185,12 +199,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/accounting': typeof AppAccountingRoute
+  '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
   '/dashboard': typeof AppDashboardRoute
   '/events': typeof AppEventsRouteWithChildren
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
   '/hr': typeof AppHrRoute
+  '/identity': typeof AppIdentityRoute
   '/inventory': typeof AppInventoryRouteWithChildren
   '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
@@ -212,12 +228,14 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_app/accounting': typeof AppAccountingRoute
+  '/_app/audit': typeof AppAuditRoute
   '/_app/billing': typeof AppBillingRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/events': typeof AppEventsRouteWithChildren
   '/_app/guests': typeof AppGuestsRoute
   '/_app/housekeeping': typeof AppHousekeepingRoute
   '/_app/hr': typeof AppHrRoute
+  '/_app/identity': typeof AppIdentityRoute
   '/_app/inventory': typeof AppInventoryRouteWithChildren
   '/_app/pos': typeof AppPosRouteWithChildren
   '/_app/reports': typeof AppReportsRoute
@@ -239,12 +257,14 @@ export interface FileRouteTypes {
     | '/'
     | '/sitemap.xml'
     | '/accounting'
+    | '/audit'
     | '/billing'
     | '/dashboard'
     | '/events'
     | '/guests'
     | '/housekeeping'
     | '/hr'
+    | '/identity'
     | '/inventory'
     | '/pos'
     | '/reports'
@@ -264,12 +284,14 @@ export interface FileRouteTypes {
     | '/'
     | '/sitemap.xml'
     | '/accounting'
+    | '/audit'
     | '/billing'
     | '/dashboard'
     | '/events'
     | '/guests'
     | '/housekeeping'
     | '/hr'
+    | '/identity'
     | '/inventory'
     | '/pos'
     | '/reports'
@@ -290,12 +312,14 @@ export interface FileRouteTypes {
     | '/_app'
     | '/sitemap.xml'
     | '/_app/accounting'
+    | '/_app/audit'
     | '/_app/billing'
     | '/_app/dashboard'
     | '/_app/events'
     | '/_app/guests'
     | '/_app/housekeeping'
     | '/_app/hr'
+    | '/_app/identity'
     | '/_app/inventory'
     | '/_app/pos'
     | '/_app/reports'
@@ -383,6 +407,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/identity': {
+      id: '/_app/identity'
+      path: '/identity'
+      fullPath: '/identity'
+      preLoaderRoute: typeof AppIdentityRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/hr': {
       id: '/_app/hr'
       path: '/hr'
@@ -423,6 +454,13 @@ declare module '@tanstack/react-router' {
       path: '/billing'
       fullPath: '/billing'
       preLoaderRoute: typeof AppBillingRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/audit': {
+      id: '/_app/audit'
+      path: '/audit'
+      fullPath: '/audit'
+      preLoaderRoute: typeof AppAuditRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/accounting': {
@@ -548,12 +586,14 @@ const AppReservationsRouteWithChildren = AppReservationsRoute._addFileChildren(
 
 interface AppRouteChildren {
   AppAccountingRoute: typeof AppAccountingRoute
+  AppAuditRoute: typeof AppAuditRoute
   AppBillingRoute: typeof AppBillingRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEventsRoute: typeof AppEventsRouteWithChildren
   AppGuestsRoute: typeof AppGuestsRoute
   AppHousekeepingRoute: typeof AppHousekeepingRoute
   AppHrRoute: typeof AppHrRoute
+  AppIdentityRoute: typeof AppIdentityRoute
   AppInventoryRoute: typeof AppInventoryRouteWithChildren
   AppPosRoute: typeof AppPosRouteWithChildren
   AppReportsRoute: typeof AppReportsRoute
@@ -564,12 +604,14 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAccountingRoute: AppAccountingRoute,
+  AppAuditRoute: AppAuditRoute,
   AppBillingRoute: AppBillingRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEventsRoute: AppEventsRouteWithChildren,
   AppGuestsRoute: AppGuestsRoute,
   AppHousekeepingRoute: AppHousekeepingRoute,
   AppHrRoute: AppHrRoute,
+  AppIdentityRoute: AppIdentityRoute,
   AppInventoryRoute: AppInventoryRouteWithChildren,
   AppPosRoute: AppPosRouteWithChildren,
   AppReportsRoute: AppReportsRoute,
