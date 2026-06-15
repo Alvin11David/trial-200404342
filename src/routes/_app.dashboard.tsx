@@ -17,6 +17,16 @@ import {
   Users,
 } from "lucide-react";
 import { useRole, ROLE_META } from "@/lib/role";
+import {
+  adrOnDate,
+  dateRangeList,
+  fmtUGX,
+  occupancyOnDate,
+  revparOnDate,
+  todayISO,
+  totalRevenueOnDate,
+  useStore,
+} from "@/lib/pms-store";
 import type { ReactNode } from "react";
 
 export const Route = createFileRoute("/_app/dashboard")({
