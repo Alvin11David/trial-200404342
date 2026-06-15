@@ -47,8 +47,27 @@ type Form = {
   notes: string;
 };
 
-// Rooms are sourced from the shared store and filtered by availability for the
-// selected date range; see useAvailableRooms() inside NewReservation.
+type RoomOption = { id: string; type: string; rate: number; beds: string; available: boolean; typeId: string };
+
+function useRoomOptions(checkIn: string, checkOut: string): RoomOption[] {
+  const rooms = useStore((s) => s.rooms);
+  const roomTypes = useStore((s) => s.roomTypes);
+  const haveDates = !!(checkIn && checkOut && checkIn < checkOut);
+  return rooms.map((r) => {
+    const rt = roomTypes.find((t) => t.id === r.typeId);
+    const available = haveDates
+      ? findAvailableRooms(r.typeId, checkIn, checkOut).some((a) => a.id === r.id)
+      : r.status === "available";
+    return {
+      id: r.id,
+      type: rt?.name ?? r.typeId,
+      typeId: r.typeId,
+      rate: rt?.baseRate ?? 0,
+      beds: rt?.name === "Suite" ? "1 King + Sofa" : rt?.name === "Deluxe" ? "1 King" : "1 Queen",
+      available,
+    };
+  });
+}
 
 const mealPlans = [
   { id: "RO", label: "Room Only", desc: "Accommodation only", price: 0 },
