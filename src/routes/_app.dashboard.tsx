@@ -67,43 +67,50 @@ function Dashboard() {
 
 /* ============================== Owner / GM ============================== */
 
-const ugx = (n: number) => "UGX " + n.toLocaleString();
+const ugx = (n: number) => fmtUGX(n);
 
 function OwnerGMDashboard() {
+  const today = todayISO();
+  const reservations = useStore((s) => s.reservations);
+  const rooms = useStore((s) => s.rooms);
+  const occ = occupancyOnDate(today);
+  const adr = adrOnDate(today);
+  const revpar = revparOnDate(today);
+  const revToday = totalRevenueOnDate(today);
+  const arrivals = reservations.filter((r) => r.checkIn === today && (r.status === "confirmed" || r.status === "checked_in"));
+  const departures = reservations.filter((r) => r.checkOut === today && (r.status === "checked_in" || r.status === "checked_out"));
+  const dirtyRooms = rooms.filter((r) => r.status === "dirty");
+
   return (
     <>
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           label="Occupancy"
-          value="78%"
-          delta="+4.2%"
-          deltaPositive
+          value={(occ.pct * 100).toFixed(0) + "%"}
+          delta={`${occ.occupied} / ${occ.total} rooms`}
           icon={<BedDouble className="h-4 w-4" />}
           accent="primary"
-          extra={<Ring percent={78} />}
+          extra={<Ring percent={Math.round(occ.pct * 100)} />}
         />
         <KpiCard
           label="ADR"
-          value={ugx(285000)}
-          delta="+2.1%"
-          deltaPositive
+          value={ugx(adr)}
+          delta="Today"
           icon={<TrendingUp className="h-4 w-4" />}
           accent="success"
         />
         <KpiCard
           label="RevPAR"
-          value={ugx(222300)}
-          delta="+5.8%"
-          deltaPositive
+          value={ugx(revpar)}
+          delta="Today"
           icon={<DollarSign className="h-4 w-4" />}
           accent="info"
         />
         <KpiCard
           label="Today's Revenue"
-          value={ugx(4_120_000)}
-          delta="+12.3%"
-          deltaPositive
+          value={ugx(revToday)}
+          delta="All sources"
           icon={<Wallet className="h-4 w-4" />}
           accent="warning"
         />
@@ -121,51 +128,49 @@ function OwnerGMDashboard() {
 
       {/* Tables */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Today's arrivals" subtitle="5 expected check-ins" action={<Link to="/reservations" className="text-xs font-medium text-primary hover:underline">View all →</Link>}>
+        <Card title="Today's arrivals" subtitle={`${arrivals.length} expected check-ins`} action={<Link to="/reservations" className="text-xs font-medium text-primary hover:underline">View all →</Link>}>
           <GuestTable
-            rows={[
-              { name: "Sarah Mwangi", room: "204", time: "14:00", nights: 3, status: "Confirmed" },
-              { name: "James Okello", room: "311", time: "15:30", nights: 2, status: "Confirmed" },
-              { name: "Priya Sharma", room: "108", time: "16:00", nights: 5, status: "Pre-paid" },
-              { name: "David Mensah", room: "402", time: "18:00", nights: 1, status: "Pending" },
-              { name: "Aisha Wanjiku", room: "215", time: "20:00", nights: 4, status: "Confirmed" },
-            ]}
+            rows={arrivals.slice(0, 5).map((r) => ({
+              name: r.guestName,
+              room: r.roomId ?? "—",
+              time: "—",
+              nights: Math.max(1, Math.round((new Date(r.checkOut).getTime() - new Date(r.checkIn).getTime()) / 86_400_000)),
+              status: r.status === "checked_in" ? "Checked In" : "Confirmed",
+            }))}
             kind="arrival"
           />
         </Card>
-        <Card title="Today's departures" subtitle="5 scheduled check-outs" action={<Link to="/reservations" className="text-xs font-medium text-primary hover:underline">View all →</Link>}>
+        <Card title="Today's departures" subtitle={`${departures.length} scheduled check-outs`} action={<Link to="/reservations" className="text-xs font-medium text-primary hover:underline">View all →</Link>}>
           <GuestTable
-            rows={[
-              { name: "Mark Tindyebwa", room: "112", time: "10:00", nights: 2, status: "Folio open" },
-              { name: "Linda Owino", room: "303", time: "11:00", nights: 4, status: "Cleared" },
-              { name: "Tom Kabuye", room: "201", time: "11:30", nights: 1, status: "Cleared" },
-              { name: "Joan Nansubuga", room: "405", time: "12:00", nights: 3, status: "Folio open" },
-              { name: "Daniel Etyang", room: "118", time: "12:00", nights: 2, status: "Cleared" },
-            ]}
+            rows={departures.slice(0, 5).map((r) => ({
+              name: r.guestName,
+              room: r.roomId ?? "—",
+              time: "—",
+              nights: Math.max(1, Math.round((new Date(r.checkOut).getTime() - new Date(r.checkIn).getTime()) / 86_400_000)),
+              status: r.status === "checked_out" ? "Cleared" : "Folio open",
+            }))}
             kind="departure"
           />
         </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="Housekeeping needs attention" subtitle="9 rooms in queue" className="lg:col-span-2">
+        <Card title="Housekeeping needs attention" subtitle={`${dirtyRooms.length} rooms in queue`} className="lg:col-span-2">
           <div className="grid gap-2 sm:grid-cols-2">
-            {[
-              { room: "101", note: "Departure clean", priority: "High" },
-              { room: "204", note: "Stayover refresh", priority: "Medium" },
-              { room: "212", note: "Inspection pending", priority: "Low" },
-              { room: "305", note: "Departure clean", priority: "High" },
-              { room: "311", note: "Linen change", priority: "Medium" },
-              { room: "402", note: "Maintenance follow-up", priority: "High" },
-            ].map((r) => (
-              <div key={r.room} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
+            {dirtyRooms.slice(0, 6).map((r) => (
+              <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
                 <div>
-                  <div className="text-sm font-semibold">Room {r.room}</div>
-                  <div className="text-[11px] text-muted-foreground">{r.note}</div>
+                  <div className="text-sm font-semibold">Room {r.id}</div>
+                  <div className="text-[11px] text-muted-foreground">Floor {r.floor} · awaiting turnover</div>
                 </div>
-                <PriorityBadge p={r.priority} />
+                <PriorityBadge p="High" />
               </div>
             ))}
+            {dirtyRooms.length === 0 && (
+              <p className="col-span-2 rounded-md border border-success/20 bg-success/10 px-3 py-3 text-xs text-success">
+                All rooms clean.
+              </p>
+            )}
           </div>
         </Card>
         <Card title="Quick reports" subtitle="Generate now">
