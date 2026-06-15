@@ -100,7 +100,8 @@ function NewReservation() {
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
 
-  const room = rooms.find((r) => r.id === form.roomId);
+  const roomOptions = useRoomOptions(form.checkIn, form.checkOut);
+  const room = roomOptions.find((r) => r.id === form.roomId);
   const meal = mealPlans.find((m) => m.id === form.mealPlan)!;
   const nights = useMemo(() => {
     if (!form.checkIn || !form.checkOut) return 0;
@@ -126,10 +127,34 @@ function NewReservation() {
     setDirection(n > step ? 1 : -1);
     setStep(n);
   };
+  const [error, setError] = useState<string | null>(null);
 
   const submit = () => {
+    if (!room) return;
+    const res = createReservation({
+      guestName: `${form.firstName} ${form.lastName}`.trim(),
+      guestEmail: form.email,
+      guestPhone: form.phone,
+      nationality: form.nationality,
+      idType: form.idType,
+      idNumber: form.idNumber,
+      roomTypeId: room.typeId,
+      roomId: room.id,
+      checkIn: form.checkIn,
+      checkOut: form.checkOut,
+      adults: form.adults,
+      children: form.children,
+      ratePerNight: room.rate,
+      mealPlan: form.mealPlan,
+      source: "Direct",
+      notes: form.notes,
+    });
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
     setSubmitted(true);
-    setTimeout(() => navigate({ to: "/reservations" }), 1600);
+    setTimeout(() => navigate({ to: "/reservations" }), 1400);
   };
 
   return (
