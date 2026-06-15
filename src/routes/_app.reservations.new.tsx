@@ -16,6 +16,7 @@ import {
   Calendar as CalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createReservation, findAvailableRooms, useStore } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/reservations/new")({
   head: () => ({ meta: [{ title: "New Reservation — Jambo ERP" }] }),
@@ -46,18 +47,8 @@ type Form = {
   notes: string;
 };
 
-const rooms = [
-  { id: "204", type: "Standard", rate: 220_000, beds: "1 Queen", available: true },
-  { id: "205", type: "Standard", rate: 220_000, beds: "2 Twin", available: true },
-  { id: "212", type: "Standard", rate: 220_000, beds: "1 Queen", available: false },
-  { id: "304", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
-  { id: "308", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
-  { id: "311", type: "Deluxe", rate: 380_000, beds: "1 King", available: false },
-  { id: "312", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
-  { id: "501", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: false },
-  { id: "502", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: true },
-  { id: "503", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: true },
-];
+// Rooms are sourced from the shared store and filtered by availability for the
+// selected date range; see useAvailableRooms() inside NewReservation.
 
 const mealPlans = [
   { id: "RO", label: "Room Only", desc: "Accommodation only", price: 0 },
