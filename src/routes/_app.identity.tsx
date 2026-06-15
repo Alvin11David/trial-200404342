@@ -1,45 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Plus, Search, ShieldCheck, KeyRound, Check, X } from "lucide-react";
+import { Plus, Search, ShieldCheck, KeyRound, Check, X, Power } from "lucide-react";
 import { ROLES, type Role } from "@/lib/role";
+import { toggleUserActive, upsertUser, useStore, type UserRecord } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/identity")({
   head: () => ({ meta: [{ title: "Identity & Access — Jambo PMS" }] }),
   component: IdentityPage,
 });
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: Role;
-  status: "Active" | "Disabled" | "Invited";
-  lastLogin: string;
-};
-
-const USERS: User[] = [
-  { id: "U001", name: "Sarah Nakato", email: "sarah@jambo.ug", role: "Owner / GM", status: "Active", lastLogin: "10 min ago" },
-  { id: "U002", name: "Amani Kato", email: "amani@jambo.ug", role: "Front Desk", status: "Active", lastLogin: "Just now" },
-  { id: "U003", name: "Grace Achieng", email: "grace@jambo.ug", role: "Housekeeping", status: "Active", lastLogin: "2h ago" },
-  { id: "U004", name: "John Mukasa", email: "john@jambo.ug", role: "POS / Cashier", status: "Active", lastLogin: "30 min ago" },
-  { id: "U005", name: "Esther Nambi", email: "esther@jambo.ug", role: "Reservations / Revenue", status: "Active", lastLogin: "1h ago" },
-  { id: "U006", name: "Peter Ssempijja", email: "peter@jambo.ug", role: "Accountant", status: "Active", lastLogin: "Yesterday" },
-  { id: "U007", name: "Robert Kizza", email: "robert@jambo.ug", role: "System Administrator", status: "Active", lastLogin: "5 min ago" },
-  { id: "U008", name: "Mary Nakibuuka", email: "mary@jambo.ug", role: "Housekeeping", status: "Invited", lastLogin: "—" },
-  { id: "U009", name: "Faith Akello", email: "faith@jambo.ug", role: "Front Desk", status: "Disabled", lastLogin: "1 month ago" },
-];
-
 const PERMISSIONS = [
-  "Reservations",
-  "Front Desk",
-  "Housekeeping",
-  "Billing & Folio",
-  "Payments",
-  "POS",
-  "Reports",
-  "Audit Trail",
-  "Identity & Access",
-  "Settings",
+  "Reservations", "Front Desk", "Housekeeping", "Billing & Folio",
+  "Payments", "POS", "Reports", "Audit Trail", "Identity & Access", "Settings",
 ];
 
 const ROLE_PERMS: Record<Role, string[]> = {
@@ -52,40 +24,34 @@ const ROLE_PERMS: Record<Role, string[]> = {
   "System Administrator": ["Identity & Access","Audit Trail","Settings"],
 };
 
-const statusStyles: Record<User["status"], string> = {
-  Active: "bg-success/10 text-success border-success/20",
-  Disabled: "bg-muted text-muted-foreground border-border",
-  Invited: "bg-warning/10 text-warning border-warning/20",
-};
-
 function IdentityPage() {
+  const users = useStore((s) => s.users);
   const [tab, setTab] = useState<"users" | "roles">("users");
   const [search, setSearch] = useState("");
   const [selectedRole, setSelectedRole] = useState<Role>("Owner / GM");
+  const [edit, setEdit] = useState<UserRecord | "new" | null>(null);
 
-  const filtered = USERS.filter(
-    (u) =>
-      !search ||
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()),
+  const filtered = users.filter(
+    (u) => !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-bold tracking-tight">Identity & Access</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage users, roles and permissions across the property.
-          </p>
+          <h1 className="font-display text-2xl font-bold tracking-tight">Identity &amp; Access</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Manage users, roles and permissions.</p>
         </div>
-        <button className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90">
+        <button
+          onClick={() => setEdit("new")}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+        >
           <Plus className="h-3.5 w-3.5" /> Invite user
         </button>
       </header>
 
       <div className="inline-flex rounded-lg border border-border bg-card p-0.5 text-xs">
-        {(["users","roles"] as const).map((t) => (
+        {(["users", "roles"] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -104,7 +70,7 @@ function IdentityPage() {
               placeholder="Search users…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-3 text-sm outline-none focus:border-primary/60"
             />
           </div>
 
@@ -125,7 +91,7 @@ function IdentityPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <span className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
-                          {u.name.split(" ").map((s) => s[0]).join("").slice(0,2)}
+                          {u.name.split(" ").map((s) => s[0]).join("").slice(0, 2)}
                         </span>
                         <div>
                           <div className="font-semibold">{u.name}</div>
@@ -135,13 +101,32 @@ function IdentityPage() {
                     </td>
                     <td className="px-4 py-3 text-sm">{u.role}</td>
                     <td className="px-4 py-3">
-                      <span className={"inline-flex rounded-md border px-2 py-0.5 text-[10px] font-semibold " + statusStyles[u.status]}>
-                        {u.status}
+                      <span
+                        className={
+                          "inline-flex rounded-md border px-2 py-0.5 text-[10px] font-semibold " +
+                          (u.active ? "border-success/20 bg-success/10 text-success" : "border-border bg-muted text-muted-foreground")
+                        }
+                      >
+                        {u.active ? "Active" : "Disabled"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{u.lastLogin}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">{u.lastLogin ?? "—"}</td>
                     <td className="px-4 py-3 text-right">
-                      <button className="rounded-md border border-border px-2 py-1 text-[11px] hover:border-primary/40">Edit</button>
+                      <div className="inline-flex gap-1">
+                        <button
+                          onClick={() => toggleUserActive(u.id)}
+                          title={u.active ? "Disable" : "Activate"}
+                          className="rounded-md border border-border p-1.5 hover:border-primary/40"
+                        >
+                          <Power className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setEdit(u)}
+                          className="rounded-md border border-border px-2 py-1 text-[11px] hover:border-primary/40"
+                        >
+                          Edit
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -165,18 +150,14 @@ function IdentityPage() {
               </button>
             ))}
           </div>
-
           <div className="rounded-xl border border-border bg-card p-5">
             <div className="mb-4 flex items-start justify-between">
               <div>
                 <h3 className="font-display text-lg font-bold">{selectedRole}</h3>
-                <p className="text-xs text-muted-foreground">
-                  Permissions granted to this role. Changes are recorded in the audit log.
-                </p>
+                <p className="text-xs text-muted-foreground">Permissions granted to this role.</p>
               </div>
               <KeyRound className="h-5 w-5 text-muted-foreground" />
             </div>
-
             <div className="grid gap-2 sm:grid-cols-2">
               {PERMISSIONS.map((p) => {
                 const granted = ROLE_PERMS[selectedRole].includes(p);
@@ -199,6 +180,66 @@ function IdentityPage() {
           </div>
         </div>
       )}
+
+      {edit !== null && <UserEditor initial={edit === "new" ? null : edit} onClose={() => setEdit(null)} />}
     </div>
+  );
+}
+
+function UserEditor({ initial, onClose }: { initial: UserRecord | null; onClose: () => void }) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [email, setEmail] = useState(initial?.email ?? "");
+  const [role, setRole] = useState<string>(initial?.role ?? "Front Desk");
+  const [active, setActive] = useState(initial?.active ?? true);
+
+  const submit = () => {
+    if (!name || !email) return;
+    const id = initial?.id ?? "U" + Math.floor(100 + Math.random() * 900);
+    upsertUser({ id, name, email, role, active, lastLogin: initial?.lastLogin ?? "—" });
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl">
+        <div className="mb-4 flex items-start justify-between">
+          <h3 className="font-display text-lg font-bold">{initial ? "Edit user" : "Invite user"}</h3>
+          <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="space-y-3">
+          <Labeled label="Full name">
+            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </Labeled>
+          <Labeled label="Email">
+            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </Labeled>
+          <Labeled label="Role">
+            <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </Labeled>
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /> Active
+          </label>
+        </div>
+        <div className="mt-6 flex items-center justify-end gap-2">
+          <button onClick={onClose} className="rounded-md border border-border px-3 py-2 text-xs">Cancel</button>
+          <button onClick={submit} className="rounded-md bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
+            {initial ? "Save changes" : "Send invite"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1 block text-[11px] font-medium text-muted-foreground">{label}</span>
+      {children}
+    </label>
   );
 }

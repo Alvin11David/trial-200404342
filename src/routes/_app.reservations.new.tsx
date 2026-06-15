@@ -16,6 +16,7 @@ import {
   Calendar as CalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createReservation, findAvailableRooms, useStore } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/reservations/new")({
   head: () => ({ meta: [{ title: "New Reservation — Jambo ERP" }] }),
@@ -46,18 +47,27 @@ type Form = {
   notes: string;
 };
 
-const rooms = [
-  { id: "204", type: "Standard", rate: 220_000, beds: "1 Queen", available: true },
-  { id: "205", type: "Standard", rate: 220_000, beds: "2 Twin", available: true },
-  { id: "212", type: "Standard", rate: 220_000, beds: "1 Queen", available: false },
-  { id: "304", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
-  { id: "308", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
-  { id: "311", type: "Deluxe", rate: 380_000, beds: "1 King", available: false },
-  { id: "312", type: "Deluxe", rate: 380_000, beds: "1 King", available: true },
-  { id: "501", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: false },
-  { id: "502", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: true },
-  { id: "503", type: "Suite", rate: 850_000, beds: "1 King + Sofa", available: true },
-];
+type RoomOption = { id: string; type: string; rate: number; beds: string; available: boolean; typeId: string };
+
+function useRoomOptions(checkIn: string, checkOut: string): RoomOption[] {
+  const rooms = useStore((s) => s.rooms);
+  const roomTypes = useStore((s) => s.roomTypes);
+  const haveDates = !!(checkIn && checkOut && checkIn < checkOut);
+  return rooms.map((r) => {
+    const rt = roomTypes.find((t) => t.id === r.typeId);
+    const available = haveDates
+      ? findAvailableRooms(r.typeId, checkIn, checkOut).some((a) => a.id === r.id)
+      : r.status === "available";
+    return {
+      id: r.id,
+      type: rt?.name ?? r.typeId,
+      typeId: r.typeId,
+      rate: rt?.baseRate ?? 0,
+      beds: rt?.name === "Suite" ? "1 King + Sofa" : rt?.name === "Deluxe" ? "1 King" : "1 Queen",
+      available,
+    };
+  });
+}
 
 const mealPlans = [
   { id: "RO", label: "Room Only", desc: "Accommodation only", price: 0 },
@@ -90,7 +100,8 @@ function NewReservation() {
 
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
 
-  const room = rooms.find((r) => r.id === form.roomId);
+  const roomOptions = useRoomOptions(form.checkIn, form.checkOut);
+  const room = roomOptions.find((r) => r.id === form.roomId);
   const meal = mealPlans.find((m) => m.id === form.mealPlan)!;
   const nights = useMemo(() => {
     if (!form.checkIn || !form.checkOut) return 0;
@@ -116,10 +127,34 @@ function NewReservation() {
     setDirection(n > step ? 1 : -1);
     setStep(n);
   };
+  const [error, setError] = useState<string | null>(null);
 
   const submit = () => {
+    if (!room) return;
+    const res = createReservation({
+      guestName: `${form.firstName} ${form.lastName}`.trim(),
+      guestEmail: form.email,
+      guestPhone: form.phone,
+      nationality: form.nationality,
+      idType: form.idType,
+      idNumber: form.idNumber,
+      roomTypeId: room.typeId,
+      roomId: room.id,
+      checkIn: form.checkIn,
+      checkOut: form.checkOut,
+      adults: form.adults,
+      children: form.children,
+      ratePerNight: room.rate,
+      mealPlan: form.mealPlan,
+      source: "Direct",
+      notes: form.notes,
+    });
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
     setSubmitted(true);
-    setTimeout(() => navigate({ to: "/reservations" }), 1600);
+    setTimeout(() => navigate({ to: "/reservations" }), 1400);
   };
 
   return (
@@ -206,7 +241,7 @@ function NewReservation() {
         >
           {step === 1 && <StepGuestDetails form={form} set={set} />}
           {step === 2 && (
-            <StepRoomSelection selected={form.roomId} onSelect={(id) => set("roomId", id)} />
+            <StepRoomSelection rooms={roomOptions} selected={form.roomId} onSelect={(id) => set("roomId", id)} />
           )}
           {step === 3 && <StepDatesAndPlan form={form} set={set} nights={nights} meal={meal} />}
           {step === 4 && (
@@ -346,9 +381,11 @@ function StepGuestDetails({
 
 /* ───────────────────────── Step 2 ───────────────────────── */
 function StepRoomSelection({
+  rooms,
   selected,
   onSelect,
 }: {
+  rooms: RoomOption[];
   selected: string;
   onSelect: (id: string) => void;
 }) {
@@ -546,7 +583,7 @@ function StepReview({
   submitted,
 }: {
   form: Form;
-  room: (typeof rooms)[number] | undefined;
+  room: RoomOption | undefined;
   meal: (typeof mealPlans)[number];
   nights: number;
   subtotal: number;
