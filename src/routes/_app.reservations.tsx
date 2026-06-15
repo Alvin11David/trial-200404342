@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Eye, Filter, LogIn, LogOut, Plus, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -22,12 +22,7 @@ export const Route = createFileRoute("/_app/reservations")({
 
 function ReservationsLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  if (pathname !== "/reservations") {
-    // child route (e.g. /reservations/new) handles its own UI
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { Outlet } = require("@tanstack/react-router");
-    return <Outlet />;
-  }
+  if (pathname !== "/reservations") return <Outlet />;
   return <ReservationsPage />;
 }
 
