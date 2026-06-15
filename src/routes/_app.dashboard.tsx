@@ -423,11 +423,15 @@ function Ring({ percent }: { percent: number }) {
 }
 
 function OccupancyChart() {
-  const data = [62, 68, 71, 65, 74, 79, 78];
-  const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const today = todayISO();
+  const start = new Date(today);
+  start.setDate(start.getDate() - 6);
+  const days = dateRangeList(start.toISOString().slice(0, 10), today);
+  const data = days.map((d) => Math.round(occupancyOnDate(d).pct * 100));
+  const labels = days.map((d) => new Date(d).toLocaleDateString("en-US", { weekday: "short" }));
   const W = 600, H = 200, P = 28;
   const max = 100, min = 0;
-  const x = (i: number) => P + (i * (W - 2 * P)) / (data.length - 1);
+  const x = (i: number) => P + (i * (W - 2 * P)) / Math.max(1, data.length - 1);
   const y = (v: number) => H - P - ((v - min) / (max - min)) * (H - 2 * P);
   const linePath = data.map((v, i) => (i === 0 ? "M" : "L") + x(i) + " " + y(v)).join(" ");
   const areaPath = linePath + ` L ${x(data.length - 1)} ${H - P} L ${x(0)} ${H - P} Z`;
