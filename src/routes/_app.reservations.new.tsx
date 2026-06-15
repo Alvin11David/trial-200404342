@@ -241,7 +241,7 @@ function NewReservation() {
         >
           {step === 1 && <StepGuestDetails form={form} set={set} />}
           {step === 2 && (
-            <StepRoomSelection selected={form.roomId} onSelect={(id) => set("roomId", id)} />
+            <StepRoomSelection rooms={roomOptions} selected={form.roomId} onSelect={(id) => set("roomId", id)} />
           )}
           {step === 3 && <StepDatesAndPlan form={form} set={set} nights={nights} meal={meal} />}
           {step === 4 && (
@@ -381,9 +381,11 @@ function StepGuestDetails({
 
 /* ───────────────────────── Step 2 ───────────────────────── */
 function StepRoomSelection({
+  rooms,
   selected,
   onSelect,
 }: {
+  rooms: RoomOption[];
   selected: string;
   onSelect: (id: string) => void;
 }) {
@@ -581,7 +583,7 @@ function StepReview({
   submitted,
 }: {
   form: Form;
-  room: (typeof rooms)[number] | undefined;
+  room: RoomOption | undefined;
   meal: (typeof mealPlans)[number];
   nights: number;
   subtotal: number;
