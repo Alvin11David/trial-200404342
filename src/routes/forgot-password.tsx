@@ -123,7 +123,6 @@ function ForgotPasswordPage() {
     const code = String(Math.floor(1000 + Math.random() * 9000));
     setTimeout(() => {
       setLoading(false);
-      setOtp(code);
       setStep(1);
       setNotif(code);
     }, 1000);
@@ -257,17 +256,11 @@ function ForgotPasswordPage() {
                   <div className="mb-2">
                     <OtpIllo />
                   </div>
-                  <h2 className="text-xl font-semibold tracking-tight">Your verification code</h2>
+                  <h2 className="text-xl font-semibold tracking-tight">Check your email</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Sent to{" "}
+                    We sent a 4-digit verification code to{" "}
                     <span className="font-medium text-foreground">{email}</span>
                   </p>
-                </div>
-                <div className="flex justify-center">
-                  <div className="inline-flex items-center gap-3 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 px-6 py-3">
-                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Code</span>
-                    <span className="tracking-[0.3em] text-2xl font-bold text-primary">{otp}</span>
-                  </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-center">
