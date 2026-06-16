@@ -520,8 +520,9 @@ function InvoiceView({ folioId }: { folioId: string }) {
   const folioPayments = payments.filter((p) => p.folioId === folioId);
 
   const subtotal = folioCharges.reduce((s, c) => s + c.amount, 0);
-  // VAT is shown as embedded portion of subtotal (Uganda 18% inclusive)
-  const vat = subtotal - subtotal / (1 + tenant.vatRate);
+  // Use reservation-level vatRate if available (for historical accuracy), fall back to tenant default
+  const effectiveVatRate = res?.vatRate ?? tenant.vatRate;
+  const vat = subtotal - subtotal / (1 + effectiveVatRate);
   const net = subtotal - vat;
   const paid = folioPayments.reduce((s, p) => s + p.amount, 0);
   const due = subtotal - paid;
@@ -591,7 +592,7 @@ function InvoiceView({ folioId }: { folioId: string }) {
 
         <div className="ml-auto mt-6 grid w-full max-w-xs gap-1.5 text-sm">
           <Row label="Subtotal (net)" value={fmtUGX(net)} />
-          <Row label={`VAT (${(tenant.vatRate * 100).toFixed(0)}%)`} value={fmtUGX(vat)} />
+          <Row label={`VAT (${(effectiveVatRate * 100).toFixed(0)}%)`} value={fmtUGX(vat)} />
           <div className="border-t border-border pt-1.5">
             <Row label="Total" value={fmtUGX(subtotal)} bold />
           </div>

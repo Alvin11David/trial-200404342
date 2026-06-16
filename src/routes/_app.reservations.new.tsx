@@ -120,9 +120,11 @@ function NewReservation() {
     const b = new Date(form.checkOut).getTime();
     return Math.max(0, Math.round((b - a) / 86_400_000));
   }, [form.checkIn, form.checkOut]);
+  const tenant = useStore((s) => s.tenant);
+  const taxRate = tenant?.vatRate ?? 0.18;
   const subtotal = (room?.rate ?? 0) * nights;
   const mealTotal = meal.price * nights;
-  const tax = Math.round((subtotal + mealTotal) * 0.18);
+  const tax = Math.round((subtotal + mealTotal) * taxRate);
   const total = subtotal + mealTotal + tax;
 
   const canNext =
@@ -280,6 +282,7 @@ function NewReservation() {
               subtotal={subtotal}
               mealTotal={mealTotal}
               tax={tax}
+              taxRate={taxRate}
               total={total}
               submitted={submitted}
             />
@@ -613,6 +616,7 @@ function StepReview({
   subtotal,
   mealTotal,
   tax,
+  taxRate,
   total,
   submitted,
 }: {
@@ -624,6 +628,7 @@ function StepReview({
   subtotal: number;
   mealTotal: number;
   tax: number;
+  taxRate: number;
   total: number;
   submitted: boolean;
 }) {
@@ -794,7 +799,7 @@ function StepReview({
               <span className="font-medium tabular-nums">UGX {mealTotal.toLocaleString()}</span>
             </li>
             <li className="flex justify-between">
-              <span className="text-muted-foreground">Taxes (18%)</span>
+              <span className="text-muted-foreground">Taxes ({Math.round(taxRate * 100)}%)</span>
               <span className="font-medium tabular-nums">UGX {tax.toLocaleString()}</span>
             </li>
             {form.collectPayment && form.paymentMethod && momoAmount > 0 && (

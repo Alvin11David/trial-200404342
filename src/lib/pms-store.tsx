@@ -74,6 +74,7 @@ export type Reservation = {
   status: ReservationStatus;
   createdAt: string;          // ISO
   folioId?: string;
+  vatRate?: number;           // VAT rate applicable at booking time (for invoicing)
   notes?: string;
 };
 
@@ -711,7 +712,7 @@ function updateGuestStats(email: string, phone: string) {
 
 export type NewReservationInput = Omit<
   Reservation,
-  "id" | "createdAt" | "status" | "folioId" | "roomId"
+  "id" | "createdAt" | "status" | "folioId" | "roomId" | "vatRate"
 > & {
   roomId?: string | null;
   payment?: { method: PaymentMethod; amount: number; phone?: string; reference?: string };
@@ -735,6 +736,7 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
     roomId,
     status: "confirmed",
     createdAt: new Date().toISOString(),
+    vatRate: state.tenant.vatRate,
   };
   state.reservations = [reservation, ...state.reservations];
 

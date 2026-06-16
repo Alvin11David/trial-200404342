@@ -18,6 +18,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useStore } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/pos")({
   head: () => ({ meta: [{ title: "POS — Jambo ERP" }] }),
@@ -76,8 +77,6 @@ const menuItems: MenuItem[] = [
 const tables = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "Bar", "Takeaway"];
 const paymentMethods: PaymentMethod[] = ["Cash", "Card", "Room Charge", "Credit"];
 
-const TAX_RATE = 0.18;
-
 function POSPage() {
   const [category, setCategory] = useState(categories[0]);
   const [cart, setCart] = useState<CartEntry[]>([]);
@@ -98,7 +97,8 @@ function POSPage() {
   );
 
   const subtotal = useMemo(() => cart.reduce((sum, e) => sum + e.item.price * e.qty, 0), [cart]);
-  const tax = Math.round(subtotal * TAX_RATE);
+  const taxRate = useStore((s) => s.tenant.vatRate);
+  const tax = Math.round(subtotal * taxRate);
   const total = subtotal + tax;
 
   function addItem(item: MenuItem) {
@@ -332,7 +332,7 @@ function POSPage() {
             <span className="tabular-nums">UGX {subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Tax (18%)</span>
+            <span className="text-muted-foreground">Tax ({Math.round(taxRate * 100)}%)</span>
             <span className="tabular-nums">UGX {tax.toLocaleString()}</span>
           </div>
           <div className="flex justify-between border-t border-border/40 pt-2">
@@ -413,7 +413,7 @@ function POSPage() {
                 <span>UGX {subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
-                <span>Tax (18%)</span>
+                <span>Tax ({Math.round(taxRate * 100)}%)</span>
                 <span>UGX {tax.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-lg font-bold pt-1">
