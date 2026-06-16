@@ -149,10 +149,7 @@ function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-5 rounded-lg bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
-            <span className="font-medium text-foreground">Demo credentials:</span>{" "}
-            admin@jambo.com / admin123
-          </div>
+          
         </div>
 
         <p className="mt-6 text-center text-[11px] text-muted-foreground">
