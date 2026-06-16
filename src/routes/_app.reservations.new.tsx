@@ -286,6 +286,12 @@ function NewReservation() {
           )}
         </div>
 
+        {error && (
+          <div className="mt-4 flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-destructive/20 text-[10px] font-bold">!</span>
+            {error}
+          </div>
+        )}
         {/* Footer */}
         <div className="mt-8 flex items-center justify-between border-t border-border/50 pt-6">
           <button

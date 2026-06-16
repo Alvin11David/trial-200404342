@@ -749,18 +749,20 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
   });
   updateGuestStats(input.guestEmail, input.guestPhone);
 
-  // if payment collected at booking, create folio + record payment
+  // always open a folio when a reservation is created
+  const folio: Folio = {
+    id: nextFolioId(),
+    reservationId: id,
+    openedAt: new Date().toISOString(),
+    status: "open",
+  };
+  state.folios = [...state.folios, folio];
+  state.reservations = state.reservations.map((r) =>
+    r.id === id ? { ...r, folioId: folio.id } : r,
+  );
+
+  // if payment collected at booking, record it on the folio
   if (input.payment) {
-    const folio: Folio = {
-      id: nextFolioId(),
-      reservationId: id,
-      openedAt: new Date().toISOString(),
-      status: "open",
-    };
-    state.folios = [...state.folios, folio];
-    state.reservations = state.reservations.map((r) =>
-      r.id === id ? { ...r, folioId: folio.id } : r,
-    );
     state.payments = [
       ...state.payments,
       {
