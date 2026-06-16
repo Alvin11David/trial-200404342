@@ -205,20 +205,48 @@ function RoleSwitcher({ role, setRole }: { role: Role; setRole: (r: Role) => voi
           <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-60">
-        <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
-          Switch role (demo)
-        </DropdownMenuLabel>
-        {ROLES.map((r) => (
-          <DropdownMenuItem
-            key={r}
-            onClick={() => setRole(r)}
-            className="flex items-center justify-between"
-          >
-            <span className="text-sm">{r}</span>
-            {role === r && <Check className="h-3.5 w-3.5 text-primary" />}
-          </DropdownMenuItem>
-        ))}
+      <DropdownMenuContent align="end" className="w-72 p-2">
+        <div className="mb-2 flex items-center gap-3 rounded-lg bg-muted/50 px-3 py-2.5">
+          <span className="rounded-md bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+            Demo
+          </span>
+          <div>
+            <p className="text-xs font-medium text-foreground">Switch role</p>
+            <p className="text-[10px] text-muted-foreground">Experience the app as a different role</p>
+          </div>
+        </div>
+        <div className="-mx-1">
+          {ROLES.map((r) => {
+            const m = ROLE_META[r];
+            const active = role === r;
+            return (
+              <DropdownMenuItem
+                key={r}
+                onClick={() => setRole(r)}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5",
+                  active && "bg-primary/10",
+                )}
+              >
+                <span
+                  className={cn(
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-md bg-gradient-to-br text-xs font-bold text-white",
+                    m.accent,
+                  )}
+                >
+                  {m.initials}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className={cn("text-sm font-medium", active && "text-primary")}>{r}</p>
+                  <p className="truncate text-[10px] text-muted-foreground">
+                    {m.person} — {m.tagline}
+                  </p>
+                </div>
+                {active && <Check className="h-4 w-4 shrink-0 text-primary" />}
+              </DropdownMenuItem>
+            );
+          })}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

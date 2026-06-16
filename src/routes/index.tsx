@@ -1,7 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Eye, EyeOff, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useState, useRef, useEffect } from "react";
+import { Eye, EyeOff, Loader2, Mail, Lock, ArrowRight, ChevronDown } from "lucide-react";
 import { Logo } from "@/components/jambo/Logo";
+import { cn } from "@/lib/utils";
 import { ROLES, useRole, type Role } from "@/lib/role";
 
 export const Route = createFileRoute("/")({
@@ -22,6 +23,18 @@ function LoginPage() {
   const [showPwd, setShowPwd] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,18 +115,37 @@ function LoginPage() {
             />
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                Sign in as role (demo)
+              <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                Sign in as role
+                <span className="rounded bg-primary/10 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">Demo</span>
               </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value as Role)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setOpen((o) => !o)}
+                  className="flex w-full items-center justify-between rounded-lg border border-border bg-background px-3 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+                >
+                  <span>{role}</span>
+                  <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition", open && "rotate-180")} />
+                </button>
+                {open && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-border bg-popover py-1 shadow-lg">
+                    {ROLES.map((r) => (
+                      <button
+                        key={r}
+                        type="button"
+                        onClick={() => { setRole(r); setOpen(false); }}
+                        className={cn(
+                          "flex w-full items-center px-3 py-2 text-sm transition-colors",
+                          role === r ? "bg-primary/10 font-medium text-primary" : "text-foreground hover:bg-muted",
+                        )}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center justify-between text-xs">
@@ -121,9 +153,9 @@ function LoginPage() {
                 <input type="checkbox" className="h-3.5 w-3.5 accent-primary" defaultChecked />
                 Remember me
               </label>
-              <a href="#" className="font-medium text-primary hover:underline">
+              <Link to="/forgot-password" className="font-medium text-primary hover:underline">
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             {error && (
