@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <aside
         className={cn(
           "sticky top-0 z-20 flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300",
-          collapsed ? "w-[72px]" : "w-[244px]",
+          collapsed ? "w-[72px]" : "w-[200px] xl:w-[244px]",
         )}
       >
         <div
@@ -132,13 +132,13 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b border-border bg-card/80 px-6 backdrop-blur">
+        <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-border bg-card/80 px-4 backdrop-blur md:gap-3 md:px-6">
           <div>
-            <h1 className="text-base font-semibold leading-tight text-foreground">{title || "Dashboard"}</h1>
-            <p className="text-[11px] text-muted-foreground">{now}</p>
+            <h1 className="text-sm font-semibold leading-tight text-foreground md:text-base">{title || "Dashboard"}</h1>
+            <p className="text-[10px] text-muted-foreground md:text-[11px]">{now}</p>
           </div>
 
-          <div className="relative ml-6 hidden max-w-sm flex-1 md:block">
+          <div className="relative ml-auto hidden max-w-[180px] flex-1 md:block lg:ml-6 lg:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               placeholder="Search guests, rooms, folios…"
