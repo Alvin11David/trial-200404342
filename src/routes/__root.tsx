@@ -13,7 +13,6 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { RoleProvider } from "@/lib/role";
-import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -128,7 +127,6 @@ function RootComponent() {
       <ThemeProvider defaultTheme="light" storageKey="jambo-ui-theme">
         <RoleProvider>
           <Outlet />
-          <Toaster />
         </RoleProvider>
       </ThemeProvider>
     </QueryClientProvider>

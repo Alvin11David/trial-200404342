@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useState, useEffect } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -110,6 +109,14 @@ function ForgotPasswordPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [notif, setNotif] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (notif) {
+      const t = setTimeout(() => setNotif(null), 6000);
+      return () => clearTimeout(t);
+    }
+  }, [notif]);
 
   const handleSendCode = () => {
     setLoading(true);
@@ -118,18 +125,7 @@ function ForgotPasswordPage() {
       setLoading(false);
       setOtp(code);
       setStep(1);
-      toast(
-        <div className="flex items-center gap-3">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10">
-            <Mail className="h-4 w-4 text-primary" />
-          </span>
-          <div>
-            <p className="text-sm font-semibold">Code: <span className="tracking-widest text-primary">{code}</span></p>
-            <p className="text-xs text-muted-foreground">Use this code to reset your password</p>
-          </div>
-        </div>,
-        { duration: 8000 },
-      );
+      setNotif(code);
     }, 1000);
   };
 
@@ -179,6 +175,34 @@ function ForgotPasswordPage() {
         style={{ background: "radial-gradient(ellipse at top, oklch(0.49 0.18 264 / 0.10), transparent 60%)" }} />
       <div className="pointer-events-none absolute inset-0 opacity-[0.4]"
         style={{ backgroundImage: "radial-gradient(circle at 1px 1px, oklch(0.49 0.18 264 / 0.08) 1px, transparent 0)", backgroundSize: "28px 28px" }} />
+      <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2">
+        <div
+          className={cn(
+            "flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-lg transition-all duration-500",
+            notif
+              ? "translate-y-0 scale-100 opacity-100"
+              : "pointer-events-none -translate-y-4 scale-95 opacity-0",
+          )}
+        >
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10">
+            <Mail className="h-4 w-4 text-primary" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-foreground">
+              Code: <span className="tracking-widest text-primary">{notif}</span>
+            </p>
+            <p className="text-xs text-muted-foreground">Use this code to reset your password</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setNotif(null)}
+            className="ml-2 shrink-0 rounded-md p-1 text-muted-foreground transition hover:bg-muted hover:text-foreground"
+            aria-label="Dismiss"
+          >
+            <span className="text-xs">✕</span>
+          </button>
+        </div>
+      </div>
       <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 py-12">
         <div className="mb-6 flex justify-center">
           <Logo size="md" />
@@ -233,11 +257,17 @@ function ForgotPasswordPage() {
                   <div className="mb-2">
                     <OtpIllo />
                   </div>
-                  <h2 className="text-xl font-semibold tracking-tight">Check your email</h2>
+                  <h2 className="text-xl font-semibold tracking-tight">Your verification code</h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    We sent a 4-digit verification code to{" "}
+                    Sent to{" "}
                     <span className="font-medium text-foreground">{email}</span>
                   </p>
+                </div>
+                <div className="flex justify-center">
+                  <div className="inline-flex items-center gap-3 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 px-6 py-3">
+                    <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Code</span>
+                    <span className="tracking-[0.3em] text-2xl font-bold text-primary">{otp}</span>
+                  </div>
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-center">
