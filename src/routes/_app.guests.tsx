@@ -1,120 +1,215 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Mail, Phone, Star } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { Search, Plus, CalendarCheck2, Phone, Mail, MapPin, Award, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { fmtUGX, useStore, type Guest } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/guests")({
-  head: () => ({ meta: [{ title: "Guests — Jambo ERP" }] }),
+  head: () => ({ meta: [{ title: "Guests — Jambo PMS" }] }),
   component: GuestsPage,
 });
 
-const guests = [
-  {
-    name: "Sarah Nakato",
-    email: "sarah@example.com",
-    phone: "+256 700 123 456",
-    visits: 8,
-    tier: "Platinum",
-    country: "Uganda",
-  },
-  {
-    name: "James Okello",
-    email: "j.okello@example.com",
-    phone: "+256 772 998 111",
-    visits: 4,
-    tier: "Gold",
-    country: "Uganda",
-  },
-  {
-    name: "Priya Sharma",
-    email: "priya@example.in",
-    phone: "+91 98 7654 3210",
-    visits: 2,
-    tier: "Silver",
-    country: "India",
-  },
-  {
-    name: "David Mensah",
-    email: "d.mensah@example.com",
-    phone: "+233 24 555 6677",
-    visits: 6,
-    tier: "Gold",
-    country: "Ghana",
-  },
-  {
-    name: "Aisha Wanjiku",
-    email: "aisha.w@example.com",
-    phone: "+254 712 334 556",
-    visits: 12,
-    tier: "Platinum",
-    country: "Kenya",
-  },
-  {
-    name: "Mark Tindyebwa",
-    email: "mark.t@example.com",
-    phone: "+256 701 222 778",
-    visits: 1,
-    tier: "Silver",
-    country: "Uganda",
-  },
-];
-
-const tierStyle: Record<string, string> = {
-  Platinum: "from-[oklch(0.85_0.05_270)] to-[oklch(0.7_0.1_280)]",
-  Gold: "from-[oklch(0.82_0.16_75)] to-[oklch(0.7_0.18_50)]",
-  Silver: "from-[oklch(0.75_0.02_250)] to-[oklch(0.6_0.02_250)]",
+const tierStyles: Record<Guest["tier"], string> = {
+  Platinum: "bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/30 dark:text-purple-400",
+  Gold: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400",
+  Silver: "bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-800/30 dark:text-slate-400",
+  Bronze: "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400",
 };
 
+const guestAccents = [
+  "from-blue-500 to-blue-600",
+  "from-emerald-500 to-emerald-600",
+  "from-violet-500 to-violet-600",
+  "from-rose-500 to-rose-600",
+  "from-amber-500 to-amber-600",
+  "from-cyan-500 to-cyan-600",
+  "from-pink-500 to-pink-600",
+  "from-teal-500 to-teal-600",
+  "from-indigo-500 to-indigo-600",
+  "from-orange-500 to-orange-600",
+];
+
 function GuestsPage() {
+  const guests = useStore((s) => s.guests);
+  const reservations = useStore((s) => s.reservations);
+
+  const [query, setQuery] = useState("");
+  const [tierFilter, setTierFilter] = useState<string>("All");
+
+  const filtered = useMemo(() => {
+    return guests.filter((g) => {
+      if (tierFilter !== "All" && g.tier !== tierFilter) return false;
+      if (!query) return true;
+      const q = query.toLowerCase();
+      return (
+        g.name.toLowerCase().includes(q) ||
+        g.email.toLowerCase().includes(q) ||
+        g.phone.includes(q) ||
+        g.idNumber.toLowerCase().includes(q)
+      );
+    });
+  }, [guests, query, tierFilter]);
+
+  const getGuestReservations = (guest: Guest) =>
+    reservations.filter((r) => r.guestEmail === guest.email && r.guestPhone === guest.phone);
+
+  const getLastStay = (guest: Guest) => {
+    const res = getGuestReservations(guest);
+    if (res.length === 0) return null;
+    return res.sort((a, b) => b.checkIn.localeCompare(a.checkIn))[0];
+  };
+
   return (
     <div className="mx-auto max-w-7xl space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Guests</h1>
-        <p className="mt-1 text-sm text-muted-foreground">CRM · loyalty · history</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl font-bold tracking-tight">Guests</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{guests.length} guest profiles on record.</p>
+        </div>
+        <button className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90">
+          <Plus className="h-4 w-4" /> Add Guest
+        </button>
       </div>
 
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-4">
+        <div className="relative min-w-[240px] flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search by name, email, phone, or ID…"
+            className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+          />
+        </div>
+        <select
+          value={tierFilter}
+          onChange={(e) => setTierFilter(e.target.value)}
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+        >
+          <option value="All">All tiers</option>
+          <option value="Platinum">Platinum</option>
+          <option value="Gold">Gold</option>
+          <option value="Silver">Silver</option>
+          <option value="Bronze">Bronze</option>
+        </select>
+      </div>
+
+      {/* Guest Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {guests.map((g) => (
-          <div key={g.email} className="glass card-hover rounded-2xl p-5">
-            <div className="flex items-start gap-4">
-              <div
-                className={`grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br text-sm font-bold text-primary-foreground ${tierStyle[g.tier]}`}
-              >
-                {g.name
-                  .split(" ")
-                  .map((p) => p[0])
-                  .join("")}
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="truncate font-semibold">{g.name}</h3>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border/60 bg-card/40 px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-                    <Star className="h-3 w-3 text-warning" /> {g.tier}
-                  </span>
+        {filtered.map((guest, idx) => {
+          const guestReservations = getGuestReservations(guest);
+          const lastStay = getLastStay(guest);
+          const activeRes = guestReservations.find(
+            (r) => r.status === "checked_in" || r.status === "confirmed",
+          );
+
+          return (
+            <div
+              key={guest.id}
+              className="group rounded-xl border border-border bg-card transition hover:shadow-md hover:border-primary/20"
+            >
+              <div className="p-5">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={cn(
+                        "grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br text-sm font-bold text-white",
+                        guestAccents[idx % guestAccents.length],
+                      )}
+                    >
+                      {guest.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
+                    </span>
+                    <div>
+                      <h3 className="font-semibold text-foreground">{guest.name}</h3>
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold",
+                          tierStyles[guest.tier],
+                        )}
+                      >
+                        <Award className="h-3 w-3" />
+                        {guest.tier}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {g.country} · {g.visits} stays
-                </p>
-              </div>
-            </div>
 
-            <div className="mt-4 space-y-2 text-xs text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Mail className="h-3.5 w-3.5" /> {g.email}
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5" /> {g.phone}
-              </div>
-            </div>
+                <div className="mt-4 space-y-1.5 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{guest.email}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-3.5 w-3.5 shrink-0" />
+                    <span>{guest.phone}</span>
+                  </div>
+                  {guest.nationality && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-3.5 w-3.5 shrink-0" />
+                      <span>{guest.nationality}</span>
+                    </div>
+                  )}
+                </div>
 
-            <div className="mt-4 flex gap-2">
-              <button className="flex-1 rounded-lg border border-border/60 bg-card/30 py-2 text-xs hover:border-primary/40 hover:text-foreground">
-                View profile
-              </button>
-              <button className="flex-1 rounded-lg bg-primary/15 py-2 text-xs font-medium text-primary hover:bg-primary/25">
-                New booking
-              </button>
+                <div className="mt-4 flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-xs">
+                  <div className="text-center">
+                    <div className="font-bold text-foreground">{guest.totalVisits}</div>
+                    <div className="text-muted-foreground">Visits</div>
+                  </div>
+                  <div className="h-8 w-px bg-border" />
+                  <div className="text-center">
+                    <div className="font-bold text-foreground">{fmtUGX(guest.totalRevenue)}</div>
+                    <div className="text-muted-foreground">Revenue</div>
+                  </div>
+                  <div className="h-8 w-px bg-border" />
+                  <div className="text-center">
+                    <div className="font-bold text-foreground">{guestReservations.length}</div>
+                    <div className="text-muted-foreground">Bookings</div>
+                  </div>
+                </div>
+
+                {lastStay && (
+                  <p className="mt-2 text-[10px] text-muted-foreground">
+                    Last stay: {lastStay.checkIn} → {lastStay.checkOut}
+                  </p>
+                )}
+
+                <div className="mt-4 flex items-center gap-2">
+                  <button className="flex-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition">
+                    View Profile
+                  </button>
+                  <Link
+                    to="/reservations/new"
+                    className={cn(
+                      "flex items-center justify-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold transition",
+                      activeRes
+                        ? "border border-success/30 text-success bg-success/10 hover:bg-success/20"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90",
+                    )}
+                  >
+                    {activeRes ? (
+                      <>
+                        <CalendarCheck2 className="h-3.5 w-3.5" />
+                        Active
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-3.5 w-3.5" />
+                        New Booking
+                      </>
+                    )}
+                  </Link>
+                </div>
+              </div>
             </div>
+          );
+        })}
+        {filtered.length === 0 && (
+          <div className="col-span-full py-16 text-center text-sm text-muted-foreground">
+            No guests match your search.
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

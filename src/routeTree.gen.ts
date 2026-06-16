@@ -18,6 +18,7 @@ import { Route as AppRoomsRouteImport } from './routes/_app.rooms'
 import { Route as AppReservationsRouteImport } from './routes/_app.reservations'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
 import { Route as AppPosRouteImport } from './routes/_app.pos'
+import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
 import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
 import { Route as AppIdentityRouteImport } from './routes/_app.identity'
 import { Route as AppHrRouteImport } from './routes/_app.hr'
@@ -79,6 +80,11 @@ const AppReportsRoute = AppReportsRouteImport.update({
 const AppPosRoute = AppPosRouteImport.update({
   id: '/pos',
   path: '/pos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => AppRoute,
 } as any)
 const AppInventoryRoute = AppInventoryRouteImport.update({
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/hr': typeof AppHrRoute
   '/identity': typeof AppIdentityRoute
   '/inventory': typeof AppInventoryRouteWithChildren
+  '/notifications': typeof AppNotificationsRoute
   '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
   '/reservations': typeof AppReservationsRouteWithChildren
@@ -216,6 +223,7 @@ export interface FileRoutesByTo {
   '/hr': typeof AppHrRoute
   '/identity': typeof AppIdentityRoute
   '/inventory': typeof AppInventoryRouteWithChildren
+  '/notifications': typeof AppNotificationsRoute
   '/pos': typeof AppPosRouteWithChildren
   '/reports': typeof AppReportsRoute
   '/reservations': typeof AppReservationsRouteWithChildren
@@ -246,6 +254,7 @@ export interface FileRoutesById {
   '/_app/hr': typeof AppHrRoute
   '/_app/identity': typeof AppIdentityRoute
   '/_app/inventory': typeof AppInventoryRouteWithChildren
+  '/_app/notifications': typeof AppNotificationsRoute
   '/_app/pos': typeof AppPosRouteWithChildren
   '/_app/reports': typeof AppReportsRoute
   '/_app/reservations': typeof AppReservationsRouteWithChildren
@@ -276,6 +285,7 @@ export interface FileRouteTypes {
     | '/hr'
     | '/identity'
     | '/inventory'
+    | '/notifications'
     | '/pos'
     | '/reports'
     | '/reservations'
@@ -304,6 +314,7 @@ export interface FileRouteTypes {
     | '/hr'
     | '/identity'
     | '/inventory'
+    | '/notifications'
     | '/pos'
     | '/reports'
     | '/reservations'
@@ -333,6 +344,7 @@ export interface FileRouteTypes {
     | '/_app/hr'
     | '/_app/identity'
     | '/_app/inventory'
+    | '/_app/notifications'
     | '/_app/pos'
     | '/_app/reports'
     | '/_app/reservations'
@@ -418,6 +430,13 @@ declare module '@tanstack/react-router' {
       path: '/pos'
       fullPath: '/pos'
       preLoaderRoute: typeof AppPosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/notifications': {
+      id: '/_app/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/inventory': {
@@ -615,6 +634,7 @@ interface AppRouteChildren {
   AppHrRoute: typeof AppHrRoute
   AppIdentityRoute: typeof AppIdentityRoute
   AppInventoryRoute: typeof AppInventoryRouteWithChildren
+  AppNotificationsRoute: typeof AppNotificationsRoute
   AppPosRoute: typeof AppPosRouteWithChildren
   AppReportsRoute: typeof AppReportsRoute
   AppReservationsRoute: typeof AppReservationsRouteWithChildren
@@ -633,6 +653,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppHrRoute: AppHrRoute,
   AppIdentityRoute: AppIdentityRoute,
   AppInventoryRoute: AppInventoryRouteWithChildren,
+  AppNotificationsRoute: AppNotificationsRoute,
   AppPosRoute: AppPosRouteWithChildren,
   AppReportsRoute: AppReportsRoute,
   AppReservationsRoute: AppReservationsRouteWithChildren,

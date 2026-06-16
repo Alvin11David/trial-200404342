@@ -11,12 +11,15 @@ import {
   Mail,
   MapPin,
   Phone,
+  Smartphone,
+  Building2,
+  Landmark,
   User,
   Utensils,
   Calendar as CalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createReservation, findAvailableRooms, useStore } from "@/lib/pms-store";
+import { createReservation, findAvailableRooms, fmtUGX, useStore, type PaymentMethod } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/reservations/new")({
   head: () => ({ meta: [{ title: "New Reservation — Jambo ERP" }] }),
@@ -45,6 +48,10 @@ type Form = {
   adults: number;
   children: number;
   notes: string;
+  paymentMethod: PaymentMethod | "";
+  paymentPhone: string;
+  paymentReference: string;
+  collectPayment: boolean;
 };
 
 type RoomOption = { id: string; type: string; rate: number; beds: string; available: boolean; typeId: string };
@@ -94,6 +101,10 @@ function NewReservation() {
     adults: 1,
     children: 0,
     notes: "",
+    paymentMethod: "",
+    paymentPhone: "",
+    paymentReference: "",
+    collectPayment: false,
   });
   const [direction, setDirection] = useState<1 | -1>(1);
   const [submitted, setSubmitted] = useState(false);
@@ -131,6 +142,9 @@ function NewReservation() {
 
   const submit = () => {
     if (!room) return;
+    const paymentAmount = form.collectPayment && form.paymentMethod
+      ? Math.round(total * (form.paymentMethod === "mtn_momo" || form.paymentMethod === "airtel_money" ? 1 : 0.5))
+      : 0;
     const res = createReservation({
       guestName: `${form.firstName} ${form.lastName}`.trim(),
       guestEmail: form.email,
@@ -148,6 +162,18 @@ function NewReservation() {
       mealPlan: form.mealPlan,
       source: "Direct",
       notes: form.notes,
+      ...(paymentAmount > 0 && form.paymentMethod
+        ? {
+            payment: {
+              method: form.paymentMethod,
+              amount: paymentAmount,
+              phone: form.paymentMethod === "mtn_momo" || form.paymentMethod === "airtel_money"
+                ? form.paymentPhone
+                : undefined,
+              reference: form.paymentReference || undefined,
+            },
+          }
+        : {}),
     });
     if (!res.ok) {
       setError(res.error);
@@ -247,6 +273,7 @@ function NewReservation() {
           {step === 4 && (
             <StepReview
               form={form}
+              set={set}
               room={room}
               meal={meal}
               nights={nights}
@@ -573,6 +600,7 @@ function StepDatesAndPlan({
 /* ───────────────────────── Step 4 ───────────────────────── */
 function StepReview({
   form,
+  set,
   room,
   meal,
   nights,
@@ -583,6 +611,7 @@ function StepReview({
   submitted,
 }: {
   form: Form;
+  set: <K extends keyof Form>(k: K, v: Form[K]) => void;
   room: RoomOption | undefined;
   meal: (typeof mealPlans)[number];
   nights: number;
@@ -592,6 +621,10 @@ function StepReview({
   total: number;
   submitted: boolean;
 }) {
+  const momoAmount = form.collectPayment && form.paymentMethod
+    ? total
+    : 0;
+
   return (
     <div>
       <SectionTitle
@@ -648,6 +681,86 @@ function StepReview({
             <ReviewItem label="Meal plan" value={meal.label} />
           </div>
 
+          {/* Payment section */}
+          <div className="my-5 h-px bg-border/50" />
+          <h4 className="font-display text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            Payment
+          </h4>
+          <div className="mt-3 space-y-3">
+            <label className="flex items-center gap-2 rounded-xl border border-border/60 bg-card/30 p-3 transition hover:border-primary/40 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.collectPayment}
+                onChange={(e) => set("collectPayment", e.target.checked)}
+                className="h-4 w-4 rounded border-border text-primary"
+              />
+              <div>
+                <span className="text-sm font-medium">Collect payment at booking</span>
+                <p className="text-[11px] text-muted-foreground">Accept deposit via mobile money or card</p>
+              </div>
+            </label>
+
+            {form.collectPayment && (
+              <div className="space-y-3 rounded-xl border border-border/60 bg-card/30 p-4">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Payment method</label>
+                  <div className="mt-1.5 grid grid-cols-2 gap-2">
+                    {[
+                      { id: "mtn_momo" as const, label: "MTN MoMo", icon: Smartphone },
+                      { id: "airtel_money" as const, label: "Airtel Money", icon: Smartphone },
+                      { id: "card" as const, label: "Card", icon: CreditCard },
+                      { id: "cash" as const, label: "Cash", icon: Building2 },
+                    ].map((pm) => (
+                      <button
+                        key={pm.id}
+                        onClick={() => set("paymentMethod", pm.id)}
+                        className={cn(
+                          "flex items-center gap-2 rounded-lg border px-3 py-2.5 text-xs font-medium transition",
+                          form.paymentMethod === pm.id
+                            ? "border-primary/50 bg-primary/10 text-primary"
+                            : "border-border/60 hover:border-primary/40 text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        <pm.icon className="h-4 w-4" />
+                        {pm.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {(form.paymentMethod === "mtn_momo" || form.paymentMethod === "airtel_money") && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Mobile money phone number</label>
+                    <input
+                      value={form.paymentPhone}
+                      onChange={(e) => set("paymentPhone", e.target.value)}
+                      placeholder="e.g. +256 700 000 000"
+                      className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+                    />
+                  </div>
+                )}
+
+                {form.paymentMethod === "card" && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Card reference (last 4 digits)</label>
+                    <input
+                      value={form.paymentReference}
+                      onChange={(e) => set("paymentReference", e.target.value)}
+                      placeholder="e.g. 4242"
+                      maxLength={4}
+                      className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2 text-sm">
+                  <span className="text-muted-foreground">Amount to collect</span>
+                  <span className="font-bold text-foreground">{fmtUGX(momoAmount > 0 ? momoAmount : total)}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
           {form.notes && (
             <>
               <div className="my-5 h-px bg-border/50" />
@@ -678,12 +791,20 @@ function StepReview({
               <span className="text-muted-foreground">Taxes (18%)</span>
               <span className="font-medium tabular-nums">UGX {tax.toLocaleString()}</span>
             </li>
+            {form.collectPayment && form.paymentMethod && momoAmount > 0 && (
+              <li className="flex justify-between border-t border-border/50 pt-3">
+                <span className="text-success">Deposit paid ({form.paymentMethod === "mtn_momo" ? "MTN MoMo" : form.paymentMethod === "airtel_money" ? "Airtel Money" : form.paymentMethod === "card" ? "Card" : "Cash"})</span>
+                <span className="font-bold text-success">{fmtUGX(momoAmount)}</span>
+              </li>
+            )}
           </ul>
           <div className="my-4 h-px bg-border/50" />
           <div className="flex items-end justify-between">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">Total</span>
+            <span className="text-xs uppercase tracking-wider text-muted-foreground">
+              {form.collectPayment && form.paymentMethod ? "Balance due" : "Total"}
+            </span>
             <span className="text-2xl font-bold text-gradient-primary tabular-nums">
-              UGX {total.toLocaleString()}
+              {fmtUGX(form.collectPayment && form.paymentMethod ? Math.max(0, total - momoAmount) : total)}
             </span>
           </div>
         </div>

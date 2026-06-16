@@ -23,6 +23,20 @@ export type RoomType = {
   capacity: number;
 };
 
+export type Guest = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  nationality: string;
+  idType: string;
+  idNumber: string;
+  createdAt: string;
+  totalVisits: number;
+  totalRevenue: number;
+  tier: "Bronze" | "Silver" | "Gold" | "Platinum";
+};
+
 export type RoomStatus = "available" | "occupied" | "dirty" | "maintenance" | "blocked";
 export type Room = {
   id: string;          // e.g. "204"
@@ -131,6 +145,7 @@ type State = {
   roomTypes: RoomType[];
   rooms: Room[];
   reservations: Reservation[];
+  guests: Guest[];
   folios: Folio[];
   charges: FolioCharge[];
   payments: Payment[];
@@ -192,6 +207,8 @@ let chargeCounter = 7000;
 const nextChargeId = () => `C-${++chargeCounter}`;
 let payCounter = 9000;
 const nextPayId = () => `PMT-${++payCounter}`;
+let guestCounter = 500;
+const nextGuestId = () => `GST-${++guestCounter}`;
 let auditCounter = 2900;
 const nextAuditId = () => `EVT-${++auditCounter}`;
 
@@ -353,6 +370,72 @@ const USERS: UserRecord[] = [
   { id: "U009", name: "Faith Akello", email: "faith@jambo.ug", role: "Front Desk", active: false, lastLogin: "1 month ago" },
 ];
 
+/* Build guest profiles from reservation data + extra seed guests */
+const GUESTS: Guest[] = (() => {
+  const seen = new Map<string, Guest>();
+  const allRsvps = [...RESERVATIONS];
+
+  // for historical checked-out
+  for (let k = 1; k <= 6; k++) {
+    const rt = ROOM_TYPES[k % 3];
+    const dayOff = -k;
+    const checkIn = addDays(TODAY, dayOff - 2);
+    const checkOut = addDays(TODAY, dayOff);
+    const name = ["Kwame Boateng", "Maria Lopez", "Aliya Hassan", "Brian Otim", "Jane Wairimu", "Samuel Tenywa"][k % 6];
+    const email = "guest" + k + "@example.com";
+    const phone = "+256 700000" + k;
+    const key = email + phone;
+    if (!seen.has(key)) {
+      seen.set(key, {
+        id: nextGuestId(),
+        name,
+        email,
+        phone,
+        nationality: "Uganda",
+        idType: "Passport",
+        idNumber: "P" + 9000000 + k,
+        createdAt: addDays(TODAY, -30).toISOString(),
+        totalVisits: 1,
+        totalRevenue: rt.baseRate * 2,
+        tier: "Bronze",
+      });
+    }
+  }
+
+  allRsvps.forEach((r) => {
+    const key = r.guestEmail + r.guestPhone;
+    if (seen.has(key)) {
+      const existing = seen.get(key)!;
+      existing.totalVisits++;
+      existing.totalRevenue += r.ratePerNight * nightsBetween(r.checkIn, r.checkOut);
+    } else {
+      seen.set(key, {
+        id: nextGuestId(),
+        name: r.guestName,
+        email: r.guestEmail,
+        phone: r.guestPhone,
+        nationality: r.nationality,
+        idType: r.idType,
+        idNumber: r.idNumber,
+        createdAt: r.createdAt,
+        totalVisits: 1,
+        totalRevenue: r.ratePerNight * nightsBetween(r.checkIn, r.checkOut),
+        tier: "Bronze",
+      });
+    }
+  });
+
+  // assign tiers based on visits
+  seen.forEach((g) => {
+    if (g.totalVisits >= 5) g.tier = "Platinum";
+    else if (g.totalVisits >= 3) g.tier = "Gold";
+    else if (g.totalVisits >= 2) g.tier = "Silver";
+    else g.tier = "Bronze";
+  });
+
+  return Array.from(seen.values());
+})();
+
 const AUDIT: AuditEntry[] = [
   { id: nextAuditId(), ts: addDays(TODAY, -1).toISOString(), actor: "system", role: "System", module: "system", action: "Night audit completed", entity: "Day close " + iso(addDays(TODAY, -1)), severity: "info" },
   { id: nextAuditId(), ts: addDays(TODAY, -1).toISOString(), actor: "Robert Kizza", role: "System Administrator", module: "identity", action: "Updated role permissions", entity: "Role: Front Desk", severity: "critical" },
@@ -373,20 +456,58 @@ const TENANT: Tenant = {
 
 /* ============================== Store ============================== */
 
+const STORAGE_KEY = "jambo-pms-cache";
+
+function persistState() {
+  try {
+    const snapshot = {
+      tenant: state.tenant,
+      roomTypes: state.roomTypes,
+      rooms: state.rooms,
+      reservations: state.reservations,
+      guests: state.guests,
+      folios: state.folios,
+      charges: state.charges,
+      payments: state.payments,
+      users: state.users,
+      audit: state.audit,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  } catch {
+    // storage full or unavailable — degrade gracefully
+  }
+}
+
+function loadPersistedState(): Partial<State> | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as Partial<State>;
+  } catch {
+    return null;
+  }
+}
+
+const persisted = loadPersistedState();
+
 const state: State = {
-  tenant: TENANT,
-  roomTypes: ROOM_TYPES,
-  rooms: ROOMS,
-  reservations: RESERVATIONS,
-  folios: FOLIOS,
-  charges: CHARGES,
-  payments: PAYMENTS,
-  users: USERS,
-  audit: AUDIT,
+  tenant: persisted?.tenant ?? TENANT,
+  roomTypes: persisted?.roomTypes ?? ROOM_TYPES,
+  rooms: persisted?.rooms ?? ROOMS,
+  reservations: persisted?.reservations ?? RESERVATIONS,
+  guests: persisted?.guests ?? GUESTS,
+  folios: persisted?.folios ?? FOLIOS,
+  charges: persisted?.charges ?? CHARGES,
+  payments: persisted?.payments ?? PAYMENTS,
+  users: persisted?.users ?? USERS,
+  audit: persisted?.audit ?? AUDIT,
 };
 
 const listeners = new Set<() => void>();
-const emit = () => listeners.forEach((l) => l());
+const emit = () => {
+  persistState();
+  listeners.forEach((l) => l());
+};
 const subscribe = (l: () => void) => {
   listeners.add(l);
   return () => listeners.delete(l);
@@ -401,10 +522,54 @@ export function useStore<T>(selector: (s: State) => T): T {
   );
 }
 
+/* ============================== Offline Sync Queue ============================== */
+
+const SYNC_KEY = "jambo-pms-outbox";
+
+export type OutboxEntry = {
+  id: string;
+  ts: string;
+  type: "create_reservation" | "cancel_reservation" | "update_reservation" | "check_in" | "check_out";
+  payload: unknown;
+};
+
+function getOutbox(): OutboxEntry[] {
+  try {
+    const raw = localStorage.getItem(SYNC_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOutbox(entries: OutboxEntry[]) {
+  try {
+    localStorage.setItem(SYNC_KEY, JSON.stringify(entries));
+  } catch {
+    // degrade gracefully
+  }
+}
+
+function addToOutbox(entry: Omit<OutboxEntry, "id" | "ts">) {
+  const outbox = getOutbox();
+  outbox.push({ ...entry, id: crypto.randomUUID(), ts: new Date().toISOString() });
+  saveOutbox(outbox);
+}
+
+export function getPendingSyncCount(): number {
+  return getOutbox().length;
+}
+
+export function clearSyncedEntries() {
+  saveOutbox([]);
+}
+
 /* ============================== Helpers ============================== */
 
 export const isoDate = iso;
 export const todayISO = () => iso(TODAY);
+export const nightsBetween = (a: string, b: string) =>
+  Math.max(0, Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86_400_000));
 
 export const fmtUGX = (n: number) =>
   "UGX " + Math.round(n).toLocaleString();
@@ -437,12 +602,86 @@ export function findAvailableRooms(roomTypeId: string, checkIn: string, checkOut
   });
 }
 
+/* ============================== Guests ============================== */
+
+export function upsertGuest(input: { name: string; email: string; phone: string; nationality: string; idType: string; idNumber: string }): string {
+  const existing = state.guests.find(
+    (g) => g.email === input.email || g.phone === input.phone,
+  );
+  if (existing) {
+    state.guests = state.guests.map((g) =>
+      g.id === existing.id ? { ...g, name: input.name, email: input.email, phone: input.phone, nationality: input.nationality, idType: input.idType, idNumber: input.idNumber } : g,
+    );
+    emit();
+    return existing.id;
+  }
+  const id = nextGuestId();
+  state.guests = [
+    {
+      id,
+      ...input,
+      createdAt: new Date().toISOString(),
+      totalVisits: 0,
+      totalRevenue: 0,
+      tier: "Bronze",
+    },
+    ...state.guests,
+  ];
+  emit();
+  return id;
+}
+
+export function findGuestByPhoneOrEmail(query: string): Guest | undefined {
+  const q = query.toLowerCase();
+  return state.guests.find((g) => g.phone.toLowerCase().includes(q) || g.email.toLowerCase().includes(q));
+}
+
+export function findGuests(query: string): Guest[] {
+  const q = query.toLowerCase();
+  return state.guests.filter(
+    (g) =>
+      g.name.toLowerCase().includes(q) ||
+      g.email.toLowerCase().includes(q) ||
+      g.phone.includes(q) ||
+      g.idNumber.toLowerCase().includes(q),
+  );
+}
+
+export function getGuestReservations(guestId: string): Reservation[] {
+  const guest = state.guests.find((g) => g.id === guestId);
+  if (!guest) return [];
+  return state.reservations.filter(
+    (r) => r.guestEmail === guest.email && r.guestPhone === guest.phone,
+  );
+}
+
+function updateGuestStats(email: string, phone: string) {
+  const guest = state.guests.find((g) => g.email === email && g.phone === phone);
+  if (!guest) return;
+  const reservations = state.reservations.filter((r) => r.guestEmail === email && r.guestPhone === phone);
+  const totalVisits = reservations.length;
+  const totalRevenue = reservations.reduce(
+    (s, r) => s + r.ratePerNight * nightsBetween(r.checkIn, r.checkOut),
+    0,
+  );
+  let tier: Guest["tier"] = "Bronze";
+  if (totalVisits >= 5) tier = "Platinum";
+  else if (totalVisits >= 3) tier = "Gold";
+  else if (totalVisits >= 2) tier = "Silver";
+  state.guests = state.guests.map((g) =>
+    g.id === guest.id ? { ...g, totalVisits, totalRevenue, tier } : g,
+  );
+}
+
 /* ============================== Reservations ============================== */
 
 export type NewReservationInput = Omit<
   Reservation,
   "id" | "createdAt" | "status" | "folioId" | "roomId"
-> & { roomId?: string | null };
+> & {
+  roomId?: string | null;
+  payment?: { method: PaymentMethod; amount: number; phone?: string; reference?: string };
+};
 
 export function createReservation(input: NewReservationInput): { ok: true; id: string } | { ok: false; error: string } {
   if (!input.checkIn || !input.checkOut || input.checkIn >= input.checkOut) {
@@ -464,6 +703,52 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
     createdAt: new Date().toISOString(),
   };
   state.reservations = [reservation, ...state.reservations];
+
+  // link/update guest profile
+  upsertGuest({
+    name: input.guestName,
+    email: input.guestEmail,
+    phone: input.guestPhone,
+    nationality: input.nationality,
+    idType: input.idType,
+    idNumber: input.idNumber,
+  });
+  updateGuestStats(input.guestEmail, input.guestPhone);
+
+  // if payment collected at booking, create folio + record payment
+  if (input.payment) {
+    const folio: Folio = {
+      id: nextFolioId(),
+      reservationId: id,
+      openedAt: new Date().toISOString(),
+      status: "open",
+    };
+    state.folios = [...state.folios, folio];
+    state.reservations = state.reservations.map((r) =>
+      r.id === id ? { ...r, folioId: folio.id } : r,
+    );
+    state.payments = [
+      ...state.payments,
+      {
+        id: nextPayId(),
+        folioId: folio.id,
+        date: todayISO(),
+        method: input.payment.method,
+        reference: input.payment.reference,
+        phone: input.payment.phone,
+        amount: input.payment.amount,
+      },
+    ];
+    logAudit({
+      actor: input.guestName,
+      role: "Reservations",
+      module: "billing",
+      action: `Deposit collected at booking via ${input.payment.method}`,
+      entity: `${id} ${fmtUGX(input.payment.amount)}`,
+      severity: "info",
+    });
+  }
+
   logAudit({
     actor: input.guestName,
     role: "Reservations",
@@ -472,15 +757,57 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
     entity: id,
     severity: "info",
   });
+  addToOutbox({ type: "create_reservation", payload: { id, ...input } });
   emit();
   return { ok: true, id };
 }
 
-export function cancelReservation(id: string) {
+export type UpdateReservationInput = Partial<Omit<Reservation, "id" | "createdAt" | "status" | "folioId">>;
+
+export function updateReservation(id: string, patch: UpdateReservationInput): { ok: true } | { ok: false; error: string } {
+  const res = state.reservations.find((r) => r.id === id);
+  if (!res) return { ok: false, error: "Reservation not found." };
+  if (res.status !== "confirmed" && res.status !== "open") {
+    return { ok: false, error: `Cannot edit reservation in status: ${res.status}.` };
+  }
+  const updated = { ...res, ...patch };
+  // re-check room availability if dates or room changed
+  if ((patch.checkIn || patch.checkOut || patch.roomId || patch.roomTypeId) && updated.roomId) {
+    const available = findAvailableRooms(
+      updated.roomTypeId,
+      updated.checkIn,
+      updated.checkOut,
+    ).some((r) => r.id === updated.roomId);
+    if (!available && updated.roomId) {
+      // unassign room if conflict
+      updated.roomId = null;
+    }
+  }
+  state.reservations = state.reservations.map((r) => (r.id === id ? updated : r));
+  logAudit({
+    actor: "Front Desk",
+    role: "Front Desk",
+    module: "reservations",
+    action: "Updated reservation",
+    entity: `${id} — changed: ${Object.keys(patch).join(", ")}`,
+    severity: "info",
+  });
+  emit();
+  return { ok: true };
+}
+
+export function cancelReservation(id: string, reason?: string) {
   state.reservations = state.reservations.map((r) =>
-    r.id === id ? { ...r, status: "cancelled" } : r,
+    r.id === id ? { ...r, status: "cancelled", notes: reason ? `${r.notes ? r.notes + "\n" : ""}Cancellation reason: ${reason}` : r.notes } : r,
   );
-  logAudit({ actor: "Front Desk", role: "Front Desk", module: "reservations", action: "Cancelled reservation", entity: id, severity: "warn" });
+  logAudit({
+    actor: "Front Desk",
+    role: "Front Desk",
+    module: "reservations",
+    action: `Cancelled reservation${reason ? ` — ${reason}` : ""}`,
+    entity: id,
+    severity: "warn",
+  });
   emit();
 }
 
@@ -494,21 +821,25 @@ export function checkIn(reservationId: string, opts: { roomId?: string } = {}): 
   const roomOk = findAvailableRooms(res.roomTypeId, res.checkIn, res.checkOut).some((r) => r.id === targetRoom) || res.roomId === targetRoom;
   if (!roomOk) return { ok: false, error: "Room conflict — pick another room." };
 
-  // Create folio
-  const folio: Folio = {
-    id: nextFolioId(),
-    reservationId: res.id,
-    openedAt: new Date().toISOString(),
-    status: "open",
-  };
-  state.folios = [...state.folios, folio];
+  // Use existing folio if deposit was collected at booking, else create one
+  let folioId = res.folioId;
+  if (!folioId) {
+    const newFolio: Folio = {
+      id: nextFolioId(),
+      reservationId: res.id,
+      openedAt: new Date().toISOString(),
+      status: "open",
+    };
+    state.folios = [...state.folios, newFolio];
+    folioId = newFolio.id;
+  }
 
   // First night room charge posted on check-in
   state.charges = [
     ...state.charges,
     {
       id: nextChargeId(),
-      folioId: folio.id,
+      folioId: folioId,
       date: todayISO(),
       type: "room",
       description: `Room ${targetRoom} — night 1`,
@@ -517,7 +848,7 @@ export function checkIn(reservationId: string, opts: { roomId?: string } = {}): 
   ];
 
   state.reservations = state.reservations.map((r) =>
-    r.id === res.id ? { ...r, status: "checked_in", roomId: targetRoom, folioId: folio.id } : r,
+    r.id === res.id ? { ...r, status: "checked_in", roomId: targetRoom, folioId } : r,
   );
   state.rooms = state.rooms.map((r) =>
     r.id === targetRoom ? { ...r, status: "occupied" } : r,

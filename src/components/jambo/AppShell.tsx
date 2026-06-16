@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useState, useEffect, type ReactNode } from "react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
   Search,
@@ -9,10 +9,13 @@ import {
   Check,
   LogOut,
   Plus,
+  RefreshCw,
+  WifiOff,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { ROLE_META, ROLE_NAV, ROLES, useRole, type Role } from "@/lib/role";
+import { getPendingSyncCount } from "@/lib/pms-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +27,26 @@ import {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { role, setRole } = useRole();
+  const [online, setOnline] = useState(true);
+  const [syncCount, setSyncCount] = useState(0);
+
+  useEffect(() => {
+    setOnline(navigator.onLine);
+    setSyncCount(getPendingSyncCount());
+    const goOnline = () => { setOnline(true); setSyncCount(getPendingSyncCount()); };
+    const goOffline = () => setOnline(false);
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    const interval = setInterval(() => setSyncCount(getPendingSyncCount()), 5000);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+      clearInterval(interval);
+    };
+  }, []);
   const meta = ROLE_META[role];
   const nav = ROLE_NAV[role];
 
@@ -154,10 +175,34 @@ export function AppShell({ children }: { children: ReactNode }) {
             {/* Role switcher */}
             <RoleSwitcher role={role} setRole={setRole} />
 
-            <button className="relative rounded-lg border border-border bg-card p-2 text-muted-foreground transition hover:border-primary/40 hover:text-foreground">
+            <button
+              onClick={() => navigate({ to: "/notifications" })}
+              className={cn(
+                "relative rounded-lg border border-border bg-card p-2 text-muted-foreground transition hover:border-primary/40 hover:text-foreground",
+                pathname === "/notifications" && "border-primary/40 bg-primary/5 text-primary",
+              )}
+            >
               <Bell className="h-4 w-4" />
               <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive" />
             </button>
+
+            {/* Offline / sync indicator */}
+            {(!online || syncCount > 0) && (
+              <div
+                className={cn(
+                  "flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-[10px] font-medium",
+                  online ? "border-warning/30 bg-warning/10 text-warning" : "border-destructive/30 bg-destructive/10 text-destructive",
+                )}
+                title={online ? `${syncCount} pending sync` : "Working offline"}
+              >
+                {online ? (
+                  <RefreshCw className="h-3 w-3 animate-spin" />
+                ) : (
+                  <WifiOff className="h-3 w-3" />
+                )}
+                {online ? `${syncCount}` : "Offline"}
+              </div>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
