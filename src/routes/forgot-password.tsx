@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,7 +19,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { InputOTP } from "@/components/ui/input-otp";
 
 export const Route = createFileRoute("/forgot-password")({
   head: () => ({
@@ -112,7 +113,24 @@ function ForgotPasswordPage() {
 
   const handleSendCode = () => {
     setLoading(true);
-    setTimeout(() => { setLoading(false); setStep(1); }, 1000);
+    const code = String(Math.floor(1000 + Math.random() * 9000));
+    setTimeout(() => {
+      setLoading(false);
+      setOtp(code);
+      setStep(1);
+      toast(
+        <div className="flex items-center gap-3">
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10">
+            <Mail className="h-4 w-4 text-primary" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">Code: <span className="tracking-widest text-primary">{code}</span></p>
+            <p className="text-xs text-muted-foreground">Use this code to reset your password</p>
+          </div>
+        </div>,
+        { duration: 8000 },
+      );
+    }, 1000);
   };
 
   const handleVerifyOtp = () => {
@@ -228,11 +246,21 @@ function ForgotPasswordPage() {
                       value={otp}
                       onChange={setOtp}
                       render={({ slots }) => (
-                        <InputOTPGroup>
+                        <div className="flex gap-2">
                           {slots.map((slot, idx) => (
-                            <InputOTPSlot key={idx} index={idx} className="h-12 w-12 rounded-md border text-lg" />
+                            <div
+                              key={idx}
+                              className={cn(
+                                "flex h-12 w-12 items-center justify-center rounded-lg border-2 text-lg font-bold transition-all duration-150",
+                                slot.isActive
+                                  ? "border-primary bg-primary/5 text-foreground shadow-sm"
+                                  : "border-input bg-background text-foreground",
+                              )}
+                            >
+                              {slot.char}
+                            </div>
                           ))}
-                        </InputOTPGroup>
+                        </div>
                       )}
                     />
                   </div>
