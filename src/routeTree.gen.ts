@@ -35,6 +35,9 @@ import { Route as AppPosMenuRouteImport } from './routes/_app.pos.menu'
 import { Route as AppInventoryRequisitionsRouteImport } from './routes/_app.inventory.requisitions'
 import { Route as AppInventoryPurchaseOrdersRouteImport } from './routes/_app.inventory.purchase-orders'
 import { Route as AppInventoryListRouteImport } from './routes/_app.inventory.list'
+import { Route as AppHrProfileRouteImport } from './routes/_app.hr.profile'
+import { Route as AppHrPayrollRouteImport } from './routes/_app.hr.payroll'
+import { Route as AppHrLeavesRouteImport } from './routes/_app.hr.leaves'
 import { Route as AppEventsNewRouteImport } from './routes/_app.events.new'
 import { Route as AppEventsListRouteImport } from './routes/_app.events.list'
 
@@ -169,6 +172,21 @@ const AppInventoryListRoute = AppInventoryListRouteImport.update({
   path: '/list',
   getParentRoute: () => AppInventoryRoute,
 } as any)
+const AppHrProfileRoute = AppHrProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppHrPayrollRoute = AppHrPayrollRouteImport.update({
+  id: '/payroll',
+  path: '/payroll',
+  getParentRoute: () => AppHrRoute,
+} as any)
+const AppHrLeavesRoute = AppHrLeavesRouteImport.update({
+  id: '/leaves',
+  path: '/leaves',
+  getParentRoute: () => AppHrRoute,
+} as any)
 const AppEventsNewRoute = AppEventsNewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -191,7 +209,7 @@ export interface FileRoutesByFullPath {
   '/events': typeof AppEventsRouteWithChildren
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
-  '/hr': typeof AppHrRoute
+  '/hr': typeof AppHrRouteWithChildren
   '/identity': typeof AppIdentityRoute
   '/inventory': typeof AppInventoryRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
@@ -202,6 +220,9 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRoute
   '/events/list': typeof AppEventsListRoute
   '/events/new': typeof AppEventsNewRoute
+  '/hr/leaves': typeof AppHrLeavesRoute
+  '/hr/payroll': typeof AppHrPayrollRoute
+  '/hr/profile': typeof AppHrProfileRoute
   '/inventory/list': typeof AppInventoryListRoute
   '/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
   '/inventory/requisitions': typeof AppInventoryRequisitionsRoute
@@ -220,7 +241,7 @@ export interface FileRoutesByTo {
   '/events': typeof AppEventsRouteWithChildren
   '/guests': typeof AppGuestsRoute
   '/housekeeping': typeof AppHousekeepingRoute
-  '/hr': typeof AppHrRoute
+  '/hr': typeof AppHrRouteWithChildren
   '/identity': typeof AppIdentityRoute
   '/inventory': typeof AppInventoryRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
@@ -231,6 +252,9 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRoute
   '/events/list': typeof AppEventsListRoute
   '/events/new': typeof AppEventsNewRoute
+  '/hr/leaves': typeof AppHrLeavesRoute
+  '/hr/payroll': typeof AppHrPayrollRoute
+  '/hr/profile': typeof AppHrProfileRoute
   '/inventory/list': typeof AppInventoryListRoute
   '/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
   '/inventory/requisitions': typeof AppInventoryRequisitionsRoute
@@ -251,7 +275,7 @@ export interface FileRoutesById {
   '/_app/events': typeof AppEventsRouteWithChildren
   '/_app/guests': typeof AppGuestsRoute
   '/_app/housekeeping': typeof AppHousekeepingRoute
-  '/_app/hr': typeof AppHrRoute
+  '/_app/hr': typeof AppHrRouteWithChildren
   '/_app/identity': typeof AppIdentityRoute
   '/_app/inventory': typeof AppInventoryRouteWithChildren
   '/_app/notifications': typeof AppNotificationsRoute
@@ -262,6 +286,9 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRoute
   '/_app/events/list': typeof AppEventsListRoute
   '/_app/events/new': typeof AppEventsNewRoute
+  '/_app/hr/leaves': typeof AppHrLeavesRoute
+  '/_app/hr/payroll': typeof AppHrPayrollRoute
+  '/_app/hr/profile': typeof AppHrProfileRoute
   '/_app/inventory/list': typeof AppInventoryListRoute
   '/_app/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
   '/_app/inventory/requisitions': typeof AppInventoryRequisitionsRoute
@@ -293,6 +320,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/events/list'
     | '/events/new'
+    | '/hr/leaves'
+    | '/hr/payroll'
+    | '/hr/profile'
     | '/inventory/list'
     | '/inventory/purchase-orders'
     | '/inventory/requisitions'
@@ -322,6 +352,9 @@ export interface FileRouteTypes {
     | '/settings'
     | '/events/list'
     | '/events/new'
+    | '/hr/leaves'
+    | '/hr/payroll'
+    | '/hr/profile'
     | '/inventory/list'
     | '/inventory/purchase-orders'
     | '/inventory/requisitions'
@@ -352,6 +385,9 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_app/events/list'
     | '/_app/events/new'
+    | '/_app/hr/leaves'
+    | '/_app/hr/payroll'
+    | '/_app/hr/profile'
     | '/_app/inventory/list'
     | '/_app/inventory/purchase-orders'
     | '/_app/inventory/requisitions'
@@ -551,6 +587,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryListRouteImport
       parentRoute: typeof AppInventoryRoute
     }
+    '/_app/hr/profile': {
+      id: '/_app/hr/profile'
+      path: '/profile'
+      fullPath: '/hr/profile'
+      preLoaderRoute: typeof AppHrProfileRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/payroll': {
+      id: '/_app/hr/payroll'
+      path: '/payroll'
+      fullPath: '/hr/payroll'
+      preLoaderRoute: typeof AppHrPayrollRouteImport
+      parentRoute: typeof AppHrRoute
+    }
+    '/_app/hr/leaves': {
+      id: '/_app/hr/leaves'
+      path: '/leaves'
+      fullPath: '/hr/leaves'
+      preLoaderRoute: typeof AppHrLeavesRouteImport
+      parentRoute: typeof AppHrRoute
+    }
     '/_app/events/new': {
       id: '/_app/events/new'
       path: '/new'
@@ -581,6 +638,20 @@ const AppEventsRouteChildren: AppEventsRouteChildren = {
 const AppEventsRouteWithChildren = AppEventsRoute._addFileChildren(
   AppEventsRouteChildren,
 )
+
+interface AppHrRouteChildren {
+  AppHrLeavesRoute: typeof AppHrLeavesRoute
+  AppHrPayrollRoute: typeof AppHrPayrollRoute
+  AppHrProfileRoute: typeof AppHrProfileRoute
+}
+
+const AppHrRouteChildren: AppHrRouteChildren = {
+  AppHrLeavesRoute: AppHrLeavesRoute,
+  AppHrPayrollRoute: AppHrPayrollRoute,
+  AppHrProfileRoute: AppHrProfileRoute,
+}
+
+const AppHrRouteWithChildren = AppHrRoute._addFileChildren(AppHrRouteChildren)
 
 interface AppInventoryRouteChildren {
   AppInventoryListRoute: typeof AppInventoryListRoute
@@ -631,7 +702,7 @@ interface AppRouteChildren {
   AppEventsRoute: typeof AppEventsRouteWithChildren
   AppGuestsRoute: typeof AppGuestsRoute
   AppHousekeepingRoute: typeof AppHousekeepingRoute
-  AppHrRoute: typeof AppHrRoute
+  AppHrRoute: typeof AppHrRouteWithChildren
   AppIdentityRoute: typeof AppIdentityRoute
   AppInventoryRoute: typeof AppInventoryRouteWithChildren
   AppNotificationsRoute: typeof AppNotificationsRoute
@@ -650,7 +721,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEventsRoute: AppEventsRouteWithChildren,
   AppGuestsRoute: AppGuestsRoute,
   AppHousekeepingRoute: AppHousekeepingRoute,
-  AppHrRoute: AppHrRoute,
+  AppHrRoute: AppHrRouteWithChildren,
   AppIdentityRoute: AppIdentityRoute,
   AppInventoryRoute: AppInventoryRouteWithChildren,
   AppNotificationsRoute: AppNotificationsRoute,

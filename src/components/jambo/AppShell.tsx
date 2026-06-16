@@ -15,7 +15,7 @@ import {
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { ROLE_META, ROLE_NAV, ROLES, useRole, type Role } from "@/lib/role";
-import { getPendingSyncCount } from "@/lib/pms-store";
+import { getPendingSyncCount, isOnline, processOutbox } from "@/lib/pms-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,13 +30,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { role, setRole } = useRole();
-  const [online, setOnline] = useState(true);
-  const [syncCount, setSyncCount] = useState(0);
+  const [online, setOnline] = useState(() => isOnline());
+  const [syncCount, setSyncCount] = useState(() => getPendingSyncCount());
 
   useEffect(() => {
-    setOnline(navigator.onLine);
-    setSyncCount(getPendingSyncCount());
-    const goOnline = () => { setOnline(true); setSyncCount(getPendingSyncCount()); };
+    const goOnline = () => {
+      setOnline(true);
+      const synced = processOutbox();
+      setSyncCount(getPendingSyncCount());
+    };
     const goOffline = () => setOnline(false);
     window.addEventListener("online", goOnline);
     window.addEventListener("offline", goOffline);

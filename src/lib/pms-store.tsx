@@ -199,18 +199,34 @@ const RES_SEED_NAMES = [
   "Joan Nansubuga", "Daniel Etyang",
 ];
 
-let resCounter = 1000;
-const nextResId = () => `RES-${++resCounter}`;
-let folioCounter = 3000;
-const nextFolioId = () => `F-${++folioCounter}`;
-let chargeCounter = 7000;
-const nextChargeId = () => `C-${++chargeCounter}`;
-let payCounter = 9000;
-const nextPayId = () => `PMT-${++payCounter}`;
-let guestCounter = 500;
-const nextGuestId = () => `GST-${++guestCounter}`;
-let auditCounter = 2900;
-const nextAuditId = () => `EVT-${++auditCounter}`;
+const COUNTER_KEY = "jambo-pms-counters";
+function loadCounters() {
+  try {
+    const raw = localStorage.getItem(COUNTER_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch { /* ignore */ }
+  return {};
+}
+function saveCounters() {
+  try {
+    localStorage.setItem(COUNTER_KEY, JSON.stringify({
+      resCounter, folioCounter, chargeCounter, payCounter, guestCounter, auditCounter,
+    }));
+  } catch { /* ignore */ }
+}
+const savedCounters = loadCounters();
+let resCounter = savedCounters.resCounter ?? 1000;
+const nextResId = () => { const v = `RES-${++resCounter}`; saveCounters(); return v; };
+let folioCounter = savedCounters.folioCounter ?? 3000;
+const nextFolioId = () => { const v = `F-${++folioCounter}`; saveCounters(); return v; };
+let chargeCounter = savedCounters.chargeCounter ?? 7000;
+const nextChargeId = () => { const v = `C-${++chargeCounter}`; saveCounters(); return v; };
+let payCounter = savedCounters.payCounter ?? 9000;
+const nextPayId = () => { const v = `PMT-${++payCounter}`; saveCounters(); return v; };
+let guestCounter = savedCounters.guestCounter ?? 500;
+const nextGuestId = () => { const v = `GST-${++guestCounter}`; saveCounters(); return v; };
+let auditCounter = savedCounters.auditCounter ?? 2900;
+const nextAuditId = () => { const v = `EVT-${++auditCounter}`; saveCounters(); return v; };
 
 const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
   // mix of arriving today, departing today, and future
@@ -369,6 +385,9 @@ const USERS: UserRecord[] = [
   { id: "U008", name: "Mary Nakibuuka", email: "mary@jambo.ug", role: "Housekeeping", active: true, lastLogin: "—" },
   { id: "U009", name: "Faith Akello", email: "faith@jambo.ug", role: "Front Desk", active: false, lastLogin: "1 month ago" },
 ];
+
+export const nightsBetween = (a: string, b: string) =>
+  Math.max(0, Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86_400_000));
 
 /* Build guest profiles from reservation data + extra seed guests */
 const GUESTS: Guest[] = (() => {
@@ -550,9 +569,14 @@ function saveOutbox(entries: OutboxEntry[]) {
   }
 }
 
+function genId(): string {
+  try { return crypto.randomUUID(); } catch { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
+}
+
 function addToOutbox(entry: Omit<OutboxEntry, "id" | "ts">) {
+  if (navigator.onLine) return; // only queue when offline
   const outbox = getOutbox();
-  outbox.push({ ...entry, id: crypto.randomUUID(), ts: new Date().toISOString() });
+  outbox.push({ ...entry, id: genId(), ts: new Date().toISOString() });
   saveOutbox(outbox);
 }
 
@@ -564,13 +588,23 @@ export function clearSyncedEntries() {
   saveOutbox([]);
 }
 
+export function processOutbox(): number {
+  const outbox = getOutbox();
+  if (outbox.length === 0) return 0;
+  // In production, this would POST each entry to the API.
+  // For the mock, we just clear the outbox since the store already has the data.
+  saveOutbox([]);
+  return outbox.length;
+}
+
+export function isOnline(): boolean {
+  return navigator.onLine;
+}
+
 /* ============================== Helpers ============================== */
 
 export const isoDate = iso;
 export const todayISO = () => iso(TODAY);
-export const nightsBetween = (a: string, b: string) =>
-  Math.max(0, Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86_400_000));
-
 export const fmtUGX = (n: number) =>
   "UGX " + Math.round(n).toLocaleString();
 
@@ -792,6 +826,7 @@ export function updateReservation(id: string, patch: UpdateReservationInput): { 
     entity: `${id} — changed: ${Object.keys(patch).join(", ")}`,
     severity: "info",
   });
+  addToOutbox({ type: "update_reservation", payload: { id, patch } });
   emit();
   return { ok: true };
 }
@@ -808,6 +843,7 @@ export function cancelReservation(id: string, reason?: string) {
     entity: id,
     severity: "warn",
   });
+  addToOutbox({ type: "cancel_reservation", payload: { id, reason } });
   emit();
 }
 
@@ -862,6 +898,7 @@ export function checkIn(reservationId: string, opts: { roomId?: string } = {}): 
     entity: `${res.id} → Room ${targetRoom}`,
     severity: "info",
   });
+  addToOutbox({ type: "check_in", payload: { reservationId, roomId: targetRoom } });
   emit();
   return { ok: true };
 }
@@ -900,6 +937,7 @@ export function checkOut(reservationId: string): { ok: true } | { ok: false; err
     entity: `${res.id} (Room ${res.roomId})`,
     severity: "info",
   });
+  addToOutbox({ type: "check_out", payload: { reservationId } });
   emit();
   return { ok: true };
 }

@@ -42,13 +42,13 @@ function FolioList() {
 
   const [tab, setTab] = useState<"open" | "settled" | "all">("open");
   const [q, setQ] = useState("");
+  const collectedToday = useGetCollectedToday();
 
   const totals = useMemo(() => {
     const open = folios.filter((f) => f.status === "open");
     const totalOpen = open.reduce((s, f) => s + folioBalance(f.id), 0);
-    const collectedToday = useGetCollectedToday();
     return { open: totalOpen, count: open.length, settled: folios.filter((f) => f.status === "settled").length, collectedToday };
-  }, [folios]);
+  }, [folios, collectedToday]);
 
   const rows = useMemo(() => {
     return folios
