@@ -185,7 +185,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               )}
             >
               <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive" />
             </button>
 
             {/* Offline / sync indicator */}
