@@ -77,6 +77,13 @@ const menuItems: MenuItem[] = [
 const tables = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "Bar", "Takeaway"];
 const paymentMethods: PaymentMethod[] = ["Cash", "Card", "Room Charge", "Credit"];
 
+const categoryGradient: Record<string, string> = {
+  "Soft Drinks": "from-sky-400 to-teal-500",
+  Spirits: "from-amber-500 to-orange-600",
+  Food: "from-rose-500 to-red-600",
+  Snacks: "from-yellow-500 to-orange-500",
+};
+
 function POSPage() {
   const [category, setCategory] = useState(categories[0]);
   const [cart, setCart] = useState<CartEntry[]>([]);
@@ -227,20 +234,30 @@ function POSPage() {
               <button
                 key={item.id}
                 onClick={() => addItem(item)}
-                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-4 text-left transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/20"
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-0 text-left transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/20"
               >
-                <div className="aspect-[4/3] w-full rounded-xl bg-gradient-to-br from-primary/20 to-success/20 mb-3 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-gradient-primary">
+                <div
+                  className={cn(
+                    "aspect-[4/3] w-full bg-gradient-to-br flex flex-col items-center justify-center relative",
+                    categoryGradient[item.category] || "from-primary/20 to-accent/20",
+                  )}
+                >
+                  <span className="text-2xl font-bold text-white drop-shadow-sm">
                     UGX {item.price.toLocaleString()}
                   </span>
-                </div>
-                <div className="font-medium text-sm truncate">{item.name}</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5">{item.category}</div>
-                <div className="mt-2 flex items-center justify-between">
-                  <span className="text-xs font-semibold">UGX {item.price.toLocaleString()}</span>
-                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/15 text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                  <span className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-white/20 backdrop-blur-sm text-white shadow-sm transition-all hover:bg-white/30 active:scale-90">
                     <Plus className="h-4 w-4" />
                   </span>
+                </div>
+                <div className="p-3 pt-2.5">
+                  <div className="font-semibold text-sm leading-tight truncate">
+                    {item.name}
+                  </div>
+                  <div className="flex items-center justify-between mt-1.5">
+                    <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+                      {item.category}
+                    </span>
+                  </div>
                 </div>
               </button>
             ))}

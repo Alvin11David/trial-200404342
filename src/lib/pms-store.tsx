@@ -37,7 +37,7 @@ export type Guest = {
   tier: "Bronze" | "Silver" | "Gold" | "Platinum";
 };
 
-export type RoomStatus = "available" | "occupied" | "dirty" | "maintenance" | "blocked";
+export type RoomStatus = "available" | "occupied" | "dirty" | "in_progress" | "clean" | "inspected" | "maintenance" | "blocked";
 export type Room = {
   id: string;          // e.g. "204"
   floor: number;
@@ -144,6 +144,43 @@ export type AuditEntry = {
   severity: AuditSeverity;
 };
 
+export type HkTaskType = "turnover" | "deep_clean" | "room_service" | "linen_change" | "inspection";
+export type HkPriority = "standard" | "high" | "vip";
+export type HkTaskStatus = "queued" | "in_progress" | "clean" | "flagged" | "inspected";
+export type HousekeepingTask = {
+  id: string;
+  roomId: string;
+  type: HkTaskType;
+  priority: HkPriority;
+  status: HkTaskStatus;
+  assignedTo: string | null;
+  due: string;          // time e.g. "11:30"
+  notes: string;
+  createdAt: string;     // ISO
+  completedAt?: string;
+};
+
+export type MaintSeverity = "low" | "medium" | "high" | "critical";
+export type MaintenanceRequest = {
+  id: string;
+  roomId: string;
+  taskId: string;
+  description: string;
+  severity: MaintSeverity;
+  status: "open" | "in_progress" | "resolved";
+  reportedBy: string;
+  createdAt: string;
+  resolvedAt?: string;
+};
+
+export type DNDRecord = {
+  id: string;
+  roomId: string;
+  startTime: string;     // ISO
+  endTime?: string;
+  reason: string;
+};
+
 type State = {
   tenant: Tenant;
   roomTypes: RoomType[];
@@ -155,6 +192,9 @@ type State = {
   payments: Payment[];
   users: UserRecord[];
   audit: AuditEntry[];
+  housekeepingTasks: HousekeepingTask[];
+  maintenanceRequests: MaintenanceRequest[];
+  dndRecords: DNDRecord[];
 };
 
 /* ============================== Seed ============================== */
@@ -215,6 +255,7 @@ function saveCounters() {
   try {
     localStorage.setItem(COUNTER_KEY, JSON.stringify({
       resCounter, folioCounter, chargeCounter, payCounter, guestCounter, auditCounter,
+      hkTaskCounter, maintCounter, dndCounter,
     }));
   } catch { /* ignore */ }
 }
@@ -231,6 +272,12 @@ let guestCounter = savedCounters.guestCounter ?? 500;
 const nextGuestId = () => { const v = `GST-${++guestCounter}`; saveCounters(); return v; };
 let auditCounter = savedCounters.auditCounter ?? 2900;
 const nextAuditId = () => { const v = `EVT-${++auditCounter}`; saveCounters(); return v; };
+let hkTaskCounter = savedCounters.hkTaskCounter ?? 4000;
+const nextHkTaskId = () => { const v = `HK-${++hkTaskCounter}`; saveCounters(); return v; };
+let maintCounter = savedCounters.maintCounter ?? 100;
+const nextMaintId = () => { const v = `MNT-${++maintCounter}`; saveCounters(); return v; };
+let dndCounter = savedCounters.dndCounter ?? 50;
+const nextDndId = () => { const v = `DND-${++dndCounter}`; saveCounters(); return v; };
 
 const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
   // mix of arriving today, departing today, and future
@@ -465,6 +512,21 @@ const AUDIT: AuditEntry[] = [
   { id: nextAuditId(), ts: addDays(TODAY, 0).toISOString(), actor: "Amani Kato", role: "Front Desk", module: "reservations", action: "Created reservation", entity: RESERVATIONS[0].id, severity: "info" },
 ];
 
+const HK_TASKS: HousekeepingTask[] = [
+  { id: "HK-4001", roomId: "101", type: "turnover", priority: "high", status: "queued", assignedTo: "U003", due: "11:30", notes: "Guest reported a stain on bedding", createdAt: new Date().toISOString() },
+  { id: "HK-4002", roomId: "308", type: "deep_clean", priority: "standard", status: "queued", assignedTo: null, due: "12:00", notes: "", createdAt: new Date().toISOString() },
+  { id: "HK-4003", roomId: "412", type: "linen_change", priority: "standard", status: "queued", assignedTo: null, due: "13:15", notes: "", createdAt: new Date().toISOString() },
+  { id: "HK-4004", roomId: "117", type: "turnover", priority: "standard", status: "in_progress", assignedTo: "U008", due: "11:00", notes: "", createdAt: new Date().toISOString() },
+  { id: "HK-4005", roomId: "502", type: "deep_clean", priority: "vip", status: "in_progress", assignedTo: "U003", due: "12:30", notes: "VIP guest arriving 14:00", createdAt: new Date().toISOString() },
+  { id: "HK-4006", roomId: "203", type: "turnover", priority: "standard", status: "clean", assignedTo: "U003", due: "10:00", notes: "", createdAt: addDays(TODAY, 0).toISOString() },
+  { id: "HK-4007", roomId: "305", type: "deep_clean", priority: "standard", status: "clean", assignedTo: "U008", due: "09:30", notes: "", createdAt: addDays(TODAY, 0).toISOString() },
+  { id: "HK-4008", roomId: "410", type: "turnover", priority: "standard", status: "inspected", assignedTo: "U003", due: "09:00", notes: "", createdAt: addDays(TODAY, 0).toISOString(), completedAt: new Date().toISOString() },
+];
+
+const MAINT_REQUESTS: MaintenanceRequest[] = [];
+
+const DND_RECORDS: DNDRecord[] = [];
+
 const TENANT: Tenant = {
   id: "T001",
   name: "Jambo Sphere Hotel",
@@ -494,6 +556,9 @@ function persistState() {
       payments: state.payments,
       users: state.users,
       audit: state.audit,
+      housekeepingTasks: state.housekeepingTasks,
+      maintenanceRequests: state.maintenanceRequests,
+      dndRecords: state.dndRecords,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
   } catch {
@@ -524,6 +589,9 @@ const state: State = {
   payments: persisted?.payments ?? PAYMENTS,
   users: persisted?.users ?? USERS,
   audit: persisted?.audit ?? AUDIT,
+  housekeepingTasks: persisted?.housekeepingTasks ?? HK_TASKS,
+  maintenanceRequests: persisted?.maintenanceRequests ?? MAINT_REQUESTS,
+  dndRecords: persisted?.dndRecords ?? DND_RECORDS,
 };
 
 const listeners = new Set<() => void>();
@@ -628,7 +696,7 @@ function rangesOverlap(aIn: string, aOut: string, bIn: string, bOut: string) {
 export function findAvailableRooms(roomTypeId: string, checkIn: string, checkOut: string) {
   return state.rooms.filter((r) => {
     if (r.typeId !== roomTypeId) return false;
-    if (r.status === "maintenance" || r.status === "blocked") return false;
+    if (r.status !== "available") return false;
     // any active reservation already on this room in the same range?
     const conflict = state.reservations.some(
       (res) =>
@@ -932,10 +1000,22 @@ export function checkOut(reservationId: string): { ok: true } | { ok: false; err
     r.id === res.id ? { ...r, status: "checked_out" } : r,
   );
   if (res.roomId) {
-    // room flips to dirty awaiting housekeeping
+    // room flips to dirty awaiting housekeeping + auto-create turnover task
     state.rooms = state.rooms.map((r) =>
       r.id === res.roomId ? { ...r, status: "dirty" } : r,
     );
+    const hkTask: HousekeepingTask = {
+      id: nextHkTaskId(),
+      roomId: res.roomId,
+      type: "turnover",
+      priority: "standard",
+      status: "queued",
+      assignedTo: null,
+      due: new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+      notes: `Auto-generated after checkout of ${res.guestName}`,
+      createdAt: new Date().toISOString(),
+    };
+    state.housekeepingTasks = [...state.housekeepingTasks, hkTask];
   }
   logAudit({
     actor: "Front Desk",
@@ -1013,6 +1093,113 @@ export function assignRoomHousekeeper(roomId: string, userId: string | null) {
     r.id === roomId ? { ...r, assignedTo: userId } : r,
   );
   emit();
+}
+
+/* ============================== Housekeeping ============================== */
+
+export function createHousekeepingTask(input: {
+  roomId: string;
+  type: HkTaskType;
+  priority: HkPriority;
+  assignedTo?: string | null;
+  due: string;
+  notes?: string;
+}) {
+  const task: HousekeepingTask = {
+    id: nextHkTaskId(),
+    roomId: input.roomId,
+    type: input.type,
+    priority: input.priority,
+    status: "queued",
+    assignedTo: input.assignedTo ?? null,
+    due: input.due,
+    notes: input.notes ?? "",
+    createdAt: new Date().toISOString(),
+  };
+  state.housekeepingTasks = [...state.housekeepingTasks, task];
+  setRoomStatus(input.roomId, "dirty");
+  logAudit({ actor: "Housekeeping", role: "Housekeeping", module: "housekeeping", action: "Task created", entity: `${task.id} — Room ${input.roomId} (${input.type})`, severity: "info" });
+  emit();
+  return task;
+}
+
+export function assignHkTask(taskId: string, userId: string | null) {
+  state.housekeepingTasks = state.housekeepingTasks.map((t) =>
+    t.id === taskId ? { ...t, assignedTo: userId } : t,
+  );
+  emit();
+}
+
+export function updateHkTaskStatus(taskId: string, status: HkTaskStatus) {
+  const task = state.housekeepingTasks.find((t) => t.id === taskId);
+  if (!task) return;
+  const patch: Partial<HousekeepingTask> = { status };
+  if (status === "in_progress") {
+    patch.completedAt = undefined;
+    setRoomStatus(task.roomId, "in_progress");
+  } else if (status === "clean") {
+    setRoomStatus(task.roomId, "clean");
+  } else if (status === "inspected") {
+    patch.completedAt = new Date().toISOString();
+    setRoomStatus(task.roomId, "available");
+  } else if (status === "flagged") {
+    setRoomStatus(task.roomId, "blocked");
+  }
+  state.housekeepingTasks = state.housekeepingTasks.map((t) =>
+    t.id === taskId ? { ...t, ...patch } : t,
+  );
+  logAudit({ actor: "Housekeeping", role: "Housekeeping", module: "housekeeping", action: `Task ${status}`, entity: `${task.id} — Room ${task.roomId}`, severity: "info" });
+  emit();
+}
+
+export function flagHkIssue(taskId: string, description: string, severity: MaintSeverity) {
+  const task = state.housekeepingTasks.find((t) => t.id === taskId);
+  if (!task) return;
+  const req: MaintenanceRequest = {
+    id: nextMaintId(),
+    roomId: task.roomId,
+    taskId,
+    description,
+    severity,
+    status: "open",
+    reportedBy: task.assignedTo ?? "Unknown",
+    createdAt: new Date().toISOString(),
+  };
+  state.maintenanceRequests = [...state.maintenanceRequests, req];
+  updateHkTaskStatus(taskId, "flagged");
+  logAudit({ actor: "Housekeeping", role: "Housekeeping", module: "housekeeping", action: "Issue flagged", entity: `Room ${task.roomId} — ${description}`, severity: severity === "critical" || severity === "high" ? "warn" : "info" });
+  emit();
+}
+
+export function resolveMaintenance(id: string) {
+  state.maintenanceRequests = state.maintenanceRequests.map((r) =>
+    r.id === id ? { ...r, status: "resolved", resolvedAt: new Date().toISOString() } : r,
+  );
+  emit();
+}
+
+export function setDND(roomId: string, reason: string, endTime?: string) {
+  const dnd: DNDRecord = {
+    id: nextDndId(),
+    roomId,
+    startTime: new Date().toISOString(),
+    endTime,
+    reason,
+  };
+  state.dndRecords = [...state.dndRecords, dnd];
+  logAudit({ actor: "Front Desk", role: "Front Desk", module: "housekeeping", action: "DND set", entity: `Room ${roomId} — ${reason}`, severity: "info" });
+  emit();
+}
+
+export function clearDND(roomId: string) {
+  state.dndRecords = state.dndRecords.map((r) =>
+    r.roomId === roomId && !r.endTime ? { ...r, endTime: new Date().toISOString() } : r,
+  );
+  emit();
+}
+
+export function getActiveDND(): DNDRecord[] {
+  return state.dndRecords.filter((r) => !r.endTime);
 }
 
 export function upsertRoom(room: Room) {
