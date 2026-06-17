@@ -606,8 +606,11 @@ const subscribe = (l: () => void) => {
 const snap = () => state;
 
 export function useStore<T>(selector: (s: State) => T): T {
-  const state = useSyncExternalStore(subscribe, snap, snap);
-  return selector(state);
+  return useSyncExternalStore(
+    subscribe,
+    () => selector(snap()),
+    () => selector(snap()),
+  );
 }
 
 /* ============================== Offline Sync Queue ============================== */
@@ -1195,8 +1198,14 @@ export function clearDND(roomId: string) {
   emit();
 }
 
+let cachedDndRecords: DNDRecord[] = [];
+let cachedActiveDND: DNDRecord[] = [];
 export function getActiveDND(): DNDRecord[] {
-  return state.dndRecords.filter((r) => !r.endTime);
+  if (state.dndRecords !== cachedDndRecords) {
+    cachedDndRecords = state.dndRecords;
+    cachedActiveDND = state.dndRecords.filter((r) => !r.endTime);
+  }
+  return cachedActiveDND;
 }
 
 export function upsertRoom(room: Room) {

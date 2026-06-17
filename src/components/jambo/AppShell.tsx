@@ -15,7 +15,7 @@ import {
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
 import { ROLE_META, ROLE_NAV, ROLES, useRole, type Role } from "@/lib/role";
-import { getPendingSyncCount, isOnline, processOutbox } from "@/lib/pms-store";
+import { getPendingSyncCount, processOutbox } from "@/lib/pms-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { role, setRole } = useRole();
-  const [online, setOnline] = useState(() => isOnline());
+  const [online, setOnline] = useState(true);
   const [syncCount, setSyncCount] = useState(() => getPendingSyncCount());
 
   useEffect(() => {

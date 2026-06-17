@@ -90,7 +90,7 @@ function ReportCard({ active, onClick, title, desc }: { active: boolean; onClick
 }
 
 function OccupancyReport({ from, to }: { from: string; to: string }) {
-  const dates = useStore(() => dateRangeList(from, to));
+  const dates = useMemo(() => dateRangeList(from, to), [from, to]);
   const rows = dates.map((d) => {
     const o = occupancyOnDate(d);
     return { date: d, total: o.total, occupied: o.occupied, pct: o.pct };
