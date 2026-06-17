@@ -232,6 +232,11 @@ function FolioDetail({ folioId }: { folioId: string }) {
             <p className="text-xs text-muted-foreground">
               Room {room?.id ?? "—"} ({rt?.name ?? "—"}) · {res?.checkIn} → {res?.checkOut}
             </p>
+            {res?.vatTreatment && (
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                VAT {res.vatTreatment} · Rate {(res.vatRate ?? 0) * 100}%
+              </p>
+            )}
           </div>
           <div className="grid gap-2 text-right">
             <div>
@@ -522,10 +527,14 @@ function InvoiceView({ folioId }: { folioId: string }) {
   const subtotal = folioCharges.reduce((s, c) => s + c.amount, 0);
   // Use reservation-level vatRate if available (for historical accuracy), fall back to tenant default
   const effectiveVatRate = res?.vatRate ?? tenant.vatRate;
-  const vat = subtotal - subtotal / (1 + effectiveVatRate);
-  const net = subtotal - vat;
+  const isInclusive = res?.vatTreatment !== "exclusive";
+  const vat = isInclusive
+    ? subtotal - subtotal / (1 + effectiveVatRate)
+    : Math.round(subtotal * effectiveVatRate);
+  const net = isInclusive ? subtotal - vat : subtotal;
+  const gross = isInclusive ? subtotal : subtotal + vat;
   const paid = folioPayments.reduce((s, p) => s + p.amount, 0);
-  const due = subtotal - paid;
+  const due = gross - paid;
 
   return (
     <div className="mx-auto max-w-3xl print:max-w-none">
@@ -566,6 +575,11 @@ function InvoiceView({ folioId }: { folioId: string }) {
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Stay</p>
             <p className="text-sm font-semibold">{res?.checkIn} → {res?.checkOut}</p>
             <p className="text-xs text-muted-foreground">Room {res?.roomId ?? "—"} · Reservation {res?.id}</p>
+            {res?.vatTreatment && (
+              <p className="mt-1 text-[10px] text-muted-foreground">
+                Prices are VAT {isInclusive ? "inclusive" : "exclusive"}
+              </p>
+            )}
           </div>
         </div>
 
@@ -594,7 +608,7 @@ function InvoiceView({ folioId }: { folioId: string }) {
           <Row label="Subtotal (net)" value={fmtUGX(net)} />
           <Row label={`VAT (${(effectiveVatRate * 100).toFixed(0)}%)`} value={fmtUGX(vat)} />
           <div className="border-t border-border pt-1.5">
-            <Row label="Total" value={fmtUGX(subtotal)} bold />
+            <Row label="Total" value={fmtUGX(gross)} bold />
           </div>
           <Row label="Paid" value={"−" + fmtUGX(paid)} tone="success" />
           <div className="border-t border-border pt-1.5">
