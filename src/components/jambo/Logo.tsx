@@ -8,17 +8,17 @@ type LogoProps = {
 };
 
 export function Logo({ className, showText = true, size = "md" }: LogoProps) {
-  const dim = size === "sm" ? 28 : size === "lg" ? 56 : 40;
+  const dim = size === "sm" ? 24 : size === "lg" ? 48 : 34;
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <div
-        className="relative grid place-items-center rounded-xl overflow-hidden glow-primary animate-pulse-glow bg-transparent"
+        className="relative grid place-items-center overflow-hidden bg-transparent"
         style={{
           width: dim,
           height: dim,
         }}
       >
-        <img src={jamboLogo} alt="Jambo ERP Logo" className="h-full w-full object-contain" />
+        <img src={jamboLogo} alt="Jambo ERP Logo" className="h-full w-full rounded-lg object-contain" />
       </div>
       {showText && (
         <div className="flex flex-col leading-tight">

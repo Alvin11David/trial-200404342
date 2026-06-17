@@ -89,6 +89,11 @@ export type FolioCharge = {
   type: FolioChargeType;
   description: string;
   amount: number;      // UGX (positive)
+  voided?: boolean;
+  voidReason?: string;
+  voidedBy?: string;
+  voidedAt?: string;
+  postedBy?: string;
 };
 
 export type PaymentMethod = "cash" | "card" | "mtn_momo" | "airtel_money" | "bank_transfer";
@@ -102,13 +107,14 @@ export type Payment = {
   amount: number;
 };
 
-export type FolioStatus = "open" | "settled" | "void";
+export type FolioStatus = "open" | "active" | "pending_settlement" | "settled" | "closed" | "void";
 export type Folio = {
   id: string;
   reservationId: string;
   openedAt: string;
   closedAt?: string;
   status: FolioStatus;
+  notes?: string;
 };
 
 export type UserRecord = {
@@ -1038,7 +1044,7 @@ export function folioBalance(folioId: string): number {
   return charges - payments;
 }
 
-export function addCharge(folioId: string, input: Omit<FolioCharge, "id" | "folioId" | "date"> & { date?: string }) {
+export function addCharge(folioId: string, input: Omit<FolioCharge, "id" | "folioId" | "date"> & { date?: string; postedBy?: string }) {
   state.charges = [
     ...state.charges,
     {
@@ -1048,13 +1054,14 @@ export function addCharge(folioId: string, input: Omit<FolioCharge, "id" | "foli
       type: input.type,
       description: input.description,
       amount: input.amount,
+      postedBy: input.postedBy,
     },
   ];
-  logAudit({ actor: "Front Desk", role: "Front Desk", module: "billing", action: "Posted charge", entity: `${folioId} ${fmtUGX(input.amount)}`, severity: "info" });
+  logAudit({ actor: input.postedBy ?? "Front Desk", role: "Front Desk", module: "billing", action: "Posted charge", entity: `${folioId} ${fmtUGX(input.amount)}`, severity: "info" });
   emit();
 }
 
-export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId" | "date"> & { date?: string }) {
+export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId" | "date"> & { date?: string; receivedBy?: string }) {
   state.payments = [
     ...state.payments,
     {
@@ -1071,12 +1078,83 @@ export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId
   const bal = folioBalance(folioId);
   if (bal <= 0.5) {
     state.folios = state.folios.map((f) =>
-      f.id === folioId ? { ...f, status: "settled" } : f,
+      f.id === folioId ? { ...f, status: "settled", closedAt: new Date().toISOString() } : f,
     );
   }
-  logAudit({ actor: "Cashier", role: "Accountant", module: "billing", action: "Posted payment", entity: `${folioId} ${fmtUGX(input.amount)} via ${input.method}`, severity: "info" });
+  logAudit({ actor: input.receivedBy ?? "Cashier", role: "Accountant", module: "billing", action: "Posted payment", entity: `${folioId} ${fmtUGX(input.amount)} via ${input.method}`, severity: "info" });
   emit();
 }
+
+export function voidCharge(folioId: string, chargeId: string, reason: string, actor: string, role: string) {
+  state.charges = state.charges.map((c) =>
+    c.id === chargeId && c.folioId === folioId && !c.voided
+      ? { ...c, voided: true, voidReason: reason, voidedBy: actor, voidedAt: new Date().toISOString() }
+      : c,
+  );
+  logAudit({ actor, role, module: "billing", action: `Voided charge ${chargeId}`, entity: `${folioId} — ${reason}`, severity: "warn" });
+  emit();
+}
+
+export function settleFolio(folioId: string, actor: string, role: string) {
+  state.folios = state.folios.map((f) =>
+    f.id === folioId && f.status !== "settled" && f.status !== "closed" && f.status !== "void"
+      ? { ...f, status: "settled", closedAt: new Date().toISOString() }
+      : f,
+  );
+  logAudit({ actor, role, module: "billing", action: "Folio settled", entity: folioId, severity: "info" });
+  emit();
+}
+
+export function runNightAudit(actor: string, role: string) {
+  const today = todayISO();
+  const posted: string[] = [];
+  state.folios.forEach((f) => {
+    if (f.status !== "open" && f.status !== "active") return;
+    const res = state.reservations.find((r) => r.id === f.reservationId);
+    if (!res || !res.roomId) return;
+    const alreadyPosted = state.charges.some((c) => c.folioId === f.id && c.date === today && c.type === "room");
+    if (alreadyPosted) return;
+    const nightsSoFar = Math.max(1, Math.ceil((new Date(today).getTime() - new Date(res.checkIn).getTime()) / 86_400_000));
+    state.charges = [...state.charges, {
+      id: nextChargeId(),
+      folioId: f.id,
+      date: today,
+      type: "room",
+      description: `Room ${res.roomId} — night ${nightsSoFar}`,
+      amount: res.ratePerNight,
+      postedBy: actor,
+    }];
+    posted.push(f.id);
+  });
+  // advance folio lifecycle
+  state.folios = state.folios.map((f) => {
+    if (f.status === "open") return { ...f, status: "active" };
+    return f;
+  });
+  logAudit({ actor, role, module: "billing", action: "Night audit completed", entity: `${posted.length} folios charged for ${today}`, severity: "info" });
+  emit();
+  return posted;
+}
+
+export function totalOutstanding() {
+  return state.folios
+    .filter((f) => f.status === "open" || f.status === "active" || f.status === "pending_settlement")
+    .reduce((s, f) => s + folioBalance(f.id), 0);
+}
+
+export function paymentsToday() {
+  const today = todayISO();
+  return state.payments.filter((p) => p.date === today).reduce((s, p) => s + p.amount, 0);
+}
+
+export const FOLIO_STATUS_LABEL: Record<FolioStatus, string> = {
+  open: "Open",
+  active: "Active",
+  pending_settlement: "Pending Settlement",
+  settled: "Settled",
+  closed: "Closed",
+  void: "Void",
+};
 
 /* ============================== Rooms / Housekeeping ============================== */
 
