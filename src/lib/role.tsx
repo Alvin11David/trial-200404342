@@ -14,6 +14,7 @@ import {
   FileSearch,
   CreditCard,
   TrendingUp,
+  Tag,
 } from "lucide-react";
 
 /* eslint-disable react-refresh/only-export-components */
@@ -71,6 +72,7 @@ const COMMON: { [k: string]: NavItem } = {
   reports: { label: "Reports", to: "/reports", icon: BarChart3 },
   accounting: { label: "Accounting", to: "/accounting", icon: Wallet },
   revenue: { label: "Revenue", to: "/reports", icon: TrendingUp },
+  rates: { label: "Rates & Availability", to: "/rates", icon: Tag },
   audit: { label: "Audit Trail", to: "/audit", icon: FileSearch },
   identity: { label: "Identity & Access", to: "/identity", icon: ShieldCheck },
   settings: { label: "Settings", to: "/settings", icon: Settings },
@@ -80,12 +82,14 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
   "Owner / GM": [
     { section: "Overview", items: [COMMON.dashboard] },
     { section: "Operations", items: [COMMON.reservations, COMMON.rooms, COMMON.housekeeping] },
+    { section: "Revenue", items: [COMMON.rates] },
     { section: "Finance", items: [COMMON.billing, COMMON.reports] },
     { section: "System", items: [COMMON.audit, COMMON.settings] },
   ],
   "Front Desk": [
     { section: "Today", items: [COMMON.dashboard] },
     { section: "Front Office", items: [COMMON.reservations, COMMON.rooms, COMMON.guests, COMMON.billing] },
+    { section: "Reference", items: [COMMON.rates] },
   ],
   Housekeeping: [
     { section: "Today", items: [COMMON.dashboard] },
@@ -98,11 +102,12 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
   "Reservations / Revenue": [
     { section: "Today", items: [COMMON.dashboard] },
     { section: "Bookings", items: [COMMON.reservations, COMMON.rooms, COMMON.guests] },
-    { section: "Revenue", items: [COMMON.revenue] },
+    { section: "Revenue", items: [COMMON.rates, COMMON.revenue] },
   ],
   Accountant: [
     { section: "Today", items: [COMMON.dashboard] },
     { section: "Finance", items: [COMMON.billing, COMMON.accounting, COMMON.reports] },
+    { section: "Reference", items: [COMMON.rates] },
   ],
   "System Administrator": [
     { section: "Today", items: [COMMON.dashboard] },
