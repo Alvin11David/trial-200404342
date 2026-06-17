@@ -84,6 +84,33 @@ const categoryGradient: Record<string, string> = {
   Snacks: "from-yellow-500 to-orange-500",
 };
 
+const productImages: Record<string, string> = {
+  sd1: "https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&h=300&fit=crop",
+  sd2: "https://picsum.photos/seed/fanta/400/300",
+  sd3: "https://images.unsplash.com/photo-1551538827-9c037cb4f32a?w=400&h=300&fit=crop",
+  sd4: "https://picsum.photos/seed/mineral-water/400/300",
+  sd5: "https://picsum.photos/seed/fresh-orange-juice/400/300",
+  sd6: "https://images.unsplash.com/photo-1505252585461-04db1eb84625?w=400&h=300&fit=crop",
+  sp1: "https://picsum.photos/seed/johnnie-walker/400/300",
+  sp2: "https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=400&h=300&fit=crop",
+  sp3: "https://picsum.photos/seed/smirnoff/400/300",
+  sp4: "https://picsum.photos/seed/beefeater-gin/400/300",
+  sp5: "https://images.unsplash.com/photo-1510707577719-ae7c14805e3a?w=400&h=300&fit=crop",
+  sp6: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop",
+  fd1: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=400&h=300&fit=crop",
+  fd2: "https://images.unsplash.com/photo-1558030006-450675393462?w=400&h=300&fit=crop",
+  fd3: "https://picsum.photos/seed/fish-n-chips/400/300",
+  fd4: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop",
+  fd5: "https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=400&h=300&fit=crop",
+  fd6: "https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=400&h=300&fit=crop",
+  sn1: "https://picsum.photos/seed/french-fries/400/300",
+  sn2: "https://picsum.photos/seed/onion-rings/400/300",
+  sn3: "https://picsum.photos/seed/chicken-wings/400/300",
+  sn4: "https://picsum.photos/seed/samosas/400/300",
+  sn5: "https://images.unsplash.com/photo-1559847844-5315695dadae?w=400&h=300&fit=crop",
+  sn6: "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=400&h=300&fit=crop",
+};
+
 function POSPage() {
   const [category, setCategory] = useState(categories[0]);
   const [cart, setCart] = useState<CartEntry[]>([]);
@@ -234,28 +261,28 @@ function POSPage() {
               <button
                 key={item.id}
                 onClick={() => addItem(item)}
-                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card p-0 text-left transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/20"
+                className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/20"
               >
-                <div
-                  className={cn(
-                    "aspect-[4/3] w-full bg-gradient-to-br flex flex-col items-center justify-center relative",
-                    categoryGradient[item.category] || "from-primary/20 to-accent/20",
-                  )}
-                >
-                  <span className="text-2xl font-bold text-white drop-shadow-sm">
-                    UGX {item.price.toLocaleString()}
-                  </span>
-                  <span className="absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-white/20 backdrop-blur-sm text-white shadow-sm transition-all hover:bg-white/30 active:scale-90">
+                <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
+                  <img
+                    src={productImages[item.id]}
+                    alt={item.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                  <span className="absolute bottom-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-white/90 text-foreground shadow-lg transition-all hover:bg-white active:scale-90">
                     <Plus className="h-4 w-4" />
                   </span>
                 </div>
-                <div className="p-3 pt-2.5">
-                  <div className="font-semibold text-sm leading-tight truncate">
-                    {item.name}
-                  </div>
-                  <div className="flex items-center justify-between mt-1.5">
+                <div className="p-3">
+                  <div className="font-semibold text-sm leading-tight truncate">{item.name}</div>
+                  <div className="flex items-center justify-between mt-1">
                     <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
                       {item.category}
+                    </span>
+                    <span className="text-xs font-bold tabular-nums">
+                      UGX {item.price.toLocaleString()}
                     </span>
                   </div>
                 </div>
