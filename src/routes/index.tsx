@@ -445,4 +445,10 @@ function Field(props: {
           onBlur={() => setFocused(false)}
           autoComplete={autoComplete}
           required={required}
-         
+          className="w-full bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground/50"
+        />
+        {trailing && <span className="pr-3.5">{trailing}</span>}
+      </div>
+    </div>
+  );
+}
