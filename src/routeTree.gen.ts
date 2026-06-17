@@ -17,6 +17,7 @@ import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppRoomsRouteImport } from './routes/_app.rooms'
 import { Route as AppReservationsRouteImport } from './routes/_app.reservations'
 import { Route as AppReportsRouteImport } from './routes/_app.reports'
+import { Route as AppRatesRouteImport } from './routes/_app.rates'
 import { Route as AppPosRouteImport } from './routes/_app.pos'
 import { Route as AppNotificationsRouteImport } from './routes/_app.notifications'
 import { Route as AppInventoryRouteImport } from './routes/_app.inventory'
@@ -78,6 +79,11 @@ const AppReservationsRoute = AppReservationsRouteImport.update({
 const AppReportsRoute = AppReportsRouteImport.update({
   id: '/reports',
   path: '/reports',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRatesRoute = AppRatesRouteImport.update({
+  id: '/rates',
+  path: '/rates',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPosRoute = AppPosRouteImport.update({
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/inventory': typeof AppInventoryRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
   '/pos': typeof AppPosRouteWithChildren
+  '/rates': typeof AppRatesRoute
   '/reports': typeof AppReportsRoute
   '/reservations': typeof AppReservationsRouteWithChildren
   '/rooms': typeof AppRoomsRoute
@@ -246,6 +253,7 @@ export interface FileRoutesByTo {
   '/inventory': typeof AppInventoryRouteWithChildren
   '/notifications': typeof AppNotificationsRoute
   '/pos': typeof AppPosRouteWithChildren
+  '/rates': typeof AppRatesRoute
   '/reports': typeof AppReportsRoute
   '/reservations': typeof AppReservationsRouteWithChildren
   '/rooms': typeof AppRoomsRoute
@@ -280,6 +288,7 @@ export interface FileRoutesById {
   '/_app/inventory': typeof AppInventoryRouteWithChildren
   '/_app/notifications': typeof AppNotificationsRoute
   '/_app/pos': typeof AppPosRouteWithChildren
+  '/_app/rates': typeof AppRatesRoute
   '/_app/reports': typeof AppReportsRoute
   '/_app/reservations': typeof AppReservationsRouteWithChildren
   '/_app/rooms': typeof AppRoomsRoute
@@ -314,6 +323,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/notifications'
     | '/pos'
+    | '/rates'
     | '/reports'
     | '/reservations'
     | '/rooms'
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/inventory'
     | '/notifications'
     | '/pos'
+    | '/rates'
     | '/reports'
     | '/reservations'
     | '/rooms'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '/_app/inventory'
     | '/_app/notifications'
     | '/_app/pos'
+    | '/_app/rates'
     | '/_app/reports'
     | '/_app/reservations'
     | '/_app/rooms'
@@ -459,6 +471,13 @@ declare module '@tanstack/react-router' {
       path: '/reports'
       fullPath: '/reports'
       preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/rates': {
+      id: '/_app/rates'
+      path: '/rates'
+      fullPath: '/rates'
+      preLoaderRoute: typeof AppRatesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/pos': {
@@ -707,6 +726,7 @@ interface AppRouteChildren {
   AppInventoryRoute: typeof AppInventoryRouteWithChildren
   AppNotificationsRoute: typeof AppNotificationsRoute
   AppPosRoute: typeof AppPosRouteWithChildren
+  AppRatesRoute: typeof AppRatesRoute
   AppReportsRoute: typeof AppReportsRoute
   AppReservationsRoute: typeof AppReservationsRouteWithChildren
   AppRoomsRoute: typeof AppRoomsRoute
@@ -726,6 +746,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppInventoryRoute: AppInventoryRouteWithChildren,
   AppNotificationsRoute: AppNotificationsRoute,
   AppPosRoute: AppPosRouteWithChildren,
+  AppRatesRoute: AppRatesRoute,
   AppReportsRoute: AppReportsRoute,
   AppReservationsRoute: AppReservationsRouteWithChildren,
   AppRoomsRoute: AppRoomsRoute,
@@ -743,13 +764,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
