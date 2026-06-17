@@ -606,11 +606,8 @@ const subscribe = (l: () => void) => {
 const snap = () => state;
 
 export function useStore<T>(selector: (s: State) => T): T {
-  return useSyncExternalStore(
-    subscribe,
-    () => selector(snap()),
-    () => selector(snap()),
-  );
+  const state = useSyncExternalStore(subscribe, snap, snap);
+  return selector(state);
 }
 
 /* ============================== Offline Sync Queue ============================== */
