@@ -54,8 +54,10 @@ function LoginPage() {
     <div className="flex min-h-screen w-full">
       {/* ===== Left Panel — Brand / Hero ===== */}
       <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 p-12 text-white lg:flex">
-        {/* Inverted rounded rectangle notch at top-right */}
-        <div className="pointer-events-none absolute -right-6 top-24 z-20 h-28 w-14 rounded-l-2xl border-r-0 border-white/20 bg-white shadow-2xl" />
+        {/* Inverted rounded rectangle notches */}
+        <div className="pointer-events-none absolute -top-5 left-1/3 z-20 h-8 w-24 rounded-b-xl border-t-0 border-white/20 bg-white shadow-lg" />
+        <div className="pointer-events-none absolute -right-6 top-44 z-20 h-28 w-14 rounded-l-2xl border-r-0 border-white/20 bg-white shadow-2xl" />
+        <div className="pointer-events-none absolute -bottom-5 left-1/2 z-20 h-8 w-20 rounded-t-xl border-b-0 border-white/20 bg-white shadow-lg" />
 
         {/* Animated gradient overlay */}
         <div className="pointer-events-none absolute inset-0 opacity-30">
