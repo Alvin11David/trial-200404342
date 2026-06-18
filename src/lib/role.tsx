@@ -17,6 +17,13 @@ import {
   Tag,
   LogIn,
   LogOut,
+  Package,
+  Utensils,
+  Calendar,
+  Bell,
+  Clock,
+  CalendarDays,
+  ClipboardCheck,
 } from "lucide-react";
 
 /* eslint-disable react-refresh/only-export-components */
@@ -80,20 +87,33 @@ const COMMON: { [k: string]: NavItem } = {
   audit: { label: "Audit Trail", to: "/audit", icon: FileSearch },
   identity: { label: "Identity & Access", to: "/identity", icon: ShieldCheck },
   settings: { label: "Settings", to: "/settings", icon: Settings },
+  notifications: { label: "Notifications", to: "/notifications", icon: Bell },
+  events: { label: "Events", to: "/events", icon: Calendar },
+  hr: { label: "HR Dashboard", to: "/hr", icon: Users },
+  leaveManagement: { label: "Leave Management", to: "/hr/leaves", icon: CalendarDays },
+  inventoryDashboard: { label: "Dashboard", to: "/inventory", icon: Package },
+  inventoryList: { label: "Inventory List", to: "/inventory/list", icon: Package },
+  purchaseOrders: { label: "Purchase Orders", to: "/inventory/purchase-orders", icon: FileSearch },
+  requisitions: { label: "Requisitions", to: "/inventory/requisitions", icon: ClipboardCheck },
+  posOrders: { label: "Orders", to: "/pos/orders", icon: ShoppingCart },
+  posMenu: { label: "Menu", to: "/pos/menu", icon: Utensils },
+  schedule: { label: "Schedule", to: "/hr/schedule", icon: Clock },
 };
 
 export const ROLE_NAV: Record<Role, NavGroup[]> = {
   "Owner / GM": [
     { section: "Overview", items: [COMMON.dashboard] },
-    { section: "Operations", items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.housekeeping] },
+    { section: "Operations", items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.housekeeping, COMMON.events] },
     { section: "Revenue", items: [COMMON.rates] },
     { section: "Finance", items: [COMMON.billing, COMMON.reports] },
-    { section: "System", items: [COMMON.audit, COMMON.settings] },
+    { section: "Inventory", items: [COMMON.inventoryDashboard, COMMON.inventoryList, COMMON.requisitions, COMMON.purchaseOrders] },
+    { section: "HR", items: [COMMON.hr, COMMON.leaveManagement, COMMON.schedule] },
+    { section: "System", items: [COMMON.notifications, COMMON.audit, COMMON.settings] },
   ],
   "Front Desk": [
     { section: "Today", items: [COMMON.dashboard] },
-    { section: "Front Office", items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.guests, COMMON.billing] },
-    { section: "Reference", items: [COMMON.rates] },
+    { section: "Front Office", items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.guests, COMMON.billing, COMMON.events] },
+    { section: "Reference", items: [COMMON.rates, COMMON.notifications] },
   ],
   Housekeeping: [
     { section: "Today", items: [COMMON.dashboard] },
