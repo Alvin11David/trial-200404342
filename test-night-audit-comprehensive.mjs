@@ -102,8 +102,8 @@ async function run() {
     ok(dialogText.includes("cannot be reopened"), "Dialog warns business day cannot be reopened");
 
     // Determine if charges need to be posted or already done
-    const needsCharging = dialogText.includes("will receive tonight");
-    const alreadyCharged = dialogText.includes("already charged");
+    // "will receive tonight" always appears; check if any NEED charging (> 0)
+    const needsCharging = !dialogText.includes("already charged");
     console.log(`  ${needsCharging ? "Folios need charging" : "All folios already charged for tonight"}`);
 
     if (needsCharging) {
