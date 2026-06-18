@@ -39,15 +39,11 @@ function LoginPage() {
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setLoading(true);
-    setTimeout(() => {
-      if (email === "admin@jambo.com" && password === "admin123") {
-        navigate({ to: "/dashboard" });
-      } else {
-        setError("Invalid credentials. Try admin@jambo.com / admin123");
-        setLoading(false);
-      }
-    }, 700);
+    if (email === "admin@jambo.com" && password === "admin123") {
+      navigate({ to: "/dashboard" });
+    } else {
+      setError("Invalid credentials. Try admin@jambo.com / admin123");
+    }
   };
 
   return (
