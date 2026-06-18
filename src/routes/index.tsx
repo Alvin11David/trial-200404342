@@ -89,24 +89,13 @@ function LoginPage() {
         {/* Center: Bold title — overlay on top of Spline */}
         <div className="relative z-10 flex flex-1 items-center justify-center px-12">
           <div className="text-center">
-            <h1 className="text-5xl font-bold leading-none tracking-wide text-white drop-shadow-xl">
-              Jambo
+            <h1 className="text-4xl font-bold leading-snug tracking-tight text-white drop-shadow-xl">
+              One powerful platform for all your hotel operations
             </h1>
-            <p className="mt-2 text-5xl font-bold tracking-[0.25em] text-white/80 drop-shadow-lg">
-              ERP
-            </p>
           </div>
         </div>
 
-        {/* Bottom: Brand stat — overlay on top of Spline */}
-        <div className="relative z-10 px-12 pb-12">
-          <div className="flex items-center gap-8 text-xs text-white/40">
-            <span>© {new Date().getFullYear()} Jambo Sphere Ltd</span>
-            <span className="h-3 w-px bg-white/10" />
-            <span>Kampala, Uganda</span>
-            <span className="h-3 w-px bg-white/10" />
-          </div>
-        </div>
+
       </div>
 
       {/* ===== Right Panel — Sign-in Form ===== */}
