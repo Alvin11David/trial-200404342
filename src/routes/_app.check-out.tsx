@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
+import { toast } from "sonner";
 import {
   Search,
   User,
@@ -10,7 +11,6 @@ import {
   LogOut,
   ChevronDown,
   ChevronUp,
-  Receipt,
   CreditCard,
   AlertTriangle,
 } from "lucide-react";
@@ -28,6 +28,17 @@ import {
   roomTypeById,
   useStore,
 } from "@/lib/pms-store";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_app/check-out")({
   head: () => ({ meta: [{ title: "Check-Out — Jambo PMS" }] }),
@@ -40,7 +51,6 @@ function CheckOutPage() {
   const allPayments = useStore((s) => s.payments);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
 
   const inHouse = useMemo(
     () =>
@@ -50,29 +60,25 @@ function CheckOutPage() {
     [reservations, query],
   );
 
-  const showToast = (t: { tone: "ok" | "err"; msg: string } | null) => {
-    setToast(t);
-    if (t) setTimeout(() => setToast(null), 4000);
-  };
-
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl" role="main" aria-label="Check-Out">
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Check-Out</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground" aria-live="polite">
             {inHouse.length} guest{inHouse.length !== 1 ? "s" : ""} currently checked in
           </p>
         </div>
       </div>
 
-      <div className="relative mb-6">
+      <div className="relative mb-6" role="search">
         <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           placeholder="Search by guest name…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full rounded-xl border border-border bg-card py-3 pl-10 pr-4 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+          aria-label="Search guests by name"
         />
       </div>
 
@@ -80,10 +86,20 @@ function CheckOutPage() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 text-center">
           <LogOut className="mb-3 h-10 w-10 text-muted-foreground/40" />
           <h3 className="text-lg font-semibold text-muted-foreground">No check-outs</h3>
-          <p className="mt-1 text-sm text-muted-foreground/60">All guests are checked out.</p>
+          <p className="mt-1 text-sm text-muted-foreground/60">
+            {query ? "No checked-in guests match your search." : "All guests are checked out."}
+          </p>
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted"
+            >
+              <X className="h-4 w-4" /> Clear search
+            </button>
+          )}
         </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-3" role="list" aria-label="In-house guests list">
           {inHouse.map((res) => {
             const rt = roomTypeById(res.roomTypeId);
             const room = roomById(res.roomId);
@@ -103,10 +119,13 @@ function CheckOutPage() {
                   "rounded-xl border bg-card transition-all",
                   isOpen ? "border-primary/40 shadow-md" : "border-border shadow-sm hover:border-primary/20 hover:shadow-md",
                 )}
+                role="listitem"
               >
                 <button
                   onClick={() => setSelected(isOpen ? null : res.id)}
                   className="flex w-full items-center gap-4 px-5 py-4 text-left"
+                  aria-expanded={isOpen}
+                  aria-controls={`checkout-details-${res.id}`}
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-success/10 text-success">
                     <User className="h-5 w-5" />
@@ -117,12 +136,11 @@ function CheckOutPage() {
                       <span className="rounded-md border border-success/30 bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
                         In House
                       </span>
-                      {balance > 0 && (
+                      {balance > 0 ? (
                         <span className="rounded-md border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
                           {fmtUGX(balance)} due
                         </span>
-                      )}
-                      {balance <= 0 && (
+                      ) : (
                         <span className="rounded-md border border-success/30 bg-success/10 px-2 py-0.5 text-[10px] font-medium text-success">
                           Paid
                         </span>
@@ -150,7 +168,7 @@ function CheckOutPage() {
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-border">
+                  <div id={`checkout-details-${res.id}`} className="border-t border-border">
                     <div className="grid gap-4 p-5 sm:grid-cols-2">
                       <div className="rounded-xl border border-border bg-background">
                         <div className="border-b border-border px-4 py-2.5">
@@ -227,7 +245,7 @@ function CheckOutPage() {
                             </span>
                           </>
                         ) : (
-                          <CheckOutButton reservationId={res.id} folioId={res.folioId ?? null} onDone={showToast} />
+                          <CheckOutButton reservationId={res.id} />
                         )}
                       </div>
                     </div>
@@ -238,75 +256,50 @@ function CheckOutPage() {
           })}
         </div>
       )}
-
-      {toast && (
-        <div
-          className={cn(
-            "fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl border px-5 py-3 shadow-2xl text-sm font-medium animate-in slide-in-from-bottom-2",
-            toast.tone === "ok"
-              ? "border-success/30 bg-success/10 text-success"
-              : "border-destructive/30 bg-destructive/10 text-destructive",
-          )}
-        >
-          {toast.tone === "ok" ? <CheckCircle2 className="h-4 w-4" /> : <X className="h-4 w-4" />}
-          {toast.msg}
-        </div>
-      )}
     </div>
   );
 }
 
-function CheckOutButton({
-  reservationId,
-  folioId,
-  onDone,
-}: {
-  reservationId: string;
-  folioId: string | null;
-  onDone: (toast: { tone: "ok" | "err"; msg: string }) => void;
-}) {
+function CheckOutButton({ reservationId }: { reservationId: string }) {
   const [loading, setLoading] = useState(false);
-  const [confirm, setConfirm] = useState(false);
 
-  if (!confirm) {
-    return (
-      <button
-        onClick={() => setConfirm(true)}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
-      >
-        <LogOut className="h-4 w-4" /> Check Out
-      </button>
-    );
-  }
-
-  const submit = async () => {
+  const submit = () => {
     setLoading(true);
     const r = checkOut(reservationId);
     setLoading(false);
-    setConfirm(false);
-    onDone(r.ok ? { tone: "ok", msg: `${reservationById(reservationId)?.guestName} checked out successfully.` } : { tone: "err", msg: r.error });
+    if (r.ok) {
+      toast.success(`${reservationById(reservationId)?.guestName} checked out successfully.`);
+    } else {
+      toast.error(r.error);
+    }
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => setConfirm(false)}
-        className="rounded-lg border border-border px-3.5 py-2 text-sm font-medium text-muted-foreground transition hover:bg-muted"
-      >
-        Cancel
-      </button>
-      <button
-        onClick={submit}
-        disabled={loading}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-success-foreground shadow-sm transition hover:opacity-90 disabled:opacity-50"
-      >
-        {loading ? (
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-        ) : (
-          <CheckCircle2 className="h-4 w-4" />
-        )}
-        Confirm Check-Out
-      </button>
-    </div>
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <button className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90">
+          <LogOut className="h-4 w-4" /> Check Out
+        </button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirm check-out</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will check out the guest, mark the room as dirty, and close the folio. This action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={submit} disabled={loading}>
+            {loading ? (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4" />
+            )}
+            Confirm Check-Out
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

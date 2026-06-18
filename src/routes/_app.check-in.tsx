@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
+import { toast } from "sonner";
 import {
   Search,
   User,
@@ -23,6 +24,7 @@ import {
   roomTypeById,
   useStore,
 } from "@/lib/pms-store";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_app/check-in")({
   head: () => ({ meta: [{ title: "Check-In — Jambo PMS" }] }),
@@ -38,7 +40,6 @@ function CheckInPage() {
   const reservations = useStore((s) => s.reservations);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
 
   const arrivals = useMemo(
     () =>
@@ -48,17 +49,12 @@ function CheckInPage() {
     [reservations, query],
   );
 
-  const showToast = (t: { tone: "ok" | "err"; msg: string } | null) => {
-    setToast(t);
-    if (t) setTimeout(() => setToast(null), 4000);
-  };
-
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto max-w-5xl" role="main" aria-label="Check-In">
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Check-In</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground" aria-live="polite">
             {arrivals.length} guest{arrivals.length !== 1 ? "s" : ""} arriving today
           </p>
         </div>
@@ -70,13 +66,14 @@ function CheckInPage() {
         </Link>
       </div>
 
-      <div className="relative mb-6">
+      <div className="relative mb-6" role="search">
         <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           placeholder="Search by guest name…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="w-full rounded-xl border border-border bg-card py-3 pl-10 pr-4 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+          aria-label="Search guests by name"
         />
       </div>
 
@@ -84,10 +81,27 @@ function CheckInPage() {
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-20 text-center">
           <LogIn className="mb-3 h-10 w-10 text-muted-foreground/40" />
           <h3 className="text-lg font-semibold text-muted-foreground">No arrivals</h3>
-          <p className="mt-1 text-sm text-muted-foreground/60">All confirmed reservations have been checked in.</p>
+          <p className="mt-1 text-sm text-muted-foreground/60">
+            {query ? "No reservations match your search." : "All confirmed reservations have been checked in."}
+          </p>
+          {query ? (
+            <button
+              onClick={() => setQuery("")}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted"
+            >
+              <X className="h-4 w-4" /> Clear search
+            </button>
+          ) : (
+            <Link
+              to="/reservations/new"
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+            >
+              Create a new booking <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
         </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-3" role="list" aria-label="Arrivals list">
           {arrivals.map((res) => {
             const rt = roomTypeById(res.roomTypeId);
             const nights = nightsBetween(res.checkIn, res.checkOut);
@@ -104,10 +118,13 @@ function CheckInPage() {
                   "rounded-xl border bg-card transition-all",
                   isOpen ? "border-primary/40 shadow-md" : "border-border shadow-sm hover:border-primary/20 hover:shadow-md",
                 )}
+                role="listitem"
               >
                 <button
                   onClick={() => setSelected(isOpen ? null : res.id)}
                   className="flex w-full items-center gap-4 px-5 py-4 text-left"
+                  aria-expanded={isOpen}
+                  aria-controls={`checkin-form-${res.id}`}
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <User className="h-5 w-5" />
@@ -146,32 +163,17 @@ function CheckInPage() {
                 </button>
 
                 {isOpen && (
-                  <CheckInForm
-                    reservationId={res.id}
-                    candidates={opts}
-                    onDone={(t) => {
-                      showToast(t);
-                      setSelected(null);
-                    }}
-                  />
+                  <div id={`checkin-form-${res.id}`}>
+                    <CheckInForm
+                      reservationId={res.id}
+                      candidates={opts}
+                      onDone={() => setSelected(null)}
+                    />
+                  </div>
                 )}
               </div>
             );
           })}
-        </div>
-      )}
-
-      {toast && (
-        <div
-          className={cn(
-            "fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-xl border px-5 py-3 shadow-2xl text-sm font-medium animate-in slide-in-from-bottom-2",
-            toast.tone === "ok"
-              ? "border-success/30 bg-success/10 text-success"
-              : "border-destructive/30 bg-destructive/10 text-destructive",
-          )}
-        >
-          {toast.tone === "ok" ? <CheckCircle2 className="h-4 w-4" /> : <X className="h-4 w-4" />}
-          {toast.msg}
         </div>
       )}
     </div>
@@ -185,7 +187,7 @@ function CheckInForm({
 }: {
   reservationId: string;
   candidates: string[];
-  onDone: (toast: { tone: "ok" | "err"; msg: string }) => void;
+  onDone: () => void;
 }) {
   const [room, setRoom] = useState(candidates[0] ?? "");
   const [loading, setLoading] = useState(false);
@@ -195,20 +197,25 @@ function CheckInForm({
     setLoading(true);
     const r = checkIn(reservationId, { roomId: room });
     setLoading(false);
-    onDone(r.ok ? { tone: "ok", msg: `${reservationById(reservationId)?.guestName} checked in successfully.` } : { tone: "err", msg: r.error });
+    if (r.ok) {
+      toast.success(`${reservationById(reservationId)?.guestName} checked in successfully.`);
+      onDone();
+    } else {
+      toast.error(r.error);
+    }
   };
 
   return (
     <div className="border-t border-border px-5 py-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex-1">
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Assign room</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground" id="room-assign-label">Assign room</label>
           {candidates.length === 0 ? (
-            <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2.5 text-xs text-warning">
+            <p className="rounded-lg border border-warning/30 bg-warning/10 px-3 py-2.5 text-xs text-warning" role="alert">
               No rooms of this type are available for the selected dates.
             </p>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="room-assign-label">
               {candidates.map((id) => {
                 const r = roomById(id);
                 const active = room === id;
@@ -216,6 +223,8 @@ function CheckInForm({
                   <button
                     key={id}
                     onClick={() => setRoom(id)}
+                    role="radio"
+                    aria-checked={active}
                     className={cn(
                       "flex items-center gap-2 rounded-lg border px-3.5 py-2.5 text-xs font-medium transition-all",
                       active
