@@ -95,6 +95,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://my.spline.design" },
+      { rel: "dns-prefetch", href: "https://my.spline.design" },
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap",
@@ -134,7 +136,7 @@ function RootComponent() {
           {/* Persistent Spline iframe — stays mounted across navigations, caches after first load */}
           <div
             className={cn(
-              "fixed left-0 top-0 z-0 hidden h-screen w-[42%] overflow-hidden lg:block",
+              "fixed left-0 top-0 z-0 hidden h-screen w-[42%] overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 lg:block",
               !isSignIn && "pointer-events-none opacity-0",
             )}
             aria-hidden={!isSignIn}
@@ -144,6 +146,7 @@ function RootComponent() {
               className="absolute left-1/2 top-1/2 h-[125%] w-[125%] -translate-x-1/2 -translate-y-1/2"
               style={{ border: 'none', pointerEvents: 'none' }}
               allow="autoplay; fullscreen"
+              fetchpriority="high"
               title="3D Hotel Scene"
             />
           </div>
