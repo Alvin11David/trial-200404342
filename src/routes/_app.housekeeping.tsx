@@ -190,7 +190,7 @@ function RoomStatusBoard() {
         <select
           value={floorFilter}
           onChange={(e) => setFloorFilter(e.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs outline-none focus:border-primary/60"
+          className="appearance-none rounded-xl border border-border/70 bg-card/40 px-3 py-1.5 text-xs outline-none focus:border-primary/60"
         >
           <option value="all">All floors</option>
           {floors.map((f) => <option key={f} value={f}>Floor {f}</option>)}
@@ -320,7 +320,7 @@ function TaskQueue() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as HkTaskStatus | "all")}
-          className="rounded-lg border border-border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary/60"
+          className="appearance-none rounded-xl border border-border/70 bg-card/40 px-2 py-1.5 text-xs outline-none focus:border-primary/60"
         >
           <option value="all">All statuses</option>
           <option value="queued">Queued</option>
