@@ -106,10 +106,13 @@ async function run() {
 
     // ===== 5. Refresh page — verify data survives reload =====
     console.log("\n=== 5. Data survives page reload ===");
+    // Navigate to billing list first, then reload
+    await page.goto(`${BASE}/billing`, { waitUntil: "networkidle", timeout: 30000 });
+    await page.waitForTimeout(1000);
     await page.reload({ waitUntil: "networkidle" });
     await page.waitForTimeout(2000);
 
-    // Must be back at billing with data
+    // Must be back at billing list with data
     const table2 = page.locator("table");
     ok(await table2.isVisible(), "Folios table visible after reload");
 
