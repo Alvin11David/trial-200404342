@@ -36,7 +36,8 @@ export const Route = createFileRoute("/_app/check-out")({
 
 function CheckOutPage() {
   const reservations = useStore((s) => s.reservations);
-  const folios = useStore((s) => s.folios);
+  const allCharges = useStore((s) => s.charges);
+  const allPayments = useStore((s) => s.payments);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [toast, setToast] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
@@ -90,10 +91,10 @@ function CheckOutPage() {
             const isOpen = selected === res.id;
             const folio = res.folioId ? folioById(res.folioId) : null;
             const balance = res.folioId ? folioBalance(res.folioId) : 0;
-            const folioCharges = folio ? useStore.getState().charges.filter((c) => c.folioId === folio.id && !c.voided) : [];
-            const folioPayments = folio ? useStore.getState().payments.filter((p) => p.folioId === folio.id) : [];
-            const totalCharges = folioCharges.reduce((s, c) => s + c.amount, 0);
-            const totalPayments = folioPayments.reduce((s, p) => s + p.amount, 0);
+            const folioCharges = folio ? allCharges.filter((c) => c.folioId === folio.id && !c.voided) : [];
+            const folioPayments = folio ? allPayments.filter((p) => p.folioId === folio.id) : [];
+            const totalCharges = folioCharges.reduce((s: number, c) => s + c.amount, 0);
+            const totalPayments = folioPayments.reduce((s: number, p) => s + p.amount, 0);
 
             return (
               <div
@@ -216,7 +217,7 @@ function CheckOutPage() {
                           <>
                             <Link
                               to="/billing"
-                              search={{ folio: res.folioId }}
+                              search={{ folio: res.folioId, invoice: undefined }}
                               className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
                             >
                               <CreditCard className="h-4 w-4" /> Settle bill
