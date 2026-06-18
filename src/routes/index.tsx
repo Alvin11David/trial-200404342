@@ -42,7 +42,7 @@ function LoginPage() {
     if (email === "admin@jambo.com" && password === "admin123") {
       navigate({ to: "/dashboard" });
     } else {
-      setError("Invalid credentials. Try admin@jambo.com / admin123");
+      setError("Invalid email or password. Please try again.");
     }
   };
 
