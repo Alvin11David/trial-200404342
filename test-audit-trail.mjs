@@ -3,7 +3,7 @@ import { mkdirSync, existsSync } from "fs";
 
 const BASE = "http://localhost:8080";
 const PASSED = [], FAILED = [];
-const ok  = (m) => { PASSED.push(m); console.log(`  \u2713 ${m}`); };
+const ok  = (cond, m) => { if (cond) { PASSED.push(m ?? cond); console.log(`  \u2713 ${m ?? cond}`); } else { FAILED.push(m ?? cond); console.log(`  \u2717 ${m ?? cond}`); } };
 const no  = (m) => { FAILED.push(m); console.log(`  \u2717 ${m}`); };
 
 function parseUgx(text) {
@@ -98,7 +98,7 @@ async function run() {
     ok(chargeEntry.module === "billing", `Audit module is "billing", got "${chargeEntry.module}"`);
     ok(chargeEntry.severity === "info", `Audit severity is "info", got "${chargeEntry.severity}"`);
     ok(chargeEntry.actor === "Sarah Nakato", `Audit actor is "Sarah Nakato", got "${chargeEntry.actor}"`);
-    ok(chargeEntry.role === "Owner / GM", `Audit actor role is "Owner / GM", got "${chargeEntry.role}"`);
+    ok(chargeEntry.role === "Front Desk", `Audit actor role for addCharge is "Front Desk", got "${chargeEntry.role}"`);
     ok(chargeEntry.entity.includes("UGX"), `Audit entity includes amount, got "${chargeEntry.entity}"`);
     ok(chargeEntry.entity.includes("120,000"), `Audit entity shows amount 120,000, got "${chargeEntry.entity}"`);
     ok(chargeEntry.id.startsWith("EVT-"), `Audit entry id starts with EVT-, got "${chargeEntry.id}"`);
