@@ -461,16 +461,12 @@ function OccupancyChart() {
 function RevenueBars({ labels = ["Rooms","F&B","Events","Other"], values = [62, 22, 11, 5] }: { labels?: string[]; values?: number[] }) {
   const colors = ["bg-primary","bg-success","bg-warning","bg-info","bg-chart-5"];
   return (
-    <div className="space-y-3">
+    <div className="flex items-end justify-between gap-3 h-36">
       {labels.map((l, i) => (
-        <div key={l}>
-          <div className="mb-1 flex items-center justify-between text-[11px]">
-            <span className="text-muted-foreground">{l}</span>
-            <span className="font-semibold">{values[i]}%</span>
-          </div>
-          <div className="h-2 overflow-hidden rounded-full bg-muted">
-            <div className={`h-full ${colors[i % colors.length]}`} style={{ width: values[i] + "%" }} />
-          </div>
+        <div key={l} className="flex flex-col items-center flex-1 h-full justify-end">
+          <span className="font-semibold text-[11px]">{values[i]}%</span>
+          <div className={`w-full ${colors[i % colors.length]}`} style={{ height: `${values[i]}%`, borderRadius: "6px 6px 0 0" }} />
+          <span className="text-muted-foreground text-[10px]">{l}</span>
         </div>
       ))}
     </div>

@@ -27,6 +27,7 @@ import { Route as AppHousekeepingRouteImport } from './routes/_app.housekeeping'
 import { Route as AppGuestsRouteImport } from './routes/_app.guests'
 import { Route as AppEventsRouteImport } from './routes/_app.events'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppCheckInRouteImport } from './routes/_app.check-in'
 import { Route as AppBillingRouteImport } from './routes/_app.billing'
 import { Route as AppAuditRouteImport } from './routes/_app.audit'
 import { Route as AppAccountingRouteImport } from './routes/_app.accounting'
@@ -131,6 +132,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCheckInRoute = AppCheckInRouteImport.update({
+  id: '/check-in',
+  path: '/check-in',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppBillingRoute = AppBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
@@ -211,6 +217,7 @@ export interface FileRoutesByFullPath {
   '/accounting': typeof AppAccountingRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
+  '/check-in': typeof AppCheckInRoute
   '/dashboard': typeof AppDashboardRoute
   '/events': typeof AppEventsRouteWithChildren
   '/guests': typeof AppGuestsRoute
@@ -244,6 +251,7 @@ export interface FileRoutesByTo {
   '/accounting': typeof AppAccountingRoute
   '/audit': typeof AppAuditRoute
   '/billing': typeof AppBillingRoute
+  '/check-in': typeof AppCheckInRoute
   '/dashboard': typeof AppDashboardRoute
   '/events': typeof AppEventsRouteWithChildren
   '/guests': typeof AppGuestsRoute
@@ -279,6 +287,7 @@ export interface FileRoutesById {
   '/_app/accounting': typeof AppAccountingRoute
   '/_app/audit': typeof AppAuditRoute
   '/_app/billing': typeof AppBillingRoute
+  '/_app/check-in': typeof AppCheckInRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/events': typeof AppEventsRouteWithChildren
   '/_app/guests': typeof AppGuestsRoute
@@ -314,6 +323,7 @@ export interface FileRouteTypes {
     | '/accounting'
     | '/audit'
     | '/billing'
+    | '/check-in'
     | '/dashboard'
     | '/events'
     | '/guests'
@@ -347,6 +357,7 @@ export interface FileRouteTypes {
     | '/accounting'
     | '/audit'
     | '/billing'
+    | '/check-in'
     | '/dashboard'
     | '/events'
     | '/guests'
@@ -381,6 +392,7 @@ export interface FileRouteTypes {
     | '/_app/accounting'
     | '/_app/audit'
     | '/_app/billing'
+    | '/_app/check-in'
     | '/_app/dashboard'
     | '/_app/events'
     | '/_app/guests'
@@ -541,6 +553,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/check-in': {
+      id: '/_app/check-in'
+      path: '/check-in'
+      fullPath: '/check-in'
+      preLoaderRoute: typeof AppCheckInRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/billing': {
@@ -717,6 +736,7 @@ interface AppRouteChildren {
   AppAccountingRoute: typeof AppAccountingRoute
   AppAuditRoute: typeof AppAuditRoute
   AppBillingRoute: typeof AppBillingRoute
+  AppCheckInRoute: typeof AppCheckInRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEventsRoute: typeof AppEventsRouteWithChildren
   AppGuestsRoute: typeof AppGuestsRoute
@@ -737,6 +757,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAccountingRoute: AppAccountingRoute,
   AppAuditRoute: AppAuditRoute,
   AppBillingRoute: AppBillingRoute,
+  AppCheckInRoute: AppCheckInRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEventsRoute: AppEventsRouteWithChildren,
   AppGuestsRoute: AppGuestsRoute,
