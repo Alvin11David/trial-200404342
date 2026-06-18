@@ -1,4 +1,4 @@
-import { useState, useEffect, type ReactNode } from "react";
+import { useState, useEffect, useMemo, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
@@ -11,6 +11,9 @@ import {
   Plus,
   RefreshCw,
   WifiOff,
+  Menu,
+  X,
+  Home,
 } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn } from "@/lib/utils";
@@ -25,8 +28,72 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const BREADCRUMB_LABELS: Record<string, string> = {
+  dashboard: "Dashboard",
+  "check-in": "Check-In",
+  "check-out": "Check-Out",
+  reservations: "Reservations",
+  rooms: "Rooms",
+  guests: "Guests",
+  housekeeping: "Housekeeping",
+  billing: "Billing & Folio",
+  reports: "Reports",
+  accounting: "Accounting",
+  rates: "Rates & Availability",
+  inventory: "Inventory",
+  pos: "POS",
+  "hr": "HR",
+  events: "Events",
+  notifications: "Notifications",
+  settings: "Settings",
+  audit: "Audit Trail",
+  identity: "Identity & Access",
+  new: "New",
+  list: "List",
+  requisitions: "Requisitions",
+  "purchase-orders": "Purchase Orders",
+  orders: "Orders",
+  menu: "Menu",
+  leaves: "Leaves",
+  employees: "Employees",
+  schedule: "Schedule",
+};
+
+function Breadcrumbs({ pathname }: { pathname: string }) {
+  const segments = pathname.split("/").filter(Boolean);
+  if (segments.length <= 1) return null;
+
+  const crumbs = segments.map((seg, i) => {
+    const href = "/" + segments.slice(0, i + 1).join("/");
+    const label = BREADCRUMB_LABELS[seg] ?? seg.charAt(0).toUpperCase() + seg.slice(1);
+    const isLast = i === segments.length - 1;
+    return { label, href, isLast };
+  });
+
+  return (
+    <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+      <Link to="/dashboard" className="hover:text-foreground transition-colors" aria-label="Home">
+        <Home className="h-3.5 w-3.5" />
+      </Link>
+      {crumbs.map((crumb) => (
+        <span key={crumb.href} className="flex items-center gap-1.5">
+          <span className="text-muted-foreground/40">/</span>
+          {crumb.isLast ? (
+            <span className="font-medium text-foreground" aria-current="page">{crumb.label}</span>
+          ) : (
+            <Link to={crumb.href} className="hover:text-foreground transition-colors">
+              {crumb.label}
+            </Link>
+          )}
+        </span>
+      ))}
+    </nav>
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { role, setRole } = useRole();
@@ -68,13 +135,37 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen w-full bg-background">
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <aside
         className={cn(
           "sticky top-0 z-20 flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300",
           collapsed ? "w-[72px]" : "w-[200px] xl:w-[244px]",
+          "fixed -translate-x-full md:relative md:translate-x-0",
+          mobileOpen && "translate-x-0",
         )}
       >
+        <div
+          className={cn(
+            "flex h-16 items-center border-b border-sidebar-border px-4",
+            collapsed && "justify-center px-2",
+          )}
+        >
+          {collapsed ? <Logo showText={false} size="sm" /> : <Logo size="sm" />}
+          <button
+            onClick={() => setMobileOpen(false)}
+            className="ml-auto grid h-8 w-8 place-items-center rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground md:hidden"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
         <div
           className={cn(
             "flex h-16 items-center border-b border-sidebar-border px-4",
@@ -156,6 +247,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-border bg-card/80 px-4 backdrop-blur md:gap-3 md:px-6">
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted/50 hover:text-foreground md:hidden"
+            aria-label="Open sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
           <div>
             <h1 className="text-sm font-semibold leading-tight text-foreground md:text-base">{title || "Dashboard"}</h1>
             <p className="text-[10px] text-muted-foreground md:text-[11px]">{now}</p>
@@ -235,7 +333,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 px-6 py-7">{children}</main>
+        <main className="flex-1 px-4 py-5 md:px-6 md:py-7">
+          <Breadcrumbs pathname={pathname} />
+          {children}
+        </main>
       </div>
     </div>
   );
