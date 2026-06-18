@@ -15,6 +15,8 @@ import {
   CreditCard,
   TrendingUp,
   Tag,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 
 /* eslint-disable react-refresh/only-export-components */
@@ -62,6 +64,8 @@ export type NavGroup = { section: string; items: NavItem[] };
 
 const COMMON: { [k: string]: NavItem } = {
   dashboard: { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+  checkIn: { label: "Check-In", to: "/check-in", icon: LogIn },
+  checkOut: { label: "Check-Out", to: "/check-out", icon: LogOut },
   reservations: { label: "Reservations", to: "/reservations", icon: CalendarCheck2 },
   rooms: { label: "Rooms", to: "/rooms", icon: BedDouble },
   guests: { label: "Guests", to: "/guests", icon: Users },
