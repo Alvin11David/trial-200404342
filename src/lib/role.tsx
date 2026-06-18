@@ -121,7 +121,7 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
   ],
   "POS / Cashier": [
     { section: "Today", items: [COMMON.dashboard] },
-    { section: "Point of Sale", items: [COMMON.pos, COMMON.billing] },
+    { section: "Point of Sale", items: [COMMON.pos, COMMON.posOrders, COMMON.posMenu, COMMON.billing] },
   ],
   "Reservations / Revenue": [
     { section: "Today", items: [COMMON.dashboard] },
@@ -135,7 +135,7 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
   ],
   "System Administrator": [
     { section: "Today", items: [COMMON.dashboard] },
-    { section: "Administration", items: [COMMON.identity, COMMON.audit, COMMON.settings] },
+    { section: "Administration", items: [COMMON.identity, COMMON.audit, COMMON.settings, COMMON.notifications] },
   ],
 };
 
