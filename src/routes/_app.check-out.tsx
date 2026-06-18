@@ -233,16 +233,19 @@ function CheckOutPage() {
                       <div className="flex items-center gap-2">
                         {balance > 0 ? (
                           <>
+                            <span
+                              className="flex items-center gap-1.5 rounded-lg bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive"
+                              title={`Outstanding balance of ${fmtUGX(balance)} must be cleared before checkout. Click "Settle bill" to record a payment.`}
+                            >
+                              <AlertTriangle className="h-4 w-4" /> Cannot check out
+                            </span>
                             <Link
                               to="/billing"
                               search={{ folio: res.folioId, invoice: undefined }}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
                             >
-                              <CreditCard className="h-4 w-4" /> Settle bill
+                              <CreditCard className="h-4 w-4" /> Settle {fmtUGX(balance)} bill
                             </Link>
-                            <span className="flex items-center gap-1.5 rounded-lg bg-destructive/10 px-4 py-2 text-sm font-medium text-destructive">
-                              <AlertTriangle className="h-4 w-4" /> Cannot check out
-                            </span>
                           </>
                         ) : (
                           <CheckOutButton reservationId={res.id} />
