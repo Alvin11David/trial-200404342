@@ -51,13 +51,19 @@ function LoginPage() {
   };
 
   return (
+    <>
+      <style>{`
+        @keyframes iconFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-3px) scale(1.08); } }
+        @keyframes iconColorPulse { 0%,100% { opacity:0.7; } 50% { opacity:1; } }
+        .icon-animate { animation: iconFloat 3s ease-in-out infinite, iconColorPulse 2s ease-in-out infinite; }
+      `}</style>
     <div className="flex min-h-screen w-full">
       {/* ===== Left Panel — Brand / Hero ===== */}
       <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900 p-12 text-white lg:flex">
         {/* Inverted rounded rectangle notches */}
-        <div className="pointer-events-none absolute -top-5 left-1/3 z-20 h-8 w-24 rounded-b-xl border-t-0 border-white/20 bg-white shadow-lg" />
-        <div className="pointer-events-none absolute -right-6 top-44 z-20 h-28 w-14 rounded-l-2xl border-r-0 border-white/20 bg-white shadow-2xl" />
-        <div className="pointer-events-none absolute -bottom-5 left-1/2 z-20 h-8 w-20 rounded-t-xl border-b-0 border-white/20 bg-white shadow-lg" />
+        <div className="pointer-events-none absolute -top-4 left-1/4 z-20 h-12 w-56 rounded-2xl border border-white/20 bg-white shadow-lg" />
+        <div className="pointer-events-none absolute -right-8 top-40 z-20 h-36 w-20 rounded-2xl border border-white/20 bg-white shadow-2xl" />
+        <div className="pointer-events-none absolute -bottom-4 right-1/4 z-20 h-12 w-40 rounded-2xl border border-white/20 bg-white shadow-lg" />
 
         {/* Animated gradient overlay */}
         <div className="pointer-events-none absolute inset-0 opacity-30">
@@ -102,7 +108,10 @@ function LoginPage() {
       </div>
 
       {/* ===== Right Panel — Sign-in Form ===== */}
-      <div className="flex w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-6 dark:from-background dark:to-muted/30 lg:w-[58%]">
+      <div className="relative flex w-full items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 p-6 dark:from-background dark:to-muted/30 lg:w-[58%]">
+        {/* Subtle background decoration */}
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 animate-pulse rounded-full bg-indigo-100/60 blur-3xl dark:bg-indigo-950/20" style={{ animationDelay: "3s" }} />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 animate-pulse rounded-full bg-violet-100/40 blur-3xl dark:bg-violet-950/20" style={{ animationDelay: "5s" }} />
         <div className="w-full max-w-sm">
           {/* Mobile Logo */}
           <div className="mb-8 flex justify-center lg:hidden">
@@ -115,7 +124,7 @@ function LoginPage() {
 
             <div className="rounded-2xl border border-border bg-card px-8 pb-8 pt-10 shadow-lg shadow-black/[0.02]">
               <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold tracking-tight">Sign in</h2>
+                <h2 className="text-3xl font-bold tracking-tight">Sign in</h2>
                 <p className="mt-1.5 text-sm text-muted-foreground">
                   Welcome back! Enter your credentials.
                 </p>
@@ -128,7 +137,7 @@ function LoginPage() {
                   type="email"
                   value={email}
                   onChange={setEmail}
-                  icon={<Mail className="h-4 w-4" />}
+                  icon={<Mail className="h-5 w-5 icon-animate" style={{ animationDelay: "0.5s" }} />}
                   autoComplete="email"
                   required
                 />
@@ -138,7 +147,7 @@ function LoginPage() {
                   type={showPwd ? "text" : "password"}
                   value={password}
                   onChange={setPassword}
-                  icon={<Lock className="h-4 w-4" />}
+                  icon={<Lock className="h-5 w-5 icon-animate" style={{ animationDelay: "0.8s" }} />}
                   autoComplete="current-password"
                   required
                   trailing={
@@ -148,13 +157,13 @@ function LoginPage() {
                       className="text-muted-foreground transition hover:text-foreground"
                       aria-label={showPwd ? "Hide password" : "Show password"}
                     >
-                      {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPwd ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   }
                 />
 
                 <div>
-                  <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
                     Sign in as role
                     <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary">Demo</span>
                   </label>
@@ -162,10 +171,10 @@ function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setOpen((o) => !o)}
-                      className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+                      className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-3.5 py-3 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
                     >
                       <span>{role}</span>
-                      <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition duration-200", open && "rotate-180")} />
+                      <ChevronDown className={cn("h-5 w-5 text-muted-foreground transition duration-200", open && "rotate-180")} />
                     </button>
                     {open && (
                       <div className="absolute left-0 right-0 top-full z-50 mt-1.5 overflow-hidden rounded-xl border border-border bg-popover py-1 shadow-lg">
@@ -189,7 +198,7 @@ function LoginPage() {
 
                 <div className="flex items-center justify-between text-xs">
                   <label className="inline-flex cursor-pointer items-center gap-2 text-muted-foreground transition hover:text-foreground">
-                    <input type="checkbox" className="h-4 w-4 rounded border-border accent-primary" defaultChecked />
+                    <input type="checkbox" className="h-5 w-5 rounded border-border accent-primary" defaultChecked />
                     Remember me
                   </label>
                   <Link to="/forgot-password" className="font-medium text-primary underline-offset-2 hover:underline">
@@ -206,18 +215,31 @@ function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:from-indigo-500 hover:to-violet-500 active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100"
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" /> Signing in…
+                      <Loader2 className="h-5 w-5 animate-spin" /> Signing in…
                     </>
                   ) : (
                     <>
-                      Sign in <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                      Sign in <ArrowRight className="h-5 w-5 transition group-hover:translate-x-0.5" />
                     </>
                   )}
                 </button>
+
+                {/* Demo environment info */}
+                <div className="mt-5 rounded-xl border border-indigo-100/50 bg-indigo-50/30 px-4 py-3 text-xs dark:border-indigo-900/10 dark:bg-indigo-950/10">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-[10px] dark:bg-emerald-900/30">
+                      <span className="text-emerald-600 dark:text-emerald-400">✓</span>
+                    </span>
+                    <span className="font-medium text-muted-foreground">Demo environment ready</span>
+                  </div>
+                  <p className="mt-1.5 pl-7 text-muted-foreground/70">
+                    Pre-filled credentials — just pick a role and sign in.
+                  </p>
+                </div>
               </form>
             </div>
           </div>
@@ -229,6 +251,7 @@ function LoginPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
@@ -422,7 +445,7 @@ function Field(props: {
 
   return (
     <div>
-      <label htmlFor={id} className="mb-1.5 block text-xs font-medium text-muted-foreground">
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium text-muted-foreground">
         {label}
       </label>
       <div
@@ -434,8 +457,8 @@ function Field(props: {
         )}
       >
         {icon && (
-          <span className={cn("pl-3.5 transition-colors duration-200", focused ? "text-primary" : "text-muted-foreground")}>
-            {icon}
+          <span className={cn("pl-3.5 transition-all duration-200", focused ? "text-primary" : "text-muted-foreground")}>
+            <span className={cn(focused && "icon-animate")}>{icon}</span>
           </span>
         )}
         <input
@@ -447,7 +470,7 @@ function Field(props: {
           onBlur={() => setFocused(false)}
           autoComplete={autoComplete}
           required={required}
-          className="w-full bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground/50"
+          className="w-full bg-transparent px-3 py-3 text-sm outline-none placeholder:text-muted-foreground/50"
         />
         {trailing && <span className="pr-3.5">{trailing}</span>}
       </div>
