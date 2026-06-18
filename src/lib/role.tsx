@@ -85,14 +85,14 @@ const COMMON: { [k: string]: NavItem } = {
 export const ROLE_NAV: Record<Role, NavGroup[]> = {
   "Owner / GM": [
     { section: "Overview", items: [COMMON.dashboard] },
-    { section: "Operations", items: [COMMON.reservations, COMMON.rooms, COMMON.housekeeping] },
+    { section: "Operations", items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.housekeeping] },
     { section: "Revenue", items: [COMMON.rates] },
     { section: "Finance", items: [COMMON.billing, COMMON.reports] },
     { section: "System", items: [COMMON.audit, COMMON.settings] },
   ],
   "Front Desk": [
     { section: "Today", items: [COMMON.dashboard] },
-    { section: "Front Office", items: [COMMON.reservations, COMMON.rooms, COMMON.guests, COMMON.billing] },
+    { section: "Front Office", items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.guests, COMMON.billing] },
     { section: "Reference", items: [COMMON.rates] },
   ],
   Housekeeping: [
@@ -105,7 +105,7 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
   ],
   "Reservations / Revenue": [
     { section: "Today", items: [COMMON.dashboard] },
-    { section: "Bookings", items: [COMMON.reservations, COMMON.rooms, COMMON.guests] },
+    { section: "Bookings", items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.guests] },
     { section: "Revenue", items: [COMMON.rates, COMMON.revenue] },
   ],
   Accountant: [
