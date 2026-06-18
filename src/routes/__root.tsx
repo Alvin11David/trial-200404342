@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -13,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { RoleProvider } from "@/lib/role";
+import { cn } from "@/lib/utils";
 
 function NotFoundComponent() {
   return (
@@ -122,10 +124,29 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const location = useLocation();
+  const isSignIn = location.pathname === "/";
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="jambo-ui-theme">
         <RoleProvider>
+          {/* Persistent Spline iframe — stays mounted across navigations, caches after first load */}
+          <div
+            className={cn(
+              "fixed left-0 top-0 z-0 hidden h-screen w-[42%] overflow-hidden lg:block",
+              !isSignIn && "pointer-events-none opacity-0",
+            )}
+            aria-hidden={!isSignIn}
+          >
+            <iframe
+              src="https://my.spline.design/windherocopycopy-tJP1FfQ2bWKX3AtcCM1DnVNv-Uiu/"
+              className="absolute left-1/2 top-1/2 h-[125%] w-[125%] -translate-x-1/2 -translate-y-1/2"
+              style={{ border: 'none', pointerEvents: 'none' }}
+              allow="autoplay; fullscreen"
+              title="3D Hotel Scene"
+            />
+          </div>
           <Outlet />
         </RoleProvider>
       </ThemeProvider>
