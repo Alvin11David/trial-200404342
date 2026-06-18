@@ -304,7 +304,14 @@ function FolioDetail({ folioId }: { folioId: string }) {
             <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Folio</p>
             <h2 className="font-display text-2xl font-bold">{folio.id}</h2>
             <p className="text-sm text-muted-foreground">
-              Reservation {res?.id} · Guest {res?.guestName}
+              {res ? (
+                <Link to="/reservations" search={{ q: res.id } as never} className="text-primary hover:underline">
+                  Reservation {res.id}
+                </Link>
+              ) : (
+                "Reservation —"
+              )}
+              {" · "}Guest {res?.guestName}
             </p>
             <p className="text-xs text-muted-foreground">
               Room {room?.id ?? "—"} ({rt?.name ?? "—"}) · {res?.checkIn} → {res?.checkOut}

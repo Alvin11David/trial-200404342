@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   BedDouble,
@@ -10,113 +10,69 @@ import {
   Ban,
   GripVertical,
   User,
+  Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useStore, useStoreAction, type RoomStatus } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/rooms")({
   head: () => ({ meta: [{ title: "Room Status Board — Jambo ERP" }] }),
   component: RoomsBoard,
 });
 
-type Status = "Available" | "Occupied" | "Dirty" | "Maintenance" | "Blocked";
-type Room = {
-  id: string;
-  floor: number;
-  type: "Standard" | "Deluxe" | "Suite";
-  status: Status;
-  guest?: string;
-  note?: string;
-};
-
-const initial: Room[] = (() => {
-  const types: Room["type"][] = ["Standard", "Deluxe", "Suite", "Standard", "Deluxe"];
-  const statuses: Status[] = [
-    "Available",
-    "Occupied",
-    "Occupied",
-    "Dirty",
-    "Available",
-    "Maintenance",
-    "Occupied",
-    "Blocked",
-  ];
-  const guests = [
-    "S. Nakato",
-    "J. Okello",
-    "P. Sharma",
-    "D. Mensah",
-    "A. Wanjiku",
-    "M. Lopez",
-    "K. Boateng",
-    "L. Asiimwe",
-  ];
-  const notes: Partial<Record<Status, string>> = {
-    Maintenance: "AC repair",
-    Blocked: "Owner stay",
-    Dirty: "Awaiting turnover",
-  };
-  const list: Room[] = [];
-  for (let f = 1; f <= 5; f++) {
-    for (let i = 1; i <= 8; i++) {
-      const id = `${f}${String(i).padStart(2, "0")}`;
-      const status = statuses[(f * 3 + i) % statuses.length];
-      list.push({
-        id,
-        floor: f,
-        type: types[i % types.length],
-        status,
-        guest: status === "Occupied" ? guests[(f + i) % guests.length] : undefined,
-        note: notes[status],
-      });
-    }
-  }
-  return list;
-})();
-
-const columns: { id: Status; icon: React.ComponentType<{ className?: string }>; color: string }[] =
-  [
-    { id: "Available", icon: CheckCircle2, color: "oklch(0.72 0.16 162)" },
-    { id: "Occupied", icon: BedDouble, color: "oklch(0.74 0.21 71)" },
-    { id: "Dirty", icon: Sparkles, color: "oklch(0.78 0.16 75)" },
-    { id: "Maintenance", icon: Wrench, color: "oklch(0.65 0.22 25)" },
-    { id: "Blocked", icon: Ban, color: "oklch(0.6 0.04 280)" },
-  ];
+const STATUS_CONFIG: { id: RoomStatus; icon: React.ComponentType<{ className?: string }>; color: string; label: string }[] = [
+  { id: "available", icon: CheckCircle2, color: "oklch(0.72 0.16 162)", label: "Available" },
+  { id: "occupied", icon: BedDouble, color: "oklch(0.74 0.21 71)", label: "Occupied" },
+  { id: "dirty", icon: Sparkles, color: "oklch(0.78 0.16 75)", label: "Dirty" },
+  { id: "maintenance", icon: Wrench, color: "oklch(0.65 0.22 25)", label: "Maintenance" },
+  { id: "blocked", icon: Ban, color: "oklch(0.6 0.04 280)", label: "Blocked" },
+];
 
 function RoomsBoard() {
-  const [rooms, setRooms] = useState<Room[]>(initial);
+  const rooms = useStore((s) => s.rooms);
+  const reservations = useStore((s) => s.reservations);
+  const roomTypes = useStore((s) => s.roomTypes);
+  const setRoomStatus = useStoreAction((s) => s.setRoomStatus);
+
   const [floor, setFloor] = useState<string>("All");
   const [type, setType] = useState<string>("All");
   const [dragId, setDragId] = useState<string | null>(null);
-  const [hoverCol, setHoverCol] = useState<Status | null>(null);
+  const [hoverCol, setHoverCol] = useState<RoomStatus | null>(null);
+
+  const roomTypeMap = useMemo(() => {
+    const m: Record<string, string> = {};
+    roomTypes.forEach((rt) => { m[rt.id] = rt.name; });
+    return m;
+  }, [roomTypes]);
+
+  const guestMap = useMemo(() => {
+    const m: Record<string, string> = {};
+    reservations.filter((r) => r.status === "checked_in").forEach((r) => {
+      if (r.roomId) m[r.roomId] = r.guestName;
+    });
+    return m;
+  }, [reservations]);
 
   const filtered = useMemo(
     () =>
-      rooms.filter(
-        (r) =>
-          (floor === "All" || r.floor === Number(floor)) && (type === "All" || r.type === type),
-      ),
-    [rooms, floor, type],
+      rooms.filter((r) => {
+        if (floor !== "All" && r.floor !== Number(floor)) return false;
+        if (type !== "All" && roomTypeMap[r.typeId] !== type) return false;
+        return true;
+      }),
+    [rooms, floor, type, roomTypeMap],
   );
 
   const counts = useMemo(() => {
-    const c: Record<Status, number> = {
-      Available: 0,
-      Occupied: 0,
-      Dirty: 0,
-      Maintenance: 0,
-      Blocked: 0,
-    };
-    filtered.forEach((r) => c[r.status]++);
+    const c: Record<string, number> = {};
+    STATUS_CONFIG.forEach((s) => { c[s.id] = 0; });
+    filtered.forEach((r) => { c[r.status] = (c[r.status] ?? 0) + 1; });
     return c;
   }, [filtered]);
 
-  const onDrop = (status: Status) => {
+  const onDrop = (status: RoomStatus) => {
     if (!dragId) return;
-    setRooms((prev) =>
-      prev.map((r) =>
-        r.id === dragId ? { ...r, status, guest: status === "Occupied" ? r.guest : undefined } : r,
-      ),
-    );
+    setRoomStatus(dragId, status);
     setDragId(null);
     setHoverCol(null);
   };
@@ -132,7 +88,6 @@ function RoomsBoard() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="glass flex flex-wrap items-center gap-3 rounded-2xl p-4">
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Filter</div>
         <select
@@ -162,9 +117,8 @@ function RoomsBoard() {
         </button>
       </div>
 
-      {/* Board */}
       <div className="grid gap-4 xl:grid-cols-5">
-        {columns.map((col) => {
+        {STATUS_CONFIG.map((col) => {
           const Icon = col.icon;
           const list = filtered.filter((r) => r.status === col.id);
           const active = hoverCol === col.id;
@@ -197,9 +151,9 @@ function RoomsBoard() {
                     <Icon className="h-4 w-4 text-white/95" />
                   </span>
                   <div>
-                    <div className="font-display text-sm font-semibold">{col.id}</div>
+                    <div className="font-display text-sm font-semibold">{col.label}</div>
                     <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                      {counts[col.id]} room{counts[col.id] !== 1 && "s"}
+                      {counts[col.id] ?? 0} room{(counts[col.id] ?? 0) !== 1 && "s"}
                     </div>
                   </div>
                 </div>
@@ -210,14 +164,22 @@ function RoomsBoard() {
               </div>
 
               <div className="flex-1 space-y-2.5">
-                {list.map((r) => (
-                  <RoomCard
-                    key={r.id}
-                    room={r}
-                    accent={col.color}
-                    onDragStart={() => setDragId(r.id)}
-                  />
-                ))}
+                {list.map((r) => {
+                  const guest = guestMap[r.id];
+                  const res = reservations.find((rv) => rv.roomId === r.id && rv.status === "checked_in");
+                  return (
+                    <RoomCard
+                      key={r.id}
+                      room={r}
+                      roomType={roomTypeMap[r.typeId] ?? r.typeId}
+                      guest={guest}
+                      accent={col.color}
+                      onDragStart={() => setDragId(r.id)}
+                      folioId={res?.folioId}
+                      reservationId={res?.id}
+                    />
+                  );
+                })}
                 {list.length === 0 && (
                   <div className="rounded-xl border border-dashed border-border/50 p-6 text-center text-xs text-muted-foreground">
                     Drop here
@@ -234,12 +196,20 @@ function RoomsBoard() {
 
 function RoomCard({
   room,
+  roomType,
+  guest,
   accent,
   onDragStart,
+  folioId,
+  reservationId,
 }: {
-  room: Room;
+  room: { id: string; floor: number; status: string; notes?: string | null };
+  roomType: string;
+  guest?: string;
   accent: string;
   onDragStart: () => void;
+  folioId?: string;
+  reservationId?: string;
 }) {
   return (
     <div
@@ -256,16 +226,16 @@ function RoomCard({
           <div className="flex items-center gap-2">
             <span className="font-display text-lg font-bold tracking-tight">{room.id}</span>
             <span className="rounded-md border border-border/60 bg-muted/30 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-              {room.type}
+              {roomType}
             </span>
           </div>
-          {room.guest ? (
+          {guest ? (
             <div className="mt-1 flex items-center gap-1.5 text-xs text-foreground/85">
               <User className="h-3 w-3 text-muted-foreground" />
-              {room.guest}
+              {guest}
             </div>
-          ) : room.note ? (
-            <div className="mt-1 text-xs italic text-muted-foreground">{room.note}</div>
+          ) : room.notes ? (
+            <div className="mt-1 text-xs italic text-muted-foreground">{room.notes}</div>
           ) : (
             <div className="mt-1 text-xs text-muted-foreground">Floor {room.floor}</div>
           )}
@@ -274,9 +244,34 @@ function RoomCard({
       </div>
 
       <div className="mt-2 flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        {room.status === "Available" && <TinyBtn icon={LogIn} label="Check in" tone="success" />}
-        {room.status === "Dirty" && <TinyBtn icon={Sparkles} label="Mark clean" tone="primary" />}
-        {room.status === "Occupied" && <TinyBtn icon={LogIn} label="View folio" tone="primary" />}
+        {room.status === "available" && <TinyBtn icon={LogIn} label="Check in" tone="success" />}
+        {room.status === "dirty" && <TinyBtn icon={Sparkles} label="Mark clean" tone="primary" />}
+        {room.status === "occupied" && reservationId && (
+          <Link
+            to="/reservations"
+            search={{ q: reservationId } as never}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium transition",
+              "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
+            )}
+          >
+            <Eye className="h-3 w-3" />
+            View reservation
+          </Link>
+        )}
+        {folioId && (
+          <Link
+            to="/billing"
+            search={{ folio: folioId, invoice: undefined }}
+            className={cn(
+              "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium transition",
+              "border-success/40 bg-success/10 text-success hover:bg-success/20",
+            )}
+          >
+            <Eye className="h-3 w-3" />
+            View folio
+          </Link>
+        )}
       </div>
     </div>
   );
