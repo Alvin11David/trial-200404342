@@ -15,6 +15,7 @@ import {
   ShoppingCart,
   Wallet,
   Users,
+  SearchX,
 } from "lucide-react";
 import { useRole, ROLE_META } from "@/lib/role";
 import {
@@ -39,7 +40,7 @@ function Dashboard() {
   const meta = ROLE_META[role];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6" role="main" aria-label="Dashboard">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-primary">{role}</p>
@@ -309,7 +310,7 @@ function AccountantDashboard() {
       </div>
       <Card title="Today's payments">
         <p className="text-sm text-muted-foreground">View detailed payment log in Billing.</p>
-        <Link to="/billing" className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open billing →</Link>
+        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open billing →</Link>
       </Card>
     </>
   );
@@ -477,6 +478,17 @@ function GuestTable({ rows, kind }: {
   rows: { name: string; room: string; time: string; nights: number; status: string }[];
   kind: "arrival" | "departure";
 }) {
+  if (rows.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-10 text-center">
+        <SearchX className="mb-2 h-8 w-8 text-muted-foreground/40" />
+        <p className="text-sm font-medium text-muted-foreground">No {kind === "arrival" ? "arrivals" : "departures"} today</p>
+        <p className="mt-0.5 text-xs text-muted-foreground/60">
+          {kind === "arrival" ? "No guests are scheduled to check in." : "All guests are staying another night."}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <table className="w-full text-sm">
