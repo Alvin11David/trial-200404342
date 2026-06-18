@@ -86,6 +86,13 @@ function LoginPage() {
           </div>
         </div>
 
+        {/* Center: Bold title — overlay on top of Spline */}
+        <div className="relative z-10 flex flex-1 items-center justify-center px-12">
+          <h1 className="text-center text-5xl font-extrabold tracking-tight text-white drop-shadow-lg">
+            Jambo PMS
+          </h1>
+        </div>
+
         {/* Bottom: Brand stat — overlay on top of Spline */}
         <div className="relative z-10 px-12 pb-12">
           <div className="flex items-center gap-8 text-xs text-white/40">

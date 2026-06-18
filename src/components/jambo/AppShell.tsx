@@ -253,9 +253,7 @@ function RoleSwitcher({ role, setRole }: { role: Role; setRole: (r: Role) => voi
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72 p-2">
         <div className="mb-2 flex items-center gap-3 rounded-lg bg-muted/50 px-3 py-2.5">
-          <span className="rounded-md bg-primary/10 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
-            Demo
-          </span>
+          
           <div>
             <p className="text-xs font-medium text-foreground">Switch role</p>
             <p className="text-[10px] text-muted-foreground">Experience the app as a different role</p>
