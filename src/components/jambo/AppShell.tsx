@@ -197,7 +197,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                         <Icon
                           className={cn(
                             "h-[18px] w-[18px] shrink-0",
-                            active ? "text-primary" : "text-muted-foreground",
+                            active ? "text-primary animate-[pulse_2s_ease-in-out_infinite]" : "text-muted-foreground",
                           )}
                         />
                         {!collapsed && (
