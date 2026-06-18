@@ -829,7 +829,7 @@ function RatePlanForm({
               onChange={(e) =>
                 setForm({ ...form, vatTreatment: e.target.value as VatTreatment })
               }
-              className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
+              className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
             >
               <option value="inclusive">VAT inclusive</option>
               <option value="exclusive">VAT exclusive</option>
@@ -839,7 +839,7 @@ function RatePlanForm({
             <select
               value={form.active ? "1" : "0"}
               onChange={(e) => setForm({ ...form, active: e.target.value === "1" })}
-              className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
+              className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
             >
               <option value="1">Active</option>
               <option value="0">Archived</option>
@@ -1008,7 +1008,7 @@ function CalendarTab({
         <select
           value={planId}
           onChange={(e) => setPlanId(e.target.value)}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
         >
           {activePlans.map((p) => (
             <option key={p.id} value={p.id}>
@@ -1133,7 +1133,7 @@ function AvailabilityTab() {
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
         >
           <option value="all">All room types</option>
           {roomTypes.map((rt) => (
