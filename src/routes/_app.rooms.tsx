@@ -13,7 +13,7 @@ import {
   Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useStore, useStoreAction, type RoomStatus } from "@/lib/pms-store";
+import { useStore, setRoomStatus, type RoomStatus } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/rooms")({
   head: () => ({ meta: [{ title: "Room Status Board — Jambo ERP" }] }),
@@ -32,8 +32,6 @@ function RoomsBoard() {
   const rooms = useStore((s) => s.rooms);
   const reservations = useStore((s) => s.reservations);
   const roomTypes = useStore((s) => s.roomTypes);
-  const setRoomStatus = useStoreAction((s) => s.setRoomStatus);
-
   const [floor, setFloor] = useState<string>("All");
   const [type, setType] = useState<string>("All");
   const [dragId, setDragId] = useState<string | null>(null);
