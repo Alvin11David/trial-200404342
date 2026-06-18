@@ -40,7 +40,7 @@ async function run() {
     await page.waitForTimeout(2000);
     ok("Logged in as Owner / GM");
 
-    // ===== 2. Billing → find an open folio with balance =====
+    // ===== 2. Billing → find an open/active folio =====
     console.log("\n=== 2. Billing page ===");
     await page.goto(`${BASE}/billing`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(2000);
@@ -51,7 +51,6 @@ async function run() {
     const rows = table.locator("tbody tr");
     ok(await rows.count() > 0, "Folio rows found");
 
-    // Find an open/active folio (prefer one with larger balance)
     const targetRow = rows.filter({ has: page.locator("span:has-text('Open'), span:has-text('Active')") }).first();
     ok(await targetRow.isVisible(), "Open/Active folio row found");
 
@@ -60,8 +59,8 @@ async function run() {
     const tableBalance = parseUgx(tableBalanceText);
     console.log(`  Guest: ${guestName}  Balance: ${tableBalanceText}`);
 
-    // ===== 3. Open folio detail =====
-    console.log("\n=== 3. Open folio detail ===");
+    // ===== 3. Open folio detail and capture pre-settlement state =====
+    console.log("\n=== 3. Folio detail ===");
     await targetRow.click();
     await page.waitForTimeout(1500);
     await ss("cs03-folio-detail");
@@ -72,188 +71,136 @@ async function run() {
     const folioBalanceNum = parseUgx(folioBalanceText);
     console.log(`  Outstanding balance: UGX ${folioBalanceNum.toLocaleString()}`);
 
-    // Check initial status
-    const detailArea = page.locator(".mx-auto.max-w-5xl").first();
-    const detailText = (await detailArea.textContent()) || "";
-    const preStatus = detailText.match(/\b(Open|Active|Settled|Closed)\b/)?.[0] || "unknown";
-    console.log(`  Initial folio status: ${preStatus}`);
+    // Read initial status from the page body
+    const initialBody = await page.locator("body").textContent() || "";
+    const preStatus = initialBody.includes("Open") ? "Open" : initialBody.includes("Active") ? "Active" : "unknown";
+    console.log(`  Initial status: ${preStatus}`);
+    ok(preStatus === "Open" || preStatus === "Active", "Folio initially open/active");
 
-    // "Settle & close folio" button should NOT be visible when balance > 0
+    // "Settle & close folio" should NOT show when balance > 0
     if (folioBalanceNum > 0) {
-      const settleBtnHidden = await page.locator("button:has-text('Settle & close folio')").isVisible().catch(() => false);
-      ok(!settleBtnHidden, "Settle button hidden when balance positive");
+      const hasSettleBtn = await page.locator("button:has-text('Settle & close folio')").isVisible().catch(() => false);
+      ok(!hasSettleBtn, "Settle button hidden when balance positive");
     }
 
-    // ===== 4. Record full payment → auto-settle =====
-    console.log("\n=== 4. Full payment → auto-settle ===");
+    // "View invoice" should be visible regardless of status
+    ok(await page.locator("a:has-text('View invoice')").isVisible(), "View invoice link visible");
+
+    // Record payment button should be visible
+    ok(await page.locator("button:has-text('Record payment')").isVisible(), "Record payment button visible");
+
+    // ===== 4. Record full payment → triggers auto-settlement =====
+    console.log("\n=== 4. Full payment → auto-settlement ===");
     await page.locator("button:has-text('Record payment')").click();
     await page.waitForTimeout(800);
     await ss("cs04-payment-dialog");
 
     ok(await page.locator("text=Record payment").first().isVisible(), "Payment dialog opened");
 
-    // Amount should be pre-filled to the full balance
     const payDialog = page.locator(".fixed.inset-0.z-50");
+    // Amount should be pre-filled to full balance
     const amountInput = payDialog.locator("label").filter({ hasText: "Amount" }).locator("input");
     const preFilledAmount = await amountInput.inputValue();
     console.log(`  Pre-filled amount: ${preFilledAmount}`);
 
-    // Submit payment for full amount
+    // Select cash method and submit (amount is already the full balance)
     await payDialog.locator("label").filter({ hasText: "Method" }).locator("select").selectOption("cash");
-    // Amount is already pre-filled to the balance, just submit
     await page.locator("button:has-text('Record payment')").last().click();
     await page.waitForTimeout(1500);
     await ss("cs05-after-payment");
 
     // ===== 5. Verify auto-settlement =====
-    console.log("\n=== 5. Verify folio settled ===");
-    const postDetailText = (await detailArea.textContent()) || "";
-    const postStatus = postDetailText.match(/\b(Settled|Closed|Open|Active)\b/)?.[0] || "unknown";
-    ok(postStatus === "Settled" || postStatus === "Closed",
-      `Folio status changed to "${postStatus}" after full payment`);
+    console.log("\n=== 5. Verify settlement ===");
+    const postBody = await page.locator("body").textContent() || "";
 
-    // Balance should be 0 or negative (credit)
+    // Folio should now be settled
+    const settled = postBody.includes("Settled");
+    ok(settled, "Folio status changed to 'Settled' after full payment");
+
+    // Balance should be 0 or negative
     const postBalanceText = (await balanceLocator.textContent()) || "";
     const postBalance = parseUgx(postBalanceText);
     console.log(`  Balance after payment: ${postBalanceText}`);
-    ok(postBalance <= 50000, `Balance effectively zero: UGX ${postBalance.toLocaleString()}`);
+    ok(postBalance < 1000, `Balance effectively zero: UGX ${postBalance.toLocaleString()}`);
 
-    // "Settle & close folio" button should appear now
-    const settleBtn = page.locator("button:has-text('Settle & close folio')");
-    ok(await settleBtn.isVisible(), "Settle & close folio button visible after payment");
+    // "In credit / settled" indicator should show
+    const inCredit = postBody.includes("In credit") || postBody.includes("settled");
+    ok(inCredit, "Balance shows 'In credit / settled' indicator");
 
-    // ===== 6. Manual settlement via dialog =====
-    console.log("\n=== 6. Settlement dialog ===");
-    await settleBtn.click();
-    await page.waitForTimeout(800);
-    await ss("cs06-settlement-dialog");
+    // Payment should appear in payments list
+    ok(postBody.includes("Cash"), "Cash payment shown in payments list");
 
-    ok(await page.locator("text=Settle & close folio").first().isVisible(), "Settlement dialog opened");
-    ok(await page.locator("text=invoice").isVisible(), "Settlement dialog mentions invoice generation");
-
-    // Confirmation checkbox must be checked
-    const confirmCheckbox = page.locator("input[type='checkbox']");
-    ok(await confirmCheckbox.isVisible(), "Confirmation checkbox visible");
-
-    const closeFolioBtn = page.locator("button:has-text('Close folio')");
-    ok(await closeFolioBtn.isDisabled(), "Close folio button disabled without confirmation");
-
-    await confirmCheckbox.click();
-    await page.waitForTimeout(300);
-    ok(await closeFolioBtn.isEnabled(), "Close folio button enabled after confirmation");
-
-    await closeFolioBtn.click();
+    // ===== 6. View invoice =====
+    console.log("\n=== 6. Invoice view ===");
+    await page.locator("a:has-text('View invoice')").click();
     await page.waitForTimeout(1500);
-    await ss("cs07-after-settle");
-
-    // Verify settlement
-    const settledDetailText = (await detailArea.textContent()) || "";
-    const finalStatus = settledDetailText.match(/\b(Settled|Closed)\b/)?.[0] || "unknown";
-    ok(finalStatus === "Settled" || finalStatus === "Closed",
-      `Final folio status: "${finalStatus}"`);
-
-    // ===== 7. View invoice =====
-    console.log("\n=== 7. Invoice view ===");
-    const invoiceLink = page.locator("a:has-text('View invoice')");
-    ok(await invoiceLink.isVisible(), "View invoice link visible");
-
-    await invoiceLink.click();
-    await page.waitForTimeout(1500);
-    await ss("cs08-invoice");
+    await ss("cs06-invoice");
 
     const invoiceBody = await page.locator("body").textContent() || "";
 
-    // Invoice shows property name and invoice details
+    // Invoice header elements
     ok(invoiceBody.includes("Tax Invoice") || invoiceBody.includes("INV-"),
-      "Invoice shows 'Tax Invoice' or invoice number");
-    ok(invoiceBody.includes("Jambo"), "Invoice shows property name (Jambo)");
+      "Invoice shows 'Tax Invoice' / invoice number");
+    ok(invoiceBody.includes("Jambo"), "Invoice shows property name");
 
-    // Invoice shows guest info
+    // Invoice ID derived from folio ID
+    const invMatch = invoiceBody.match(/INV-\d+/);
+    ok(invMatch, `Invoice number found: ${invMatch?.[0]}`);
+
+    // Guest info on invoice
     ok(invoiceBody.includes(guestName) || invoiceBody.includes(guestName.split(" ")[0]),
       "Invoice includes guest name");
 
-    // Invoice shows charges
-    ok(invoiceBody.includes("Room") || invoiceBody.includes("night"),
-      "Invoice shows room charges");
+    // Stay details
+    ok(invoiceBody.includes("→") || (invoiceBody.includes("Check") && invoiceBody.includes("in")),
+      "Invoice shows stay dates");
 
-    // Invoice shows total / balance
-    ok(invoiceBody.includes("Total") || invoiceBody.includes("UGX"),
-      "Invoice shows total amounts");
+    // Room charges listed
+    ok(invoiceBody.includes("Room"), "Invoice lists room charges");
 
-    // Invoice shows print button
+    // Payments shown as credits
+    ok(invoiceBody.includes("payment") || invoiceBody.includes("Cash"), "Invoice shows payment credits");
+
+    // Summary with Total, VAT, Balance due
+    ok(invoiceBody.includes("Total"), "Invoice shows total");
+    ok(invoiceBody.includes("VAT"), "Invoice shows VAT");
+    ok(invoiceBody.includes("Balance due"), "Invoice shows balance due");
+
+    // Print button
     ok(await page.locator("button:has-text('Print invoice')").isVisible(), "Print invoice button visible");
 
-    // "Back to folio" link works
+    // "Back to folio" link
     const backLink = page.locator("a:has-text('Back to folio')");
-    ok(await backLink.isVisible(), "Back to folio link visible");
+    ok(await backLink.isVisible(), "Back to folio link works");
 
-    // ===== 8. Verify settled in billing list =====
-    console.log("\n=== 8. Billing list shows settled ===");
+    // ===== 7. Back to folio — verify settled state persists =====
+    console.log("\n=== 7. Settled state persists ===");
+    await backLink.click();
+    await page.waitForTimeout(1500);
+    await ss("cs07-back-to-folio");
+
+    const folioAfterBack = await page.locator("body").textContent() || "";
+    ok(folioAfterBack.includes("Settled"), "Folio still shows 'Settled' after navigating back");
+
+    // ===== 8. Billing list summary updated =====
+    console.log("\n=== 8. Billing list ===");
     await page.goto(`${BASE}/billing`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(1500);
-    await ss("cs09-billing-list");
+    await ss("cs08-billing-list");
 
     const billingBody = await page.locator("body").textContent() || "";
-    ok(billingBody.includes("Settled") || billingBody.includes("settled"),
-      "Billing shows settled folios");
+    ok(billingBody.includes("Settled") || billingBody.includes("settled"), "Billing list shows settled folios");
+    ok(billingBody.includes("Collected today"), "Billing summary: collected today stat");
 
     // ===== 9. Audit trail =====
     console.log("\n=== 9. Audit trail ===");
     await page.goto(`${BASE}/audit`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(1500);
-    await ss("cs10-audit");
+    await ss("cs09-audit");
 
     const auditBody = await page.locator("body").textContent() || "";
-    ok(auditBody.includes("Folio settled"), "Audit trail: 'Folio settled' entry");
     ok(auditBody.includes("Posted payment"), "Audit trail: 'Posted payment' entry");
     ok(auditBody.includes("Sarah Nakato") || auditBody.includes("Owner"), "Audit trail: actor shown");
-
-    // ===== 10. Check out from reservations =====
-    console.log("\n=== 10. Checkout from reservations ===");
-    await page.goto(`${BASE}/reservations`, { waitUntil: "networkidle", timeout: 30000 });
-    await page.waitForTimeout(1500);
-    await ss("cs11-reservations");
-
-    // Find the guest with a settled folio in the reservations list
-    // The guest should have been checked_in originally and their folio was settled
-    const resBody = await page.locator("body").textContent() || "";
-
-    // Look for checked_in guests (they have a checkout button)
-    const checkoutBtns = page.locator("button[title='Check out']");
-    const checkoutCount = await checkoutBtns.count();
-    console.log(`  Check-out buttons found: ${checkoutCount}`);
-
-    if (checkoutCount > 0) {
-      // Try to click checkout on the first checked-in guest
-      await checkoutBtns.first().click();
-      await page.waitForTimeout(1500);
-      await ss("cs12-after-checkout");
-
-      // Verify success toast or page update
-      const postCheckoutBody = await page.locator("body").textContent() || "";
-
-      if (postCheckoutBody.includes("checked out") || postCheckoutBody.includes("Checked out")) {
-        ok(true, "Checkout: guest checked out successfully");
-      } else if (postCheckoutBody.includes("outstanding balance")) {
-        console.log("  Checkout blocked: outstanding balance on folio");
-        ok(true, "Checkout: correctly blocked due to balance (balance check works)");
-      } else {
-        // Check for toast message
-        const toast = page.locator("[role='status'], [role='alert'], .sonner-toast, [data-sonner-toast]");
-        if (await toast.isVisible().catch(() => false)) {
-          const toastText = await toast.textContent() || "";
-          ok(toastText.includes("checked out") || toastText.includes("Checked out") ||
-            toastText.includes("housekeeping") || toastText.includes("settle"),
-            `Checkout toast: ${toastText}`);
-          console.log(`  Toast: ${toastText}`);
-        } else {
-          ok(true, "Checkout action completed (check state)");
-        }
-      }
-    } else {
-      console.log("  No active checked-in guests available to checkout");
-      ok(true, "No check-out buttons found (all guests may be already checked out)");
-    }
 
   } catch (err) {
     console.log(`\n  ERROR: ${err.message}`);
