@@ -8,8 +8,8 @@ import { ROLES, useRole, type Role } from "@/lib/role";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Sign in — Jambo PMS" },
-      { name: "description", content: "Sign in to Jambo Property Management System." },
+      { title: "Sign in — Jambo ERP" },
+      { name: "description", content: "Sign in to Jambo Enterprise Resource Planning." },
     ],
   }),
   component: LoginPage,
@@ -88,9 +88,14 @@ function LoginPage() {
 
         {/* Center: Bold title — overlay on top of Spline */}
         <div className="relative z-10 flex flex-1 items-center justify-center px-12">
-          <h1 className="text-center text-5xl font-extrabold tracking-tight text-white drop-shadow-lg">
-            Jambo PMS
-          </h1>
+          <div className="text-center">
+            <h1 className="text-5xl font-bold leading-none tracking-wide text-white drop-shadow-xl">
+              Jambo
+            </h1>
+            <p className="mt-2 text-5xl font-bold tracking-[0.25em] text-white/80 drop-shadow-lg">
+              ERP
+            </p>
+          </div>
         </div>
 
         {/* Bottom: Brand stat — overlay on top of Spline */}
