@@ -81,9 +81,10 @@ async function run() {
     ok(preBalance > 0, `Pre-audit balance positive: UGX ${preBalance.toLocaleString()}`);
     console.log(`  Outstanding balance: UGX ${preBalance.toLocaleString()}`);
 
-    // Check folio status badge
-    const statusEl = page.locator("span.text-xs.font-medium").first();
-    const preStatus = (await statusEl.textContent()) || "";
+    // Check folio status badge — scope inside folio detail area
+    const folioDetailArea = page.locator(".mx-auto.max-w-5xl").first();
+    const detailAreaText = (await folioDetailArea.textContent()) || "";
+    const preStatus = detailAreaText.match(/\b(Open|Active|Settled|Closed|Void)\b/)?.[0] || "unknown";
     console.log(`  Folio status: ${preStatus}`);
 
     // Count pre-audit charge items and room charges
@@ -175,7 +176,8 @@ async function run() {
         // ===== 8. Verify folio lifecycle advancement =====
         console.log("\n=== 8. Folio lifecycle ===");
         // After night audit, "open" folios become "active"
-        const statusAfter = (await statusEl.textContent()) || "";
+        const detailAfter = (await folioDetailArea.textContent()) || "";
+        const statusAfter = detailAfter.match(/\b(Open|Active|Settled|Closed|Void)\b/)?.[0] || "unknown";
         console.log(`  Folio status after audit: ${statusAfter}`);
         ok(statusAfter === "Active" || statusAfter === "Open",
           `Folio status is "Active" or still "Open": "${statusAfter}"`);
