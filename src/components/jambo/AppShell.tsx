@@ -166,14 +166,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div
-          className={cn(
-            "flex h-16 items-center border-b border-sidebar-border px-4",
-            collapsed && "justify-center px-2",
-          )}
-        >
-          {collapsed ? <Logo showText={false} size="sm" /> : <Logo size="sm" />}
-        </div>
 
         <nav className="flex-1 overflow-y-auto px-3 py-4">
           {nav.map((group) => (
