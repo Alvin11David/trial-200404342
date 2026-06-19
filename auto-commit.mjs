@@ -21,7 +21,8 @@ function commit() {
 
     execSync("git add -A", { cwd: "." });
     execSync(`git commit -m "${msg}"`, { cwd: "." });
-    console.log(`[auto-commit] ${new Date().toLocaleTimeString()} — committed ${lines.length} file(s)`);
+    execSync("git push", { cwd: "." });
+    console.log(`[auto-commit] ${new Date().toLocaleTimeString()} — committed & pushed ${lines.length} file(s)`);
   } catch (err) {
     if (!err.message?.includes("nothing to commit")) {
       console.error(`[auto-commit] error: ${err.message}`);
