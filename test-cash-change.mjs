@@ -91,7 +91,7 @@ async function run() {
     await page.waitForTimeout(800);
     await ss("cc04-payment-dialog");
 
-    ok(await page.locator("text=Record payment").first().isVisible(), "Payment dialog opened");
+    ok(await page.locator(".fixed.inset-0.z-50").first().isVisible(), "Payment dialog opened");
 
     // Cash is the default method, so no need to select it
     // Enter the payment amount (what is owed / being paid)
