@@ -18,7 +18,7 @@ import {
   type EFRISStatus,
   type InvoiceStatus,
 } from "@/lib/pms-store";
-import { ROLE_META, useRole } from "@/lib/role";
+import { ROLE_META, useRole, type Role } from "@/lib/role";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/invoices")({
@@ -41,7 +41,9 @@ const STATUS_BADGE: Record<InvoiceStatus, { label: string; class: string }> = {
 
 function InvoicesPage() {
   const invoices = useStore((s) => s.invoices);
-  const { role, actor } = useRole();
+  const { role } = useRole();
+  const actor = ROLE_META[role]?.person ?? role;
+  const actorRole = role;
   const [query, setQuery] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
