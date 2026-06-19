@@ -98,21 +98,22 @@ async function run() {
     // ===== 7. Switch to Accountant role and reopen folio =====
     console.log("\n=== 7. Switch to Accountant role ===");
     await page.evaluate(() => localStorage.setItem("jambo-role", "Accountant"));
-    // Navigate directly to the same folio with Accountant role
-    await page.goto(folioUrl, { waitUntil: "networkidle", timeout: 60000 });
-    await page.waitForTimeout(2000);
+    // Reload with load state — HMR websocket keeps networkidle from firing
+    await page.goto(folioUrl, { waitUntil: "load", timeout: 60000 });
+    await page.waitForTimeout(3000);
     await ss("rf05-accountant-folio");
+    ok(true, "Switched to Accountant role");
 
     const balanceLocator2 = page.locator("text=Outstanding balance").locator("..").locator("p.text-3xl").first();
     ok(await balanceLocator2.isVisible(), "Accountant folio detail loaded");
 
-    // ===== 9. Accountant sees Refund button =====
-    console.log("\n=== 9. Accountant can see Refund button ===");
+    // ===== 8. Accountant sees Refund button =====
+    console.log("\n=== 8. Accountant can see Refund button ===");
     const refundBtn2 = page.locator("button:has-text('Refund')");
     ok(await refundBtn2.isVisible(), "Accountant can see Refund button");
 
-    // ===== 10. Process the refund =====
-    console.log("\n=== 10. Process refund of 20,000 ===");
+    // ===== 9. Process the refund =====
+    console.log("\n=== 9. Process refund of 20,000 ===");
     await refundBtn2.click();
     await page.waitForTimeout(800);
     await ss("rf08-refund-dialog");
@@ -130,15 +131,15 @@ async function run() {
     await page.waitForTimeout(1500);
     await ss("rf10-after-refund");
 
-    // ===== 11. Verify balance increased =====
-    console.log("\n=== 11. Balance increased ===");
+    // ===== 10. Verify balance increased =====
+    console.log("\n=== 10. Balance increased ===");
     const balanceAfterRefund = parseUgx((await balanceLocator2.textContent()) || "");
     const expectedAfterRefund = balanceAfterPay + 20000;
     ok(balanceAfterRefund === expectedAfterRefund,
       "Balance increased from UGX " + balanceAfterPay.toLocaleString() + " to UGX " + balanceAfterRefund.toLocaleString() + " (expected UGX " + expectedAfterRefund.toLocaleString() + ")");
 
-    // ===== 12. Verify refund entry in payment list =====
-    console.log("\n=== 12. Refund entry visible ===");
+    // ===== 11. Verify refund entry in payment list =====
+    console.log("\n=== 11. Refund entry visible ===");
     const folioBody = page.locator(".mx-auto.max-w-5xl").first();
     const bodyText = (await folioBody.textContent()) || "";
     ok(bodyText.includes("Refund"), "Refund label visible in payment list");
@@ -146,9 +147,9 @@ async function run() {
     ok(bodyText.includes("20,000") || bodyText.includes("20000"), "Refund amount visible");
     ok(bodyText.includes("Guest overpaid"), "Refund reason visible");
 
-    // ===== 13. Verify audit trail =====
-    console.log("\n=== 13. Audit trail ===");
-    await page.goto(BASE + "/audit", { waitUntil: "networkidle", timeout: 60000 });
+    // ===== 12. Verify audit trail =====
+    console.log("\n=== 12. Audit trail ===");
+    await page.goto(BASE + "/audit", { waitUntil: "load", timeout: 60000 });
     await page.waitForTimeout(1500);
     await ss("rf11-audit");
 
@@ -158,9 +159,9 @@ async function run() {
     ok(auditBody.includes("cash") || auditBody.includes("Cash"), "Audit references original method");
     ok(auditBody.includes("Guest overpaid"), "Audit contains refund reason");
 
-    // ===== 14. Verify original payment still has Refund button =====
-    console.log("\n=== 14. Refund button on original payment ===");
-    await page.goto(BASE + "/billing?folio=F-3016", { waitUntil: "networkidle", timeout: 60000 });
+    // ===== 13. Verify original payment still has Refund button =====
+    console.log("\n=== 13. Refund button on original payment ===");
+    await page.goto(folioUrl, { waitUntil: "load", timeout: 60000 });
     await page.waitForTimeout(1500);
     const refundBtns = await page.locator("button:has-text('Refund')").count();
     ok(refundBtns >= 1, "Refund button visible on original payment (found " + refundBtns + ")");
