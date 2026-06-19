@@ -10,6 +10,8 @@ import {
   PAYMENT_METHOD_LABEL,
   addCharge,
   addPayment,
+  confirmPayment,
+  failPayment,
   voidCharge,
   settleFolio,
   runNightAudit,
@@ -25,6 +27,7 @@ import {
   type FolioCharge,
   type FolioChargeType,
   type PaymentMethod,
+  type PaymentStatus,
   type FolioStatus,
 } from "@/lib/pms-store";
 import { ROLE_META, useRole, type Role } from "@/lib/role";
@@ -445,11 +448,37 @@ function FolioDetail({ folioId }: { folioId: string }) {
             )}
             {folioPayments.map((p) => (
               <li key={p.id} className="flex items-start justify-between px-5 py-3">
-                <div>
-                  <div className="text-sm font-medium">{PAYMENT_METHOD_LABEL[p.method]}</div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium">{PAYMENT_METHOD_LABEL[p.method]}</span>
+                    {p.status === "pending" && (
+                      <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning">Pending</span>
+                    )}
+                    {p.status === "failed" && (
+                      <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">Failed</span>
+                    )}
+                  </div>
                   <div className="text-[11px] text-muted-foreground">
                     {p.date} {p.phone ? `· ${p.phone}` : ""} {p.reference ? `· ${p.reference}` : ""}
+                    {p.providerRef ? `· ${p.providerRef}` : ""}
+                    {p.failureReason ? `· ${p.failureReason}` : ""}
                   </div>
+                  {p.status === "pending" && (
+                    <div className="mt-1.5 flex gap-1.5">
+                      <button
+                        onClick={() => { confirmPayment(p.id, actor, role); }}
+                        className="rounded bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success hover:bg-success/25"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={() => { const r = prompt("Failure reason:"); if (r) failPayment(p.id, r, actor, role); }}
+                        className="rounded bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive hover:bg-destructive/25"
+                      >
+                        Fail
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <span className="text-sm font-semibold tabular-nums text-success">−{fmtUGX(p.amount)}</span>
               </li>

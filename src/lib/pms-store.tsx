@@ -851,6 +851,7 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
 
   // if payment collected at booking, record it on the folio
   if (input.payment) {
+    const isMobileMoney = input.payment.method === "mtn_momo" || input.payment.method === "airtel_money";
     state.payments = [
       ...state.payments,
       {
@@ -863,6 +864,7 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
         amount: input.payment.amount,
         tendered: input.payment.tendered,
         change: input.payment.change,
+        status: isMobileMoney ? "pending" : "confirmed",
       },
     ];
     logAudit({
