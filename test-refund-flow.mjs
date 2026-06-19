@@ -20,21 +20,6 @@ function parseUgx(text) {
   return parseInt(cleaned, 10) || 0;
 }
 
-async function loginAs(page, role) {
-  await goto(page, BASE + "/");
-  await fillField(page, "Email address", "admin@jambo.com");
-  await fillField(page, "Password", "admin123");
-  // Select role via dropdown if not the default (Owner / GM)
-  if (role !== "Owner / GM") {
-    await page.locator("button:has-text('Owner / GM')").click();
-    await page.waitForTimeout(500);
-    await page.locator("button:has-text('" + role + "')").click();
-    await page.waitForTimeout(300);
-  }
-  await page.locator("button:has-text('Sign in')").click();
-  await page.waitForTimeout(2000);
-}
-
 async function run() {
   if (!existsSync("test-screenshots")) mkdirSync("test-screenshots");
   const ss = (n) => page.screenshot({ path: "test-screenshots/" + n + ".png" }).catch(() => {});
@@ -44,9 +29,10 @@ async function run() {
   const page = await context.newPage();
 
   try {
-    // ===== 1. Login as Front Desk (explicitly select role) =====
+    // ===== 1. Login as Front Desk =====
     console.log("\n=== 1. Login as Front Desk ===");
-    await goto(page, BASE + "/");
+    await page.goto(BASE + "/", { waitUntil: "networkidle", timeout: 60000 });
+    await page.waitForTimeout(2000);
     await fillField(page, "Email address", "admin@jambo.com");
     await fillField(page, "Password", "admin123");
     // Select Front Desk role
@@ -61,7 +47,8 @@ async function run() {
 
     // ===== 2. Billing =====
     console.log("\n=== 2. Billing ===");
-    await goto(page, BASE + "/billing");
+    await page.goto(BASE + "/billing", { waitUntil: "networkidle", timeout: 60000 });
+    await page.waitForTimeout(2000);
     await ss("rf02-billing");
     ok(await page.locator("table").isVisible(), "Folios table visible");
 
@@ -109,7 +96,8 @@ async function run() {
     // ===== 7. Login as Accountant =====
     console.log("\n=== 7. Login as Accountant ===");
     await page.evaluate(() => { localStorage.removeItem("jambo-pms-auth"); localStorage.removeItem("jambo-role"); });
-    await goto(page, BASE + "/");
+    await page.goto(BASE + "/", { waitUntil: "networkidle", timeout: 60000 });
+    await page.waitForTimeout(2000);
     await fillField(page, "Email address", "admin@jambo.com");
     await fillField(page, "Password", "admin123");
     // Select Accountant role
@@ -124,7 +112,8 @@ async function run() {
 
     // ===== 8. Accountant opens same folio =====
     console.log("\n=== 8. Accountant opens folio ===");
-    await goto(page, BASE + "/billing");
+    await page.goto(BASE + "/billing", { waitUntil: "networkidle", timeout: 60000 });
+    await page.waitForTimeout(2000);
     await ss("rf06-accountant-billing");
     const table2 = page.locator("table");
     const sameRow = table2.locator("tbody tr").filter({ hasText: guestName.trim() }).first();
@@ -149,7 +138,6 @@ async function run() {
 
     ok(await page.locator(".fixed.inset-0.z-50").isVisible(), "Refund dialog opened");
 
-    // Change refund amount to partial (20,000 of 50,000)
     const refundDialog = page.locator(".fixed.inset-0.z-50");
     const refundAmountInput = refundDialog.locator("label").filter({ hasText: "Refund amount" }).locator("input");
     await refundAmountInput.fill("20000");
@@ -179,7 +167,8 @@ async function run() {
 
     // ===== 13. Verify audit trail =====
     console.log("\n=== 13. Audit trail ===");
-    await goto(page, BASE + "/audit");
+    await page.goto(BASE + "/audit", { waitUntil: "networkidle", timeout: 60000 });
+    await page.waitForTimeout(1500);
     await ss("rf11-audit");
 
     const auditBody = (await page.locator("body").textContent()) || "";
@@ -188,9 +177,9 @@ async function run() {
     ok(auditBody.includes("cash") || auditBody.includes("Cash"), "Audit references original method");
     ok(auditBody.includes("Guest overpaid"), "Audit contains refund reason");
 
-    // ===== 14. Verify original payment still has Refund button (not on refund entry) =====
-    console.log("\n=== 14. Refund button on original, not on refund ===");
-    await goto(page, BASE + "/billing?folio=F-3016");
+    // ===== 14. Verify original payment still has Refund button =====
+    console.log("\n=== 14. Refund button on original payment ===");
+    await page.goto(BASE + "/billing?folio=F-3016", { waitUntil: "networkidle", timeout: 60000 });
     await page.waitForTimeout(1500);
     const refundBtns = await page.locator("button:has-text('Refund')").count();
     ok(refundBtns >= 1, "Refund button visible on original payment (found " + refundBtns + ")");
