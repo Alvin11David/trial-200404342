@@ -14,11 +14,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { RoleProvider } from "@/lib/role";
-<<<<<<< HEAD
 import { Toaster } from "@/components/ui/sonner";
-=======
 import { cn } from "@/lib/utils";
->>>>>>> 5812c904fce51db8afaa2dac6b8b864bcff79030
 
 function NotFoundComponent() {
   return (
