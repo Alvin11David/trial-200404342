@@ -6,11 +6,6 @@ const PASSED = [], FAILED = [];
 const ok  = (cond, m) => { if (cond) { PASSED.push(m ?? cond); console.log("  \u2713 " + (m ?? cond)); } else { FAILED.push(m ?? cond); console.log("  \u2717 " + (m ?? cond)); } };
 const no  = (m) => { FAILED.push(m); console.log("  \u2717 " + m); };
 
-async function goto(page, url) {
-  await page.goto(url, { waitUntil: "load", timeout: 30000 });
-  await page.waitForTimeout(1000);
-}
-
 async function fillField(page, label, value) {
   const labelEl = page.locator("label").filter({ hasText: label }).first();
   const parent = labelEl.locator("..");
