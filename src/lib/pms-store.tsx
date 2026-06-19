@@ -1339,6 +1339,237 @@ export async function simulateGatewayConfirm(paymentId: string, actor: string, r
 
 export function clearGatewayCache() { gatewayResultCache.clear(); }
 
+/* ============================== Invoicing ============================== */
+
+function currentVatRate(): number {
+  return state.tenant.vatRate;
+}
+
+export function generateInvoice(folioId: string): Invoice | null {
+  const folio = state.folios.find((f) => f.id === folioId);
+  if (!folio || (folio.status !== "settled" && folio.status !== "closed")) return null;
+  const existing = state.invoices.find((i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote);
+  if (existing) return existing;
+  const res = state.reservations.find((r) => r.id === folio.reservationId);
+  if (!res) return null;
+  const folioCharges = state.charges.filter((c) => c.folioId === folioId && !c.voided);
+  const folioPayments = state.payments.filter((p) => p.folioId === folioId && p.status === "confirmed");
+  const totalCharges = folioCharges.reduce((s, c) => s + c.amount, 0);
+  const totalPaid = folioPayments.reduce((s, p) => s + p.amount, 0);
+  const vatRate = currentVatRate();
+  let totalTaxable = 0, totalVat = 0;
+  const lines: InvoiceLineItem[] = [];
+  const invId = `INV-${folioId}`;
+  folioCharges.forEach((c) => {
+    const vt = c.vatTreatment ?? (c.type === "tax" ? "exempt" : (res.vatTreatment ?? "inclusive"));
+    const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(c.amount / (1 + vatRate)) : c.amount);
+    const vat = vt === "exempt" ? 0 : Math.round(taxable * vatRate);
+    totalTaxable += taxable;
+    totalVat += vat;
+    lines.push({
+      id: `INVLI-${invId}-${lines.length}`,
+      invoiceId: invId,
+      description: c.description,
+      amount: c.amount,
+      vatTreatment: vt,
+      vatRate,
+      taxableAmount: taxable,
+      vatAmount: vat,
+      totalAmount: c.amount,
+    });
+  });
+  const inv: Invoice = {
+    id: invId,
+    invoiceNo: nextInvoiceNo(),
+    folioId,
+    reservationId: res.id,
+    guestName: res.guestName,
+    guestEmail: res.guestEmail,
+    guestPhone: res.guestPhone,
+    issuedAt: new Date().toISOString(),
+    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "partial" : "unpaid",
+    eFRISStatus: "pending",
+    totalTaxable,
+    totalVat,
+    totalAmount: totalCharges,
+    paidAmount: totalPaid,
+    outstandingAmount: Math.max(0, totalCharges - totalPaid),
+    isProforma: false,
+    isCreditNote: false,
+  };
+  state.invoices = [...state.invoices, inv];
+  state.invoiceLineItems = [...state.invoiceLineItems, ...lines];
+  logAudit({ actor: "System", role: "System", module: "billing", action: `Invoice generated ${inv.invoiceNo}`, entity: `${folioId} total=${fmtUGX(totalCharges)}`, severity: "info" });
+  emit();
+  return inv;
+}
+
+export async function submitToEFRIS(invoiceId: string, actor: string, role: string): Promise<boolean> {
+  const inv = state.invoices.find((i) => i.id === invoiceId);
+  if (!inv || inv.isProforma || inv.isCreditNote) return false;
+  if (inv.eFRISStatus === "confirmed") return true;
+  state.invoices = state.invoices.map((i) =>
+    i.id === invoiceId ? { ...i, eFRISStatus: "pending" as const } : i,
+  );
+  emit();
+  const delay = 1000 + Math.random() * 2000;
+  await new Promise((r) => setTimeout(r, delay));
+  const success = Math.random() < 0.9;
+  state.invoices = state.invoices.map((i) => {
+    if (i.id !== invoiceId) return i;
+    if (success) {
+      return {
+        ...i,
+        eFRISStatus: "confirmed" as const,
+        eFRISFiscalNo: `EFRIS-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
+        eFRISQRCode: `https://ura.go.ug/efris/qr?invoice=${i.invoiceNo}`,
+        eFRISSubmittedAt: new Date().toISOString(),
+      };
+    }
+    return { ...i, eFRISStatus: "failed" as const };
+  });
+  logAudit({ actor, role, module: "billing", action: success ? "EFRIS submission confirmed" : "EFRIS submission failed", entity: `${inv.invoiceNo}`, severity: success ? "info" : "warn" });
+  emit();
+  return success;
+}
+
+export function generateCreditNote(folioId: string, voidedChargeId: string, reason: string, actor: string, role: string): Invoice | null {
+  const existingInv = state.invoices.find((i) => i.folioId === folioId && i.isCreditNote && i.creditNoteFor === voidedChargeId);
+  if (existingInv) return existingInv;
+  const originalInv = state.invoices.find((i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote);
+  const charge = state.charges.find((c) => c.id === voidedChargeId);
+  if (!charge) return null;
+  const vatRate = currentVatRate();
+  const vt = charge.vatTreatment ?? "inclusive";
+  const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(charge.amount / (1 + vatRate)) : charge.amount);
+  const vat = vt === "exempt" ? 0 : Math.round(taxable * vatRate);
+  const cnId = `CN-${folioId}-${voidedChargeId}`;
+  const cn: Invoice = {
+    id: cnId,
+    invoiceNo: nextCreditNoteNo(),
+    folioId,
+    reservationId: originalInv?.reservationId ?? "",
+    guestName: originalInv?.guestName ?? "",
+    guestEmail: originalInv?.guestEmail ?? "",
+    guestPhone: originalInv?.guestPhone ?? "",
+    issuedAt: new Date().toISOString(),
+    status: "paid",
+    eFRISStatus: "pending",
+    totalTaxable: taxable,
+    totalVat: vat,
+    totalAmount: -charge.amount,
+    paidAmount: 0,
+    outstandingAmount: 0,
+    isProforma: false,
+    isCreditNote: true,
+    creditNoteFor: originalInv?.invoiceNo,
+    creditNoteReason: reason,
+  };
+  state.invoices = [...state.invoices, cn];
+  state.invoiceLineItems = [...state.invoiceLineItems, {
+    id: `INVLI-${cnId}-0`,
+    invoiceId: cnId,
+    description: `Credit note: ${charge.description} — ${reason}`,
+    amount: -charge.amount,
+    vatTreatment: vt,
+    vatRate,
+    taxableAmount: -taxable,
+    vatAmount: -vat,
+    totalAmount: -charge.amount,
+  }];
+  logAudit({ actor, role, module: "billing", action: `Credit note ${cn.invoiceNo} generated`, entity: `${folioId} charge=${voidedChargeId} reason=${reason}`, severity: "warn" });
+  emit();
+  submitToEFRIS(cnId, actor, role);
+  return cn;
+}
+
+export function generateProforma(folioId: string): Invoice | null {
+  const folio = state.folios.find((f) => f.id === folioId);
+  if (!folio) return null;
+  const res = state.reservations.find((r) => r.id === folio.reservationId);
+  if (!res) return null;
+  const folioCharges = state.charges.filter((c) => c.folioId === folioId && !c.voided);
+  const folioPayments = state.payments.filter((p) => p.folioId === folioId && p.status === "confirmed");
+  const totalCharges = folioCharges.reduce((s, c) => s + c.amount, 0);
+  const totalPaid = folioPayments.reduce((s, p) => s + p.amount, 0);
+  const vatRate = currentVatRate();
+  let totalTaxable = 0, totalVat = 0;
+  const invId = `PRO-${folioId}`;
+  const lines: InvoiceLineItem[] = folioCharges.map((c, idx) => {
+    const vt = c.vatTreatment ?? (c.type === "tax" ? "exempt" : (res.vatTreatment ?? "inclusive"));
+    const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(c.amount / (1 + vatRate)) : c.amount);
+    const vat = vt === "exempt" ? 0 : Math.round(taxable * vatRate);
+    totalTaxable += taxable;
+    totalVat += vat;
+    return {
+      id: `INVLI-${invId}-${idx}`,
+      invoiceId: invId,
+      description: c.description,
+      amount: c.amount,
+      vatTreatment: vt,
+      vatRate,
+      taxableAmount: taxable,
+      vatAmount: vat,
+      totalAmount: c.amount,
+    };
+  });
+  const pro: Invoice = {
+    id: invId,
+    invoiceNo: "PROFORMA",
+    folioId,
+    reservationId: res.id,
+    guestName: res.guestName,
+    guestEmail: res.guestEmail,
+    guestPhone: res.guestPhone,
+    issuedAt: new Date().toISOString(),
+    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "partial" : "unpaid",
+    eFRISStatus: "confirmed",
+    totalTaxable,
+    totalVat,
+    totalAmount: totalCharges,
+    paidAmount: totalPaid,
+    outstandingAmount: Math.max(0, totalCharges - totalPaid),
+    isProforma: true,
+    isCreditNote: false,
+  };
+  state.invoices = [...state.invoices, pro];
+  state.invoiceLineItems = [...state.invoiceLineItems, ...lines];
+  emit();
+  return pro;
+}
+
+export function searchInvoices(query: {
+  q?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  status?: string;
+  eFRISStatus?: string;
+}): Invoice[] {
+  return state.invoices.filter((inv) => {
+    if (inv.isCreditNote) return false;
+    if (query.q) {
+      const lower = query.q.toLowerCase();
+      if (!inv.guestName.toLowerCase().includes(lower) &&
+          !inv.invoiceNo.toLowerCase().includes(lower) &&
+          !inv.reservationId.toLowerCase().includes(lower) &&
+          !(inv.eFRISFiscalNo ?? "").toLowerCase().includes(lower)) return false;
+    }
+    if (query.dateFrom && inv.issuedAt.slice(0, 10) < query.dateFrom) return false;
+    if (query.dateTo && inv.issuedAt.slice(0, 10) > query.dateTo) return false;
+    if (query.status && inv.status !== query.status) return false;
+    if (query.eFRISStatus && inv.eFRISStatus !== query.eFRISStatus) return false;
+    return true;
+  });
+}
+
+export function invoicesForFolio(folioId: string): Invoice[] {
+  return state.invoices.filter((i) => i.folioId === folioId);
+}
+
+export function invoiceLineItemsFor(invoiceId: string): InvoiceLineItem[] {
+  return state.invoiceLineItems.filter((li) => li.invoiceId === invoiceId);
+}
+
 export function voidCharge(folioId: string, chargeId: string, reason: string, actor: string, role: string) {
   state.charges = state.charges.map((c) =>
     c.id === chargeId && c.folioId === folioId && !c.voided
