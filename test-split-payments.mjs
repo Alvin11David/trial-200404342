@@ -3,7 +3,7 @@ import { mkdirSync, existsSync } from "fs";
 
 const BASE = "http://localhost:8080";
 const PASSED = [], FAILED = [];
-const ok  = (m) => { PASSED.push(m); console.log(`  \u2713 ${m}`); };
+const ok  = (cond, m) => { if (cond) { PASSED.push(m ?? cond); console.log(`  \u2713 ${m ?? cond}`); } else { FAILED.push(m ?? cond); console.log(`  \u2717 ${m ?? cond}`); } };
 const no  = (m) => { FAILED.push(m); console.log(`  \u2717 ${m}`); };
 
 async function fillField(page, label, value) {
@@ -37,7 +37,7 @@ async function run() {
     await fillField(page, "Password", "admin123");
     await page.locator("button:has-text('Sign in')").click();
     await page.waitForTimeout(2000);
-    ok("Logged in");
+    ok(true, "Logged in");
 
     // ===== 2. Billing page =====
     console.log("\n=== 2. Billing page ===");
@@ -48,13 +48,12 @@ async function run() {
     const table = page.locator("table");
     ok(await table.isVisible(), "Folios table visible");
 
-    // ===== 3. Find a folio with high enough balance to split across methods =====
+    // ===== 3. Find a folio with high enough balance to split =====
     console.log("\n=== 3. Open high-balance folio ===");
     const allRows = table.locator("tbody tr");
     const rowCount = await allRows.count();
     ok(rowCount > 0, "Folio rows found");
 
-    // Select a specific folio with F&B charges (ids ending 2/4) for higher balance
     const targetRow = allRows.filter({ has: page.locator("span:has-text('Open'), span:has-text('Active')") }).first();
     ok(await targetRow.isVisible(), "Active folio found");
 
@@ -76,11 +75,10 @@ async function run() {
 
     const totalPaymentsLocator = page.locator("text=Total payments").locator("..").locator("span.font-semibold").last();
 
-    // ===== 5. Record first split — Cash payment =====
-    const cashAmount = Math.floor(initialBalance * 0.4); // 40% as cash
+    // ===== 5. First split — Cash =====
+    const cashAmount = Math.floor(initialBalance * 0.4);
     const remainder = initialBalance - cashAmount;
-    console.log(`\n=== 5. First split — Cash UGX ${cashAmount.toLocaleString()} ===`);
-
+    console.log(`\n=== 5. Cash UGX ${cashAmount.toLocaleString()} (40%) ===`);
     await page.locator("button:has-text('Record payment')").click();
     await page.waitForTimeout(800);
     await ss("sp04-cash-split");
@@ -95,18 +93,16 @@ async function run() {
     await page.waitForTimeout(1500);
     await ss("sp06-after-cash");
 
-    const balanceAfterCashStr = (await balanceLocator.textContent()) || "";
-    const balanceAfterCash = parseUgx(balanceAfterCashStr);
+    const balanceAfterCash = parseUgx((await balanceLocator.textContent()) || "");
     ok(balanceAfterCash === remainder,
       `Balance after cash split: UGX ${balanceAfterCash.toLocaleString()} (expected UGX ${remainder.toLocaleString()})`);
 
-    // Verify Cash shows in payment list
     const folioBody = page.locator(".mx-auto.max-w-5xl").first();
     const bodyCash = (await folioBody.textContent()) || "";
-    ok(bodyCash.includes("Cash"), "Cash payment visible in list");
+    ok(bodyCash.includes("Cash"), "Cash payment visible in payment list");
 
-    // ===== 6. Record second split — MTN MoMo for remainder =====
-    console.log(`\n=== 6. Second split — MoMo UGX ${remainder.toLocaleString()} ===`);
+    // ===== 6. Second split — MTN MoMo for remainder =====
+    console.log(`\n=== 6. MoMo UGX ${remainder.toLocaleString()} (60%) ===`);
     await page.locator("button:has-text('Record payment')").click();
     await page.waitForTimeout(800);
     await ss("sp07-momo-split");
@@ -121,76 +117,65 @@ async function run() {
     await page.waitForTimeout(1500);
     await ss("sp09-after-momo");
 
-    // MoMo is pending — balance should NOT change yet
-    const balanceAfterMoMoStr = (await balanceLocator.textContent()) || "";
-    const balanceAfterMoMo = parseUgx(balanceAfterMoMoStr);
+    // MoMo is pending — balance unchanged
+    const balanceAfterMoMo = parseUgx((await balanceLocator.textContent()) || "");
     ok(balanceAfterMoMo === remainder,
       `Balance still at UGX ${remainder.toLocaleString()} while MoMo pending`);
 
     const bodyMoMo = (await folioBody.textContent()) || "";
     ok(bodyMoMo.includes("Pending"), "MoMo payment shows Pending badge");
 
-    // ===== 7. Confirm the MoMo payment to complete the split =====
-    console.log("\n=== 7. Confirm MoMo to settle ===");
+    // ===== 7. Confirm MoMo to settle =====
+    console.log("\n=== 7. Confirm MoMo ===");
     const confirmBtn = page.locator("button:has-text('Confirm')");
     ok(await confirmBtn.isVisible(), "Confirm button visible");
     await confirmBtn.click();
     await page.waitForTimeout(1000);
     await ss("sp10-after-momo-confirm");
 
-    // ===== 8. Verify balance is exactly zero and folio auto-settled =====
-    console.log("\n=== 8. Verify zero balance + settlement ===");
-    const finalBalanceStr = (await balanceLocator.textContent()) || "";
-    const finalBalance = parseUgx(finalBalanceStr);
-    ok(finalBalance === 0,
-      `Balance exactly zero after split payments: UGX ${finalBalance.toLocaleString()}`);
+    // ===== 8. Verify zero balance + settlement =====
+    console.log("\n=== 8. Zero balance + settlement ===");
+    const finalBalance = parseUgx((await balanceLocator.textContent()) || "");
+    ok(finalBalance === 0, `Balance exactly zero: UGX ${finalBalance.toLocaleString()}`);
 
-    // Check for "In credit" or "settled" indicator
     const bodyFinal = (await folioBody.textContent()) || "";
     ok(bodyFinal.includes("In credit") || bodyFinal.includes("settled") || bodyFinal.includes("Settled"),
       "Folio shows settled / in credit indicator");
-
-    // Verify both payment methods appear in the list
     ok(bodyFinal.includes("Cash"), "Cash method visible in payment list");
     ok(bodyFinal.includes("MTN MoMo"), "MoMo method visible in payment list");
 
-    // Total payments should equal initial balance
     const totalPayments = parseUgx((await totalPaymentsLocator.textContent()) || "");
     ok(totalPayments === initialBalance,
-      `Total payments exactly match balance: UGX ${totalPayments.toLocaleString()} = UGX ${initialBalance.toLocaleString()}`);
+      `Total payments UGX ${totalPayments.toLocaleString()} = initial balance UGX ${initialBalance.toLocaleString()}`);
 
-    // ===== 9. Verify folio status changed to settled =====
+    // ===== 9. Folio status in billing list =====
     console.log("\n=== 9. Folio status ===");
-    // Go back to billing list
     await page.goto(`${BASE}/billing`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(1500);
     await ss("sp11-billing-settled");
 
     const table2 = page.locator("table");
     const settledRow = table2.locator("tbody tr").filter({ hasText: guestName.trim() }).first();
-    ok(await settledRow.isVisible(), "Folio still visible");
+    ok(await settledRow.isVisible(), "Folio visible in billing list");
+    ok(await settledRow.locator("span:has-text('Settled')").isVisible(), "Folio badge shows 'Settled'");
 
-    const settledBadge = settledRow.locator("span:has-text('Settled')");
-    ok(await settledBadge.isVisible(), "Folio shows 'Settled' badge in billing list");
-
-    // ===== 10. Verify audit trail =====
+    // ===== 10. Audit trail =====
     console.log("\n=== 10. Audit trail ===");
     await page.goto(`${BASE}/audit`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(1500);
     await ss("sp12-audit");
 
     const auditBody = await page.locator("body").textContent() || "";
-    ok(auditBody.includes("Cash") || auditBody.includes("cash"), "Audit contains Cash reference");
-    ok(auditBody.includes("mtn_momo") || auditBody.includes("MoMo"), "Audit contains MoMo reference");
+    ok(auditBody.includes("Cash") || auditBody.includes("cash"), "Audit references Cash");
+    ok(auditBody.includes("mtn_momo"), "Audit references mtn_momo method");
+    ok((auditBody.match(new RegExp(cashAmount.toLocaleString(), "g")) || []).length >= 1,
+      `Audit mentions cash amount UGX ${cashAmount.toLocaleString()}`);
 
-    const cashAudit = (auditBody.match(/Cash/g) || []).length;
-    const momoAudit = (auditBody.match(/mtn_momo/g) || []).length;
-    ok(cashAudit >= 1, `Audit has at least 1 Cash entry (found ${cashAudit})`);
-    ok(momoAudit >= 1, `Audit has at least 1 MTN MoMo entry (found ${momoAudit})`);
-
-    // Total payment in audit should match
-    const amountMatches = (auditBody.match(new RegExp(cashAmount.toLocaleString(), "g")) || []).length;
-    ok(amountMatches >= 1, `Audit mentions first split amount UGX ${cashAmount.toLocaleString()}`);
+    // Count unique payment methods in audit
+    const cashRefs = (auditBody.match(/Cash/g) || []).length;
+    const momoRefs = (auditBody.match(/mtn_momo/g) || []).length;
+    ok(cashRefs >= 1, `At least 1 Cash reference in audit (found ${cashRefs})`);
+    ok(momoRefs >= 1, `At least 1 MTN MoMo reference in audit (found ${momoRefs})`);
 
   } catch (err) {
     console.log(`\n  ERROR: ${err.message}`);
