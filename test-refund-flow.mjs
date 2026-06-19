@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import { mkdirSync, existsSync } from "fs";
 
-const BASE = "http://localhost:8080";
+const BASE = "http://localhost:8082";
 const PASSED = [], FAILED = [];
 const ok  = (cond, m) => { if (cond) { PASSED.push(m ?? cond); console.log("  \u2713 " + (m ?? cond)); } else { FAILED.push(m ?? cond); console.log("  \u2717 " + (m ?? cond)); } };
 const no  = (m) => { FAILED.push(m); console.log("  \u2717 " + m); };
@@ -31,7 +31,7 @@ async function run() {
   try {
     // ===== 1. Login as Front Desk =====
     console.log("\n=== 1. Login as Front Desk ===");
-    await page.goto(BASE + "/", { waitUntil: "networkidle", timeout: 60000 });
+    await page.goto(BASE + "/", { waitUntil: "load", timeout: 60000 });
     await page.waitForTimeout(2000);
     await fillField(page, "Email address", "admin@jambo.com");
     await fillField(page, "Password", "admin123");
@@ -47,7 +47,7 @@ async function run() {
 
     // ===== 2. Billing =====
     console.log("\n=== 2. Billing ===");
-    await page.goto(BASE + "/billing", { waitUntil: "networkidle", timeout: 60000 });
+    await page.goto(BASE + "/billing", { waitUntil: "load", timeout: 60000 });
     await page.waitForTimeout(2000);
     await ss("rf02-billing");
     ok(await page.locator("table").isVisible(), "Folios table visible");
