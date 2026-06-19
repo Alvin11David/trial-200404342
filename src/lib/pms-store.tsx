@@ -97,6 +97,7 @@ export type FolioCharge = {
 };
 
 export type PaymentMethod = "cash" | "card" | "mtn_momo" | "airtel_money" | "bank_transfer";
+export type PaymentStatus = "pending" | "confirmed" | "failed";
 export type Payment = {
   id: string;
   folioId: string;
@@ -107,6 +108,9 @@ export type Payment = {
   amount: number;
   tendered?: number;    // cash tendered (for cash payments)
   change?: number;      // change given back (for cash payments)
+  status: PaymentStatus;
+  providerRef?: string; // provider transaction ID (MoMo, card gateway)
+  failureReason?: string;
 };
 
 export type FolioStatus = "open" | "active" | "pending_settlement" | "settled" | "closed" | "void";
@@ -1065,7 +1069,9 @@ export function addCharge(folioId: string, input: Omit<FolioCharge, "id" | "foli
   emit();
 }
 
-export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId" | "date"> & { date?: string; receivedBy?: string }) {
+export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId" | "date" | "status"> & { date?: string; receivedBy?: string; status?: PaymentStatus }) {
+  const isMobileMoney = input.method === "mtn_momo" || input.method === "airtel_money";
+  const status = input.status ?? (isMobileMoney ? "pending" : "confirmed");
   state.payments = [
     ...state.payments,
     {
@@ -1078,16 +1084,53 @@ export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId
       amount: input.amount,
       tendered: input.tendered,
       change: input.change,
+      status,
+      providerRef: input.providerRef,
+      failureReason: input.failureReason,
     },
   ];
-  // auto-settle if balance hits zero
-  const bal = folioBalance(folioId);
-  if (bal <= 0.5) {
-    state.folios = state.folios.map((f) =>
-      f.id === folioId ? { ...f, status: "settled", closedAt: new Date().toISOString() } : f,
-    );
+  // auto-settle only for confirmed payments
+  if (status === "confirmed") {
+    const bal = folioBalance(folioId);
+    if (bal <= 0.5) {
+      state.folios = state.folios.map((f) =>
+        f.id === folioId ? { ...f, status: "settled", closedAt: new Date().toISOString() } : f,
+      );
+    }
   }
-  logAudit({ actor: input.receivedBy ?? "Cashier", role: "Accountant", module: "billing", action: "Posted payment", entity: `${folioId} ${fmtUGX(input.amount)} via ${input.method}`, severity: "info" });
+  logAudit({ actor: input.receivedBy ?? "Cashier", role: "Accountant", module: "billing", action: `Posted ${status} payment`, entity: `${folioId} ${fmtUGX(input.amount)} via ${input.method}`, severity: "info" });
+  emit();
+}
+
+export function confirmPayment(paymentId: string, actor: string, role: string, providerRef?: string) {
+  state.payments = state.payments.map((p) =>
+    p.id === paymentId && p.status === "pending"
+      ? { ...p, status: "confirmed", providerRef: providerRef ?? p.providerRef }
+      : p,
+  );
+  const payment = state.payments.find((p) => p.id === paymentId);
+  if (payment && payment.status === "confirmed") {
+    const bal = folioBalance(payment.folioId);
+    if (bal <= 0.5) {
+      state.folios = state.folios.map((f) =>
+        f.id === payment.folioId ? { ...f, status: "settled", closedAt: new Date().toISOString() } : f,
+      );
+    }
+    logAudit({ actor, role, module: "billing", action: "Confirmed payment", entity: `${payment.folioId} ${fmtUGX(payment.amount)} via ${payment.method} (${payment.id})`, severity: "info" });
+  }
+  emit();
+}
+
+export function failPayment(paymentId: string, reason: string, actor: string, role: string) {
+  state.payments = state.payments.map((p) =>
+    p.id === paymentId && p.status === "pending"
+      ? { ...p, status: "failed", failureReason: reason }
+      : p,
+  );
+  const payment = state.payments.find((p) => p.id === paymentId);
+  if (payment && payment.status === "failed") {
+    logAudit({ actor, role, module: "billing", action: "Failed payment", entity: `${payment.folioId} ${fmtUGX(payment.amount)} via ${payment.method} — ${reason}`, severity: "warn" });
+  }
   emit();
 }
 
