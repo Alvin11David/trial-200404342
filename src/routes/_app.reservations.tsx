@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Eye, Filter, LogIn, LogOut, Plus, Search, X, Pencil, CalendarDays, Table2 } from "lucide-react";
+import { Eye, Filter, LogIn, LogOut, Plus, Search, X, Pencil, CalendarDays, Table2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   AlertDialog,
@@ -76,6 +76,7 @@ function ReservationsPage() {
   const [tab, setTab] = useState<(typeof tabs)[number]["key"]>("all");
   const [query, setQuery] = useState("");
   const [roomType, setRoomType] = useState<string>("All");
+  const [roomTypeOpen, setRoomTypeOpen] = useState(false);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [openCheckIn, setOpenCheckIn] = useState<string | null>(null);
@@ -261,18 +262,43 @@ function ReservationsPage() {
             onChange={(e) => setTo(e.target.value)}
             className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
           />
-          <select
-            value={roomType}
-            onChange={(e) => setRoomType(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-          >
-            <option value="All">All room types</option>
-            {roomTypes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <button
+              onClick={() => setRoomTypeOpen(!roomTypeOpen)}
+              className="flex items-center gap-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            >
+              {roomType === "All" ? "All room types" : roomTypes.find((t) => t.id === roomType)?.name ?? roomType}
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            {roomTypeOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setRoomTypeOpen(false)} />
+                <div className="absolute left-0 top-full z-20 mt-1 min-w-[160px] overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg">
+                  <button
+                    onClick={() => { setRoomType("All"); setRoomTypeOpen(false); }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left text-sm transition hover:bg-muted",
+                      roomType === "All" && "bg-primary/10 font-medium text-primary",
+                    )}
+                  >
+                    All room types
+                  </button>
+                  {roomTypes.map((t) => (
+                    <button
+                      key={t.id}
+                      onClick={() => { setRoomType(t.id); setRoomTypeOpen(false); }}
+                      className={cn(
+                        "w-full px-3 py-2 text-left text-sm transition hover:bg-muted",
+                        roomType === t.id && "bg-primary/10 font-medium text-primary",
+                      )}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           <button
             onClick={() => setShowMoreFilters(!showMoreFilters)}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground hover:border-primary/40"
