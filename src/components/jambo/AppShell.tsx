@@ -210,7 +210,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                                 "h-[18px] w-[18px] transition-all duration-200",
                                 active
                                   ? "text-primary animate-sidebar-icon-float drop-shadow-[0_0_8px_var(--color-primary)]"
-                                  : "text-muted-foreground group-hover/nav-item:animate-sidebar-icon-bounce",
+                                  : "text-muted-foreground animate-sidebar-icon-bounce-hover",
                               )}
                             />
                           </span>
