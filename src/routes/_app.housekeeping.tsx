@@ -199,7 +199,7 @@ function RoomStatusBoard() {
         <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
           {Object.entries(STATUS_META).map(([k, v]) => (
             <span key={k} className="inline-flex items-center gap-1">
-              <span className={cn("h-2 w-2 rounded-full", v.bg.split(" ")[0])} />
+              <span className={cn("h-2 w-2 rounded-full", k === "available" || k === "inspected" ? "bg-emerald-500" : k === "occupied" ? "bg-blue-500" : k === "dirty" ? "bg-red-500" : k === "in_progress" ? "bg-amber-500" : k === "clean" ? "bg-sky-500" : "bg-slate-500")} />
               {v.label}
             </span>
           ))}
