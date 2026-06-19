@@ -114,7 +114,10 @@ function EmployeeList() {
             <BadgeCheck className="h-4 w-4" />
             Leaves
           </Link>
-          <button className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.78_0.20_75)] px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:shadow-primary/50">
+          <button
+            onClick={() => navigate({ to: "/hr", search: { add: "employee" } as any })}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.78_0.20_75)] px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:shadow-primary/50"
+          >
             <Plus className="h-4 w-4" />
             Add Employee
           </button>
