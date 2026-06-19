@@ -876,6 +876,64 @@ function SettlementDialog({
   );
 }
 
+function RefundDialog({
+  payment,
+  actor,
+  actorRole,
+  onClose,
+}: {
+  payment: Payment;
+  actor: string;
+  actorRole: string;
+  onClose: () => void;
+}) {
+  const [refundAmount, setRefundAmount] = useState(payment.amount);
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState("");
+
+  const handleRefund = () => {
+    if (refundAmount <= 0) { setError("Refund amount must be positive."); return; }
+    if (refundAmount > payment.amount) { setError("Refund amount cannot exceed the original payment."); return; }
+    if (!reason.trim()) { setError("Please provide a reason for the refund."); return; }
+    processRefund(payment.id, refundAmount, reason.trim(), actor, actorRole);
+    onClose();
+  };
+
+  return (
+    <Modal title="Process refund" onClose={onClose}>
+      <div className="space-y-4">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm">
+          <p className="font-medium">{PAYMENT_METHOD_LABEL[payment.method]}</p>
+          <p className="text-muted-foreground">Original: {fmtUGX(payment.amount)} · {payment.date}</p>
+        </div>
+        <Field label="Refund amount (UGX)">
+          <input
+            type="number"
+            value={refundAmount}
+            onChange={(e) => { setRefundAmount(Number(e.target.value)); setError(""); }}
+            min={1}
+            max={payment.amount}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+          />
+        </Field>
+        <Field label="Reason for refund">
+          <textarea
+            value={reason}
+            onChange={(e) => { setReason(e.target.value); setError(""); }}
+            placeholder="e.g. Guest overpaid, duplicate charge, service not rendered"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            rows={3}
+          />
+        </Field>
+        {error && (
+          <p className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">{error}</p>
+        )}
+      </div>
+      <DialogFooter onCancel={onClose} onSubmit={handleRefund} submitLabel="Process refund" disabled={!reason.trim() || refundAmount <= 0} />
+    </Modal>
+  );
+}
+
 function NightAuditDialog({
   actor,
   actorRole,
