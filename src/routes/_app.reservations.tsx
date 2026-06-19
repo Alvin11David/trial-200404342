@@ -727,11 +727,16 @@ function EditDialog({
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Meal plan</label>
-            <select value={mealPlan} onChange={(e) => setMealPlan(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60">
-              {["RO", "BB", "HB", "FB"].map((mp) => (
-                <option key={mp} value={mp}>{mp}</option>
-              ))}
-            </select>
+            <Select value={mealPlan} onValueChange={setMealPlan}>
+              <SelectTrigger className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                <SelectValue placeholder="Select meal plan" />
+              </SelectTrigger>
+              <SelectContent>
+                {["RO", "BB", "HB", "FB"].map((mp) => (
+                  <SelectItem key={mp} value={mp}>{mp}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Check-in</label>

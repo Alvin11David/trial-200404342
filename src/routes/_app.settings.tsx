@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, Trash2, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   deleteRoom,
   deleteRoomType,
@@ -222,14 +223,24 @@ function RoomEditor({ initial, types, onClose }: { initial: Room | null; types: 
         <Labeled label="Room number"><input value={id} onChange={(e) => setId(e.target.value)} disabled={!!initial} className="input" /></Labeled>
         <Labeled label="Floor"><input type="number" value={floor} onChange={(e) => setFloor(e.target.value === "" ? "" : Number(e.target.value))} className="input" /></Labeled>
         <Labeled label="Type">
-          <select value={typeId} onChange={(e) => setTypeId(e.target.value)} className="input">
-            {types.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-          </select>
+          <Select value={typeId} onValueChange={setTypeId}>
+            <SelectTrigger className="input focus:ring-0 shadow-none">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {types.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </Labeled>
         <Labeled label="Status">
-          <select value={status} onChange={(e) => setStatus(e.target.value as RoomStatus)} className="input capitalize">
-            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
+          <Select value={status} onValueChange={(v) => setStatus(v as RoomStatus)}>
+            <SelectTrigger className="input capitalize focus:ring-0 shadow-none">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </Labeled>
       </div>
       <Footer onClose={onClose} disabled={!id || !typeId} onSave={() => { upsertRoom({ id, floor: Number(floor), typeId, status, assignedTo: initial?.assignedTo ?? null }); onClose(); }} />
