@@ -57,7 +57,7 @@ type SeasonalRate = {
   from: string;
   to: string;
   multiplier: number; // 1.25 = +25%
-  override?: number;  // absolute UGX overrides multiplier
+  override?: number; // absolute UGX overrides multiplier
 };
 
 type DateRestriction = {
@@ -84,8 +84,7 @@ type Promotion = {
 
 /* ----------------------------- Helpers ------------------------------ */
 
-const fmtUGX = (n: number) =>
-  "UGX " + Math.round(n).toLocaleString();
+const fmtUGX = (n: number) => "UGX " + Math.round(n).toLocaleString();
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 const addDaysISO = (n: number) => {
@@ -224,9 +223,7 @@ const SEED_PROMOS: Promotion[] = [
 function RatesPage() {
   const { role } = useRole();
   const canWrite =
-    role === "Reservations / Revenue" ||
-    role === "Owner / GM" ||
-    role === "System Administrator";
+    role === "Reservations / Revenue" || role === "Owner / GM" || role === "System Administrator";
 
   const [tab, setTab] = useState<
     "overview" | "plans" | "calendar" | "availability" | "promotions" | "restrictions"
@@ -257,8 +254,8 @@ function RatesPage() {
             Pricing &amp; inventory brain
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            One source of truth for what each room costs and when it&apos;s sellable.
-            Every reservation, folio and EFRIS invoice draws from here.
+            One source of truth for what each room costs and when it&apos;s sellable. Every
+            reservation, folio and EFRIS invoice draws from here.
           </p>
         </div>
         {!canWrite && (
@@ -291,12 +288,8 @@ function RatesPage() {
         })}
       </div>
 
-      {tab === "overview" && (
-        <Overview plans={plans} seasons={seasons} promos={promos} />
-      )}
-      {tab === "plans" && (
-        <PlansTab canWrite={canWrite} plans={plans} setPlans={setPlans} />
-      )}
+      {tab === "overview" && <Overview plans={plans} seasons={seasons} promos={promos} />}
+      {tab === "plans" && <PlansTab canWrite={canWrite} plans={plans} setPlans={setPlans} />}
       {tab === "calendar" && <CalendarTab plans={plans} seasons={seasons} />}
       {tab === "availability" && <AvailabilityTab />}
       {tab === "restrictions" && (
@@ -350,9 +343,7 @@ function Overview({
     (r) => r.status === "blocked" || r.status === "maintenance",
   ).length;
   const sellable = totalRooms - blockedToday;
-  const occupancyPct = sellable
-    ? Math.round((occupiedToday / sellable) * 100)
-    : 0;
+  const occupancyPct = sellable ? Math.round((occupiedToday / sellable) * 100) : 0;
 
   const activePlans = plans.filter((p) => p.active);
   const cheapest = activePlans.reduce(
@@ -421,9 +412,7 @@ function Overview({
                     {activePlans.map((p) => (
                       <td key={p.id} className="py-2.5 pr-4 text-right">
                         {p.roomTypeIds.includes(rt.id) ? (
-                          <span className="font-mono text-sm">
-                            {fmtUGX(p.pricePerNight)}
-                          </span>
+                          <span className="font-mono text-sm">{fmtUGX(p.pricePerNight)}</span>
                         ) : (
                           <span className="text-muted-foreground/60">—</span>
                         )}
@@ -448,18 +437,13 @@ function Overview({
               const plan = plans.find((p) => p.id === s.ratePlanId);
               const delta = Math.round((s.multiplier - 1) * 100);
               return (
-                <li
-                  key={s.id}
-                  className="rounded-lg border border-border bg-background p-3"
-                >
+                <li key={s.id} className="rounded-lg border border-border bg-background p-3">
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold">{s.label}</p>
                     <span
                       className={cn(
                         "rounded-md px-2 py-0.5 text-[10px] font-bold",
-                        delta >= 0
-                          ? "bg-success/10 text-success"
-                          : "bg-primary/10 text-primary",
+                        delta >= 0 ? "bg-success/10 text-success" : "bg-primary/10 text-primary",
                       )}
                     >
                       {delta >= 0 ? "+" : ""}
@@ -535,9 +519,7 @@ function Overview({
                     className="w-full rounded-t bg-primary/80"
                     style={{ height: `${Math.max(h, 4)}%` }}
                   />
-                  <span className="text-[9px] text-muted-foreground">
-                    {date.slice(8)}
-                  </span>
+                  <span className="text-[9px] text-muted-foreground">{date.slice(8)}</span>
                 </div>
               );
             })}
@@ -627,12 +609,8 @@ function PlansTab({
                     )}
                   />
                 </div>
-                <h3 className="mt-2 font-display text-lg font-semibold tracking-tight">
-                  {p.name}
-                </h3>
-                <p className="mt-0.5 text-[12px] text-muted-foreground">
-                  {p.description}
-                </p>
+                <h3 className="mt-2 font-display text-lg font-semibold tracking-tight">{p.name}</h3>
+                <p className="mt-0.5 text-[12px] text-muted-foreground">{p.description}</p>
               </div>
               {canWrite && (
                 <div className="flex items-center gap-1 opacity-0 transition group-hover:opacity-100">
@@ -646,9 +624,7 @@ function PlansTab({
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    onClick={() =>
-                      setPlans((prev) => prev.filter((x) => x.id !== p.id))
-                    }
+                    onClick={() => setPlans((prev) => prev.filter((x) => x.id !== p.id))}
                     className="rounded-md border border-border bg-background p-1.5 text-muted-foreground hover:text-destructive"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -702,10 +678,7 @@ function PlansTab({
                 </p>
                 <ul className="mt-1 space-y-0.5">
                   {p.includes.map((inc) => (
-                    <li
-                      key={inc}
-                      className="flex items-center gap-1.5 text-[12px] text-foreground"
-                    >
+                    <li key={inc} className="flex items-center gap-1.5 text-[12px] text-foreground">
                       <Check className="h-3 w-3 text-success" /> {inc}
                     </li>
                   ))}
@@ -813,9 +786,7 @@ function RatePlanForm({
             <input
               type="number"
               value={form.pricePerNight}
-              onChange={(e) =>
-                setForm({ ...form, pricePerNight: Number(e.target.value) })
-              }
+              onChange={(e) => setForm({ ...form, pricePerNight: Number(e.target.value) })}
               className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
             />
           </Field>
@@ -824,9 +795,7 @@ function RatePlanForm({
               type="number"
               min={1}
               value={form.minStay}
-              onChange={(e) =>
-                setForm({ ...form, minStay: Math.max(1, Number(e.target.value)) })
-              }
+              onChange={(e) => setForm({ ...form, minStay: Math.max(1, Number(e.target.value)) })}
               className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
             />
           </Field>
@@ -982,13 +951,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 /* ============================ Calendar tab ============================ */
 
-function CalendarTab({
-  plans,
-  seasons,
-}: {
-  plans: RatePlan[];
-  seasons: SeasonalRate[];
-}) {
+function CalendarTab({ plans, seasons }: { plans: RatePlan[]; seasons: SeasonalRate[] }) {
   const activePlans = plans.filter((p) => p.active);
   const [planId, setPlanId] = useState(activePlans[0]?.id ?? "");
   const [start, setStart] = useState(todayISO());
@@ -1065,9 +1028,7 @@ function CalendarTab({
                   <span className="text-[10px] font-semibold uppercase text-muted-foreground">
                     {day.toLocaleDateString("en-GB", { weekday: "short" })}
                   </span>
-                  <span className="font-display text-base font-bold">
-                    {day.getDate()}
-                  </span>
+                  <span className="font-display text-base font-bold">{day.getDate()}</span>
                 </div>
                 <p
                   className={cn(
@@ -1079,9 +1040,7 @@ function CalendarTab({
                   {fmtUGX(d.price)}
                 </p>
                 {d.season && (
-                  <p className="mt-1 truncate text-[9px] text-muted-foreground">
-                    {d.season.label}
-                  </p>
+                  <p className="mt-1 truncate text-[9px] text-muted-foreground">{d.season.label}</p>
                 )}
               </div>
             );
@@ -1116,9 +1075,7 @@ function AvailabilityTab() {
     return d.toISOString().slice(0, 10);
   });
 
-  const filteredRooms = rooms.filter(
-    (r) => typeFilter === "all" || r.typeId === typeFilter,
-  );
+  const filteredRooms = rooms.filter((r) => typeFilter === "all" || r.typeId === typeFilter);
 
   const cellFor = (room: Room, date: string) => {
     if (room.status === "maintenance" || room.status === "blocked") {
@@ -1178,9 +1135,7 @@ function AvailabilityTab() {
                     <div className="text-[9px] uppercase tracking-wider text-muted-foreground">
                       {dd.toLocaleDateString("en-GB", { weekday: "short" })}
                     </div>
-                    <div className="text-sm font-bold text-foreground">
-                      {dd.getDate()}
-                    </div>
+                    <div className="text-sm font-bold text-foreground">{dd.getDate()}</div>
                   </th>
                 );
               })}
@@ -1204,10 +1159,8 @@ function AvailabilityTab() {
                         <div
                           className={cn(
                             "h-7 rounded-md border text-center text-[10px] font-medium leading-7 transition",
-                            c.kind === "free" &&
-                              "border-success/30 bg-success/10 text-success",
-                            c.kind === "booked" &&
-                              "border-primary/40 bg-primary/15 text-primary",
+                            c.kind === "free" && "border-success/30 bg-success/10 text-success",
+                            c.kind === "booked" && "border-primary/40 bg-primary/15 text-primary",
                             c.kind === "blocked" &&
                               "border-destructive/30 bg-destructive/10 text-destructive",
                           )}
@@ -1215,8 +1168,8 @@ function AvailabilityTab() {
                             c.kind === "booked"
                               ? `${c.res.guestName} · ${c.res.id}`
                               : c.kind === "blocked"
-                              ? "Blocked / Maintenance"
-                              : "Available"
+                                ? "Blocked / Maintenance"
+                                : "Available"
                           }
                         >
                           {c.kind === "free" && "✓"}
@@ -1235,9 +1188,8 @@ function AvailabilityTab() {
 
       <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-[11px] text-muted-foreground">
         <Info className="h-3.5 w-3.5" />
-        Availability updates automatically as reservations are created, cancelled
-        or rooms are blocked. Offline changes queue in the outbox and sync on
-        reconnection.
+        Availability updates automatically as reservations are created, cancelled or rooms are
+        blocked. Offline changes queue in the outbox and sync on reconnection.
       </div>
     </div>
   );
@@ -1339,9 +1291,7 @@ function RestrictionsTab({
                 <td className="px-3 py-2.5 text-right">
                   {canWrite && (
                     <button
-                      onClick={() =>
-                        setSeasons((prev) => prev.filter((x) => x.id !== s.id))
-                      }
+                      onClick={() => setSeasons((prev) => prev.filter((x) => x.id !== s.id))}
                       className="text-muted-foreground hover:text-destructive"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -1364,9 +1314,7 @@ function RestrictionsTab({
       <section className="rounded-xl border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border px-5 py-3">
           <div>
-            <h2 className="font-display text-lg font-semibold tracking-tight">
-              Stay restrictions
-            </h2>
+            <h2 className="font-display text-lg font-semibold tracking-tight">Stay restrictions</h2>
             <p className="text-[11px] text-muted-foreground">
               Min-stay, closed-to-arrival and closed-to-departure rules by date and room type.
             </p>
@@ -1418,15 +1366,11 @@ function RestrictionsTab({
                       <span className="text-muted-foreground/60">Open</span>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-[11px] text-muted-foreground">
-                    {r.note ?? "—"}
-                  </td>
+                  <td className="px-3 py-2.5 text-[11px] text-muted-foreground">{r.note ?? "—"}</td>
                   <td className="px-3 py-2.5 text-right">
                     {canWrite && (
                       <button
-                        onClick={() =>
-                          setRestrictions((prev) => prev.filter((x) => x.id !== r.id))
-                        }
+                        onClick={() => setRestrictions((prev) => prev.filter((x) => x.id !== r.id))}
                         className="text-muted-foreground hover:text-destructive"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
