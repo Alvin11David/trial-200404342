@@ -3,7 +3,6 @@ import { useMemo, useState } from "react";
 import {
   BedDouble,
   CheckCircle2,
-  Filter,
   LogIn,
   Sparkles,
   Wrench,
@@ -13,6 +12,7 @@ import {
   Eye,
   Search,
   ChevronDown,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore, setRoomStatus, type RoomStatus } from "@/lib/pms-store";
