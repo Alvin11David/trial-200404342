@@ -1187,6 +1187,47 @@ export function processRefund(paymentId: string, refundAmount: number, reason: s
   emit();
 }
 
+/* ============================ Simulated Gateway ============================ */
+
+type GatewayResult = { success: true; providerRef: string } | { success: false; failureReason: string };
+const gatewayResultCache = new Map<string, GatewayResult>();
+
+function simulateNetworkCall(): Promise<GatewayResult> {
+  const delay = 800 + Math.random() * 1200;
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      if (Math.random() < 0.8) {
+        resolve({ success: true, providerRef: `GATEWAY-${Math.random().toString(36).slice(2, 10).toUpperCase()}` });
+      } else {
+        resolve({ success: false, failureReason: "Network error — payment authorisation failed" });
+      }
+    }, delay);
+  });
+}
+
+export async function simulateGatewayConfirm(paymentId: string, actor: string, role: string, idempotencyKey?: string): Promise<{ ok: boolean; message: string }> {
+  const key = idempotencyKey ?? paymentId;
+  const cached = gatewayResultCache.get(key);
+  if (cached) {
+    if (cached.success) {
+      confirmPayment(paymentId, actor, role, cached.providerRef);
+      logAudit({ actor, role, module: "billing", action: "Gateway retry — idempotent", entity: `${paymentId} cached result used (key=${key})`, severity: "info" });
+      return { ok: true, message: "Confirmed (idempotent retry)" };
+    }
+    return { ok: false, message: cached.failureReason };
+  }
+  const result = await simulateNetworkCall();
+  gatewayResultCache.set(key, result);
+  if (result.success) {
+    confirmPayment(paymentId, actor, role, result.providerRef);
+    return { ok: true, message: "Payment confirmed" };
+  }
+  failPayment(paymentId, result.failureReason, actor, role);
+  return { ok: false, message: result.failureReason };
+}
+
+export function clearGatewayCache() { gatewayResultCache.clear(); }
+
 export function voidCharge(folioId: string, chargeId: string, reason: string, actor: string, role: string) {
   state.charges = state.charges.map((c) =>
     c.id === chargeId && c.folioId === folioId && !c.voided

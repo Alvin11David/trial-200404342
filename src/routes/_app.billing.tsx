@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-r
 import { useMemo, useState } from "react";
 import {
   Plus, Printer, Receipt, CreditCard, X, ArrowLeft, Ban,
-  Moon, CheckCircle2, AlertTriangle, Smartphone,
+  Moon, CheckCircle2, AlertTriangle, Smartphone, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -12,6 +12,7 @@ import {
   addPayment,
   confirmPayment,
   failPayment,
+  simulateGatewayConfirm,
   processRefund,
   voidCharge,
   settleFolio,
