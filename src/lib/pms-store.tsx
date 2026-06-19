@@ -273,7 +273,7 @@ function saveCounters() {
   try {
     localStorage.setItem(COUNTER_KEY, JSON.stringify({
       resCounter, folioCounter, chargeCounter, payCounter, guestCounter, auditCounter,
-      hkTaskCounter, maintCounter, dndCounter,
+      hkTaskCounter, maintCounter, dndCounter, receiptCounter,
     }));
   } catch { /* ignore */ }
 }

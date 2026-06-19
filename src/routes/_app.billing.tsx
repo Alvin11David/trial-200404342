@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-r
 import { useMemo, useState } from "react";
 import {
   Plus, Printer, Receipt, CreditCard, X, ArrowLeft, Ban,
-  Moon, CheckCircle2, AlertTriangle,
+  Moon, CheckCircle2, AlertTriangle, Smartphone, Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
