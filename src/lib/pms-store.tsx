@@ -794,7 +794,7 @@ export type NewReservationInput = Omit<
   "id" | "createdAt" | "status" | "folioId" | "roomId" | "vatRate" | "vatTreatment"
 > & {
   roomId?: string | null;
-  payment?: { method: PaymentMethod; amount: number; phone?: string; reference?: string };
+  payment?: { method: PaymentMethod; amount: number; phone?: string; reference?: string; tendered?: number; change?: number };
 };
 
 export function createReservation(input: NewReservationInput): { ok: true; id: string } | { ok: false; error: string } {

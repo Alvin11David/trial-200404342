@@ -614,14 +614,27 @@ function AddPaymentDialog({
 }) {
   const [method, setMethod] = useState<PaymentMethod>("cash");
   const [amount, setAmount] = useState<number | "">(balance > 0 ? balance : "");
+  const [tendered, setTendered] = useState<number | "">("");
   const [phone, setPhone] = useState("");
   const [reference, setReference] = useState("");
 
+  const payAmount = Number(amount) || 0;
+  const tenderedAmount = Number(tendered) || 0;
+  const changeDue = method === "cash" && tenderedAmount > payAmount ? tenderedAmount - payAmount : 0;
+  const insufficientTender = method === "cash" && tenderedAmount > 0 && tenderedAmount < payAmount;
+
+  const resetTendered = () => {
+    setTendered("");
+  };
+
   const submit = () => {
     if (!amount || amount <= 0) return;
+    if (insufficientTender) return;
     addPayment(folioId, {
       method,
-      amount: Number(amount),
+      amount: payAmount,
+      tendered: method === "cash" ? tenderedAmount : undefined,
+      change: method === "cash" ? changeDue : undefined,
       phone: method === "mtn_momo" || method === "airtel_money" ? phone : undefined,
       reference: reference || undefined,
       receivedBy: actor,
@@ -635,7 +648,7 @@ function AddPaymentDialog({
         <Field label="Method">
           <select
             value={method}
-            onChange={(e) => setMethod(e.target.value as PaymentMethod)}
+            onChange={(e) => { setMethod(e.target.value as PaymentMethod); resetTendered(); }}
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
           >
             {(Object.entries(PAYMENT_METHOD_LABEL) as [PaymentMethod, string][]).map(([k, l]) => (
@@ -652,6 +665,29 @@ function AddPaymentDialog({
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
           />
         </Field>
+        {method === "cash" && (
+          <>
+            <Field label="Amount tendered (UGX)">
+              <input
+                type="number"
+                value={tendered}
+                onChange={(e) => setTendered(e.target.value === "" ? "" : Number(e.target.value))}
+                min={0}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+              />
+            </Field>
+            {tenderedAmount > 0 && !insufficientTender && (
+              <p className="rounded-md border border-success/20 bg-success/10 px-3 py-2 text-[11px] text-success">
+                Change due: <strong>{fmtUGX(changeDue)}</strong>
+              </p>
+            )}
+            {insufficientTender && (
+              <p className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">
+                Amount tendered (UGX {tenderedAmount.toLocaleString()}) is less than the payment amount (UGX {payAmount.toLocaleString()})
+              </p>
+            )}
+          </>
+        )}
         {(method === "mtn_momo" || method === "airtel_money") && (
           <Field label="Mobile money phone">
             <input
@@ -681,7 +717,7 @@ function AddPaymentDialog({
           </p>
         )}
       </div>
-      <DialogFooter onCancel={onClose} onSubmit={submit} submitLabel="Record payment" disabled={!amount} />
+      <DialogFooter onCancel={onClose} onSubmit={submit} submitLabel="Record payment" disabled={!amount || insufficientTender} />
     </Modal>
   );
 }
