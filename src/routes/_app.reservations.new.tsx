@@ -19,6 +19,7 @@ import {
   Calendar as CalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createReservation, findAvailableRooms, fmtUGX, useStore, type PaymentMethod } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/reservations/new")({
@@ -897,17 +898,18 @@ function Select({
             {icon}
           </span>
         )}
-        <select
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="block w-full appearance-none bg-transparent px-11 pb-2.5 pt-6 text-sm outline-none"
-        >
-          {options.map((o) => (
-            <option key={o} value={o} className="bg-card">
-              {o}
-            </option>
-          ))}
-        </select>
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger className="block w-full bg-transparent px-11 pb-2.5 pt-6 text-sm outline-none border-0 shadow-none focus:ring-0">
+            <SelectValue placeholder={label} />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((o) => (
+              <SelectItem key={o} value={o}>
+                {o}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <label className="pointer-events-none absolute left-11 top-1.5 text-[11px] text-muted-foreground">
           {label}
         </label>

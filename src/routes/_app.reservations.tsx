@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Eye, Filter, LogIn, LogOut, Plus, Search, X, Pencil, CalendarDays, Table2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -713,11 +714,16 @@ function EditDialog({
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Room type</label>
-            <select value={roomTypeId} onChange={(e) => setRoomTypeId(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60">
-              {roomTypes.map((rt) => (
-                <option key={rt.id} value={rt.id}>{rt.name}</option>
-              ))}
-            </select>
+            <Select value={roomTypeId} onValueChange={setRoomTypeId}>
+              <SelectTrigger className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                <SelectValue placeholder="Select room type" />
+              </SelectTrigger>
+              <SelectContent>
+                {roomTypes.map((rt) => (
+                  <SelectItem key={rt.id} value={rt.id}>{rt.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Meal plan</label>

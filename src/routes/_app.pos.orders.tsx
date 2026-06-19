@@ -317,20 +317,21 @@ function POSOrdersPage() {
             </SelectContent>
           </Select>
 
-          <select
+          <Select
             value={tableFilter}
-            onChange={(e) => setTableFilter(e.target.value)}
-            className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
+            onValueChange={setTableFilter}
           >
-            <option value="All" className="bg-card">
-              All tables
-            </option>
-            {tables.map((t) => (
-              <option key={t} value={t} className="bg-card">
-                {t}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="All tables" />
+            </SelectTrigger>
+            <SelectContent>
+              {tables.map((t) => (
+                <SelectItem key={t} value={t}>
+                  {t}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <button
             onClick={() => setShowFilters((p) => !p)}
