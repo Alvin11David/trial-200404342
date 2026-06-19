@@ -1578,6 +1578,10 @@ export function voidCharge(folioId: string, chargeId: string, reason: string, ac
   );
   logAudit({ actor, role, module: "billing", action: `Voided charge ${chargeId}`, entity: `${folioId} — ${reason}`, severity: "warn" });
   emit();
+  const hasInvoice = state.invoices.some((i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote);
+  if (hasInvoice) {
+    generateCreditNote(folioId, chargeId, reason, actor, role);
+  }
 }
 
 export function settleFolio(folioId: string, actor: string, role: string) {
@@ -1588,6 +1592,12 @@ export function settleFolio(folioId: string, actor: string, role: string) {
   );
   logAudit({ actor, role, module: "billing", action: "Folio settled", entity: folioId, severity: "info" });
   emit();
+  const inv = generateInvoice(folioId);
+  if (inv) {
+    logAudit({ actor, role, module: "billing", action: "Invoice auto-generated on settle", entity: `${inv.invoiceNo} for ${folioId}`, severity: "info" });
+    emit();
+    submitToEFRIS(inv.id, actor, role);
+  }
 }
 
 export function runNightAudit(actor: string, role: string) {
