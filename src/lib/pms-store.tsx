@@ -1197,7 +1197,7 @@ export function totalOutstanding() {
 
 export function paymentsToday() {
   const today = todayISO();
-  return state.payments.filter((p) => p.date === today).reduce((s, p) => s + p.amount, 0);
+  return state.payments.filter((p) => p.date === today && p.status === "confirmed").reduce((s, p) => s + p.amount, 0);
 }
 
 export const FOLIO_STATUS_LABEL: Record<FolioStatus, string> = {
