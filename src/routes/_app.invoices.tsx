@@ -20,6 +20,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -404,23 +405,13 @@ function InvoicesPage() {
             <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
               From
             </label>
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="rounded-lg border border-border/60 bg-card px-3 py-2 text-xs outline-none focus:border-primary/50"
-            />
+            <DatePicker value={dateFrom} onChange={setDateFrom} />
           </div>
           <div>
             <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
               To
             </label>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="rounded-lg border border-border/60 bg-card px-3 py-2 text-xs outline-none focus:border-primary/50"
-            />
+            <DatePicker value={dateTo} onChange={setDateTo} />
           </div>
           <div>
             <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">

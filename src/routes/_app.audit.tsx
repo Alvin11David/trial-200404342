@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Download, ShieldCheck } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useStore, type AuditSeverity } from "@/lib/pms-store";
 import {
   Select,
@@ -163,18 +164,8 @@ function AuditPage() {
             </button>
           ))}
         </div>
-        <input
-          type="date"
-          value={from}
-          onChange={(e) => setFrom(e.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
-        />
-        <input
-          type="date"
-          value={to}
-          onChange={(e) => setTo(e.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
-        />
+        <DatePicker value={from} onChange={setFrom} />
+        <DatePicker value={to} onChange={setTo} />
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">

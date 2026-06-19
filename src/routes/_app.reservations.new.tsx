@@ -19,6 +19,7 @@ import {
   Calendar as CalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -552,20 +553,8 @@ function StepDatesAndPlan({
       />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field
-          icon={<CalIcon className="h-4 w-4" />}
-          label="Check in"
-          type="date"
-          value={form.checkIn}
-          onChange={(v) => set("checkIn", v)}
-        />
-        <Field
-          icon={<CalIcon className="h-4 w-4" />}
-          label="Check out"
-          type="date"
-          value={form.checkOut}
-          onChange={(v) => set("checkOut", v)}
-        />
+        <DatePicker value={form.checkIn} onChange={(v) => set("checkIn", v)} />
+        <DatePicker value={form.checkOut} onChange={(v) => set("checkOut", v)} />
       </div>
 
       <div className="mt-4 grid gap-4 sm:grid-cols-3">

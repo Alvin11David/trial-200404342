@@ -15,6 +15,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -286,19 +287,9 @@ function ReservationsPage() {
               className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
             />
           </div>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-          />
+          <DatePicker value={from} onChange={setFrom} />
           <span className="text-xs text-muted-foreground">→</span>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-          />
+          <DatePicker value={to} onChange={setTo} />
           <div className="relative">
             <button
               onClick={() => setRoomTypeOpen(!roomTypeOpen)}
@@ -870,21 +861,11 @@ function EditDialog({
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Check-in</label>
-            <input
-              type="date"
-              value={checkIn}
-              onChange={(e) => setCheckIn(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-            />
+            <DatePicker value={checkIn} onChange={setCheckIn} />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Check-out</label>
-            <input
-              type="date"
-              value={checkOut}
-              onChange={(e) => setCheckOut(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-            />
+            <DatePicker value={checkOut} onChange={setCheckOut} />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Adults</label>

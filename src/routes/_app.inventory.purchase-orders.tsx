@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -490,12 +491,7 @@ function PurchaseOrdersPage() {
                   <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                     Expected Delivery
                   </label>
-                  <input
-                    type="date"
-                    value={expectedDate}
-                    onChange={(e) => setExpectedDate(e.target.value)}
-                    className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
-                  />
+                  <DatePicker value={expectedDate} onChange={setExpectedDate} />
                 </div>
               </div>
 

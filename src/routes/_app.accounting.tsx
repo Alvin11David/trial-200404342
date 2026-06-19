@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export const Route = createFileRoute("/_app/accounting")({
   head: () => ({ meta: [{ title: "Accounting — Jambo ERP" }] }),
@@ -707,6 +708,7 @@ function JournalEntries() {
 type Line = { id: number; account: string; debit: string; credit: string };
 
 function NewJournalForm({ onClose }: { onClose: () => void }) {
+  const [date, setDate] = useState("");
   const [lines, setLines] = useState<Line[]>([
     { id: 1, account: "", debit: "", credit: "" },
     { id: 2, account: "", debit: "", credit: "" },
@@ -987,6 +989,7 @@ function PaymentModal({
   party: string;
   onClose: () => void;
 }) {
+  const [date, setDate] = useState("");
   return (
     <div
       className="fixed inset-0 z-50 grid place-items-center bg-background/70 p-4 backdrop-blur-sm"

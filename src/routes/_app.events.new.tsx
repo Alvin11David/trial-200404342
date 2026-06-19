@@ -15,6 +15,7 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectContent,
@@ -156,20 +157,8 @@ function NewEventPage() {
           <div className="glass rounded-2xl p-6">
             <h2 className="font-display text-lg font-semibold mb-4">Date &amp; Time</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <FormField
-                icon={<CalendarDays className="h-4 w-4" />}
-                label="Start Date"
-                type="date"
-                value={form.startDate}
-                onChange={(v) => set("startDate", v)}
-              />
-              <FormField
-                icon={<CalendarDays className="h-4 w-4" />}
-                label="End Date"
-                type="date"
-                value={form.endDate}
-                onChange={(v) => set("endDate", v)}
-              />
+              <DatePicker value={form.startDate} onChange={(v) => set("startDate", v)} />
+              <DatePicker value={form.endDate} onChange={(v) => set("endDate", v)} />
               <FormField
                 icon={<Clock className="h-4 w-4" />}
                 label="Start Time"

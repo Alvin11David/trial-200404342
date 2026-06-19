@@ -12,6 +12,7 @@ import {
   useStore,
 } from "@/lib/pms-store";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export const Route = createFileRoute("/_app/reports")({
   head: () => ({ meta: [{ title: "Reports — Jambo PMS" }] }),
@@ -44,19 +45,9 @@ function ReportsPage() {
         <Calendar className="h-4 w-4 text-muted-foreground" />
         <div className="flex items-center gap-2 text-sm">
           <span className="text-muted-foreground">From</span>
-          <input
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm focus:border-primary/60"
-          />
+          <DatePicker value={from} onChange={setFrom} />
           <span className="text-muted-foreground">to</span>
-          <input
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-sm focus:border-primary/60"
-          />
+          <DatePicker value={to} onChange={setTo} />
         </div>
         <button className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs hover:border-primary/40">
           <Download className="h-3.5 w-3.5" /> Export CSV

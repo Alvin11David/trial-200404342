@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { Search, Eye, CalendarDays, PartyPopper, MapPin, Users, Clock } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 import {
   Select,
@@ -253,19 +254,9 @@ function EventsListPage() {
 
           <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-xs">
             <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
-            <input
-              type="date"
-              value={dateFrom}
-              onChange={(e) => setDateFrom(e.target.value)}
-              className="bg-transparent text-foreground outline-none w-28"
-            />
+            <DatePicker value={dateFrom} onChange={setDateFrom} />
             <span className="text-muted-foreground">→</span>
-            <input
-              type="date"
-              value={dateTo}
-              onChange={(e) => setDateTo(e.target.value)}
-              className="bg-transparent text-foreground outline-none w-28"
-            />
+            <DatePicker value={dateTo} onChange={setDateTo} />
           </div>
 
           <Select
