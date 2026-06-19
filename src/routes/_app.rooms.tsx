@@ -11,6 +11,7 @@ import {
   GripVertical,
   User,
   Eye,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore, setRoomStatus, type RoomStatus } from "@/lib/pms-store";
@@ -34,6 +35,8 @@ function RoomsBoard() {
   const roomTypes = useStore((s) => s.roomTypes);
   const [floor, setFloor] = useState<string>("All");
   const [type, setType] = useState<string>("All");
+  const [floorOpen, setFloorOpen] = useState(false);
+  const [typeOpen, setTypeOpen] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const [hoverCol, setHoverCol] = useState<RoomStatus | null>(null);
   const [showExtraFilters, setShowExtraFilters] = useState(false);
@@ -89,28 +92,62 @@ function RoomsBoard() {
 
       <div className="glass flex flex-wrap items-center gap-3 rounded-2xl p-4">
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Filter</div>
-        <select
-          value={floor}
-          onChange={(e) => setFloor(e.target.value)}
-          className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
-        >
-          {["All", 1, 2, 3, 4, 5].map((f) => (
-            <option key={f} value={f} className="bg-card">
-              {f === "All" ? "All floors" : `Floor ${f}`}
-            </option>
-          ))}
-        </select>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
-        >
-          {["All", "Standard", "Deluxe", "Suite"].map((t) => (
-            <option key={t} value={t} className="bg-card">
-              {t === "All" ? "All room types" : t}
-            </option>
-          ))}
-        </select>
+        <div className="relative">
+          <button
+            onClick={() => setFloorOpen(!floorOpen)}
+            className="flex items-center gap-1 rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
+          >
+            {floor === "All" ? "All floors" : `Floor ${floor}`}
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          </button>
+          {floorOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setFloorOpen(false)} />
+              <div className="absolute left-0 top-full z-20 mt-1 min-w-[140px] overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg">
+                {["All", 1, 2, 3, 4, 5].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => { setFloor(String(f)); setFloorOpen(false); }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left text-sm transition hover:bg-muted",
+                      floor === String(f) && "bg-primary/10 font-medium text-primary",
+                    )}
+                  >
+                    {f === "All" ? "All floors" : `Floor ${f}`}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+        <div className="relative">
+          <button
+            onClick={() => setTypeOpen(!typeOpen)}
+            className="flex items-center gap-1 rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
+          >
+            {type === "All" ? "All room types" : type}
+            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+          </button>
+          {typeOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setTypeOpen(false)} />
+              <div className="absolute left-0 top-full z-20 mt-1 min-w-[140px] overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg">
+                {["All", "Standard", "Deluxe", "Suite"].map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => { setType(t); setTypeOpen(false); }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left text-sm transition hover:bg-muted",
+                      type === t && "bg-primary/10 font-medium text-primary",
+                    )}
+                  >
+                    {t === "All" ? "All room types" : t}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
         <button
           onClick={() => setShowExtraFilters(!showExtraFilters)}
           className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/30 px-3 py-2 text-xs text-muted-foreground hover:text-foreground"
