@@ -260,9 +260,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <button className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90">
+            <Link
+              to="/reservations/new"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+            >
               <Plus className="h-3.5 w-3.5" /> New Booking
-            </button>
+            </Link>
 
             {/* Role switcher */}
             <RoleSwitcher role={role} setRole={setRole} />
