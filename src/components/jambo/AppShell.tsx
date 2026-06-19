@@ -119,12 +119,18 @@ export function AppShell({ children }: { children: ReactNode }) {
   const meta = ROLE_META[role];
   const nav = ROLE_NAV[role];
 
-  const now = new Date().toLocaleDateString("en-GB", {
+  const [clock, setClock] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setClock(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const now = clock.toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+  const time = clock.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
   // derive page title
   const seg = pathname.split("/").filter(Boolean)[0] ?? "dashboard";
@@ -248,7 +254,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
           <div>
             <h1 className="text-sm font-semibold leading-tight text-foreground md:text-base">{title || "Dashboard"}</h1>
-            <p className="text-[10px] text-muted-foreground md:text-[11px]">{now}</p>
+            <p className="text-[10px] text-muted-foreground md:text-[11px]">{now} · {time}</p>
           </div>
 
           <div className="relative ml-auto hidden max-w-[180px] flex-1 md:block lg:ml-6 lg:max-w-sm">
