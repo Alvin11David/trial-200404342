@@ -202,16 +202,18 @@ export function AppShell({ children }: { children: ReactNode }) {
                         )}
                         <span className={cn(
                           "relative flex shrink-0 items-center justify-center rounded-lg p-0.5 transition-all duration-200",
-                          active && "animate-sidebar-glow-pulse",
+                          active && "animate-sidebar-glow-rotate",
                         )}>
-                          <Icon
-                            className={cn(
-                              "h-[18px] w-[18px] transition-all duration-200",
-                              active
-                                ? "text-primary animate-sidebar-icon-pulse drop-shadow-[0_0_6px_var(--color-primary)]"
-                                : "text-muted-foreground group-hover/nav-item:scale-110",
-                            )}
-                          />
+                          <span className="relative flex shrink-0 items-center justify-center">
+                            <Icon
+                              className={cn(
+                                "h-[18px] w-[18px] transition-all duration-200",
+                                active
+                                  ? "text-primary animate-sidebar-icon-float drop-shadow-[0_0_8px_var(--color-primary)]"
+                                  : "text-muted-foreground group-hover/nav-item:animate-sidebar-icon-bounce",
+                              )}
+                            />
+                          </span>
                         </span>
                         {!collapsed && (
                           <>

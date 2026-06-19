@@ -147,7 +147,7 @@ function RootComponent() {
               className="absolute left-1/2 top-1/2 h-[125%] w-[125%] -translate-x-1/2 -translate-y-1/2"
               style={{ border: 'none', pointerEvents: 'none' }}
               allow="autoplay; fullscreen"
-              fetchpriority="high"
+               fetchPriority="high"
               title="3D Hotel Scene"
             />
           </div>

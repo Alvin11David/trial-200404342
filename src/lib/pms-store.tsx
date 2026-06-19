@@ -505,13 +505,12 @@ FOLIOS.filter((f) => f.status === "settled").forEach((f) => {
   const folioPayments = PAYMENTS.filter((p) => p.folioId === f.id && p.status === "confirmed");
   const totalCharges = folioCharges.reduce((s, c) => s + c.amount, 0);
   const totalPaid = folioPayments.reduce((s, p) => s + p.amount, 0);
-  const vatRate = currentVatRate();
   let totalTaxable = 0, totalVat = 0;
   const lines: InvoiceLineItem[] = [];
   folioCharges.forEach((c) => {
     const vt = c.type === "tax" ? "exempt" : (res.vatTreatment ?? "inclusive");
-    const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(c.amount / (1 + vatRate)) : c.amount);
-    const vat = vt === "exempt" ? 0 : Math.round(taxable * vatRate);
+    const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(c.amount / (1 + 0.18)) : c.amount);
+    const vat = vt === "exempt" ? 0 : Math.round(taxable * 0.18);
     totalTaxable += taxable;
     totalVat += vat;
     const li: InvoiceLineItem = {
@@ -520,7 +519,7 @@ FOLIOS.filter((f) => f.status === "settled").forEach((f) => {
       description: c.description,
       amount: c.amount,
       vatTreatment: vt,
-      vatRate,
+      vatRate: 0.18,
       taxableAmount: taxable,
       vatAmount: vat,
       totalAmount: c.amount,
