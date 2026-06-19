@@ -270,8 +270,11 @@ function ReservationsPage() {
               </option>
             ))}
           </select>
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground hover:border-primary/40">
-            <Filter className="h-3.5 w-3.5" /> More filters
+          <button
+            onClick={() => setShowMoreFilters(!showMoreFilters)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground hover:border-primary/40"
+          >
+            <Filter className="h-3.5 w-3.5" /> {showMoreFilters ? "Less" : "More"} filters
           </button>
         </div>
       </div>
