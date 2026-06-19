@@ -147,9 +147,14 @@ async function run() {
     ok(bodyText.includes("20,000") || bodyText.includes("20000"), "Refund amount visible");
     ok(bodyText.includes("Guest overpaid"), "Refund reason visible");
 
-    // ===== 12. Verify audit trail =====
+    // ===== 12. Verify audit trail via SPA navigation =====
     console.log("\n=== 12. Audit trail ===");
-    await page.goto(BASE + "/audit", { waitUntil: "load", timeout: 60000 });
+    // Switch to Owner/GM role to access Audit Trail in sidebar
+    await page.locator("button", { hasText: "Accountant" }).first().click();
+    await page.waitForTimeout(500);
+    await page.locator("[role='menuitem']").filter({ hasText: "Owner / GM" }).click();
+    await page.waitForTimeout(1000);
+    await page.locator("a").filter({ hasText: "Audit Trail" }).click();
     await page.waitForTimeout(1500);
     await ss("rf11-audit");
 
@@ -161,8 +166,20 @@ async function run() {
 
     // ===== 13. Verify original payment still has Refund button =====
     console.log("\n=== 13. Refund button on original payment ===");
-    await page.goto(folioUrl, { waitUntil: "load", timeout: 60000 });
+    // Navigate back to billing via sidebar, then open the same folio
+    await page.locator("a").filter({ hasText: "Billing & Folio" }).first().click();
     await page.waitForTimeout(1500);
+    // Find and click the same folio row
+    const billingTable = page.locator("table");
+    const targetRow2 = billingTable.locator("tbody tr").filter({ hasText: "Tom Kabuye" }).first();
+    if (await targetRow2.isVisible()) {
+      await targetRow2.click();
+      await page.waitForTimeout(1500);
+    } else {
+      // Fallback: navigate directly via URL
+      await page.goto(folioUrl, { timeout: 10000 }).catch(() => {});
+      await page.waitForTimeout(2000);
+    }
     const refundBtns = await page.locator("button:has-text('Refund')").count();
     ok(refundBtns >= 1, "Refund button visible on original payment (found " + refundBtns + ")");
 
