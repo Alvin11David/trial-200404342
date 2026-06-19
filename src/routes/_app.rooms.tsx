@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   BedDouble,
@@ -209,6 +209,7 @@ function RoomCard({
   folioId?: string;
   reservationId?: string;
 }) {
+  const navigate = useNavigate();
   return (
     <div
       draggable
