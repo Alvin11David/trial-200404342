@@ -358,11 +358,12 @@ function StockDashboard() {
               {categoryValue.slice(0, 3).map(([cat, val]) => (
                 <div key={cat} className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">{cat}</span>
-                <span className="font-medium tabular-nums">
-                  UGX {(val / 1_000_000).toFixed(1)}M
-                </span>
-              </div>
-            ))}
+                  <span className="font-medium tabular-nums">
+                    UGX {(val / 1_000_000).toFixed(1)}M
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
