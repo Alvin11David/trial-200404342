@@ -46,6 +46,9 @@ function GuestsPage() {
   if (selectedGuest) {
     return <GuestDetail guest={selectedGuest} onBack={() => navigate({ to: "/guests", search: { guest: undefined } })} />;
   }
+  if (guestId === "new") {
+    return <NewGuestForm onBack={() => navigate({ to: "/guests", search: { guest: undefined } })} />;
+  }
 
   const filtered = useMemo(() => {
     return guests.filter((g) => {
@@ -227,6 +230,99 @@ function GuestsPage() {
             No guests match your search.
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function GuestDetail({ guest, onBack }: { guest: Guest; onBack: () => void }) {
+  const reservations = useStore((s) => s.reservations);
+  const guestReservations = reservations.filter(
+    (r) => r.guestEmail === guest.email && r.guestPhone === guest.phone,
+  );
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-6">
+      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Back to guests
+      </button>
+
+      <div className="rounded-xl border border-border bg-card p-6">
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-4">
+            <span className={cn("grid h-14 w-14 place-items-center rounded-xl bg-gradient-to-br text-lg font-bold text-white", guestAccents[parseInt(guest.id.replace("GST-", ""), 10) % guestAccents.length])}>
+              {guest.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+            </span>
+            <div>
+              <h2 className="font-display text-xl font-bold">{guest.name}</h2>
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" /> {guest.email}</span>
+                <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" /> {guest.phone}</span>
+                <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {guest.nationality}</span>
+              </div>
+            </div>
+          </div>
+          <span className={cn("rounded-md border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider", tierStyles[guest.tier])}>
+            <Award className="mr-1 inline h-3 w-3" />{guest.tier}
+          </span>
+        </div>
+
+        <div className="mt-6 grid grid-cols-3 gap-4">
+          <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
+            <div className="font-bold text-foreground">{guest.totalVisits}</div>
+            <div className="text-[11px] text-muted-foreground">Visits</div>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
+            <div className="font-bold text-foreground">{fmtUGX(guest.totalRevenue)}</div>
+            <div className="text-[11px] text-muted-foreground">Revenue</div>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
+            <div className="font-bold text-foreground">{guestReservations.length}</div>
+            <div className="text-[11px] text-muted-foreground">Bookings</div>
+          </div>
+        </div>
+
+        {guestReservations.length > 0 && (
+          <div className="mt-6">
+            <h3 className="mb-3 text-sm font-semibold">Booking History</h3>
+            <div className="space-y-2">
+              {guestReservations.sort((a, b) => b.checkIn.localeCompare(a.checkIn)).map((r) => (
+                <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3 text-sm">
+                  <div>
+                    <span className="font-medium">{r.checkIn} → {r.checkOut}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">{r.roomId ? `Room ${r.roomId}` : ""}</span>
+                  </div>
+                  <span className={cn("text-[10px] font-semibold uppercase", r.status === "checked_in" ? "text-success" : r.status === "confirmed" ? "text-warning" : "text-muted-foreground")}>
+                    {r.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="mt-6 flex items-center gap-2">
+          <Link
+            to="/reservations/new"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-3.5 w-3.5" /> New Booking
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NewGuestForm({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="mx-auto max-w-lg space-y-6">
+      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-4 w-4" /> Back to guests
+      </button>
+      <div className="rounded-xl border border-border bg-card p-6 text-center">
+        <p className="text-sm text-muted-foreground">Guest creation form coming soon.</p>
+        <p className="mt-1 text-xs text-muted-foreground">You can add a guest during the reservation process.</p>
       </div>
     </div>
   );
