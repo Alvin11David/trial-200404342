@@ -12,6 +12,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/pos/menu")({
   head: () => ({ meta: [{ title: "Menu Items — Jambo ERP" }] }),
@@ -321,17 +322,21 @@ function POSMenuPage() {
                 <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                   Category
                 </label>
-                <select
+                <Select
                   value={form.category}
-                  onChange={(e) => set("category", e.target.value)}
-                  className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
+                  onValueChange={(v) => set("category", v)}
                 >
-                  {categories.map((c) => (
-                    <option key={c} value={c} className="bg-card">
-                      {c}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -352,17 +357,21 @@ function POSMenuPage() {
                   <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                     Currency
                   </label>
-                  <select
+                  <Select
                     value={form.currency}
-                    onChange={(e) => set("currency", e.target.value)}
-                    className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
+                    onValueChange={(v) => set("currency", v)}
                   >
-                    {currencies.map((c) => (
-                      <option key={c} value={c} className="bg-card">
-                        {c}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
+                      <SelectValue placeholder="Select currency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencies.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>

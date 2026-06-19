@@ -14,6 +14,7 @@ import {
   TicketCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/pos/orders")({
   head: () => ({ meta: [{ title: "POS Orders — Jambo ERP" }] }),
@@ -285,39 +286,36 @@ function POSOrdersPage() {
             />
           </div>
 
-          <select
+          <Select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as OrderStatus | "All")}
-            className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
+            onValueChange={(v) => setStatusFilter(v as OrderStatus | "All")}
           >
-            <option value="All" className="bg-card">
-              All statuses
-            </option>
-            <option value="Pending" className="bg-card">
-              Pending
-            </option>
-            <option value="Completed" className="bg-card">
-              Completed
-            </option>
-            <option value="Cancelled" className="bg-card">
-              Cancelled
-            </option>
-          </select>
+            <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All statuses</SelectItem>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
 
-          <select
+          <Select
             value={cashierFilter}
-            onChange={(e) => setCashierFilter(e.target.value)}
-            className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
+            onValueChange={setCashierFilter}
           >
-            <option value="All" className="bg-card">
-              All cashiers
-            </option>
-            {cashiers.map((c) => (
-              <option key={c} value={c} className="bg-card">
-                {c}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="All cashiers" />
+            </SelectTrigger>
+            <SelectContent>
+              {cashiers.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <select
             value={tableFilter}
