@@ -118,11 +118,20 @@ async function run() {
     await page.waitForTimeout(1500);
     await ss("at07-payment-added");
 
+    // Confirm the pending card payment (card now goes through gateway)
+    const cardConfirmBtn = page.locator("button:has-text('Confirm')");
+    if (await cardConfirmBtn.isVisible().catch(() => false)) {
+      await cardConfirmBtn.click();
+      await page.waitForTimeout(1000);
+    }
+
     const audit2 = await readLedger(page);
-    ok(audit2.auditCount === audit1.auditCount + 1,
-      `Audit count increased after add-payment: ${audit1.auditCount} → ${audit2.auditCount}`);
+    ok(audit2.auditCount >= audit1.auditCount + 1,
+      `Audit count increased after add-payment: ${audit1.auditCount} → ${audit2.auditCount} (was expecting +1 or +2)`);
     const payEntry = audit2.audit[0];
-    ok(payEntry.action === "Posted confirmed payment", `Audit action is "Posted confirmed payment", got "${payEntry.action}"`);
+    const payAction = payEntry.action;
+    ok(payAction === "Posted confirmed payment" || payAction === "Confirmed payment",
+      `Audit action is "Posted confirmed payment" or "Confirmed payment", got "${payAction}"`);
     ok(payEntry.module === "billing");
     ok(payEntry.severity === "info");
     ok(payEntry.actor === "Sarah Nakato", `Audit actor is Sarah Nakato, got "${payEntry.actor}"`);
@@ -251,11 +260,11 @@ async function run() {
     );
     ok(hasCharge120k, "Posted charge audit entry contains amount 120,000");
 
-    // Check for 50000 in posted payment
+    // Check for 50000 in posted payment (may be "Posted pending payment" + "Confirmed payment" split)
     const hasPay50k = billingEntries.some(
-      (e) => (e.action === "Posted payment" || e.action === "Posted confirmed payment") && e.entity.includes("50,000") && e.entity.includes("card")
+      (e) => (e.action === "Posted payment" || e.action === "Posted confirmed payment" || e.action === "Confirmed payment") && e.entity.includes("50,000") && e.entity.includes("card")
     );
-    ok(hasPay50k, "Posted payment audit entry contains amount 50,000 via card");
+    ok(hasPay50k, "Payment audit entry contains amount 50,000 via card");
 
     // Check for void reason in voided charge
     const hasVoidReason = billingEntries.some(

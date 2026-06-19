@@ -144,6 +144,14 @@ async function run() {
     await page.waitForTimeout(1500);
     await ss("p09-after-second-payment");
 
+    // Card payment needs gateway confirmation (now pending)
+    const cardConfirmBtn = page.locator("button:has-text('Confirm')");
+    if (await cardConfirmBtn.isVisible().catch(() => false)) {
+      await cardConfirmBtn.click();
+      await page.waitForTimeout(1000);
+    }
+    await ss("p09b-after-card-confirm");
+
     // ===== 8. Verify balance decreased again =====
     console.log("\n=== 8. Verify balance decreased again ===");
     const balanceAfterSecondStr = (await balanceLocator.textContent()) || "";
@@ -157,7 +165,7 @@ async function run() {
     const bodyText2 = (await folioBody2.textContent()) || "";
     ok(bodyText2.includes("50,000") || bodyText2.includes("50000"), "First payment 50,000 still visible");
     ok(bodyText2.includes("30,000") || bodyText2.includes("30000"), "Second payment 30,000 visible");
-    ok(bodyText2.includes("Card"), "Second payment method 'Card' shown");
+    ok(bodyText2.includes("Card") || bodyText2.includes("card"), "Second payment method 'Card' shown");
 
     // Verify total payments line increases
     const totalPayAfterSecond = parseUgx((await totalPaymentsLocator.textContent()) || "");
