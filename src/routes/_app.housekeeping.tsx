@@ -44,7 +44,13 @@ import {
   type MaintSeverity,
   type RoomStatus,
 } from "@/lib/pms-store";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/housekeeping")({
   head: () => ({ meta: [{ title: "Housekeeping — Jambo PMS" }] }),
@@ -77,13 +83,13 @@ function HousekeepingPage() {
       <RoomStatusStats />
 
       <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-card p-1">
-        {([
+        {[
           { id: "board" as Tab, label: "Room Status Board", icon: Grid3X3 },
           { id: "tasks" as Tab, label: "Task Queue", icon: ClipboardList },
           { id: "inspections" as Tab, label: "Inspections", icon: ShieldCheck },
           { id: "schedule" as Tab, label: "Schedule", icon: CalendarDays },
           { id: "issues" as Tab, label: "Issues & Maintenance", icon: Wrench },
-        ]).map((t) => (
+        ].map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
@@ -160,14 +166,38 @@ function Stat({ label, value, color }: { label: string; value: number; color: st
 /* ============================== Room Status Board ============================== */
 
 const STATUS_META: Record<RoomStatus, { bg: string; label: string; text: string }> = {
-  available: { bg: "bg-emerald-50 text-emerald-700 border-emerald-200", label: "Available", text: "text-emerald-700" },
-  occupied: { bg: "bg-blue-50 text-blue-700 border-blue-200", label: "Occupied", text: "text-blue-700" },
+  available: {
+    bg: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    label: "Available",
+    text: "text-emerald-700",
+  },
+  occupied: {
+    bg: "bg-blue-50 text-blue-700 border-blue-200",
+    label: "Occupied",
+    text: "text-blue-700",
+  },
   dirty: { bg: "bg-red-50 text-red-700 border-red-200", label: "Dirty", text: "text-red-700" },
-  in_progress: { bg: "bg-amber-50 text-amber-700 border-amber-200", label: "In Progress", text: "text-amber-700" },
+  in_progress: {
+    bg: "bg-amber-50 text-amber-700 border-amber-200",
+    label: "In Progress",
+    text: "text-amber-700",
+  },
   clean: { bg: "bg-sky-50 text-sky-700 border-sky-200", label: "Clean", text: "text-sky-700" },
-  inspected: { bg: "bg-emerald-50 text-emerald-700 border-emerald-300", label: "Inspected", text: "text-emerald-700" },
-  maintenance: { bg: "bg-slate-100 text-slate-600 border-slate-300", label: "Maintenance", text: "text-slate-600" },
-  blocked: { bg: "bg-slate-100 text-slate-600 border-slate-300", label: "Blocked", text: "text-slate-600" },
+  inspected: {
+    bg: "bg-emerald-50 text-emerald-700 border-emerald-300",
+    label: "Inspected",
+    text: "text-emerald-700",
+  },
+  maintenance: {
+    bg: "bg-slate-100 text-slate-600 border-slate-300",
+    label: "Maintenance",
+    text: "text-slate-600",
+  },
+  blocked: {
+    bg: "bg-slate-100 text-slate-600 border-slate-300",
+    label: "Blocked",
+    text: "text-slate-600",
+  },
 };
 
 function RoomStatusBoard() {
@@ -178,7 +208,8 @@ function RoomStatusBoard() {
   const [floorOpen, setFloorOpen] = useState(false);
 
   const floors = useMemo(() => [...new Set(rooms.map((r) => r.floor))].sort(), [rooms]);
-  const filtered = floorFilter === "all" ? rooms : rooms.filter((r) => r.floor === Number(floorFilter));
+  const filtered =
+    floorFilter === "all" ? rooms : rooms.filter((r) => r.floor === Number(floorFilter));
 
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
@@ -204,7 +235,10 @@ function RoomStatusBoard() {
               <div className="fixed inset-0 z-10" onClick={() => setFloorOpen(false)} />
               <div className="absolute left-0 top-full z-20 mt-1 min-w-[140px] overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg">
                 <button
-                  onClick={() => { setFloorFilter("all"); setFloorOpen(false); }}
+                  onClick={() => {
+                    setFloorFilter("all");
+                    setFloorOpen(false);
+                  }}
                   className={cn(
                     "w-full px-3 py-1.5 text-left text-xs transition hover:bg-muted",
                     floorFilter === "all" && "bg-primary/10 font-medium text-primary",
@@ -215,7 +249,10 @@ function RoomStatusBoard() {
                 {floors.map((f) => (
                   <button
                     key={f}
-                    onClick={() => { setFloorFilter(String(f)); setFloorOpen(false); }}
+                    onClick={() => {
+                      setFloorFilter(String(f));
+                      setFloorOpen(false);
+                    }}
                     className={cn(
                       "w-full px-3 py-1.5 text-left text-xs transition hover:bg-muted",
                       floorFilter === String(f) && "bg-primary/10 font-medium text-primary",
@@ -231,7 +268,22 @@ function RoomStatusBoard() {
         <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
           {Object.entries(STATUS_META).map(([k, v]) => (
             <span key={k} className="inline-flex items-center gap-1">
-              <span className={cn("h-2 w-2 rounded-full", k === "available" || k === "inspected" ? "bg-emerald-500" : k === "occupied" ? "bg-blue-500" : k === "dirty" ? "bg-red-500" : k === "in_progress" ? "bg-amber-500" : k === "clean" ? "bg-sky-500" : "bg-slate-500")} />
+              <span
+                className={cn(
+                  "h-2 w-2 rounded-full",
+                  k === "available" || k === "inspected"
+                    ? "bg-emerald-500"
+                    : k === "occupied"
+                      ? "bg-blue-500"
+                      : k === "dirty"
+                        ? "bg-red-500"
+                        : k === "in_progress"
+                          ? "bg-amber-500"
+                          : k === "clean"
+                            ? "bg-sky-500"
+                            : "bg-slate-500",
+                )}
+              />
               {v.label}
             </span>
           ))}
@@ -262,7 +314,12 @@ function RoomStatusBoard() {
                 </div>
               </div>
               <div className="mt-2 flex items-center justify-between">
-                <span className={cn("inline-flex rounded-md border px-2 py-0.5 text-[10px] font-semibold", meta.bg)}>
+                <span
+                  className={cn(
+                    "inline-flex rounded-md border px-2 py-0.5 text-[10px] font-semibold",
+                    meta.bg,
+                  )}
+                >
                   {meta.label}
                 </span>
                 {room.assignedTo && (
@@ -330,8 +387,9 @@ function TaskQueue() {
       if (statusFilter !== "all" && t.status !== statusFilter) return false;
       if (q) {
         const room = roomMap[t.roomId];
-        const hkName = t.assignedTo ? userMap[t.assignedTo] ?? t.assignedTo : "";
-        const search = `${t.id} ${t.roomId} ${TASK_TYPE_LABEL[t.type]} ${hkName} ${t.notes}`.toLowerCase();
+        const hkName = t.assignedTo ? (userMap[t.assignedTo] ?? t.assignedTo) : "";
+        const search =
+          `${t.id} ${t.roomId} ${TASK_TYPE_LABEL[t.type]} ${hkName} ${t.notes}`.toLowerCase();
         if (!search.includes(q.toLowerCase())) return false;
       }
       return true;
@@ -398,23 +456,53 @@ function TaskQueue() {
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="text-sm">{TASK_TYPE_LABEL[t.type]}</div>
-                    {t.notes && <div className="text-[10px] text-muted-foreground line-clamp-1">{t.notes}</div>}
+                    {t.notes && (
+                      <div className="text-[10px] text-muted-foreground line-clamp-1">
+                        {t.notes}
+                      </div>
+                    )}
                   </td>
                   <td className="px-3 py-2.5">
-                    <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1", p.color, p.ring, p.bg)}>
-                      <span className={cn("h-1.5 w-1.5 rounded-full", t.priority === "vip" ? "bg-destructive" : t.priority === "high" ? "bg-warning" : "bg-info")} />
-                      {t.priority === "vip" ? "VIP" : t.priority.charAt(0).toUpperCase() + t.priority.slice(1)}
+                    <span
+                      className={cn(
+                        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ring-1",
+                        p.color,
+                        p.ring,
+                        p.bg,
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full",
+                          t.priority === "vip"
+                            ? "bg-destructive"
+                            : t.priority === "high"
+                              ? "bg-warning"
+                              : "bg-info",
+                        )}
+                      />
+                      {t.priority === "vip"
+                        ? "VIP"
+                        : t.priority.charAt(0).toUpperCase() + t.priority.slice(1)}
                     </span>
                   </td>
                   <td className="px-3 py-2.5">
                     <AssigneeSelect task={t} hkUsers={hkUsers} userMap={userMap} />
                   </td>
                   <td className="px-3 py-2.5">
-                    <span className={cn("inline-flex rounded-md border px-2 py-0.5 text-[10px] font-medium", s.color, s.bg)}>
+                    <span
+                      className={cn(
+                        "inline-flex rounded-md border px-2 py-0.5 text-[10px] font-medium",
+                        s.color,
+                        s.bg,
+                      )}
+                    >
                       {s.label}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 text-xs tabular-nums text-muted-foreground">{t.due}</td>
+                  <td className="px-3 py-2.5 text-xs tabular-nums text-muted-foreground">
+                    {t.due}
+                  </td>
                   <td className="px-3 py-2.5 text-right">
                     <TaskActions task={t} onFlag={() => setShowFlag(t.id)} />
                   </td>
@@ -422,7 +510,11 @@ function TaskQueue() {
               );
             })}
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-3 py-10 text-center text-sm text-muted-foreground">No tasks match your filters.</td></tr>
+              <tr>
+                <td colSpan={7} className="px-3 py-10 text-center text-sm text-muted-foreground">
+                  No tasks match your filters.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
@@ -434,7 +526,15 @@ function TaskQueue() {
   );
 }
 
-function AssigneeSelect({ task, hkUsers, userMap }: { task: HousekeepingTask; hkUsers: { id: string; name: string }[]; userMap: Record<string, string> }) {
+function AssigneeSelect({
+  task,
+  hkUsers,
+  userMap,
+}: {
+  task: HousekeepingTask;
+  hkUsers: { id: string; name: string }[];
+  userMap: Record<string, string>;
+}) {
   return (
     <select
       value={task.assignedTo ?? ""}
@@ -443,7 +543,9 @@ function AssigneeSelect({ task, hkUsers, userMap }: { task: HousekeepingTask; hk
     >
       <option value="">Unassigned</option>
       {hkUsers.map((u) => (
-        <option key={u.id} value={u.id}>{u.name}</option>
+        <option key={u.id} value={u.id}>
+          {u.name}
+        </option>
       ))}
     </select>
   );
@@ -529,7 +631,9 @@ function CreateTaskDialog({ onClose }: { onClose: () => void }) {
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl">
         <div className="mb-4 flex items-start justify-between">
           <h3 className="font-display text-lg font-bold">Create Housekeeping Task</h3>
-          <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+          <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-muted">
+            <X className="h-4 w-4" />
+          </button>
         </div>
         <div className="space-y-3">
           <label className="block text-xs font-medium text-muted-foreground">Room *</label>
@@ -538,7 +642,11 @@ function CreateTaskDialog({ onClose }: { onClose: () => void }) {
               <SelectValue placeholder="Select room" />
             </SelectTrigger>
             <SelectContent>
-              {rooms.map((r) => <SelectItem key={r.id} value={r.id}>Room {r.id} (F{r.floor})</SelectItem>)}
+              {rooms.map((r) => (
+                <SelectItem key={r.id} value={r.id}>
+                  Room {r.id} (F{r.floor})
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
@@ -548,8 +656,18 @@ function CreateTaskDialog({ onClose }: { onClose: () => void }) {
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              {(["turnover", "deep_clean", "room_service", "linen_change", "inspection"] as HkTaskType[]).map((t) => (
-                <SelectItem key={t} value={t}>{TASK_TYPE_LABEL[t]}</SelectItem>
+              {(
+                [
+                  "turnover",
+                  "deep_clean",
+                  "room_service",
+                  "linen_change",
+                  "inspection",
+                ] as HkTaskType[]
+              ).map((t) => (
+                <SelectItem key={t} value={t}>
+                  {TASK_TYPE_LABEL[t]}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -573,19 +691,45 @@ function CreateTaskDialog({ onClose }: { onClose: () => void }) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">Unassigned</SelectItem>
-              {hkUsers.map((u) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
+              {hkUsers.map((u) => (
+                <SelectItem key={u.id} value={u.id}>
+                  {u.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
           <label className="block text-xs font-medium text-muted-foreground">Due time</label>
-          <input type="time" value={due} onChange={(e) => setDue(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+          <input
+            type="time"
+            value={due}
+            onChange={(e) => setDue(e.target.value)}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+          />
 
           <label className="block text-xs font-medium text-muted-foreground">Notes</label>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" placeholder="Optional notes…" />
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            placeholder="Optional notes…"
+          />
         </div>
         <div className="mt-6 flex justify-end gap-2">
-          <button onClick={onClose} className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted">Cancel</button>
-          <button onClick={submit} disabled={!roomId} className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">Create task</button>
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            disabled={!roomId}
+            className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            Create task
+          </button>
         </div>
       </div>
     </div>
@@ -614,11 +758,19 @@ function FlagIssueDialog({ taskId, onClose }: { taskId: string; onClose: () => v
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl">
         <div className="mb-4 flex items-start justify-between">
           <h3 className="font-display text-lg font-bold">Flag Issue — Room {task.roomId}</h3>
-          <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-muted"><X className="h-4 w-4" /></button>
+          <button onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:bg-muted">
+            <X className="h-4 w-4" />
+          </button>
         </div>
         <div className="space-y-3">
           <label className="block text-xs font-medium text-muted-foreground">Description *</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" placeholder="Broken fixture, damage, missing item…" />
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={3}
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            placeholder="Broken fixture, damage, missing item…"
+          />
 
           <label className="block text-xs font-medium text-muted-foreground">Severity</label>
           <Select value={severity} onValueChange={(v) => setSeverity(v as MaintSeverity)}>
@@ -634,8 +786,19 @@ function FlagIssueDialog({ taskId, onClose }: { taskId: string; onClose: () => v
           </Select>
         </div>
         <div className="mt-6 flex justify-end gap-2">
-          <button onClick={onClose} className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted">Cancel</button>
-          <button onClick={submit} disabled={!description} className="rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50">Flag issue</button>
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            disabled={!description}
+            className="rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+          >
+            Flag issue
+          </button>
         </div>
       </div>
     </div>
@@ -687,8 +850,12 @@ function InspectionsTab() {
               return (
                 <tr key={t.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3 font-semibold">{t.roomId}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{room ? `Floor ${room.floor}` : "—"}</td>
-                  <td className="px-4 py-3">{t.assignedTo ? userMap[t.assignedTo] ?? t.assignedTo : "Unassigned"}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {room ? `Floor ${room.floor}` : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {t.assignedTo ? (userMap[t.assignedTo] ?? t.assignedTo) : "Unassigned"}
+                  </td>
                   <td className="px-4 py-3">{TASK_TYPE_LABEL[t.type]}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
@@ -711,7 +878,11 @@ function InspectionsTab() {
               );
             })}
             {pending.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-10 text-center text-sm text-muted-foreground">All rooms inspected and ready.</td></tr>
+              <tr>
+                <td colSpan={5} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                  All rooms inspected and ready.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
@@ -751,7 +922,11 @@ function ScheduleTab() {
           <div key={s.user.id} className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-primary/40 to-success/40 text-sm font-bold text-foreground">
-                {s.user.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
+                {s.user.name
+                  .split(" ")
+                  .map((p) => p[0])
+                  .join("")
+                  .slice(0, 2)}
               </span>
               <div>
                 <div className="font-semibold">{s.user.name}</div>
@@ -782,11 +957,15 @@ function ScheduleTab() {
 
       {unassigned.length > 0 && (
         <div className="rounded-xl border border-border bg-card p-5">
-          <h3 className="font-display text-lg font-semibold">Unassigned Tasks ({unassigned.length})</h3>
+          <h3 className="font-display text-lg font-semibold">
+            Unassigned Tasks ({unassigned.length})
+          </h3>
           <ul className="mt-3 space-y-1">
             {unassigned.map((t) => (
               <li key={t.id} className="flex items-center justify-between text-sm">
-                <span>Room {t.roomId} — {TASK_TYPE_LABEL[t.type]}</span>
+                <span>
+                  Room {t.roomId} — {TASK_TYPE_LABEL[t.type]}
+                </span>
                 <span className="text-[11px] text-muted-foreground">Due {t.due}</span>
               </li>
             ))}
@@ -833,7 +1012,9 @@ function IssuesTab() {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Wrench className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">{open.length} open issue{open.length !== 1 ? "s" : ""}</span>
+        <span className="text-sm text-muted-foreground">
+          {open.length} open issue{open.length !== 1 ? "s" : ""}
+        </span>
       </div>
 
       {open.length > 0 && (
@@ -856,10 +1037,22 @@ function IssuesTab() {
                     <td className="px-4 py-3 font-semibold">{r.roomId}</td>
                     <td className="px-4 py-3">
                       <div>{r.description}</div>
-                      {r.task && <div className="text-[10px] text-muted-foreground">Task: {TASK_TYPE_LABEL[r.task.type]}</div>}
+                      {r.task && (
+                        <div className="text-[10px] text-muted-foreground">
+                          Task: {TASK_TYPE_LABEL[r.task.type]}
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={cn("inline-flex rounded-md px-2 py-0.5 text-[10px] font-medium", sm.bg, sm.color)}>{sm.label}</span>
+                      <span
+                        className={cn(
+                          "inline-flex rounded-md px-2 py-0.5 text-[10px] font-medium",
+                          sm.bg,
+                          sm.color,
+                        )}
+                      >
+                        {sm.label}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">{r.reportedByName}</td>
                     <td className="px-4 py-3 text-right">
@@ -878,7 +1071,11 @@ function IssuesTab() {
         </div>
       )}
 
-      {open.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">No open maintenance issues.</p>}
+      {open.length === 0 && (
+        <p className="py-8 text-center text-sm text-muted-foreground">
+          No open maintenance issues.
+        </p>
+      )}
 
       {resolved.length > 0 && (
         <details className="rounded-xl border border-border bg-card">
@@ -888,7 +1085,9 @@ function IssuesTab() {
           <div className="border-t border-border px-4 py-2">
             {resolved.map((r) => (
               <div key={r.id} className="flex items-center justify-between py-1.5 text-xs">
-                <span>Room {r.roomId} — {r.description}</span>
+                <span>
+                  Room {r.roomId} — {r.description}
+                </span>
                 <span className="text-success">Resolved</span>
               </div>
             ))}

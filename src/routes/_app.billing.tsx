@@ -1,8 +1,18 @@
 import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
-  Plus, Printer, Receipt, CreditCard, X, ArrowLeft, Ban,
-  Moon, CheckCircle2, AlertTriangle, Smartphone, Loader2,
+  Plus,
+  Printer,
+  Receipt,
+  CreditCard,
+  X,
+  ArrowLeft,
+  Ban,
+  Moon,
+  CheckCircle2,
+  AlertTriangle,
+  Smartphone,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -35,7 +45,13 @@ import {
 } from "@/lib/pms-store";
 import { ROLE_META, useRole, type Role } from "@/lib/role";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/billing")({
   head: () => ({ meta: [{ title: "Billing & Folio — Jambo PMS" }] }),
@@ -59,7 +75,12 @@ function useCanSettle(): boolean {
 }
 function useCanPostCharge(): boolean {
   const { role } = useRole();
-  return role === "Front Desk" || role === "Accountant" || role === "Owner / GM" || role === "POS / Cashier";
+  return (
+    role === "Front Desk" ||
+    role === "Accountant" ||
+    role === "Owner / GM" ||
+    role === "POS / Cashier"
+  );
 }
 function useCanVoid(): boolean {
   const { role } = useRole();
@@ -91,7 +112,9 @@ function FolioList() {
   const [q, setQ] = useState("");
 
   const totals = useMemo(() => {
-    const open = folios.filter((f) => f.status === "open" || f.status === "active" || f.status === "pending_settlement");
+    const open = folios.filter(
+      (f) => f.status === "open" || f.status === "active" || f.status === "pending_settlement",
+    );
     const totalOpen = open.reduce((s, f) => s + folioBalance(f.id), 0);
     return {
       open: totalOpen,
@@ -104,9 +127,12 @@ function FolioList() {
 
   const rows = useMemo(() => {
     const filterStatuses: FolioStatus[] =
-      tab === "active" ? ["open", "active", "pending_settlement"]
-        : tab === "pending" ? ["pending_settlement"]
-          : tab === "settled" ? ["settled", "closed", "void"]
+      tab === "active"
+        ? ["open", "active", "pending_settlement"]
+        : tab === "pending"
+          ? ["pending_settlement"]
+          : tab === "settled"
+            ? ["settled", "closed", "void"]
             : ["open", "active", "pending_settlement", "settled", "closed", "void"];
     return folios
       .filter((f) => filterStatuses.includes(f.status))
@@ -114,24 +140,26 @@ function FolioList() {
         const res = reservations.find((r) => r.id === f.reservationId);
         return { folio: f, reservation: res, balance: folioBalance(f.id) };
       })
-      .filter((r) =>
-        !q || `${r.folio.id} ${r.reservation?.guestName ?? ""} ${r.reservation?.id ?? ""}`
-          .toLowerCase()
-          .includes(q.toLowerCase()),
+      .filter(
+        (r) =>
+          !q ||
+          `${r.folio.id} ${r.reservation?.guestName ?? ""} ${r.reservation?.id ?? ""}`
+            .toLowerCase()
+            .includes(q.toLowerCase()),
       )
       .sort((a, b) => (a.folio.id < b.folio.id ? 1 : -1));
   }, [folios, reservations, tab, q]);
 
   const balanceColor = (bal: number) =>
-    bal <= 0 ? "text-success"
-      : bal > 0 && bal <= 500_000 ? "text-warning"
-        : "text-destructive";
+    bal <= 0 ? "text-success" : bal > 0 && bal <= 500_000 ? "text-warning" : "text-destructive";
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <header>
         <h1 className="font-display text-3xl font-bold tracking-tight">Billing &amp; Folio</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Folios, charges, payments and invoices.</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Folios, charges, payments and invoices.
+        </p>
       </header>
 
       <div className="grid gap-4 sm:grid-cols-4">
@@ -149,7 +177,9 @@ function FolioList() {
               onClick={() => setTab(t)}
               className={cn(
                 "rounded-md px-3 py-1.5 capitalize",
-                tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                tab === t
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {t === "active" ? "Active" : t === "pending" ? "Pending Settlement" : t}
@@ -181,16 +211,27 @@ function FolioList() {
               <tr
                 key={folio.id}
                 className="cursor-pointer hover:bg-muted/30"
-                onClick={() => navigate({ to: "/billing", search: { folio: folio.id, invoice: undefined } })}
+                onClick={() =>
+                  navigate({ to: "/billing", search: { folio: folio.id, invoice: undefined } })
+                }
               >
                 <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{folio.id}</td>
                 <td className="px-4 py-3 font-medium">{reservation?.guestName ?? "—"}</td>
-                <td className="px-4 py-3 text-muted-foreground">{reservation?.roomId ? `Room ${reservation.roomId}` : "—"}</td>
-                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{reservation?.id ?? "—"}</td>
+                <td className="px-4 py-3 text-muted-foreground">
+                  {reservation?.roomId ? `Room ${reservation.roomId}` : "—"}
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                  {reservation?.id ?? "—"}
+                </td>
                 <td className="px-4 py-3">
                   <FolioStatusBadge status={folio.status} />
                 </td>
-                <td className={cn("px-4 py-3 text-right font-semibold tabular-nums", balanceColor(balance))}>
+                <td
+                  className={cn(
+                    "px-4 py-3 text-right font-semibold tabular-nums",
+                    balanceColor(balance),
+                  )}
+                >
                   {fmtUGX(balance)}
                 </td>
               </tr>
@@ -258,7 +299,11 @@ function FolioDetail({ folioId }: { folioId: string }) {
     return (
       <div className="mx-auto max-w-3xl py-20 text-center">
         <p className="text-sm text-muted-foreground">Folio not found.</p>
-        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="mt-4 inline-block text-sm text-primary hover:underline">
+        <Link
+          to="/billing"
+          search={{ folio: undefined, invoice: undefined }}
+          className="mt-4 inline-block text-sm text-primary hover:underline"
+        >
           ← Back to billing
         </Link>
       </div>
@@ -272,15 +317,20 @@ function FolioDetail({ folioId }: { folioId: string }) {
   const folioPayments = payments.filter((p) => p.folioId === folioId);
   const totalCharges = folioCharges.filter((c) => !c.voided).reduce((s, c) => s + c.amount, 0);
   const voidedAmount = folioCharges.filter((c) => c.voided).reduce((s, c) => s + c.amount, 0);
-  const confirmedPayments = folioPayments.filter((p) => p.status === "confirmed").reduce((s, p) => s + p.amount, 0);
+  const confirmedPayments = folioPayments
+    .filter((p) => p.status === "confirmed")
+    .reduce((s, p) => s + p.amount, 0);
   const totalPayments = confirmedPayments;
   const balance = totalCharges - totalPayments;
 
-  const isOpen = folio.status === "open" || folio.status === "active" || folio.status === "pending_settlement";
+  const isOpen =
+    folio.status === "open" || folio.status === "active" || folio.status === "pending_settlement";
 
   const balanceColor =
-    balance <= 0 ? "text-success"
-      : balance > 0 && balance <= 500_000 ? "text-warning"
+    balance <= 0
+      ? "text-success"
+      : balance > 0 && balance <= 500_000
+        ? "text-warning"
         : "text-destructive";
 
   const handleVoidCharge = (chargeId: string, reason: string) => {
@@ -324,7 +374,11 @@ function FolioDetail({ folioId }: { folioId: string }) {
             <h2 className="font-display text-2xl font-bold">{folio.id}</h2>
             <p className="text-sm text-muted-foreground">
               {res ? (
-                <Link to="/reservations" search={{ q: res.id } as never} className="text-primary hover:underline">
+                <Link
+                  to="/reservations"
+                  search={{ q: res.id } as never}
+                  className="text-primary hover:underline"
+                >
                   Reservation {res.id}
                 </Link>
               ) : (
@@ -350,7 +404,9 @@ function FolioDetail({ folioId }: { folioId: string }) {
             )}
           </div>
           <div className="text-right">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Outstanding balance</p>
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
+              Outstanding balance
+            </p>
             <p className={cn("text-3xl font-bold", balanceColor)}>{fmtUGX(balance)}</p>
             {balance > 0 && (
               <p className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-warning">
@@ -387,7 +443,9 @@ function FolioDetail({ folioId }: { folioId: string }) {
           </div>
           <ul className="divide-y divide-border">
             {folioCharges.length === 0 && (
-              <li className="px-5 py-10 text-center text-xs text-muted-foreground">No charges yet.</li>
+              <li className="px-5 py-10 text-center text-xs text-muted-foreground">
+                No charges yet.
+              </li>
             )}
             {folioCharges.map((c) => (
               <li
@@ -415,7 +473,9 @@ function FolioDetail({ folioId }: { folioId: string }) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={cn("text-sm font-semibold tabular-nums", c.voided && "line-through")}>
+                  <span
+                    className={cn("text-sm font-semibold tabular-nums", c.voided && "line-through")}
+                  >
                     {fmtUGX(c.amount)}
                   </span>
                   {!c.voided && isOpen && canVoid && (
@@ -447,7 +507,9 @@ function FolioDetail({ folioId }: { folioId: string }) {
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
             <div>
               <h3 className="text-sm font-semibold">Payments</h3>
-              <p className="text-[11px] text-muted-foreground">{folioPayments.length} transactions</p>
+              <p className="text-[11px] text-muted-foreground">
+                {folioPayments.length} transactions
+              </p>
             </div>
             {isOpen && (
               <button
@@ -460,20 +522,28 @@ function FolioDetail({ folioId }: { folioId: string }) {
           </div>
           <ul className="divide-y divide-border">
             {folioPayments.length === 0 && (
-              <li className="px-5 py-10 text-center text-xs text-muted-foreground">No payments yet.</li>
+              <li className="px-5 py-10 text-center text-xs text-muted-foreground">
+                No payments yet.
+              </li>
             )}
             {folioPayments.map((p) => (
               <li key={p.id} className="flex items-start justify-between px-5 py-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
-                      {p.refundOf ? "Refund (" + PAYMENT_METHOD_LABEL[p.method] + ")" : PAYMENT_METHOD_LABEL[p.method]}
+                      {p.refundOf
+                        ? "Refund (" + PAYMENT_METHOD_LABEL[p.method] + ")"
+                        : PAYMENT_METHOD_LABEL[p.method]}
                     </span>
                     {p.status === "pending" && (
-                      <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning">Pending</span>
+                      <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning">
+                        Pending
+                      </span>
                     )}
                     {p.status === "failed" && (
-                      <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">Failed</span>
+                      <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
+                        Failed
+                      </span>
                     )}
                   </div>
                   <div className="text-[11px] text-muted-foreground">
@@ -491,15 +561,21 @@ function FolioDetail({ folioId }: { folioId: string }) {
                           setConfirmingId(p.id);
                           const res = await simulateGatewayConfirm(p.id, actor, actorRole);
                           setConfirmingId(null);
-                          if (res.ok) toast.success(res.message); else toast.error(res.message);
+                          if (res.ok) toast.success(res.message);
+                          else toast.error(res.message);
                         }}
                         className="inline-flex items-center gap-1 rounded bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success hover:bg-success/25 disabled:opacity-50"
                       >
-                        {confirmingId === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                        {confirmingId === p.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : null}
                         {confirmingId === p.id ? "Confirming…" : "Confirm"}
                       </button>
                       <button
-                        onClick={() => { const r = prompt("Failure reason:"); if (r) failPayment(p.id, r, actor, actorRole); }}
+                        onClick={() => {
+                          const r = prompt("Failure reason:");
+                          if (r) failPayment(p.id, r, actor, actorRole);
+                        }}
                         className="rounded bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive hover:bg-destructive/25"
                       >
                         Fail
@@ -528,8 +604,14 @@ function FolioDetail({ folioId }: { folioId: string }) {
                     </div>
                   )}
                 </div>
-                <span className={"text-sm font-semibold tabular-nums " + (p.refundOf ? "text-destructive" : "text-success")}>
-                  {p.refundOf ? "" : "−"}{fmtUGX(p.amount)}
+                <span
+                  className={
+                    "text-sm font-semibold tabular-nums " +
+                    (p.refundOf ? "text-destructive" : "text-success")
+                  }
+                >
+                  {p.refundOf ? "" : "−"}
+                  {fmtUGX(p.amount)}
                 </span>
               </li>
             ))}
@@ -555,7 +637,8 @@ function FolioDetail({ folioId }: { folioId: string }) {
       {canSettle && isOpen && balance > 0 && (
         <div className="rounded-xl border border-amber-200/30 bg-amber-500/5 p-4 text-center">
           <p className="text-sm text-amber-600">
-            Outstanding balance of <strong>{fmtUGX(balance)}</strong> must be cleared before checkout.
+            Outstanding balance of <strong>{fmtUGX(balance)}</strong> must be cleared before
+            checkout.
           </p>
           <p className="mt-0.5 text-[11px] text-amber-500/70">
             Record a payment above to reduce the balance.
@@ -564,11 +647,7 @@ function FolioDetail({ folioId }: { folioId: string }) {
       )}
 
       {showCharge && (
-        <AddChargeDialog
-          folioId={folio.id}
-          actor={actor}
-          onClose={() => setShowCharge(false)}
-        />
+        <AddChargeDialog folioId={folio.id} actor={actor} onClose={() => setShowCharge(false)} />
       )}
       {showPay && (
         <AddPaymentDialog
@@ -616,7 +695,10 @@ function FolioDetail({ folioId }: { folioId: string }) {
           folio={folio}
           tenant={tenant}
           onClose={() => setShowReceipt(null)}
-          onSms={() => { setShowSmsReceipt(showReceipt); setShowReceipt(null); }}
+          onSms={() => {
+            setShowSmsReceipt(showReceipt);
+            setShowReceipt(null);
+          }}
         />
       )}
       {showSmsReceipt && (
@@ -678,7 +760,9 @@ function AddChargeDialog({
             </SelectTrigger>
             <SelectContent>
               {(Object.entries(CHARGE_TYPE_LABEL) as [FolioChargeType, string][]).map(([k, l]) => (
-                <SelectItem key={k} value={k}>{l}</SelectItem>
+                <SelectItem key={k} value={k}>
+                  {l}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -701,7 +785,12 @@ function AddChargeDialog({
           />
         </Field>
       </div>
-      <DialogFooter onCancel={onClose} onSubmit={submit} submitLabel="Post charge" disabled={!description || !amount} />
+      <DialogFooter
+        onCancel={onClose}
+        onSubmit={submit}
+        submitLabel="Post charge"
+        disabled={!description || !amount}
+      />
     </Modal>
   );
 }
@@ -725,7 +814,8 @@ function AddPaymentDialog({
 
   const payAmount = Number(amount) || 0;
   const tenderedAmount = Number(tendered) || 0;
-  const changeDue = method === "cash" && tenderedAmount > payAmount ? tenderedAmount - payAmount : 0;
+  const changeDue =
+    method === "cash" && tenderedAmount > payAmount ? tenderedAmount - payAmount : 0;
   const insufficientTender = method === "cash" && tenderedAmount > 0 && tenderedAmount < payAmount;
 
   const resetTendered = () => {
@@ -751,13 +841,21 @@ function AddPaymentDialog({
     <Modal title="Record payment" onClose={onClose}>
       <div className="space-y-4">
         <Field label="Method">
-          <Select value={method} onValueChange={(v) => { setMethod(v as PaymentMethod); resetTendered(); }}>
+          <Select
+            value={method}
+            onValueChange={(v) => {
+              setMethod(v as PaymentMethod);
+              resetTendered();
+            }}
+          >
             <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
               <SelectValue placeholder="Select method" />
             </SelectTrigger>
             <SelectContent>
               {(Object.entries(PAYMENT_METHOD_LABEL) as [PaymentMethod, string][]).map(([k, l]) => (
-                <SelectItem key={k} value={k}>{l}</SelectItem>
+                <SelectItem key={k} value={k}>
+                  {l}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -789,7 +887,8 @@ function AddPaymentDialog({
             )}
             {insufficientTender && (
               <p className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">
-                Amount tendered (UGX {tenderedAmount.toLocaleString()}) is less than the payment amount (UGX {payAmount.toLocaleString()})
+                Amount tendered (UGX {tenderedAmount.toLocaleString()}) is less than the payment
+                amount (UGX {payAmount.toLocaleString()})
               </p>
             )}
           </>
@@ -814,7 +913,8 @@ function AddPaymentDialog({
         </Field>
         {balance > 0 && (
           <p className="rounded-md border border-info/20 bg-info/10 px-3 py-2 text-[11px] text-info">
-            Current balance: <strong>{fmtUGX(balance)}</strong>. Folio auto-settles when the balance reaches zero.
+            Current balance: <strong>{fmtUGX(balance)}</strong>. Folio auto-settles when the balance
+            reaches zero.
           </p>
         )}
         {balance <= 0 && (
@@ -823,7 +923,12 @@ function AddPaymentDialog({
           </p>
         )}
       </div>
-      <DialogFooter onCancel={onClose} onSubmit={submit} submitLabel="Record payment" disabled={!amount || insufficientTender} />
+      <DialogFooter
+        onCancel={onClose}
+        onSubmit={submit}
+        submitLabel="Record payment"
+        disabled={!amount || insufficientTender}
+      />
     </Modal>
   );
 }
@@ -846,7 +951,9 @@ function VoidChargeDialog({
       <div className="space-y-3">
         <div className="rounded-lg bg-muted/30 p-3 text-sm">
           <div className="font-medium">{charge.description}</div>
-          <div className="text-muted-foreground">{fmtUGX(charge.amount)} · {CHARGE_TYPE_LABEL[charge.type]} · {charge.date}</div>
+          <div className="text-muted-foreground">
+            {fmtUGX(charge.amount)} · {CHARGE_TYPE_LABEL[charge.type]} · {charge.date}
+          </div>
         </div>
         <Field label="Void reason (required)">
           <textarea
@@ -858,7 +965,8 @@ function VoidChargeDialog({
           />
         </Field>
         <p className="text-[11px] text-muted-foreground">
-          Voiding does not delete the charge. A balancing void entry is recorded on the folio for audit trail purposes.
+          Voiding does not delete the charge. A balancing void entry is recorded on the folio for
+          audit trail purposes.
         </p>
       </div>
       <DialogFooter
@@ -896,8 +1004,12 @@ function SettlementDialog({
       <div className="space-y-4">
         <div className="rounded-lg border border-success/20 bg-success/5 p-4 text-center">
           <CheckCircle2 className="mx-auto h-8 w-8 text-success" />
-          <p className="mt-2 text-sm font-medium">Folio balance is <strong>{fmtUGX(balance)}</strong></p>
-          <p className="text-[11px] text-muted-foreground">The balance is fully settled. Closing this folio will generate an invoice.</p>
+          <p className="mt-2 text-sm font-medium">
+            Folio balance is <strong>{fmtUGX(balance)}</strong>
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            The balance is fully settled. Closing this folio will generate an invoice.
+          </p>
         </div>
         <label className="flex items-start gap-2">
           <input
@@ -937,9 +1049,18 @@ function RefundDialog({
   const [error, setError] = useState("");
 
   const handleRefund = () => {
-    if (refundAmount <= 0) { setError("Refund amount must be positive."); return; }
-    if (refundAmount > payment.amount) { setError("Refund amount cannot exceed the original payment."); return; }
-    if (!reason.trim()) { setError("Please provide a reason for the refund."); return; }
+    if (refundAmount <= 0) {
+      setError("Refund amount must be positive.");
+      return;
+    }
+    if (refundAmount > payment.amount) {
+      setError("Refund amount cannot exceed the original payment.");
+      return;
+    }
+    if (!reason.trim()) {
+      setError("Please provide a reason for the refund.");
+      return;
+    }
     processRefund(payment.id, refundAmount, reason.trim(), actor, actorRole);
     onClose();
   };
@@ -949,13 +1070,18 @@ function RefundDialog({
       <div className="space-y-4">
         <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm">
           <p className="font-medium">{PAYMENT_METHOD_LABEL[payment.method]}</p>
-          <p className="text-muted-foreground">Original: {fmtUGX(payment.amount)} · {payment.date}</p>
+          <p className="text-muted-foreground">
+            Original: {fmtUGX(payment.amount)} · {payment.date}
+          </p>
         </div>
         <Field label="Refund amount (UGX)">
           <input
             type="number"
             value={refundAmount}
-            onChange={(e) => { setRefundAmount(Number(e.target.value)); setError(""); }}
+            onChange={(e) => {
+              setRefundAmount(Number(e.target.value));
+              setError("");
+            }}
             min={1}
             max={payment.amount}
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
@@ -964,17 +1090,27 @@ function RefundDialog({
         <Field label="Reason for refund">
           <textarea
             value={reason}
-            onChange={(e) => { setReason(e.target.value); setError(""); }}
+            onChange={(e) => {
+              setReason(e.target.value);
+              setError("");
+            }}
             placeholder="e.g. Guest overpaid, duplicate charge, service not rendered"
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
             rows={3}
           />
         </Field>
         {error && (
-          <p className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">{error}</p>
+          <p className="rounded-md border border-destructive/20 bg-destructive/10 px-3 py-2 text-[11px] text-destructive">
+            {error}
+          </p>
         )}
       </div>
-      <DialogFooter onCancel={onClose} onSubmit={handleRefund} submitLabel="Process refund" disabled={!reason.trim() || refundAmount <= 0} />
+      <DialogFooter
+        onCancel={onClose}
+        onSubmit={handleRefund}
+        submitLabel="Process refund"
+        disabled={!reason.trim() || refundAmount <= 0}
+      />
     </Modal>
   );
 }
@@ -1007,7 +1143,10 @@ function ReceiptDialog({
       <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-2xl">
         <div className="mb-4 flex items-start justify-between">
           <h3 className="font-display text-lg font-bold">Payment Receipt</h3>
-          <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+          <button
+            onClick={onClose}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -1017,7 +1156,9 @@ function ReceiptDialog({
           <div className="border-b border-border pb-3 text-center">
             <p className="font-display text-lg font-bold">{tenant.name}</p>
             <p className="text-[11px] text-muted-foreground">{tenant.address}</p>
-            <p className="text-[11px] text-muted-foreground">{tenant.phone} · {tenant.email}</p>
+            <p className="text-[11px] text-muted-foreground">
+              {tenant.phone} · {tenant.email}
+            </p>
             <p className="text-[11px] text-muted-foreground">TIN: {tenant.tin}</p>
           </div>
 
@@ -1037,8 +1178,15 @@ function ReceiptDialog({
           <div className="mt-3 border-t border-border pt-3">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Guest</p>
             <p className="text-sm font-medium">{res?.guestName ?? "—"}</p>
-            <p className="text-xs text-muted-foreground">{res?.guestEmail}{guestPhone ? ` · ${guestPhone}` : ""}</p>
-            {res && <p className="text-xs text-muted-foreground">{res.checkIn} → {res.checkOut} · {res.roomId ? `Room ${res.roomId}` : "—"}</p>}
+            <p className="text-xs text-muted-foreground">
+              {res?.guestEmail}
+              {guestPhone ? ` · ${guestPhone}` : ""}
+            </p>
+            {res && (
+              <p className="text-xs text-muted-foreground">
+                {res.checkIn} → {res.checkOut} · {res.roomId ? `Room ${res.roomId}` : "—"}
+              </p>
+            )}
           </div>
 
           {/* Payment details */}
@@ -1046,12 +1194,22 @@ function ReceiptDialog({
             <div>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Payment</p>
               <p className="text-sm font-medium">{label}</p>
-              {payment.reference && <p className="text-xs text-muted-foreground">Ref: {payment.reference}</p>}
-              {payment.providerRef && <p className="text-xs text-muted-foreground">Provider: {payment.providerRef}</p>}
+              {payment.reference && (
+                <p className="text-xs text-muted-foreground">Ref: {payment.reference}</p>
+              )}
+              {payment.providerRef && (
+                <p className="text-xs text-muted-foreground">Provider: {payment.providerRef}</p>
+              )}
             </div>
             <div className="text-right">
-              <p className={cn("text-lg font-bold tabular-nums", payment.refundOf ? "text-destructive" : "text-success")}>
-                {payment.refundOf ? "" : "−"}{fmtUGX(Math.abs(payment.amount))}
+              <p
+                className={cn(
+                  "text-lg font-bold tabular-nums",
+                  payment.refundOf ? "text-destructive" : "text-success",
+                )}
+              >
+                {payment.refundOf ? "" : "−"}
+                {fmtUGX(Math.abs(payment.amount))}
               </p>
               {payment.refundOf && payment.refundReason && (
                 <p className="text-[10px] text-destructive">{payment.refundReason}</p>
@@ -1139,14 +1297,11 @@ function SmsDialog({
           <p className="text-[11px] font-medium text-muted-foreground">Message preview</p>
           <p className="mt-1 text-xs">
             Dear guest, thank you for your payment of {fmtUGX(Math.abs(payment.amount))} via{" "}
-            {PAYMENT_METHOD_LABEL[payment.method]}. Receipt: {payment.receiptId ?? payment.id}. — {tenant.name}
+            {PAYMENT_METHOD_LABEL[payment.method]}. Receipt: {payment.receiptId ?? payment.id}. —{" "}
+            {tenant.name}
           </p>
         </div>
-        <DialogFooter
-          onCancel={onClose}
-          onSubmit={handleSend}
-          submitLabel="Send SMS"
-        />
+        <DialogFooter onCancel={onClose} onSubmit={handleSend} submitLabel="Send SMS" />
       </div>
     </Modal>
   );
@@ -1198,10 +1353,13 @@ function NightAuditDialog({
               <span className="font-medium">End of day — {today}</span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              {toCharge.length} of {activeFolios.length} active folios will receive tonight's room charge.
+              {toCharge.length} of {activeFolios.length} active folios will receive tonight's room
+              charge.
             </p>
             {toCharge.length === 0 && activeFolios.length > 0 && (
-              <p className="mt-1 text-[11px] text-success">All folios already charged for tonight.</p>
+              <p className="mt-1 text-[11px] text-success">
+                All folios already charged for tonight.
+              </p>
             )}
           </div>
           {toCharge.length > 0 && (
@@ -1209,16 +1367,24 @@ function NightAuditDialog({
               {toCharge.map((f) => {
                 const res = reservations.find((r) => r.id === f.reservationId);
                 return (
-                  <li key={f.id} className="flex justify-between rounded px-2 py-1 hover:bg-muted/30">
-                    <span>{f.id} — {res?.guestName ?? "—"}</span>
-                    <span className="font-medium tabular-nums">{res ? fmtUGX(res.ratePerNight) : ""}</span>
+                  <li
+                    key={f.id}
+                    className="flex justify-between rounded px-2 py-1 hover:bg-muted/30"
+                  >
+                    <span>
+                      {f.id} — {res?.guestName ?? "—"}
+                    </span>
+                    <span className="font-medium tabular-nums">
+                      {res ? fmtUGX(res.ratePerNight) : ""}
+                    </span>
                   </li>
                 );
               })}
             </ul>
           )}
           <p className="text-[11px] text-muted-foreground">
-            Once a business day is closed via Night Audit it cannot be reopened. Only adjustments can be posted.
+            Once a business day is closed via Night Audit it cannot be reopened. Only adjustments
+            can be posted.
           </p>
           {running && (
             <div className="flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground">
@@ -1269,7 +1435,9 @@ function InvoiceView({ folioId }: { folioId: string }) {
     : Math.round(subtotal * effectiveVatRate);
   const net = isInclusive ? subtotal - vat : subtotal;
   const gross = isInclusive ? subtotal : subtotal + vat;
-  const paid = folioPayments.filter((p) => p.status === "confirmed").reduce((s, p) => s + p.amount, 0);
+  const paid = folioPayments
+    .filter((p) => p.status === "confirmed")
+    .reduce((s, p) => s + p.amount, 0);
   const due = gross - paid;
 
   return (
@@ -1294,13 +1462,19 @@ function InvoiceView({ folioId }: { folioId: string }) {
           <div>
             <h1 className="font-display text-2xl font-bold tracking-tight">{tenant.name}</h1>
             <p className="text-xs text-muted-foreground">{tenant.address}</p>
-            <p className="text-xs text-muted-foreground">{tenant.phone} · {tenant.email}</p>
+            <p className="text-xs text-muted-foreground">
+              {tenant.phone} · {tenant.email}
+            </p>
             <p className="text-xs text-muted-foreground">TIN: {tenant.tin}</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Tax Invoice</p>
+            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
+              Tax Invoice
+            </p>
             <p className="font-display text-xl font-bold">{folio.id.replace("F-", "INV-")}</p>
-            <p className="text-xs text-muted-foreground">Issued: {new Date().toISOString().slice(0, 10)}</p>
+            <p className="text-xs text-muted-foreground">
+              Issued: {new Date().toISOString().slice(0, 10)}
+            </p>
             <p className="mt-1">
               <FolioStatusBadgeMini status={folio.status} />
             </p>
@@ -1316,8 +1490,12 @@ function InvoiceView({ folioId }: { folioId: string }) {
           </div>
           <div className="sm:text-right">
             <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Stay</p>
-            <p className="text-sm font-semibold">{res?.checkIn} → {res?.checkOut}</p>
-            <p className="text-xs text-muted-foreground">Room {res?.roomId ?? "—"} · Reservation {res?.id}</p>
+            <p className="text-sm font-semibold">
+              {res?.checkIn} → {res?.checkOut}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Room {res?.roomId ?? "—"} · Reservation {res?.id}
+            </p>
             {res?.vatTreatment && (
               <p className="mt-1 text-[10px] text-muted-foreground">
                 Prices are VAT {isInclusive ? "inclusive" : "exclusive"}
@@ -1361,11 +1539,14 @@ function InvoiceView({ folioId }: { folioId: string }) {
           <div className="border-t border-border pt-1.5">
             <Row label="Total" value={fmtUGX(gross)} bold />
           </div>
-          {paid > 0 && (
-            <Row label="Paid" value={"−" + fmtUGX(paid)} tone="success" />
-          )}
+          {paid > 0 && <Row label="Paid" value={"−" + fmtUGX(paid)} tone="success" />}
           <div className="border-t border-border pt-1.5">
-            <Row label="Balance due" value={fmtUGX(Math.max(0, due))} bold tone={due > 0 ? "warning" : "success"} />
+            <Row
+              label="Balance due"
+              value={fmtUGX(Math.max(0, due))}
+              bold
+              tone={due > 0 ? "warning" : "success"}
+            />
           </div>
         </div>
 
@@ -1380,8 +1561,21 @@ function InvoiceView({ folioId }: { folioId: string }) {
 
 /* ============================== Shared helpers ============================== */
 
-function Stat({ label, value, tone }: { label: string; value: string; tone?: "success" | "warning" }) {
-  const barColor = tone === "success" ? "var(--color-success)" : tone === "warning" ? "var(--color-warning)" : "var(--color-primary)";
+function Stat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone?: "success" | "warning";
+}) {
+  const barColor =
+    tone === "success"
+      ? "var(--color-success)"
+      : tone === "warning"
+        ? "var(--color-warning)"
+        : "var(--color-primary)";
   return (
     <div className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
       <div
@@ -1390,19 +1584,38 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: "su
       />
       <div className="pl-1">
         <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div className={cn("mt-1 text-2xl font-bold", tone === "success" && "text-success", tone === "warning" && "text-warning")}>{value}</div>
+        <div
+          className={cn(
+            "mt-1 text-2xl font-bold",
+            tone === "success" && "text-success",
+            tone === "warning" && "text-warning",
+          )}
+        >
+          {value}
+        </div>
       </div>
     </div>
   );
 }
 
-function Modal({ title, children, onClose }: { title: string; children: React.ReactNode; onClose: () => void }) {
+function Modal({
+  title,
+  children,
+  onClose,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
   return (
     <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl">
         <div className="mb-4 flex items-start justify-between">
           <h3 className="font-display text-lg font-bold">{title}</h3>
-          <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+          <button
+            onClick={onClose}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -1434,7 +1647,10 @@ function DialogFooter({
 }) {
   return (
     <div className="mt-6 flex items-center justify-end gap-2">
-      <button onClick={onCancel} className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted">
+      <button
+        onClick={onCancel}
+        className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted"
+      >
         Cancel
       </button>
       <button
@@ -1448,10 +1664,22 @@ function DialogFooter({
   );
 }
 
-function Row({ label, value, bold, tone }: { label: string; value: string; bold?: boolean; tone?: "success" | "warning" }) {
+function Row({
+  label,
+  value,
+  bold,
+  tone,
+}: {
+  label: string;
+  value: string;
+  bold?: boolean;
+  tone?: "success" | "warning";
+}) {
   return (
     <div className="flex justify-between">
-      <span className={cn("text-muted-foreground", bold && "font-semibold text-foreground")}>{label}</span>
+      <span className={cn("text-muted-foreground", bold && "font-semibold text-foreground")}>
+        {label}
+      </span>
       <span
         className={cn(
           "tabular-nums",

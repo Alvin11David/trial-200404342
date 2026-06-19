@@ -14,7 +14,13 @@ import {
   TicketCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/pos/orders")({
   head: () => ({ meta: [{ title: "POS Orders — Jambo ERP" }] }),
@@ -301,10 +307,7 @@ function POSOrdersPage() {
             </SelectContent>
           </Select>
 
-          <Select
-            value={cashierFilter}
-            onValueChange={setCashierFilter}
-          >
+          <Select value={cashierFilter} onValueChange={setCashierFilter}>
             <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
               <SelectValue placeholder="All cashiers" />
             </SelectTrigger>
@@ -317,10 +320,7 @@ function POSOrdersPage() {
             </SelectContent>
           </Select>
 
-          <Select
-            value={tableFilter}
-            onValueChange={setTableFilter}
-          >
+          <Select value={tableFilter} onValueChange={setTableFilter}>
             <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
               <SelectValue placeholder="All tables" />
             </SelectTrigger>

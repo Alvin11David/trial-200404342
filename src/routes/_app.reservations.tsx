@@ -1,9 +1,27 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Eye, Filter, LogIn, LogOut, Plus, Search, X, Pencil, CalendarDays, Table2, ChevronDown } from "lucide-react";
+import {
+  Eye,
+  Filter,
+  LogIn,
+  LogOut,
+  Plus,
+  Search,
+  X,
+  Pencil,
+  CalendarDays,
+  Table2,
+  ChevronDown,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -106,7 +124,9 @@ function ReservationsPage() {
         const q = query.toLowerCase();
         const matchGuest = guests.some(
           (g) =>
-            (g.name.toLowerCase().includes(q) || g.email.toLowerCase().includes(q) || g.phone.includes(q)) &&
+            (g.name.toLowerCase().includes(q) ||
+              g.email.toLowerCase().includes(q) ||
+              g.phone.includes(q)) &&
             g.email === r.guestEmail,
         );
         if (
@@ -172,7 +192,9 @@ function ReservationsPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Reservations</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage bookings, check-ins and check-outs.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage bookings, check-ins and check-outs.
+          </p>
         </div>
       </div>
 
@@ -184,10 +206,18 @@ function ReservationsPage() {
           { label: "Checked Out", value: counts.checked_out ?? 0, bar: "var(--color-info)" },
           { label: "Cancelled", value: counts.cancelled ?? 0, bar: "var(--color-destructive)" },
         ].map((s) => (
-          <div key={s.label} className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
-            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: s.bar, boxShadow: `0 0 10px ${s.bar}` }} />
+          <div
+            key={s.label}
+            className="relative overflow-hidden rounded-xl border border-border bg-card p-4"
+          >
+            <div
+              className="absolute left-0 top-0 h-full w-[3px]"
+              style={{ background: s.bar, boxShadow: `0 0 10px ${s.bar}` }}
+            />
             <div className="pl-1">
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                {s.label}
+              </div>
               <div className="mt-1 text-2xl font-bold">{s.value}</div>
             </div>
           </div>
@@ -205,7 +235,9 @@ function ReservationsPage() {
                 onClick={() => setTab(t.key)}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-sm font-medium transition",
-                  active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                  active
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {t.label}
@@ -219,7 +251,9 @@ function ReservationsPage() {
             onClick={() => setViewMode("table")}
             className={cn(
               "rounded-md p-1.5 text-xs transition",
-              viewMode === "table" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
+              viewMode === "table"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground",
             )}
             title="Table view"
           >
@@ -229,7 +263,9 @@ function ReservationsPage() {
             onClick={() => setViewMode("calendar")}
             className={cn(
               "rounded-md p-1.5 text-xs transition",
-              viewMode === "calendar" ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
+              viewMode === "calendar"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground",
             )}
             title="Calendar view"
           >
@@ -268,7 +304,9 @@ function ReservationsPage() {
               onClick={() => setRoomTypeOpen(!roomTypeOpen)}
               className="flex items-center gap-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
             >
-              {roomType === "All" ? "All room types" : roomTypes.find((t) => t.id === roomType)?.name ?? roomType}
+              {roomType === "All"
+                ? "All room types"
+                : (roomTypes.find((t) => t.id === roomType)?.name ?? roomType)}
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             {roomTypeOpen && (
@@ -276,7 +314,10 @@ function ReservationsPage() {
                 <div className="fixed inset-0 z-10" onClick={() => setRoomTypeOpen(false)} />
                 <div className="absolute left-0 top-full z-20 mt-1 min-w-[160px] overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg">
                   <button
-                    onClick={() => { setRoomType("All"); setRoomTypeOpen(false); }}
+                    onClick={() => {
+                      setRoomType("All");
+                      setRoomTypeOpen(false);
+                    }}
                     className={cn(
                       "w-full px-3 py-2 text-left text-sm transition hover:bg-muted",
                       roomType === "All" && "bg-primary/10 font-medium text-primary",
@@ -287,7 +328,10 @@ function ReservationsPage() {
                   {roomTypes.map((t) => (
                     <button
                       key={t.id}
-                      onClick={() => { setRoomType(t.id); setRoomTypeOpen(false); }}
+                      onClick={() => {
+                        setRoomType(t.id);
+                        setRoomTypeOpen(false);
+                      }}
                       className={cn(
                         "w-full px-3 py-2 text-left text-sm transition hover:bg-muted",
                         roomType === t.id && "bg-primary/10 font-medium text-primary",
@@ -322,16 +366,31 @@ function ReservationsPage() {
               />
             </h3>
             <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-              <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-success/30" /> Available</span>
-              <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-info/30" /> Reserved</span>
-              <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-success/40" /> Checked in</span>
-              <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-sm bg-destructive/20" /> Blocked</span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2.5 w-2.5 rounded-sm bg-success/30" /> Available
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2.5 w-2.5 rounded-sm bg-info/30" /> Reserved
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2.5 w-2.5 rounded-sm bg-success/40" /> Checked in
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <span className="h-2.5 w-2.5 rounded-sm bg-destructive/20" /> Blocked
+              </span>
             </div>
           </div>
           <div className="overflow-x-auto">
-            <div className="grid" style={{ gridTemplateColumns: `120px repeat(${calendarCells.days.length}, minmax(32px,1fr))` }}>
+            <div
+              className="grid"
+              style={{
+                gridTemplateColumns: `120px repeat(${calendarCells.days.length}, minmax(32px,1fr))`,
+              }}
+            >
               {/* Header row */}
-              <div className="sticky left-0 z-10 border-r border-border bg-card px-3 py-2 text-[10px] font-semibold uppercase text-muted-foreground">Room</div>
+              <div className="sticky left-0 z-10 border-r border-border bg-card px-3 py-2 text-[10px] font-semibold uppercase text-muted-foreground">
+                Room
+              </div>
               {calendarCells.days.map((day) => {
                 const dt = new Date(day + "T00:00:00");
                 return (
@@ -339,11 +398,15 @@ function ReservationsPage() {
                     key={day}
                     className={cn(
                       "border-r border-border px-1 py-2 text-center text-[10px] font-medium",
-                      dt.getDay() === 0 || dt.getDay() === 6 ? "text-destructive/60" : "text-muted-foreground",
+                      dt.getDay() === 0 || dt.getDay() === 6
+                        ? "text-destructive/60"
+                        : "text-muted-foreground",
                     )}
                   >
                     <div>{dt.getDate()}</div>
-                    <div className="text-[8px] uppercase">{dt.toLocaleDateString("en", { weekday: "short" })}</div>
+                    <div className="text-[8px] uppercase">
+                      {dt.toLocaleDateString("en", { weekday: "short" })}
+                    </div>
                   </div>
                 );
               })}
@@ -426,7 +489,11 @@ function ReservationsPage() {
                             className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary hover:bg-primary/20"
                             title="View guest profile"
                           >
-                            {r.guestName.split(" ").map((p) => p[0]).join("").slice(0, 2)}
+                            {r.guestName
+                              .split(" ")
+                              .map((p) => p[0])
+                              .join("")
+                              .slice(0, 2)}
                           </Link>
                           <div>
                             <div className="font-medium">{r.guestName}</div>
@@ -439,12 +506,21 @@ function ReservationsPage() {
                         <div className="text-[11px] text-muted-foreground">{rt?.name}</div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="font-medium">{r.checkIn} → {r.checkOut}</div>
-                        <div className="text-[11px] text-muted-foreground">{nights} night{nights !== 1 && "s"}</div>
+                        <div className="font-medium">
+                          {r.checkIn} → {r.checkOut}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          {nights} night{nights !== 1 && "s"}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{r.source}</td>
                       <td className="px-4 py-3">
-                        <span className={cn("inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium", statusStyles[r.status])}>
+                        <span
+                          className={cn(
+                            "inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium",
+                            statusStyles[r.status],
+                          )}
+                        >
                           {r.status.replace("_", " ")}
                         </span>
                       </td>
@@ -500,15 +576,25 @@ function ReservationsPage() {
                                 <AlertDialogHeader>
                                   <AlertDialogTitle>Check out {r.guestName}</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This will check out the guest, mark Room {r.roomId} as dirty, and close the folio. This action cannot be undone.
+                                    This will check out the guest, mark Room {r.roomId} as dirty,
+                                    and close the folio. This action cannot be undone.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => {
-                                    const res = checkOut(r.id);
-                                    showToast(res.ok ? { tone: "ok", msg: "Guest checked out. Room sent to housekeeping." } : { tone: "err", msg: res.error });
-                                  }}>
+                                  <AlertDialogAction
+                                    onClick={() => {
+                                      const res = checkOut(r.id);
+                                      showToast(
+                                        res.ok
+                                          ? {
+                                              tone: "ok",
+                                              msg: "Guest checked out. Room sent to housekeeping.",
+                                            }
+                                          : { tone: "err", msg: res.error },
+                                      );
+                                    }}
+                                  >
                                     Confirm Check-Out
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
@@ -522,7 +608,10 @@ function ReservationsPage() {
                 })}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={8} className="px-4 py-16 text-center text-sm text-muted-foreground">
+                    <td
+                      colSpan={8}
+                      className="px-4 py-16 text-center text-sm text-muted-foreground"
+                    >
                       No reservations match your filters.
                     </td>
                   </tr>
@@ -570,7 +659,6 @@ function ReservationsPage() {
           }}
         />
       )}
-
     </div>
   );
 }
@@ -594,7 +682,9 @@ function CheckInDialog({
 
   const submit = () => {
     const r = checkIn(reservationId, { roomId: room });
-    onClose(r.ok ? { tone: "ok", msg: "Guest checked in. Folio opened." } : { tone: "err", msg: r.error });
+    onClose(
+      r.ok ? { tone: "ok", msg: "Guest checked in. Folio opened." } : { tone: "err", msg: r.error },
+    );
   };
 
   return (
@@ -603,9 +693,14 @@ function CheckInDialog({
         <div className="flex items-start justify-between">
           <div>
             <h3 className="font-display text-lg font-bold">Check in {res.guestName}</h3>
-            <p className="text-xs text-muted-foreground">{res.id} · {res.checkIn} → {res.checkOut}</p>
+            <p className="text-xs text-muted-foreground">
+              {res.id} · {res.checkIn} → {res.checkOut}
+            </p>
           </div>
-          <button onClick={() => onClose()} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+          <button
+            onClick={() => onClose()}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -633,8 +728,17 @@ function CheckInDialog({
           )}
         </div>
         <div className="mt-6 flex items-center justify-end gap-2">
-          <button onClick={() => onClose()} className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted">Cancel</button>
-          <button onClick={submit} disabled={!room} className="rounded-md bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
+          <button
+            onClick={() => onClose()}
+            className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            disabled={!room}
+            className="rounded-md bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
             Confirm check-in
           </button>
         </div>
@@ -681,10 +785,17 @@ function EditDialog({
       notes: notes || undefined,
     };
     const r = updateReservation(reservationId, patch);
-    onClose(r.ok ? { tone: "ok", msg: "Reservation updated successfully." } : { tone: "err", msg: r.error });
+    onClose(
+      r.ok
+        ? { tone: "ok", msg: "Reservation updated successfully." }
+        : { tone: "err", msg: r.error },
+    );
   };
 
-  const nights = Math.max(1, Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000));
+  const nights = Math.max(
+    1,
+    Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / 86_400_000),
+  );
   const total = nights * ratePerNight;
 
   return (
@@ -695,22 +806,37 @@ function EditDialog({
             <h3 className="font-display text-lg font-bold">Edit Reservation</h3>
             <p className="text-xs text-muted-foreground">{res.id}</p>
           </div>
-          <button onClick={() => onClose()} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+          <button
+            onClick={() => onClose()}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className="block text-xs font-medium text-muted-foreground">Guest name</label>
-            <input value={guestName} onChange={(e) => setGuestName(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <input
+              value={guestName}
+              onChange={(e) => setGuestName(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Email</label>
-            <input value={guestEmail} onChange={(e) => setGuestEmail(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <input
+              value={guestEmail}
+              onChange={(e) => setGuestEmail(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Phone</label>
-            <input value={guestPhone} onChange={(e) => setGuestPhone(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <input
+              value={guestPhone}
+              onChange={(e) => setGuestPhone(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Room type</label>
@@ -720,7 +846,9 @@ function EditDialog({
               </SelectTrigger>
               <SelectContent>
                 {roomTypes.map((rt) => (
-                  <SelectItem key={rt.id} value={rt.id}>{rt.name}</SelectItem>
+                  <SelectItem key={rt.id} value={rt.id}>
+                    {rt.name}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -733,43 +861,93 @@ function EditDialog({
               </SelectTrigger>
               <SelectContent>
                 {["RO", "BB", "HB", "FB"].map((mp) => (
-                  <SelectItem key={mp} value={mp}>{mp}</SelectItem>
+                  <SelectItem key={mp} value={mp}>
+                    {mp}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Check-in</label>
-            <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <input
+              type="date"
+              value={checkIn}
+              onChange={(e) => setCheckIn(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Check-out</label>
-            <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <input
+              type="date"
+              value={checkOut}
+              onChange={(e) => setCheckOut(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Adults</label>
-            <input type="number" min={1} max={10} value={adults} onChange={(e) => setAdults(Number(e.target.value))} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <input
+              type="number"
+              min={1}
+              max={10}
+              value={adults}
+              onChange={(e) => setAdults(Number(e.target.value))}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-muted-foreground">Children</label>
-            <input type="number" min={0} max={10} value={children} onChange={(e) => setChildren(Number(e.target.value))} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <input
+              type="number"
+              min={0}
+              max={10}
+              value={children}
+              onChange={(e) => setChildren(Number(e.target.value))}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div className="col-span-2">
-            <label className="block text-xs font-medium text-muted-foreground">Rate per night (UGX)</label>
-            <input type="number" min={0} step={1000} value={ratePerNight} onChange={(e) => setRatePerNight(Number(e.target.value))} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <label className="block text-xs font-medium text-muted-foreground">
+              Rate per night (UGX)
+            </label>
+            <input
+              type="number"
+              min={0}
+              step={1000}
+              value={ratePerNight}
+              onChange={(e) => setRatePerNight(Number(e.target.value))}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div className="col-span-2">
             <label className="block text-xs font-medium text-muted-foreground">Notes</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={2}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
           </div>
           <div className="col-span-2 rounded-lg bg-muted/30 p-3 text-center text-sm">
-            <span className="text-muted-foreground">{nights} night{nights !== 1 && "s"} × {fmtUGX(ratePerNight)} = </span>
+            <span className="text-muted-foreground">
+              {nights} night{nights !== 1 && "s"} × {fmtUGX(ratePerNight)} ={" "}
+            </span>
             <span className="font-bold text-foreground">{fmtUGX(total)}</span>
           </div>
         </div>
         <div className="mt-6 flex items-center justify-end gap-2">
-          <button onClick={() => onClose()} className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted">Cancel</button>
-          <button onClick={submit} className="rounded-md bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
+          <button
+            onClick={() => onClose()}
+            className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            className="rounded-md bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+          >
             Save changes
           </button>
         </div>
@@ -801,9 +979,14 @@ function CancelDialog({
         <div className="flex items-start justify-between">
           <div>
             <h3 className="font-display text-lg font-bold text-destructive">Cancel Reservation</h3>
-            <p className="text-xs text-muted-foreground">{res.id} · {res.guestName}</p>
+            <p className="text-xs text-muted-foreground">
+              {res.id} · {res.guestName}
+            </p>
           </div>
-          <button onClick={() => onClose()} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+          <button
+            onClick={() => onClose()}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -841,8 +1024,16 @@ function CancelDialog({
           )}
         </div>
         <div className="mt-6 flex items-center justify-end gap-2">
-          <button onClick={() => onClose()} className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted">Keep reservation</button>
-          <button onClick={submit} className="rounded-md bg-destructive px-3.5 py-2 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90">
+          <button
+            onClick={() => onClose()}
+            className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted"
+          >
+            Keep reservation
+          </button>
+          <button
+            onClick={submit}
+            className="rounded-md bg-destructive px-3.5 py-2 text-xs font-semibold text-destructive-foreground hover:bg-destructive/90"
+          >
             Cancel reservation
           </button>
         </div>

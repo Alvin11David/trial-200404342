@@ -18,7 +18,13 @@ import {
   Filter,
   Download,
 } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/accounting")({
   head: () => ({ meta: [{ title: "Accounting — Jambo ERP" }] }),
@@ -35,8 +41,7 @@ const tabs: { id: Tab; label: string; icon: React.ComponentType<{ className?: st
   { id: "expenses", label: "Expenses", icon: Receipt },
 ];
 
-const ugx = (n: number) =>
-  "UGX " + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+const ugx = (n: number) => "UGX " + n.toLocaleString(undefined, { maximumFractionDigits: 0 });
 
 function AccountingPage() {
   const [tab, setTab] = useState<Tab>("dashboard");
@@ -213,10 +218,7 @@ function FinancialDashboard() {
           ].map((c) => {
             const net = c.inflow - c.outflow;
             return (
-              <div
-                key={c.label}
-                className="rounded-xl border border-border/60 bg-card/40 p-4"
-              >
+              <div key={c.label} className="rounded-xl border border-border/60 bg-card/40 p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs uppercase tracking-wider text-muted-foreground">
                     {c.label}
@@ -285,9 +287,7 @@ function PLCard({
       />
       <div className="relative pl-1">
         <div className="flex items-center justify-between">
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">
-            {label}
-          </span>
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
           <Icon className={`h-4 w-4 ${toneMap[tone].split(" ").pop()}`} />
         </div>
         <div className="mt-2 font-display text-2xl font-bold tracking-tight">{value}</div>
@@ -307,14 +307,10 @@ function RevenueAreaChart({ data }: { data: { m: string; v: number }[] }) {
   const pad = { l: 36, r: 12, t: 12, b: 26 };
   const max = Math.max(...data.map((d) => d.v)) * 1.1;
   const min = 0;
-  const xs = (i: number) =>
-    pad.l + (i * (w - pad.l - pad.r)) / (data.length - 1);
-  const ys = (v: number) =>
-    pad.t + (1 - (v - min) / (max - min)) * (h - pad.t - pad.b);
+  const xs = (i: number) => pad.l + (i * (w - pad.l - pad.r)) / (data.length - 1);
+  const ys = (v: number) => pad.t + (1 - (v - min) / (max - min)) * (h - pad.t - pad.b);
   const linePath = data.map((d, i) => `${i ? "L" : "M"}${xs(i)},${ys(d.v)}`).join(" ");
-  const areaPath =
-    linePath +
-    ` L${xs(data.length - 1)},${h - pad.b} L${xs(0)},${h - pad.b} Z`;
+  const areaPath = linePath + ` L${xs(data.length - 1)},${h - pad.b} L${xs(0)},${h - pad.b} Z`;
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => Math.round(max * t));
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="h-[220px] w-full">
@@ -359,13 +355,7 @@ function RevenueAreaChart({ data }: { data: { m: string; v: number }[] }) {
       {data.map((d, i) => (
         <g key={i}>
           <circle cx={xs(i)} cy={ys(d.v)} r="3" fill="oklch(0.74 0.21 71)" />
-          <text
-            x={xs(i)}
-            y={h - 8}
-            textAnchor="middle"
-            fontSize="10"
-            fill="oklch(0.65 0.03 250)"
-          >
+          <text x={xs(i)} y={h - 8} textAnchor="middle" fontSize="10" fill="oklch(0.65 0.03 250)">
             {d.m}
           </text>
         </g>
@@ -416,9 +406,7 @@ function DonutChart({ data }: { data: { name: string; value: number; color: stri
         </svg>
         <div className="absolute inset-0 grid place-items-center">
           <div className="text-center">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              Total
-            </div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Total</div>
             <div className="font-display text-lg font-bold">{ugx(184_500_000)}</div>
           </div>
         </div>
@@ -439,7 +427,11 @@ function DonutChart({ data }: { data: { name: string; value: number; color: stri
 /* ───────────────────────────── 8b · Chart of Accounts ───────────────────────────── */
 
 type Ledger = { name: string; balance: number };
-type Group = { name: string; type: "Asset" | "Liability" | "Equity" | "Income" | "Expense"; children: (Group | Ledger)[] };
+type Group = {
+  name: string;
+  type: "Asset" | "Liability" | "Equity" | "Income" | "Expense";
+  children: (Group | Ledger)[];
+};
 
 const coa: Group[] = [
   {
@@ -502,7 +494,8 @@ const typeTone: Record<string, string> = {
   Liability: "text-destructive border-destructive/30 bg-destructive/10",
   Equity: "text-warning border-warning/30 bg-warning/10",
   Income: "text-primary border-primary/30 bg-primary/10",
-  Expense: "text-[oklch(0.72_0.18_220)] border-[oklch(0.66_0.18_220)]/30 bg-[oklch(0.66_0.18_220)]/10",
+  Expense:
+    "text-[oklch(0.72_0.18_220)] border-[oklch(0.66_0.18_220)]/30 bg-[oklch(0.66_0.18_220)]/10",
 };
 
 function ChartOfAccounts() {
@@ -563,7 +556,7 @@ function TreeNode({
 }) {
   const [open, setOpen] = useState(depth < 1);
   const group = isGroup(node);
-  const type = group ? node.type : parentType ?? "";
+  const type = group ? node.type : (parentType ?? "");
   const balance = nodeBalance(node);
   return (
     <li>
@@ -689,12 +682,8 @@ function JournalEntries() {
                 <td className="px-4 py-3 text-muted-foreground">{j.date}</td>
                 <td className="px-4 py-3 font-mono text-xs">{j.ref}</td>
                 <td className="px-4 py-3">{j.narration}</td>
-                <td className="px-4 py-3 text-right font-mono tabular-nums">
-                  {ugx(j.debit)}
-                </td>
-                <td className="px-4 py-3 text-right font-mono tabular-nums">
-                  {ugx(j.credit)}
-                </td>
+                <td className="px-4 py-3 text-right font-mono tabular-nums">{ugx(j.debit)}</td>
+                <td className="px-4 py-3 text-right font-mono tabular-nums">{ugx(j.credit)}</td>
               </tr>
             ))}
             <tr className="bg-card/40 font-semibold">
@@ -781,9 +770,7 @@ function NewJournalForm({ onClose }: { onClose: () => void }) {
               value={l.debit}
               onChange={(e) =>
                 setLines((ls) =>
-                  ls.map((x) =>
-                    x.id === l.id ? { ...x, debit: e.target.value, credit: "" } : x,
-                  ),
+                  ls.map((x) => (x.id === l.id ? { ...x, debit: e.target.value, credit: "" } : x)),
                 )
               }
               className="rounded-lg border border-border/50 bg-card/40 px-2.5 py-1.5 text-right font-mono text-sm outline-none focus:border-primary/60"
@@ -794,9 +781,7 @@ function NewJournalForm({ onClose }: { onClose: () => void }) {
               value={l.credit}
               onChange={(e) =>
                 setLines((ls) =>
-                  ls.map((x) =>
-                    x.id === l.id ? { ...x, credit: e.target.value, debit: "" } : x,
-                  ),
+                  ls.map((x) => (x.id === l.id ? { ...x, credit: e.target.value, debit: "" } : x)),
                 )
               }
               className="rounded-lg border border-border/50 bg-card/40 px-2.5 py-1.5 text-right font-mono text-sm outline-none focus:border-primary/60"
@@ -881,7 +866,12 @@ function FloatInput({
 /* ───────────────────────────── 8d · Debtors & Creditors ───────────────────────────── */
 
 const debtors = [
-  { name: "Speke Resort Bookings Ltd", contact: "accounts@speke.ug", balance: 18_400_000, age: "0-30" },
+  {
+    name: "Speke Resort Bookings Ltd",
+    contact: "accounts@speke.ug",
+    balance: 18_400_000,
+    age: "0-30",
+  },
   { name: "Kampala Events Co.", contact: "finance@kec.co.ug", balance: 6_800_000, age: "31-60" },
   { name: "Ministry of Tourism", contact: "ap@tourism.go.ug", balance: 24_200_000, age: "61-90" },
   { name: "Equator Travel Agency", contact: "billing@equator.ug", balance: 3_400_000, age: "0-30" },
@@ -982,11 +972,7 @@ function Parties() {
       </div>
 
       {modal && (
-        <PaymentModal
-          kind={modal.kind}
-          party={modal.party}
-          onClose={() => setModal(null)}
-        />
+        <PaymentModal kind={modal.kind} party={modal.party} onClose={() => setModal(null)} />
       )}
     </div>
   );
@@ -1089,10 +1075,12 @@ const initialExpenses = [
 ];
 
 const catTone: Record<string, string> = {
-  Utilities: "bg-[oklch(0.66_0.18_220)]/15 text-[oklch(0.72_0.18_220)] border-[oklch(0.66_0.18_220)]/30",
+  Utilities:
+    "bg-[oklch(0.66_0.18_220)]/15 text-[oklch(0.72_0.18_220)] border-[oklch(0.66_0.18_220)]/30",
   "F&B Supplies": "bg-success/15 text-success border-success/30",
   Maintenance: "bg-warning/15 text-warning border-warning/30",
-  Marketing: "bg-[oklch(0.68_0.21_320)]/15 text-[oklch(0.74_0.21_320)] border-[oklch(0.68_0.21_320)]/30",
+  Marketing:
+    "bg-[oklch(0.68_0.21_320)]/15 text-[oklch(0.74_0.21_320)] border-[oklch(0.68_0.21_320)]/30",
   Payroll: "bg-primary/15 text-primary border-primary/30",
 };
 
@@ -1145,13 +1133,18 @@ function Expenses() {
               <span className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 Category
               </span>
-              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+              <Select
+                value={form.category}
+                onValueChange={(v) => setForm({ ...form, category: v })}
+              >
                 <SelectTrigger className="w-full rounded-xl border border-border/60 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {Object.keys(catTone).map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>

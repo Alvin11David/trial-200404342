@@ -3,7 +3,13 @@ import { useState } from "react";
 import { Plus, Search, ShieldCheck, KeyRound, Check, X, Power } from "lucide-react";
 import { ROLES, type Role } from "@/lib/role";
 import { toggleUserActive, upsertUser, useStore, type UserRecord } from "@/lib/pms-store";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/identity")({
   head: () => ({ meta: [{ title: "Identity & Access — Jambo PMS" }] }),
@@ -11,18 +17,35 @@ export const Route = createFileRoute("/_app/identity")({
 });
 
 const PERMISSIONS = [
-  "Reservations", "Front Desk", "Housekeeping", "Billing & Folio",
-  "Payments", "POS", "Reports", "Audit Trail", "Identity & Access", "Settings",
+  "Reservations",
+  "Front Desk",
+  "Housekeeping",
+  "Billing & Folio",
+  "Payments",
+  "POS",
+  "Reports",
+  "Audit Trail",
+  "Identity & Access",
+  "Settings",
 ];
 
 const ROLE_PERMS: Record<Role, string[]> = {
-  "Owner / GM": ["Reservations","Front Desk","Housekeeping","Billing & Folio","Payments","Reports","Audit Trail","Settings"],
-  "Front Desk": ["Reservations","Front Desk","Billing & Folio","Payments"],
+  "Owner / GM": [
+    "Reservations",
+    "Front Desk",
+    "Housekeeping",
+    "Billing & Folio",
+    "Payments",
+    "Reports",
+    "Audit Trail",
+    "Settings",
+  ],
+  "Front Desk": ["Reservations", "Front Desk", "Billing & Folio", "Payments"],
   Housekeeping: ["Housekeeping"],
-  "POS / Cashier": ["POS","Billing & Folio","Payments"],
-  "Reservations / Revenue": ["Reservations","Front Desk","Reports"],
-  Accountant: ["Billing & Folio","Payments","Reports"],
-  "System Administrator": ["Identity & Access","Audit Trail","Settings"],
+  "POS / Cashier": ["POS", "Billing & Folio", "Payments"],
+  "Reservations / Revenue": ["Reservations", "Front Desk", "Reports"],
+  Accountant: ["Billing & Folio", "Payments", "Reports"],
+  "System Administrator": ["Identity & Access", "Audit Trail", "Settings"],
 };
 
 function IdentityPage() {
@@ -33,7 +56,10 @@ function IdentityPage() {
   const [edit, setEdit] = useState<UserRecord | "new" | null>(null);
 
   const filtered = users.filter(
-    (u) => !search || u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase()),
+    (u) =>
+      !search ||
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -56,7 +82,12 @@ function IdentityPage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={"rounded-md px-4 py-1.5 font-semibold capitalize " + (tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+            className={
+              "rounded-md px-4 py-1.5 font-semibold capitalize " +
+              (tab === t
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground")
+            }
           >
             {t}
           </button>
@@ -92,7 +123,11 @@ function IdentityPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <span className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
-                          {u.name.split(" ").map((s) => s[0]).join("").slice(0, 2)}
+                          {u.name
+                            .split(" ")
+                            .map((s) => s[0])
+                            .join("")
+                            .slice(0, 2)}
                         </span>
                         <div>
                           <div className="font-semibold">{u.name}</div>
@@ -105,13 +140,17 @@ function IdentityPage() {
                       <span
                         className={
                           "inline-flex rounded-md border px-2 py-0.5 text-[10px] font-semibold " +
-                          (u.active ? "border-success/20 bg-success/10 text-success" : "border-border bg-muted text-muted-foreground")
+                          (u.active
+                            ? "border-success/20 bg-success/10 text-success"
+                            : "border-border bg-muted text-muted-foreground")
                         }
                       >
                         {u.active ? "Active" : "Disabled"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground">{u.lastLogin ?? "—"}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                      {u.lastLogin ?? "—"}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <div className="inline-flex gap-1">
                         <button
@@ -144,9 +183,16 @@ function IdentityPage() {
               <button
                 key={r}
                 onClick={() => setSelectedRole(r)}
-                className={"flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition " + (selectedRole === r ? "bg-primary/10 text-primary font-semibold" : "hover:bg-muted/60")}
+                className={
+                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm transition " +
+                  (selectedRole === r
+                    ? "bg-primary/10 text-primary font-semibold"
+                    : "hover:bg-muted/60")
+                }
               >
-                <span className="flex items-center gap-2"><ShieldCheck className="h-3.5 w-3.5" /> {r}</span>
+                <span className="flex items-center gap-2">
+                  <ShieldCheck className="h-3.5 w-3.5" /> {r}
+                </span>
                 <span className="text-[10px] text-muted-foreground">{ROLE_PERMS[r].length}</span>
               </button>
             ))}
@@ -163,7 +209,10 @@ function IdentityPage() {
               {PERMISSIONS.map((p) => {
                 const granted = ROLE_PERMS[selectedRole].includes(p);
                 return (
-                  <div key={p} className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5">
+                  <div
+                    key={p}
+                    className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5"
+                  >
                     <span className="text-sm">{p}</span>
                     {granted ? (
                       <span className="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
@@ -182,7 +231,9 @@ function IdentityPage() {
         </div>
       )}
 
-      {edit !== null && <UserEditor initial={edit === "new" ? null : edit} onClose={() => setEdit(null)} />}
+      {edit !== null && (
+        <UserEditor initial={edit === "new" ? null : edit} onClose={() => setEdit(null)} />
+      )}
     </div>
   );
 }
@@ -204,17 +255,31 @@ function UserEditor({ initial, onClose }: { initial: UserRecord | null; onClose:
     <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl">
         <div className="mb-4 flex items-start justify-between">
-          <h3 className="font-display text-lg font-bold">{initial ? "Edit user" : "Invite user"}</h3>
-          <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+          <h3 className="font-display text-lg font-bold">
+            {initial ? "Edit user" : "Invite user"}
+          </h3>
+          <button
+            onClick={onClose}
+            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="space-y-3">
           <Labeled label="Full name">
-            <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            />
           </Labeled>
           <Labeled label="Email">
-            <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+            <input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            />
           </Labeled>
           <Labeled label="Role">
             <Select value={role} onValueChange={setRole}>
@@ -222,17 +287,27 @@ function UserEditor({ initial, onClose }: { initial: UserRecord | null; onClose:
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                {ROLES.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {r}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </Labeled>
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /> Active
+            <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} />{" "}
+            Active
           </label>
         </div>
         <div className="mt-6 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="rounded-md border border-border px-3 py-2 text-xs">Cancel</button>
-          <button onClick={submit} className="rounded-md bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
+          <button onClick={onClose} className="rounded-md border border-border px-3 py-2 text-xs">
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            className="rounded-md bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+          >
             {initial ? "Save changes" : "Send invite"}
           </button>
         </div>

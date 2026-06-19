@@ -12,7 +12,13 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/pos/menu")({
   head: () => ({ meta: [{ title: "Menu Items — Jambo ERP" }] }),
@@ -322,10 +328,7 @@ function POSMenuPage() {
                 <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                   Category
                 </label>
-                <Select
-                  value={form.category}
-                  onValueChange={(v) => set("category", v)}
-                >
+                <Select value={form.category} onValueChange={(v) => set("category", v)}>
                   <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -357,10 +360,7 @@ function POSMenuPage() {
                   <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                     Currency
                   </label>
-                  <Select
-                    value={form.currency}
-                    onValueChange={(v) => set("currency", v)}
-                  >
+                  <Select value={form.currency} onValueChange={(v) => set("currency", v)}>
                     <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>

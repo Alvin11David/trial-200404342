@@ -2,7 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { Search, Plus, Package, FileText, ClipboardCheck, Filter, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/inventory/list")({
   head: () => ({ meta: [{ title: "Inventory List — Jambo ERP" }] }),
@@ -391,12 +397,17 @@ function InventoryListPage() {
             <SelectContent>
               <SelectItem value="All">All categories</SelectItem>
               {categories.map((c) => (
-                <SelectItem key={c} value={c}>{c}</SelectItem>
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}
+          >
             <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
@@ -521,7 +532,9 @@ function InventoryListPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -547,7 +560,9 @@ function InventoryListPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {["pcs", "kg", "liters", "btls", "boxes", "packs"].map((u) => (
-                      <SelectItem key={u} value={u}>{u}</SelectItem>
+                      <SelectItem key={u} value={u}>
+                        {u}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

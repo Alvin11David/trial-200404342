@@ -19,8 +19,20 @@ import {
   Calendar as CalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createReservation, findAvailableRooms, fmtUGX, useStore, type PaymentMethod } from "@/lib/pms-store";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  createReservation,
+  findAvailableRooms,
+  fmtUGX,
+  useStore,
+  type PaymentMethod,
+} from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/reservations/new")({
   head: () => ({ meta: [{ title: "New Reservation — Jambo ERP" }] }),
@@ -55,7 +67,14 @@ type Form = {
   collectPayment: boolean;
 };
 
-type RoomOption = { id: string; type: string; rate: number; beds: string; available: boolean; typeId: string };
+type RoomOption = {
+  id: string;
+  type: string;
+  rate: number;
+  beds: string;
+  available: boolean;
+  typeId: string;
+};
 
 function useRoomOptions(checkIn: string, checkOut: string): RoomOption[] {
   const rooms = useStore((s) => s.rooms);
@@ -145,9 +164,15 @@ function NewReservation() {
 
   const submit = () => {
     if (!room) return;
-    const paymentAmount = form.collectPayment && form.paymentMethod
-      ? Math.round(total * (form.paymentMethod === "mtn_momo" || form.paymentMethod === "airtel_money" ? 1 : 0.5))
-      : 0;
+    const paymentAmount =
+      form.collectPayment && form.paymentMethod
+        ? Math.round(
+            total *
+              (form.paymentMethod === "mtn_momo" || form.paymentMethod === "airtel_money"
+                ? 1
+                : 0.5),
+          )
+        : 0;
     const res = createReservation({
       guestName: `${form.firstName} ${form.lastName}`.trim(),
       guestEmail: form.email,
@@ -170,9 +195,10 @@ function NewReservation() {
             payment: {
               method: form.paymentMethod,
               amount: paymentAmount,
-              phone: form.paymentMethod === "mtn_momo" || form.paymentMethod === "airtel_money"
-                ? form.paymentPhone
-                : undefined,
+              phone:
+                form.paymentMethod === "mtn_momo" || form.paymentMethod === "airtel_money"
+                  ? form.paymentPhone
+                  : undefined,
               reference: form.paymentReference || undefined,
             },
           }
@@ -270,7 +296,11 @@ function NewReservation() {
         >
           {step === 1 && <StepGuestDetails form={form} set={set} />}
           {step === 2 && (
-            <StepRoomSelection rooms={roomOptions} selected={form.roomId} onSelect={(id) => set("roomId", id)} />
+            <StepRoomSelection
+              rooms={roomOptions}
+              selected={form.roomId}
+              onSelect={(id) => set("roomId", id)}
+            />
           )}
           {step === 3 && <StepDatesAndPlan form={form} set={set} nights={nights} meal={meal} />}
           {step === 4 && (
@@ -292,7 +322,9 @@ function NewReservation() {
 
         {error && (
           <div className="mt-4 flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            <span className="grid h-5 w-5 place-items-center rounded-full bg-destructive/20 text-[10px] font-bold">!</span>
+            <span className="grid h-5 w-5 place-items-center rounded-full bg-destructive/20 text-[10px] font-bold">
+              !
+            </span>
             {error}
           </div>
         )}
@@ -633,9 +665,7 @@ function StepReview({
   total: number;
   submitted: boolean;
 }) {
-  const momoAmount = form.collectPayment && form.paymentMethod
-    ? total
-    : 0;
+  const momoAmount = form.collectPayment && form.paymentMethod ? total : 0;
 
   return (
     <div>
@@ -708,14 +738,18 @@ function StepReview({
               />
               <div>
                 <span className="text-sm font-medium">Collect payment at booking</span>
-                <p className="text-[11px] text-muted-foreground">Accept deposit via mobile money or card</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Accept deposit via mobile money or card
+                </p>
               </div>
             </label>
 
             {form.collectPayment && (
               <div className="space-y-3 rounded-xl border border-border/60 bg-card/30 p-4">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">Payment method</label>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Payment method
+                  </label>
                   <div className="mt-1.5 grid grid-cols-2 gap-2">
                     {[
                       { id: "mtn_momo" as const, label: "MTN MoMo", icon: Smartphone },
@@ -742,7 +776,9 @@ function StepReview({
 
                 {(form.paymentMethod === "mtn_momo" || form.paymentMethod === "airtel_money") && (
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">Mobile money phone number</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      Mobile money phone number
+                    </label>
                     <input
                       value={form.paymentPhone}
                       onChange={(e) => set("paymentPhone", e.target.value)}
@@ -754,7 +790,9 @@ function StepReview({
 
                 {form.paymentMethod === "card" && (
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">Card reference (last 4 digits)</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      Card reference (last 4 digits)
+                    </label>
                     <input
                       value={form.paymentReference}
                       onChange={(e) => set("paymentReference", e.target.value)}
@@ -767,7 +805,9 @@ function StepReview({
 
                 <div className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2 text-sm">
                   <span className="text-muted-foreground">Amount to collect</span>
-                  <span className="font-bold text-foreground">{fmtUGX(momoAmount > 0 ? momoAmount : total)}</span>
+                  <span className="font-bold text-foreground">
+                    {fmtUGX(momoAmount > 0 ? momoAmount : total)}
+                  </span>
                 </div>
               </div>
             )}
@@ -805,7 +845,17 @@ function StepReview({
             </li>
             {form.collectPayment && form.paymentMethod && momoAmount > 0 && (
               <li className="flex justify-between border-t border-border/50 pt-3">
-                <span className="text-success">Deposit paid ({form.paymentMethod === "mtn_momo" ? "MTN MoMo" : form.paymentMethod === "airtel_money" ? "Airtel Money" : form.paymentMethod === "card" ? "Card" : "Cash"})</span>
+                <span className="text-success">
+                  Deposit paid (
+                  {form.paymentMethod === "mtn_momo"
+                    ? "MTN MoMo"
+                    : form.paymentMethod === "airtel_money"
+                      ? "Airtel Money"
+                      : form.paymentMethod === "card"
+                        ? "Card"
+                        : "Cash"}
+                  )
+                </span>
                 <span className="font-bold text-success">{fmtUGX(momoAmount)}</span>
               </li>
             )}
@@ -816,7 +866,9 @@ function StepReview({
               {form.collectPayment && form.paymentMethod ? "Balance due" : "Total"}
             </span>
             <span className="text-2xl font-bold text-gradient-primary tabular-nums">
-              {fmtUGX(form.collectPayment && form.paymentMethod ? Math.max(0, total - momoAmount) : total)}
+              {fmtUGX(
+                form.collectPayment && form.paymentMethod ? Math.max(0, total - momoAmount) : total,
+              )}
             </span>
           </div>
         </div>

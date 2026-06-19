@@ -15,7 +15,13 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/events/new")({
   head: () => ({ meta: [{ title: "New Event — Jambo ERP" }] }),
@@ -195,7 +201,9 @@ function NewEventPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {venues.map((v) => (
-                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                      <SelectItem key={v} value={v}>
+                        {v}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

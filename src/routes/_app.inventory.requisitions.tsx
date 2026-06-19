@@ -16,7 +16,13 @@ import {
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/inventory/requisitions")({
   head: () => ({ meta: [{ title: "Requisitions — Jambo ERP" }] }),
@@ -554,10 +560,7 @@ function RequisitionsPage() {
                   <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                     Department
                   </label>
-                  <Select
-                    value={department}
-                    onValueChange={setDepartment}
-                  >
+                  <Select value={department} onValueChange={setDepartment}>
                     <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
                       <SelectValue placeholder="Select department" />
                     </SelectTrigger>
@@ -632,10 +635,7 @@ function RequisitionsPage() {
                         min="1"
                         className="w-16 rounded-lg border border-border/60 bg-card/40 px-2 py-2 text-sm text-center outline-none focus:border-primary/60 tabular-nums"
                       />
-                      <Select
-                        value={item.uom}
-                        onValueChange={(v) => updateReqItem(idx, "uom", v)}
-                      >
+                      <Select value={item.uom} onValueChange={(v) => updateReqItem(idx, "uom", v)}>
                         <SelectTrigger className="w-20 rounded-lg border border-border/60 bg-card/40 px-2 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
                           <SelectValue placeholder="UOM" />
                         </SelectTrigger>

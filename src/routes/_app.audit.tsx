@@ -2,7 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Download, ShieldCheck } from "lucide-react";
 import { useStore, type AuditSeverity } from "@/lib/pms-store";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/audit")({
   head: () => ({ meta: [{ title: "Audit Trail — Jambo PMS" }] }),
@@ -15,7 +21,17 @@ const sevStyles: Record<AuditSeverity, string> = {
   critical: "bg-destructive/10 text-destructive border-destructive/20",
 };
 
-const MODULES = ["all", "reservations", "billing", "rooms", "housekeeping", "identity", "settings", "auth", "system"];
+const MODULES = [
+  "all",
+  "reservations",
+  "billing",
+  "rooms",
+  "housekeeping",
+  "identity",
+  "settings",
+  "auth",
+  "system",
+];
 
 function AuditPage() {
   const audit = useStore((s) => s.audit);
@@ -36,7 +52,12 @@ function AuditPage() {
       const day = e.ts.slice(0, 10);
       if (from && day < from) return false;
       if (to && day > to) return false;
-      if (q && ![e.actor, e.action, e.entity, e.id, e.role, e.module].some((s) => s.toLowerCase().includes(q.toLowerCase())))
+      if (
+        q &&
+        ![e.actor, e.action, e.entity, e.id, e.role, e.module].some((s) =>
+          s.toLowerCase().includes(q.toLowerCase()),
+        )
+      )
         return false;
       return true;
     });
@@ -49,7 +70,9 @@ function AuditPage() {
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="font-display text-2xl font-bold tracking-tight">Audit Trail</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Immutable log of staff and system actions.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Immutable log of staff and system actions.
+          </p>
         </div>
         <button className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs hover:border-primary/40">
           <Download className="h-3.5 w-3.5" /> Export CSV
@@ -59,12 +82,28 @@ function AuditPage() {
       <div className="grid gap-4 sm:grid-cols-4">
         {[
           { l: "Total events", v: audit.length.toString(), bar: "var(--color-primary)" },
-          { l: "Critical", v: audit.filter((a) => a.severity === "critical").length.toString(), tone: "text-destructive", bar: "var(--color-destructive)" },
-          { l: "Warnings", v: audit.filter((a) => a.severity === "warn").length.toString(), tone: "text-warning", bar: "var(--color-warning)" },
+          {
+            l: "Critical",
+            v: audit.filter((a) => a.severity === "critical").length.toString(),
+            tone: "text-destructive",
+            bar: "var(--color-destructive)",
+          },
+          {
+            l: "Warnings",
+            v: audit.filter((a) => a.severity === "warn").length.toString(),
+            tone: "text-warning",
+            bar: "var(--color-warning)",
+          },
           { l: "Actors", v: actors.length.toString(), bar: "var(--color-info)" },
         ].map((s) => (
-          <div key={s.l} className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
-            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: s.bar, boxShadow: `0 0 10px ${s.bar}` }} />
+          <div
+            key={s.l}
+            className="relative overflow-hidden rounded-xl border border-border bg-card p-4"
+          >
+            <div
+              className="absolute left-0 top-0 h-full w-[3px]"
+              style={{ background: s.bar, boxShadow: `0 0 10px ${s.bar}` }}
+            />
             <div className="pl-1">
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.l}</p>
               <p className={"mt-1 font-display text-2xl font-bold " + (s.tone ?? "")}>{s.v}</p>
@@ -89,7 +128,11 @@ function AuditPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All users</SelectItem>
-            {actors.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+            {actors.map((a) => (
+              <SelectItem key={a} value={a}>
+                {a}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <Select value={mod} onValueChange={setMod}>
@@ -97,7 +140,11 @@ function AuditPage() {
             <SelectValue placeholder="All modules" />
           </SelectTrigger>
           <SelectContent>
-            {MODULES.map((m) => <SelectItem key={m} value={m}>{m === "all" ? "All modules" : m}</SelectItem>)}
+            {MODULES.map((m) => (
+              <SelectItem key={m} value={m}>
+                {m === "all" ? "All modules" : m}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <div className="inline-flex rounded-lg border border-border bg-card p-0.5 text-xs">
@@ -105,14 +152,29 @@ function AuditPage() {
             <button
               key={s}
               onClick={() => setSev(s)}
-              className={"rounded-md px-3 py-1.5 capitalize " + (sev === s ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}
+              className={
+                "rounded-md px-3 py-1.5 capitalize " +
+                (sev === s
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground")
+              }
             >
               {s === "warn" ? "Warning" : s}
             </button>
           ))}
         </div>
-        <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-        <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+        <input
+          type="date"
+          value={from}
+          onChange={(e) => setFrom(e.target.value)}
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+        />
+        <input
+          type="date"
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
+        />
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
@@ -141,14 +203,23 @@ function AuditPage() {
                 <td className="px-4 py-3 text-sm">{e.action}</td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">{e.entity}</td>
                 <td className="px-4 py-3">
-                  <span className={"inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase " + sevStyles[e.severity]}>
+                  <span
+                    className={
+                      "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold uppercase " +
+                      sevStyles[e.severity]
+                    }
+                  >
                     <ShieldCheck className="h-3 w-3" /> {e.severity}
                   </span>
                 </td>
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">No matching events.</td></tr>
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                  No matching events.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

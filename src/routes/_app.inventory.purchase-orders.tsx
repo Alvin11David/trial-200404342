@@ -13,7 +13,13 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/inventory/purchase-orders")({
   head: () => ({ meta: [{ title: "Purchase Orders — Jambo ERP" }] }),
@@ -270,14 +276,19 @@ function PurchaseOrdersPage() {
             />
           </div>
 
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as POStatus | "All")}>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as POStatus | "All")}
+          >
             <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All statuses</SelectItem>
               {(["Draft", "Pending", "Approved", "Received", "Cancelled"] as const).map((s) => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -468,7 +479,9 @@ function PurchaseOrdersPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {suppliers.map((s) => (
-                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
