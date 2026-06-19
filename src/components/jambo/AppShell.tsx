@@ -190,7 +190,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       <Link
                         to={it.to}
                         className={cn(
-                          "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                          "group/nav-item relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
                           active
                             ? "bg-primary/10 text-primary"
                             : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-foreground",
@@ -198,17 +198,29 @@ export function AppShell({ children }: { children: ReactNode }) {
                         )}
                       >
                         {active && (
-                          <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-primary" />
+                          <span className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-primary shadow-sm animate-sidebar-accent-in" />
                         )}
-                        <Icon
-                          className={cn(
-                            "h-[18px] w-[18px] shrink-0",
-                            active ? "text-primary animate-[pulse_2s_ease-in-out_infinite]" : "text-muted-foreground",
-                          )}
-                        />
+                        <span className={cn(
+                          "relative flex shrink-0 items-center justify-center rounded-lg p-0.5 transition-all duration-200",
+                          active && "animate-sidebar-glow-pulse",
+                        )}>
+                          <Icon
+                            className={cn(
+                              "h-[18px] w-[18px] transition-all duration-200",
+                              active
+                                ? "text-primary animate-sidebar-icon-pulse drop-shadow-[0_0_6px_var(--color-primary)]"
+                                : "text-muted-foreground group-hover/nav-item:scale-110",
+                            )}
+                          />
+                        </span>
                         {!collapsed && (
                           <>
-                            <span className="flex-1 truncate">{it.label}</span>
+                            <span className={cn(
+                              "flex-1 truncate transition-all duration-200",
+                              active && "font-semibold",
+                            )}>
+                              {it.label}
+                            </span>
                             {it.badge && (
                               <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
                                 {it.badge}
