@@ -990,12 +990,7 @@ function CalendarTab({ plans, seasons }: { plans: RatePlan[]; seasons: SeasonalR
             ))}
           </SelectContent>
         </Select>
-        <input
-          type="date"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-        />
+        <DatePicker value={start} onChange={setStart} />
         <div className="ml-auto flex items-center gap-3 text-[11px] text-muted-foreground">
           <Legend dotClass="bg-primary/40" label="Base" />
           <Legend dotClass="bg-success/60" label="Discounted season" />
@@ -1092,12 +1087,7 @@ function AvailabilityTab() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3">
-        <input
-          type="date"
-          value={start}
-          onChange={(e) => setStart(e.target.value)}
-          className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-        />
+        <DatePicker value={start} onChange={setStart} />
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
             <SelectValue placeholder="Filter by room type" />
