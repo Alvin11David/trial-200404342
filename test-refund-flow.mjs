@@ -104,6 +104,9 @@ async function run() {
     await ss("rf05-accountant-folio");
     ok(true, "Switched to Accountant role");
 
+    // Re-locate balance after React re-render with new role
+    const balanceLocator2 = page.locator("text=Outstanding balance").locator("..").locator("p.text-3xl").first();
+
     // ===== 8. Accountant sees Refund button =====
     console.log("\n=== 8. Accountant can see Refund button ===");
     const refundBtn2 = page.locator("button:has-text('Refund')");
