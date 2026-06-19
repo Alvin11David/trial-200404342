@@ -599,6 +599,23 @@ function FolioDetail({ folioId }: { folioId: string }) {
           onClose={() => setShowRefund(null)}
         />
       )}
+      {showReceipt && (
+        <ReceiptDialog
+          payment={folioPayments.find((p) => p.id === showReceipt)!}
+          folio={folio}
+          tenant={tenant}
+          onClose={() => setShowReceipt(null)}
+          onSms={() => { setShowSmsReceipt(showReceipt); setShowReceipt(null); }}
+        />
+      )}
+      {showSmsReceipt && (
+        <SmsDialog
+          payment={folioPayments.find((p) => p.id === showSmsReceipt)!}
+          folio={folio}
+          tenant={tenant}
+          onClose={() => setShowSmsReceipt(null)}
+        />
+      )}
     </div>
   );
 }
