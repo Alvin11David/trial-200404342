@@ -257,7 +257,8 @@ function FolioDetail({ folioId }: { folioId: string }) {
   const folioPayments = payments.filter((p) => p.folioId === folioId);
   const totalCharges = folioCharges.filter((c) => !c.voided).reduce((s, c) => s + c.amount, 0);
   const voidedAmount = folioCharges.filter((c) => c.voided).reduce((s, c) => s + c.amount, 0);
-  const totalPayments = folioPayments.reduce((s, p) => s + p.amount, 0);
+  const confirmedPayments = folioPayments.filter((p) => p.status === "confirmed").reduce((s, p) => s + p.amount, 0);
+  const totalPayments = confirmedPayments;
   const balance = totalCharges - totalPayments;
 
   const isOpen = folio.status === "open" || folio.status === "active" || folio.status === "pending_settlement";
@@ -961,7 +962,7 @@ function InvoiceView({ folioId }: { folioId: string }) {
     : Math.round(subtotal * effectiveVatRate);
   const net = isInclusive ? subtotal - vat : subtotal;
   const gross = isInclusive ? subtotal : subtotal + vat;
-  const paid = folioPayments.reduce((s, p) => s + p.amount, 0);
+  const paid = folioPayments.filter((p) => p.status === "confirmed").reduce((s, p) => s + p.amount, 0);
   const due = gross - paid;
 
   return (

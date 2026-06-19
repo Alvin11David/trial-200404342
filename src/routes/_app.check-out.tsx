@@ -110,7 +110,7 @@ function CheckOutPage() {
             const folioCharges = folio ? allCharges.filter((c) => c.folioId === folio.id && !c.voided) : [];
             const folioPayments = folio ? allPayments.filter((p) => p.folioId === folio.id) : [];
             const totalCharges = folioCharges.reduce((s: number, c) => s + c.amount, 0);
-            const totalPayments = folioPayments.reduce((s: number, p) => s + p.amount, 0);
+            const totalPayments = folioPayments.filter((p) => p.status === "confirmed").reduce((s: number, p) => s + p.amount, 0);
 
             return (
               <div
