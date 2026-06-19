@@ -310,20 +310,21 @@ function RequisitionsPage() {
               className="w-full rounded-xl border border-border/70 bg-card/40 py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
             />
           </div>
-          <select
+          <Select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as ReqStatus | "All")}
-            className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
+            onValueChange={(v) => setStatusFilter(v as ReqStatus | "All")}
           >
-            <option value="All" className="bg-card">
-              All statuses
-            </option>
-            {(["Pending", "Approved", "Processed", "Rejected"] as const).map((s) => (
-              <option key={s} value={s} className="bg-card">
-                {s}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              {(["Pending", "Approved", "Processed", "Rejected"] as const).map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -553,17 +554,21 @@ function RequisitionsPage() {
                   <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                     Department
                   </label>
-                  <select
+                  <Select
                     value={department}
-                    onChange={(e) => setDepartment(e.target.value)}
-                    className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
+                    onValueChange={setDepartment}
                   >
-                    {departments.map((d) => (
-                      <option key={d} value={d} className="bg-card">
-                        {d}
-                      </option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {departments.map((d) => (
+                        <SelectItem key={d} value={d}>
+                          {d}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
@@ -627,17 +632,21 @@ function RequisitionsPage() {
                         min="1"
                         className="w-16 rounded-lg border border-border/60 bg-card/40 px-2 py-2 text-sm text-center outline-none focus:border-primary/60 tabular-nums"
                       />
-                      <select
+                      <Select
                         value={item.uom}
-                        onChange={(e) => updateReqItem(idx, "uom", e.target.value)}
-                        className="w-20 rounded-lg border border-border/60 bg-card/40 px-2 py-2 text-sm outline-none focus:border-primary/60"
+                        onValueChange={(v) => updateReqItem(idx, "uom", v)}
                       >
-                        {["pcs", "kg", "liters", "btls", "boxes", "packs"].map((u) => (
-                          <option key={u} value={u} className="bg-card">
-                            {u}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger className="w-20 rounded-lg border border-border/60 bg-card/40 px-2 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                          <SelectValue placeholder="UOM" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {["pcs", "kg", "liters", "btls", "boxes", "packs"].map((u) => (
+                            <SelectItem key={u} value={u}>
+                              {u}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <button
                         onClick={() => removeReqItem(idx)}
                         className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:text-destructive"

@@ -18,6 +18,7 @@ import {
   Filter,
   Download,
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/accounting")({
   head: () => ({ meta: [{ title: "Accounting — Jambo ERP" }] }),
@@ -1144,15 +1145,16 @@ function Expenses() {
               <span className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
                 Category
               </span>
-              <select
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full rounded-xl border border-border/60 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
-              >
-                {Object.keys(catTone).map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
-              </select>
+              <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+                <SelectTrigger className="w-full rounded-xl border border-border/60 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(catTone).map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </label>
             <FloatInput
               label="Vendor"

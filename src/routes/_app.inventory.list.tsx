@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { Search, Plus, Package, FileText, ClipboardCheck, Filter, X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/inventory/list")({
   head: () => ({ meta: [{ title: "Inventory List — Jambo ERP" }] }),
@@ -383,39 +384,29 @@ function InventoryListPage() {
             />
           </div>
 
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
-          >
-            <option value="All" className="bg-card">
-              All categories
-            </option>
-            {categories.map((c) => (
-              <option key={c} value={c} className="bg-card">
-                {c}
-              </option>
-            ))}
-          </select>
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All categories</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-            className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
-          >
-            <option value="All" className="bg-card">
-              All statuses
-            </option>
-            <option value="good" className="bg-card">
-              Good
-            </option>
-            <option value="low" className="bg-card">
-              Low
-            </option>
-            <option value="critical" className="bg-card">
-              Critical
-            </option>
-          </select>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}>
+            <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All statuses</SelectItem>
+              <SelectItem value="good">Good</SelectItem>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -524,17 +515,16 @@ function InventoryListPage() {
                 <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                   Category
                 </label>
-                <select
-                  value={form.category}
-                  onChange={(e) => set("category", e.target.value)}
-                  className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
-                >
-                  {categories.map((c) => (
-                    <option key={c} value={c} className="bg-card">
-                      {c}
-                    </option>
-                  ))}
-                </select>
+                <Select value={form.category} onValueChange={(v) => set("category", v)}>
+                  <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
@@ -551,17 +541,16 @@ function InventoryListPage() {
                 <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                   UOM
                 </label>
-                <select
-                  value={form.uom}
-                  onChange={(e) => set("uom", e.target.value)}
-                  className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
-                >
-                  {["pcs", "kg", "liters", "btls", "boxes", "packs"].map((u) => (
-                    <option key={u} value={u} className="bg-card">
-                      {u}
-                    </option>
-                  ))}
-                </select>
+                <Select value={form.uom} onValueChange={(v) => set("uom", v)}>
+                  <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
+                    <SelectValue placeholder="Select UOM" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["pcs", "kg", "liters", "btls", "boxes", "packs"].map((u) => (
+                      <SelectItem key={u} value={u}>{u}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">

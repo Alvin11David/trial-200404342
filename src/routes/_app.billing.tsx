@@ -35,6 +35,7 @@ import {
 } from "@/lib/pms-store";
 import { ROLE_META, useRole, type Role } from "@/lib/role";
 import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/billing")({
   head: () => ({ meta: [{ title: "Billing & Folio — Jambo PMS" }] }),
@@ -671,15 +672,16 @@ function AddChargeDialog({
     <Modal title="Add charge" onClose={onClose}>
       <div className="space-y-4">
         <Field label="Type">
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value as FolioChargeType)}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-          >
-            {(Object.entries(CHARGE_TYPE_LABEL) as [FolioChargeType, string][]).map(([k, l]) => (
-              <option key={k} value={k}>{l}</option>
-            ))}
-          </select>
+          <Select value={type} onValueChange={(v) => setType(v as FolioChargeType)}>
+            <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.entries(CHARGE_TYPE_LABEL) as [FolioChargeType, string][]).map(([k, l]) => (
+                <SelectItem key={k} value={k}>{l}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
         <Field label="Description">
           <input
@@ -749,15 +751,16 @@ function AddPaymentDialog({
     <Modal title="Record payment" onClose={onClose}>
       <div className="space-y-4">
         <Field label="Method">
-          <select
-            value={method}
-            onChange={(e) => { setMethod(e.target.value as PaymentMethod); resetTendered(); }}
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-          >
-            {(Object.entries(PAYMENT_METHOD_LABEL) as [PaymentMethod, string][]).map(([k, l]) => (
-              <option key={k} value={k}>{l}</option>
-            ))}
-          </select>
+          <Select value={method} onValueChange={(v) => { setMethod(v as PaymentMethod); resetTendered(); }}>
+            <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="Select method" />
+            </SelectTrigger>
+            <SelectContent>
+              {(Object.entries(PAYMENT_METHOD_LABEL) as [PaymentMethod, string][]).map(([k, l]) => (
+                <SelectItem key={k} value={k}>{l}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
         <Field label="Amount (UGX)">
           <input

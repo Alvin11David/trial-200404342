@@ -13,6 +13,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/inventory/purchase-orders")({
   head: () => ({ meta: [{ title: "Purchase Orders — Jambo ERP" }] }),
@@ -269,20 +270,17 @@ function PurchaseOrdersPage() {
             />
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as POStatus | "All")}
-            className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
-          >
-            <option value="All" className="bg-card">
-              All statuses
-            </option>
-            {(["Draft", "Pending", "Approved", "Received", "Cancelled"] as const).map((s) => (
-              <option key={s} value={s} className="bg-card">
-                {s}
-              </option>
-            ))}
-          </select>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as POStatus | "All")}>
+            <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All statuses</SelectItem>
+              {(["Draft", "Pending", "Approved", "Received", "Cancelled"] as const).map((s) => (
+                <SelectItem key={s} value={s}>{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -464,17 +462,16 @@ function PurchaseOrdersPage() {
                   <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">
                     Supplier
                   </label>
-                  <select
-                    value={supplier}
-                    onChange={(e) => setSupplier(e.target.value)}
-                    className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
-                  >
-                    {suppliers.map((s) => (
-                      <option key={s} value={s} className="bg-card">
-                        {s}
-                      </option>
-                    ))}
-                  </select>
+                  <Select value={supplier} onValueChange={setSupplier}>
+                    <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
+                      <SelectValue placeholder="Select supplier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suppliers.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <label className="mb-1.5 block text-xs uppercase tracking-wider text-muted-foreground">

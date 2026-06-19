@@ -6,6 +6,7 @@ import {
   CreditCard, Smartphone, Mail, Eye, ExternalLink,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   fmtUGX,
   useStore,
@@ -294,24 +295,32 @@ function InvoicesPage() {
           </div>
           <div>
             <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Status</label>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-lg border border-border/60 bg-card px-3 py-2 text-xs outline-none focus:border-primary/50">
-              <option value="all">All</option>
-              <option value="paid">Paid in Full</option>
-              <option value="partial">Partially Settled</option>
-              <option value="unpaid">Unpaid</option>
-            </select>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="rounded-lg border border-border/60 bg-card px-3 py-2 text-xs outline-none focus:border-primary/50 focus:ring-0 shadow-none">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="paid">Paid in Full</SelectItem>
+                <SelectItem value="partial">Partially Settled</SelectItem>
+                <SelectItem value="unpaid">Unpaid</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <label className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">EFRIS</label>
-            <select value={efrisFilter} onChange={(e) => setEfrisFilter(e.target.value)}
-              className="rounded-lg border border-border/60 bg-card px-3 py-2 text-xs outline-none focus:border-primary/50">
-              <option value="all">All</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending">Pending</option>
-              <option value="failed">Failed</option>
-              <option value="submitted">Submitted</option>
-            </select>
+            <Select value={efrisFilter} onValueChange={setEfrisFilter}>
+              <SelectTrigger className="rounded-lg border border-border/60 bg-card px-3 py-2 text-xs outline-none focus:border-primary/50 focus:ring-0 shadow-none">
+                <SelectValue placeholder="All" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="submitted">Submitted</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       )}
