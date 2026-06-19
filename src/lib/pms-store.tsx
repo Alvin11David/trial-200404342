@@ -111,6 +111,10 @@ export type Payment = {
   status: PaymentStatus;
   providerRef?: string; // provider transaction ID (MoMo, card gateway)
   failureReason?: string;
+  refundOf?: string;    // original payment ID this refund references
+  refundReason?: string; // why the refund was processed
+  refundedBy?: string;   // who authorised it
+  refundedAt?: string;   // when
 };
 
 export type FolioStatus = "open" | "active" | "pending_settlement" | "settled" | "closed" | "void";
@@ -1135,6 +1139,43 @@ export function failPayment(paymentId: string, reason: string, actor: string, ro
   if (payment && payment.status === "failed") {
     logAudit({ actor, role, module: "billing", action: "Failed payment", entity: `${payment.folioId} ${fmtUGX(payment.amount)} via ${payment.method} — ${reason}`, severity: "warn" });
   }
+  emit();
+}
+
+const REFUND_ALLOWED_ROLES = ["Owner / GM", "Accountant", "System Administrator"];
+
+export function processRefund(paymentId: string, refundAmount: number, reason: string, actor: string, role: string) {
+  if (!REFUND_ALLOWED_ROLES.includes(role)) {
+    logAudit({ actor, role, module: "billing", action: "Refund rejected — unauthorised", entity: `${paymentId} attempted by ${role}`, severity: "critical" });
+    emit();
+    return;
+  }
+  const original = state.payments.find((p) => p.id === paymentId);
+  if (!original || original.status !== "confirmed") {
+    logAudit({ actor, role, module: "billing", action: "Refund rejected — invalid payment", entity: `${paymentId} status=${original?.status}`, severity: "warn" });
+    emit();
+    return;
+  }
+  if (refundAmount <= 0 || refundAmount > original.amount) {
+    logAudit({ actor, role, module: "billing", action: "Refund rejected — invalid amount", entity: `${paymentId} requested=${fmtUGX(refundAmount)} max=${fmtUGX(original.amount)}`, severity: "warn" });
+    emit();
+    return;
+  }
+  const refund: Payment = {
+    id: nextPayId(),
+    folioId: original.folioId,
+    date: todayISO(),
+    method: original.method,
+    amount: -refundAmount,
+    reference: original.reference,
+    status: "confirmed",
+    refundOf: paymentId,
+    refundReason: reason,
+    refundedBy: actor,
+    refundedAt: todayISO(),
+  };
+  state.payments = [...state.payments, refund];
+  logAudit({ actor, role, module: "billing", action: "Refund processed", entity: `${refund.folioId} ${fmtUGX(refundAmount)} via ${original.method} — ${reason}`, severity: "warn" });
   emit();
 }
 
