@@ -231,12 +231,15 @@ function FolioDetail({ folioId }: { folioId: string }) {
   const folios = useStore((s) => s.folios);
   const charges = useStore((s) => s.charges);
   const payments = useStore((s) => s.payments);
+  const tenant = useStore((s) => s.tenant);
   const [showCharge, setShowCharge] = useState(false);
   const [showPay, setShowPay] = useState(false);
   const [showVoid, setShowVoid] = useState<string | null>(null);
   const [showSettle, setShowSettle] = useState(false);
   const [showNightAudit, setShowNightAudit] = useState(false);
   const [showRefund, setShowRefund] = useState<string | null>(null);
+  const [showReceipt, setShowReceipt] = useState<string | null>(null);
+  const [showSmsReceipt, setShowSmsReceipt] = useState<string | null>(null);
 
   const canPost = useCanPostCharge();
   const canVoid = useCanVoid();
@@ -499,6 +502,17 @@ function FolioDetail({ folioId }: { folioId: string }) {
                         className="rounded bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive hover:bg-destructive/20"
                       >
                         Refund
+                      </button>
+                    </div>
+                  )}
+                  {p.status === "confirmed" && (
+                    <div className="mt-1.5">
+                      <button
+                        onClick={() => setShowReceipt(p.id)}
+                        className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary/20"
+                      >
+                        <Receipt className="mr-0.5 inline h-3 w-3" />
+                        Receipt
                       </button>
                     </div>
                   )}
