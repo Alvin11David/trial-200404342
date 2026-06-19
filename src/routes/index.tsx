@@ -8,8 +8,8 @@ import { ROLES, useRole, type Role } from "@/lib/role";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Sign in — Jambo PMS" },
-      { name: "description", content: "Sign in to Jambo Property Management System." },
+      { title: "Sign in — Jambo ERP" },
+      { name: "description", content: "Sign in to Jambo Enterprise Resource Planning." },
     ],
   }),
   component: LoginPage,
@@ -55,23 +55,11 @@ function LoginPage() {
       `}</style>
     <div className="flex min-h-screen w-full">
       {/* ===== Left Panel — Brand / Hero ===== */}
-      <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden bg-slate-950 text-white lg:flex">
+      <div className="relative hidden w-[42%] flex-col justify-between overflow-hidden text-white lg:flex">
         {/* Inverted rounded rectangle notches — stay on top */}
         <div className="pointer-events-none absolute -top-4 left-1/4 z-30 h-12 w-56 rounded-2xl border border-white/20 bg-white shadow-lg" />
         <div className="pointer-events-none absolute -right-8 top-40 z-30 h-36 w-20 rounded-2xl border border-white/20 bg-white shadow-2xl" />
         <div className="pointer-events-none absolute -bottom-4 right-1/4 z-30 h-12 w-40 rounded-2xl border border-white/20 bg-white shadow-lg" />
-
-        {/* Spline 3D scene — fills entire panel, crop letterboxing */}
-        <div className="absolute inset-0 z-0 overflow-hidden">
-          <iframe
-            src="https://my.spline.design/windherocopycopy-tJP1FfQ2bWKX3AtcCM1DnVNv-Uiu/"
-            className="absolute left-1/2 top-1/2 h-[125%] w-[125%] -translate-x-1/2 -translate-y-1/2"
-            style={{ border: 'none', pointerEvents: 'none' }}
-            allow="autoplay; fullscreen"
-            loading="lazy"
-            title="3D Hotel Scene"
-          />
-        </div>
 
         {/* Top: Logo + tagline — overlay on top of Spline */}
         <div className="relative z-10 px-12 pt-12">
@@ -84,18 +72,10 @@ function LoginPage() {
 
         {/* Center: Bold title — overlay on top of Spline */}
         <div className="relative z-10 flex flex-1 items-center justify-center px-12">
-          <h1 className="text-center text-5xl font-extrabold tracking-tight text-white drop-shadow-lg">
-            Jambo PMS
-          </h1>
-        </div>
-
-        {/* Bottom: Brand stat — overlay on top of Spline */}
-        <div className="relative z-10 px-12 pb-12">
-          <div className="flex items-center gap-8 text-xs text-white/40">
-            <span>© {new Date().getFullYear()} Jambo Sphere Ltd</span>
-            <span className="h-3 w-px bg-white/10" />
-            <span>Kampala, Uganda</span>
-            <span className="h-3 w-px bg-white/10" />
+          <div className="text-center">
+            <h1 className="text-4xl font-bold leading-snug tracking-tight text-white drop-shadow-xl">
+              One powerful platform for all your hotel operations
+            </h1>
           </div>
         </div>
       </div>

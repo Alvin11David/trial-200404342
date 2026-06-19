@@ -27,6 +27,7 @@ import {
   FOLIO_STATUS_LABEL,
   type FolioCharge,
   type FolioChargeType,
+  type Payment,
   type PaymentMethod,
   type PaymentStatus,
   type FolioStatus,
