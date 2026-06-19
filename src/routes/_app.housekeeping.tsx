@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   DoorOpen,
   CalendarDays,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -173,6 +174,7 @@ function RoomStatusBoard() {
   const roomTypes = useStore((s) => s.roomTypes);
   const activeDnd = useStore(() => getActiveDND());
   const [floorFilter, setFloorFilter] = useState<string>("all");
+  const [floorOpen, setFloorOpen] = useState(false);
 
   const floors = useMemo(() => [...new Set(rooms.map((r) => r.floor))].sort(), [rooms]);
   const filtered = floorFilter === "all" ? rooms : rooms.filter((r) => r.floor === Number(floorFilter));
@@ -188,14 +190,43 @@ function RoomStatusBoard() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-3">
-        <select
-          value={floorFilter}
-          onChange={(e) => setFloorFilter(e.target.value)}
-          className="appearance-none rounded-xl border border-border/70 bg-card/40 px-3 py-1.5 text-xs outline-none focus:border-primary/60"
-        >
-          <option value="all">All floors</option>
-          {floors.map((f) => <option key={f} value={f}>Floor {f}</option>)}
-        </select>
+        <div className="relative">
+          <button
+            onClick={() => setFloorOpen(!floorOpen)}
+            className="flex items-center gap-1 rounded-xl border border-border/70 bg-card/40 px-3 py-1.5 text-xs outline-none focus:border-primary/60"
+          >
+            {floorFilter === "all" ? "All floors" : `Floor ${floorFilter}`}
+            <ChevronDown className="h-3 w-3 text-muted-foreground" />
+          </button>
+          {floorOpen && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setFloorOpen(false)} />
+              <div className="absolute left-0 top-full z-20 mt-1 min-w-[140px] overflow-hidden rounded-xl border border-border bg-card py-1 shadow-lg">
+                <button
+                  onClick={() => { setFloorFilter("all"); setFloorOpen(false); }}
+                  className={cn(
+                    "w-full px-3 py-1.5 text-left text-xs transition hover:bg-muted",
+                    floorFilter === "all" && "bg-primary/10 font-medium text-primary",
+                  )}
+                >
+                  All floors
+                </button>
+                {floors.map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => { setFloorFilter(String(f)); setFloorOpen(false); }}
+                    className={cn(
+                      "w-full px-3 py-1.5 text-left text-xs transition hover:bg-muted",
+                      floorFilter === String(f) && "bg-primary/10 font-medium text-primary",
+                    )}
+                  >
+                    Floor {f}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
         <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
           {Object.entries(STATUS_META).map(([k, v]) => (
             <span key={k} className="inline-flex items-center gap-1">
