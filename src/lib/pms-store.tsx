@@ -89,6 +89,7 @@ export type FolioCharge = {
   type: FolioChargeType;
   description: string;
   amount: number;      // UGX (positive)
+  vatTreatment?: VatTreatment;
   voided?: boolean;
   voidReason?: string;
   voidedBy?: string;
@@ -117,6 +118,47 @@ export type Payment = {
   refundedAt?: string;   // when
   receiptGenerated?: boolean; // auto-generated receipt on confirmation
   receiptId?: string;        // unique receipt number (RCT-XXXX)
+};
+
+export type InvoiceStatus = "paid" | "partial" | "unpaid";
+export type EFRISStatus = "pending" | "submitted" | "failed" | "confirmed";
+export type Invoice = {
+  id: string;
+  invoiceNo: string;
+  folioId: string;
+  reservationId: string;
+  guestName: string;
+  guestEmail: string;
+  guestPhone: string;
+  companyName?: string;
+  companyTin?: string;
+  companyAddress?: string;
+  issuedAt: string;
+  status: InvoiceStatus;
+  eFRISStatus: EFRISStatus;
+  eFRISFiscalNo?: string;
+  eFRISQRCode?: string;
+  eFRISSubmittedAt?: string;
+  totalTaxable: number;
+  totalVat: number;
+  totalAmount: number;
+  paidAmount: number;
+  outstandingAmount: number;
+  isProforma: boolean;
+  isCreditNote: boolean;
+  creditNoteFor?: string;
+  creditNoteReason?: string;
+};
+export type InvoiceLineItem = {
+  id: string;
+  invoiceId: string;
+  description: string;
+  amount: number;
+  vatTreatment: VatTreatment;
+  vatRate: number;
+  taxableAmount: number;
+  vatAmount: number;
+  totalAmount: number;
 };
 
 export type FolioStatus = "open" | "active" | "pending_settlement" | "settled" | "closed" | "void";
@@ -208,6 +250,8 @@ type State = {
   folios: Folio[];
   charges: FolioCharge[];
   payments: Payment[];
+  invoices: Invoice[];
+  invoiceLineItems: InvoiceLineItem[];
   users: UserRecord[];
   audit: AuditEntry[];
   housekeepingTasks: HousekeepingTask[];
@@ -273,7 +317,7 @@ function saveCounters() {
   try {
     localStorage.setItem(COUNTER_KEY, JSON.stringify({
       resCounter, folioCounter, chargeCounter, payCounter, guestCounter, auditCounter,
-      hkTaskCounter, maintCounter, dndCounter, receiptCounter,
+      hkTaskCounter, maintCounter, dndCounter, receiptCounter, invoiceCounter, creditNoteCounter,
     }));
   } catch { /* ignore */ }
 }
@@ -298,6 +342,10 @@ let dndCounter = savedCounters.dndCounter ?? 50;
 const nextDndId = () => { const v = `DND-${++dndCounter}`; saveCounters(); return v; };
 let receiptCounter = savedCounters.receiptCounter ?? 100;
 const nextReceiptId = () => { const v = `RCT-${++receiptCounter}`; saveCounters(); return v; };
+let invoiceCounter = savedCounters.invoiceCounter ?? 200;
+const nextInvoiceNo = () => { const v = `JSL-${new Date().getFullYear()}-${String(++invoiceCounter).padStart(5, "0")}`; saveCounters(); return v; };
+let creditNoteCounter = savedCounters.creditNoteCounter ?? 100;
+const nextCreditNoteNo = () => { const v = `JSL-CN-${new Date().getFullYear()}-${String(++creditNoteCounter).padStart(5, "0")}`; saveCounters(); return v; };
 
 const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
   // mix of arriving today, departing today, and future
