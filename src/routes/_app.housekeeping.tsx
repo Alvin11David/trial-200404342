@@ -57,6 +57,7 @@ type Tab = "board" | "tasks" | "inspections" | "schedule" | "issues";
 
 function HousekeepingPage() {
   const [tab, setTab] = useState<Tab>("board");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -72,7 +73,7 @@ function HousekeepingPage() {
         </div>
       </header>
 
-      <RoomStatusStats />
+      <RoomStatusStats statusFilter={statusFilter} onStatusFilter={setStatusFilter} />
 
       <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-card p-1">
         {([
@@ -98,7 +99,7 @@ function HousekeepingPage() {
         ))}
       </div>
 
-      {tab === "board" && <RoomStatusBoard />}
+      {tab === "board" && <RoomStatusBoard statusFilter={statusFilter} onStatusFilter={setStatusFilter} />}
       {tab === "tasks" && <TaskQueue />}
       {tab === "inspections" && <InspectionsTab />}
       {tab === "schedule" && <ScheduleTab />}
@@ -109,7 +110,16 @@ function HousekeepingPage() {
 
 /* ============================== Status Stats ============================== */
 
-function RoomStatusStats() {
+const STAT_FILTERS: { label: string; color: string; key: string; filter: string[] }[] = [
+  { label: "Dirty", color: "bg-red-500", key: "dirty", filter: ["dirty"] },
+  { label: "In Progress", color: "bg-amber-500", key: "inProgress", filter: ["in_progress"] },
+  { label: "Clean (pending inspect)", color: "bg-sky-500", key: "clean", filter: ["clean"] },
+  { label: "Inspected / Available", color: "bg-emerald-500", key: "inspected", filter: ["inspected", "available"] },
+  { label: "Blocked / Maint", color: "bg-slate-500", key: "blocked", filter: ["blocked", "maintenance"] },
+  { label: "Queued Tasks", color: "bg-violet-500", key: "queued", filter: [] },
+];
+
+function RoomStatusStats({ statusFilter, onStatusFilter }: { statusFilter: string | null; onStatusFilter: (s: string | null) => void }) {
   const rooms = useStore((s) => s.rooms);
   const tasks = useStore((s) => s.housekeepingTasks);
 
@@ -130,19 +140,33 @@ function RoomStatusStats() {
 
   return (
     <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      <Stat color="bg-red-500" label="Dirty" value={stats.dirty} />
-      <Stat color="bg-amber-500" label="In Progress" value={stats.inProgress} />
-      <Stat color="bg-sky-500" label="Clean (pending inspect)" value={stats.clean} />
-      <Stat color="bg-emerald-500" label="Inspected / Available" value={stats.inspected} />
-      <Stat color="bg-slate-500" label="Blocked / Maint" value={stats.blocked} />
-      <Stat color="bg-violet-500" label="Queued Tasks" value={stats.queued} />
+      {STAT_FILTERS.map((s) => (
+        <Stat
+          key={s.key}
+          color={s.color}
+          label={s.label}
+          value={stats[s.key as keyof typeof stats]}
+          active={statusFilter !== null && s.filter.includes(statusFilter)}
+          onClick={() => onStatusFilter(
+            statusFilter !== null && s.filter.includes(statusFilter) ? null : (s.filter[0] ?? null),
+          )}
+        />
+      ))}
     </div>
   );
 }
 
-function Stat({ label, value, color }: { label: string; value: number; color: string }) {
+function Stat({ label, value, color, active, onClick }: { label: string; value: number; color: string; active?: boolean; onClick?: () => void }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
+    <button
+      onClick={onClick}
+      className={cn(
+        "relative overflow-hidden rounded-xl border bg-card p-4 text-left transition-all duration-200",
+        active
+          ? "border-primary/50 ring-2 ring-primary/20 shadow-md -translate-y-0.5"
+          : "border-border hover:border-primary/30 hover:shadow-sm hover:-translate-y-0.5",
+      )}
+    >
       <span className={cn("absolute left-0 top-0 h-full w-[3px]", color)} />
       <div className="flex items-center gap-3 pl-1">
         <span className={cn("h-3 w-3 rounded-full", color)} />
@@ -151,7 +175,7 @@ function Stat({ label, value, color }: { label: string; value: number; color: st
           <div className="text-2xl font-bold tabular-nums">{value}</div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }
 
