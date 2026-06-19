@@ -379,7 +379,7 @@ function StepGuestDetails({
           value={form.phone}
           onChange={(v) => set("phone", v)}
         />
-        <Select
+        <SelectField
           icon={<MapPin className="h-4 w-4" />}
           label="Nationality"
           value={form.nationality}
@@ -397,7 +397,7 @@ function StepGuestDetails({
             "Other",
           ]}
         />
-        <Select
+        <SelectField
           icon={<IdCard className="h-4 w-4" />}
           label="ID type"
           value={form.idType}
@@ -877,7 +877,7 @@ function Field({
   );
 }
 
-function Select({
+function SelectField({
   label,
   value,
   onChange,
