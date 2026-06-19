@@ -236,6 +236,7 @@ function FolioDetail({ folioId }: { folioId: string }) {
   const tenant = useStore((s) => s.tenant);
   const [showCharge, setShowCharge] = useState(false);
   const [showPay, setShowPay] = useState(false);
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [showVoid, setShowVoid] = useState<string | null>(null);
   const [showSettle, setShowSettle] = useState(false);
   const [showNightAudit, setShowNightAudit] = useState(false);
@@ -484,10 +485,17 @@ function FolioDetail({ folioId }: { folioId: string }) {
                   {p.status === "pending" && (
                     <div className="mt-1.5 flex gap-1.5">
                       <button
-                        onClick={() => { confirmPayment(p.id, actor, actorRole); }}
-                        className="rounded bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success hover:bg-success/25"
+                        disabled={confirmingId === p.id}
+                        onClick={async () => {
+                          setConfirmingId(p.id);
+                          const res = await simulateGatewayConfirm(p.id, actor, actorRole);
+                          setConfirmingId(null);
+                          if (res.ok) toast.success(res.message); else toast.error(res.message);
+                        }}
+                        className="inline-flex items-center gap-1 rounded bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success hover:bg-success/25 disabled:opacity-50"
                       >
-                        Confirm
+                        {confirmingId === p.id ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                        {confirmingId === p.id ? "Confirming…" : "Confirm"}
                       </button>
                       <button
                         onClick={() => { const r = prompt("Failure reason:"); if (r) failPayment(p.id, r, actor, actorRole); }}
