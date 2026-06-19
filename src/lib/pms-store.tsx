@@ -495,6 +495,65 @@ for (let k = 1; k <= 6; k++) {
   });
 }
 
+/* Seed historical invoices for settled folios */
+const INVOICES: Invoice[] = [];
+const INVOICE_LINE_ITEMS: InvoiceLineItem[] = [];
+FOLIOS.filter((f) => f.status === "settled").forEach((f) => {
+  const res = RESERVATIONS.find((r) => r.id === f.reservationId);
+  if (!res) return;
+  const folioCharges = CHARGES.filter((c) => c.folioId === f.id && !c.voided);
+  const folioPayments = PAYMENTS.filter((p) => p.folioId === f.id && p.status === "confirmed");
+  const totalCharges = folioCharges.reduce((s, c) => s + c.amount, 0);
+  const totalPaid = folioPayments.reduce((s, p) => s + p.amount, 0);
+  const vatRate = currentVatRate();
+  let totalTaxable = 0, totalVat = 0;
+  const lines: InvoiceLineItem[] = [];
+  folioCharges.forEach((c) => {
+    const vt = c.type === "tax" ? "exempt" : (res.vatTreatment ?? "inclusive");
+    const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(c.amount / (1 + vatRate)) : c.amount);
+    const vat = vt === "exempt" ? 0 : Math.round(taxable * vatRate);
+    totalTaxable += taxable;
+    totalVat += vat;
+    const li: InvoiceLineItem = {
+      id: `INVLI-${FOLIOS.indexOf(f)}-${lines.length}`,
+      invoiceId: f.id,
+      description: c.description,
+      amount: c.amount,
+      vatTreatment: vt,
+      vatRate,
+      taxableAmount: taxable,
+      vatAmount: vat,
+      totalAmount: c.amount,
+    };
+    lines.push(li);
+  });
+  const inv: Invoice = {
+    id: f.id,
+    invoiceNo: nextInvoiceNo(),
+    folioId: f.id,
+    reservationId: res.id,
+    guestName: res.guestName,
+    guestEmail: res.guestEmail,
+    guestPhone: res.guestPhone,
+    issuedAt: f.closedAt ?? f.openedAt,
+    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "partial" : "unpaid",
+    eFRISStatus: "confirmed",
+    eFRISFiscalNo: `EFRIS-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
+    eFRISQRCode: "https://ura.go.ug/efris/qr?placeholder",
+    eFRISSubmittedAt: f.closedAt,
+    totalTaxable,
+    totalVat,
+    totalAmount: totalCharges,
+    paidAmount: totalPaid,
+    outstandingAmount: Math.max(0, totalCharges - totalPaid),
+    isProforma: false,
+    isCreditNote: false,
+  };
+  inv.eFRISQRCode = `https://ura.go.ug/efris/qr?invoice=${inv.invoiceNo}`;
+  INVOICES.push(inv);
+  INVOICE_LINE_ITEMS.push(...lines);
+});
+
 const USERS: UserRecord[] = [
   { id: "U001", name: "Sarah Nakato", email: "sarah@jambo.ug", role: "Owner / GM", active: true, lastLogin: "10 min ago" },
   { id: "U002", name: "Amani Kato", email: "amani@jambo.ug", role: "Front Desk", active: true, lastLogin: "Just now" },
@@ -624,6 +683,8 @@ function persistState() {
       folios: state.folios,
       charges: state.charges,
       payments: state.payments,
+      invoices: state.invoices,
+      invoiceLineItems: state.invoiceLineItems,
       users: state.users,
       audit: state.audit,
       housekeepingTasks: state.housekeepingTasks,
