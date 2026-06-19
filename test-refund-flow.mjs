@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import { mkdirSync, existsSync } from "fs";
 
-const BASE = "http://localhost:8082";
+const BASE = "http://localhost:8080";
 const PASSED = [], FAILED = [];
 const ok  = (cond, m) => { if (cond) { PASSED.push(m ?? cond); console.log("  \u2713 " + (m ?? cond)); } else { FAILED.push(m ?? cond); console.log("  \u2717 " + (m ?? cond)); } };
 const no  = (m) => { FAILED.push(m); console.log("  \u2717 " + m); };
