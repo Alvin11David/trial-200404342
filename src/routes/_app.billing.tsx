@@ -458,7 +458,9 @@ function FolioDetail({ folioId }: { folioId: string }) {
               <li key={p.id} className="flex items-start justify-between px-5 py-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{PAYMENT_METHOD_LABEL[p.method]}</span>
+                    <span className="text-sm font-medium">
+                      {p.refundOf ? "Refund (" + PAYMENT_METHOD_LABEL[p.method] + ")" : PAYMENT_METHOD_LABEL[p.method]}
+                    </span>
                     {p.status === "pending" && (
                       <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning">Pending</span>
                     )}
@@ -470,6 +472,8 @@ function FolioDetail({ folioId }: { folioId: string }) {
                     {p.date} {p.phone ? `· ${p.phone}` : ""} {p.reference ? `· ${p.reference}` : ""}
                     {p.providerRef ? `· ${p.providerRef}` : ""}
                     {p.failureReason ? `· ${p.failureReason}` : ""}
+                    {p.refundReason ? `· Refund: ${p.refundReason}` : ""}
+                    {p.refundedBy ? `· by ${p.refundedBy}` : ""}
                   </div>
                   {p.status === "pending" && (
                     <div className="mt-1.5 flex gap-1.5">
@@ -487,8 +491,20 @@ function FolioDetail({ folioId }: { folioId: string }) {
                       </button>
                     </div>
                   )}
+                  {p.status === "confirmed" && !p.refundOf && canRefund && (
+                    <div className="mt-1.5">
+                      <button
+                        onClick={() => setShowRefund(p.id)}
+                        className="rounded bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive hover:bg-destructive/20"
+                      >
+                        Refund
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <span className="text-sm font-semibold tabular-nums text-success">−{fmtUGX(p.amount)}</span>
+                <span className={"text-sm font-semibold tabular-nums " + (p.refundOf ? "text-destructive" : "text-success")}>
+                  {p.refundOf ? "" : "−"}{fmtUGX(p.amount)}
+                </span>
               </li>
             ))}
           </ul>
@@ -558,6 +574,14 @@ function FolioDetail({ folioId }: { folioId: string }) {
           actor={actor}
           actorRole={actorRole}
           onClose={() => setShowNightAudit(false)}
+        />
+      )}
+      {showRefund && (
+        <RefundDialog
+          payment={folioPayments.find((p) => p.id === showRefund)!}
+          actor={actor}
+          actorRole={actorRole}
+          onClose={() => setShowRefund(null)}
         />
       )}
     </div>
