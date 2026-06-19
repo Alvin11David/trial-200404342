@@ -13,13 +13,12 @@ import {
   invoiceLineItemsFor,
   invoicesForFolio,
   submitToEFRIS,
-  useRole,
   type Invoice,
   type InvoiceLineItem,
   type EFRISStatus,
   type InvoiceStatus,
 } from "@/lib/pms-store";
-import { ROLE_META } from "@/lib/role";
+import { ROLE_META, useRole } from "@/lib/role";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/invoices")({
