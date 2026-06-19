@@ -54,7 +54,7 @@ export type ReservationStatus =
   | "checked_out"
   | "cancelled";
 
-export type VatTreatment = "inclusive" | "exclusive";
+export type VatTreatment = "inclusive" | "exclusive" | "exempt";
 
 export type Reservation = {
   id: string;
