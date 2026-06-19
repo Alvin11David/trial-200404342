@@ -110,8 +110,11 @@ function RoomsBoard() {
             </option>
           ))}
         </select>
-        <button className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/30 px-3 py-2 text-xs text-muted-foreground hover:text-foreground">
-          <Filter className="h-3.5 w-3.5" /> More
+        <button
+          onClick={() => setShowExtraFilters(!showExtraFilters)}
+          className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/30 px-3 py-2 text-xs text-muted-foreground hover:text-foreground"
+        >
+          <Filter className="h-3.5 w-3.5" /> {showExtraFilters ? "Less" : "More"}
         </button>
       </div>
 
@@ -243,8 +246,8 @@ function RoomCard({
       </div>
 
       <div className="mt-2 flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        {room.status === "available" && <TinyBtn icon={LogIn} label="Check in" tone="success" />}
-        {room.status === "dirty" && <TinyBtn icon={Sparkles} label="Mark clean" tone="primary" />}
+        {room.status === "available" && <TinyBtn icon={LogIn} label="Check in" tone="success" onClick={() => navigate({ to: "/check-in", search: { room: room.id } as never })} />}
+        {room.status === "dirty" && <TinyBtn icon={Sparkles} label="Mark clean" tone="primary" onClick={() => { setRoomStatus(room.id, "available"); }} />}
         {room.status === "occupied" && reservationId && (
           <Link
             to="/reservations"
@@ -280,14 +283,17 @@ function TinyBtn({
   icon: Icon,
   label,
   tone,
+  onClick,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   label: string;
   tone: "primary" | "success";
+  onClick?: () => void;
 }) {
   return (
     <button
       title={label}
+      onClick={onClick}
       className={cn(
         "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-medium transition",
         tone === "primary" && "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
