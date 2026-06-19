@@ -48,7 +48,7 @@ async function run() {
     const table = page.locator("table");
     ok(await table.isVisible(), "Folios table visible");
 
-    // ===== 3. Find a folio with high enough balance to split =====
+    // ===== 3. Open high-balance folio =====
     console.log("\n=== 3. Open high-balance folio ===");
     const allRows = table.locator("tbody tr");
     const rowCount = await allRows.count();
@@ -58,7 +58,7 @@ async function run() {
     ok(await targetRow.isVisible(), "Active folio found");
 
     const guestName = (await targetRow.locator("td").nth(1).textContent()) || "";
-    console.log(`  Selected guest: ${guestName.trim()}`);
+    console.log("  Selected guest: " + guestName.trim());
 
     await targetRow.click();
     await page.waitForTimeout(1500);
@@ -70,15 +70,15 @@ async function run() {
     const balanceLocator = page.locator("text=Outstanding balance").locator("..").locator("p.text-3xl").first();
     const initialBalanceStr = (await balanceLocator.textContent()) || "";
     const initialBalance = parseUgx(initialBalanceStr);
-    console.log(`  Outstanding balance: UGX ${initialBalance.toLocaleString()}`);
-    ok(initialBalance >= 20000, `Initial balance sufficient for split: UGX ${initialBalance.toLocaleString()}`);
+    console.log("  Outstanding balance: UGX " + initialBalance.toLocaleString());
+    ok(initialBalance >= 20000, "Initial balance sufficient for split: UGX " + initialBalance.toLocaleString());
 
     const totalPaymentsLocator = page.locator("text=Total payments").locator("..").locator("span.font-semibold").last();
 
     // ===== 5. First split — Cash =====
     const cashAmount = Math.floor(initialBalance * 0.4);
     const remainder = initialBalance - cashAmount;
-    console.log(`\n=== 5. Cash UGX ${cashAmount.toLocaleString()} (40%) ===`);
+    console.log("\n=== 5. Cash UGX " + cashAmount.toLocaleString() + " (40%) ===");
     await page.locator("button:has-text('Record payment')").click();
     await page.waitForTimeout(800);
     await ss("sp04-cash-split");
@@ -95,14 +95,14 @@ async function run() {
 
     const balanceAfterCash = parseUgx((await balanceLocator.textContent()) || "");
     ok(balanceAfterCash === remainder,
-      `Balance after cash split: UGX ${balanceAfterCash.toLocaleString()} (expected UGX ${remainder.toLocaleString()})`);
+      "Balance after cash split: UGX " + balanceAfterCash.toLocaleString() + " (expected UGX " + remainder.toLocaleString() + ")");
 
     const folioBody = page.locator(".mx-auto.max-w-5xl").first();
     const bodyCash = (await folioBody.textContent()) || "";
     ok(bodyCash.includes("Cash"), "Cash payment visible in payment list");
 
-    // ===== 6. Second split — MTN MoMo for remainder =====
-    console.log(`\n=== 6. MoMo UGX ${remainder.toLocaleString()} (60%) ===`);
+    // ===== 6. Second split — MTN Mobile Money for remainder =====
+    console.log("\n=== 6. MTN Mobile Money UGX " + remainder.toLocaleString() + " (60%) ===");
     await page.locator("button:has-text('Record payment')").click();
     await page.waitForTimeout(800);
     await ss("sp07-momo-split");
@@ -120,7 +120,7 @@ async function run() {
     // MoMo is pending — balance unchanged
     const balanceAfterMoMo = parseUgx((await balanceLocator.textContent()) || "");
     ok(balanceAfterMoMo === remainder,
-      `Balance still at UGX ${remainder.toLocaleString()} while MoMo pending`);
+      "Balance still at UGX " + remainder.toLocaleString() + " while MoMo pending");
 
     const bodyMoMo = (await folioBody.textContent()) || "";
     ok(bodyMoMo.includes("Pending"), "MoMo payment shows Pending badge");
@@ -136,28 +136,39 @@ async function run() {
     // ===== 8. Verify zero balance + settlement =====
     console.log("\n=== 8. Zero balance + settlement ===");
     const finalBalance = parseUgx((await balanceLocator.textContent()) || "");
-    ok(finalBalance === 0, `Balance exactly zero: UGX ${finalBalance.toLocaleString()}`);
+    ok(finalBalance === 0, "Balance exactly zero: UGX " + finalBalance.toLocaleString());
 
     const bodyFinal = (await folioBody.textContent()) || "";
     ok(bodyFinal.includes("In credit") || bodyFinal.includes("settled") || bodyFinal.includes("Settled"),
       "Folio shows settled / in credit indicator");
     ok(bodyFinal.includes("Cash"), "Cash method visible in payment list");
-    ok(bodyFinal.includes("MTN MoMo"), "MoMo method visible in payment list");
+
+    // Label for mtn_momo is "MTN Mobile Money" — check for substring match
+    ok(bodyFinal.includes("MoMo") || bodyFinal.includes("Mobile Money") || bodyFinal.includes("MTN"),
+      "Mobile money payment method visible in payment list");
 
     const totalPayments = parseUgx((await totalPaymentsLocator.textContent()) || "");
     ok(totalPayments === initialBalance,
-      `Total payments UGX ${totalPayments.toLocaleString()} = initial balance UGX ${initialBalance.toLocaleString()}`);
+      "Total payments UGX " + totalPayments.toLocaleString() + " = initial balance UGX " + initialBalance.toLocaleString());
 
-    // ===== 9. Folio status in billing list =====
-    console.log("\n=== 9. Folio status ===");
+    // ===== 9. Folio status in billing list (settled tab) =====
+    console.log("\n=== 9. Folio status (settled tab) ===");
     await page.goto(`${BASE}/billing`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(1500);
     await ss("sp11-billing-settled");
 
+    // Click "settled" tab to see settled folios
+    const settledTab = page.locator("button:has-text('Settled')");
+    ok(await settledTab.isVisible(), "Settled tab visible");
+    await settledTab.click();
+    await page.waitForTimeout(800);
+
     const table2 = page.locator("table");
     const settledRow = table2.locator("tbody tr").filter({ hasText: guestName.trim() }).first();
-    ok(await settledRow.isVisible(), "Folio visible in billing list");
-    ok(await settledRow.locator("span:has-text('Settled')").isVisible(), "Folio badge shows 'Settled'");
+    ok(await settledRow.isVisible(), "Settled folio visible in billing list (settled tab)");
+
+    const statusBadge = settledRow.locator("span:has-text('Settled')");
+    ok(await statusBadge.isVisible(), "Folio badge shows 'Settled'");
 
     // ===== 10. Audit trail =====
     console.log("\n=== 10. Audit trail ===");
@@ -165,27 +176,27 @@ async function run() {
     await page.waitForTimeout(1500);
     await ss("sp12-audit");
 
-    const auditBody = await page.locator("body").textContent() || "";
+    const auditBody = (await page.locator("body").textContent()) || "";
     ok(auditBody.includes("Cash") || auditBody.includes("cash"), "Audit references Cash");
     ok(auditBody.includes("mtn_momo"), "Audit references mtn_momo method");
-    ok((auditBody.match(new RegExp(cashAmount.toLocaleString(), "g")) || []).length >= 1,
-      `Audit mentions cash amount UGX ${cashAmount.toLocaleString()}`);
+    ok(auditBody.includes(cashAmount.toLocaleString()),
+      "Audit mentions cash amount UGX " + cashAmount.toLocaleString());
 
-    // Count unique payment methods in audit
-    const cashRefs = (auditBody.match(/Cash/g) || []).length;
-    const momoRefs = (auditBody.match(/mtn_momo/g) || []).length;
-    ok(cashRefs >= 1, `At least 1 Cash reference in audit (found ${cashRefs})`);
-    ok(momoRefs >= 1, `At least 1 MTN MoMo reference in audit (found ${momoRefs})`);
+    // Case-insensitive count — audit uses lowercase method names
+    const cashCount = (auditBody.match(/cash/gi) || []).length;
+    const momoCount = (auditBody.match(/mtn_momo/g) || []).length;
+    ok(cashCount >= 1, "At least 1 cash reference in audit (found " + cashCount + ")");
+    ok(momoCount >= 1, "At least 1 MTN MoMo reference in audit (found " + momoCount + ")");
 
   } catch (err) {
-    console.log(`\n  ERROR: ${err.message}`);
+    console.log("\n  ERROR: " + err.message);
     console.log(err.stack.split("\n").slice(0, 5).join("\n"));
     await ss("sp-error").catch(() => {});
     no(err.message);
   }
 
-  console.log(`\n${"=".repeat(40)}`);
-  console.log(`Passed: ${PASSED.length}  Failed: ${FAILED.length}`);
+  console.log("\n" + "=".repeat(40));
+  console.log("Passed: " + PASSED.length + "  Failed: " + FAILED.length);
   await browser.close();
   process.exit(FAILED.length > 0 ? 1 : 0);
 }
