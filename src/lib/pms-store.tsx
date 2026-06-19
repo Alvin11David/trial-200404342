@@ -851,7 +851,7 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
 
   // if payment collected at booking, record it on the folio
   if (input.payment) {
-    const needsGateway = input.payment.method === "mtn_momo" || input.payment.method === "airtel_money" || input.payment.method === "card";
+    const needsGateway = input.payment.method === "mtn_momo" || input.payment.method === "airtel_money" || input.payment.method === "card" || input.payment.method === "bank_transfer";
     state.payments = [
       ...state.payments,
       {
@@ -1074,7 +1074,7 @@ export function addCharge(folioId: string, input: Omit<FolioCharge, "id" | "foli
 }
 
 export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId" | "date" | "status"> & { date?: string; receivedBy?: string; status?: PaymentStatus }) {
-  const needsGateway = input.method === "mtn_momo" || input.method === "airtel_money" || input.method === "card";
+  const needsGateway = input.method === "mtn_momo" || input.method === "airtel_money" || input.method === "card" || input.method === "bank_transfer";
   const status = input.status ?? (needsGateway ? "pending" : "confirmed");
   state.payments = [
     ...state.payments,
