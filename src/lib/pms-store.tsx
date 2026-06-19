@@ -115,6 +115,8 @@ export type Payment = {
   refundReason?: string; // why the refund was processed
   refundedBy?: string;   // who authorised it
   refundedAt?: string;   // when
+  receiptGenerated?: boolean; // auto-generated receipt on confirmation
+  receiptId?: string;        // unique receipt number (RCT-XXXX)
 };
 
 export type FolioStatus = "open" | "active" | "pending_settlement" | "settled" | "closed" | "void";
@@ -294,6 +296,8 @@ let maintCounter = savedCounters.maintCounter ?? 100;
 const nextMaintId = () => { const v = `MNT-${++maintCounter}`; saveCounters(); return v; };
 let dndCounter = savedCounters.dndCounter ?? 50;
 const nextDndId = () => { const v = `DND-${++dndCounter}`; saveCounters(); return v; };
+let receiptCounter = savedCounters.receiptCounter ?? 100;
+const nextReceiptId = () => { const v = `RCT-${++receiptCounter}`; saveCounters(); return v; };
 
 const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
   // mix of arriving today, departing today, and future
@@ -1095,6 +1099,8 @@ export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId
       status,
       providerRef: input.providerRef,
       failureReason: input.failureReason,
+      receiptGenerated: status === "confirmed",
+      receiptId: status === "confirmed" ? nextReceiptId() : undefined,
     },
   ];
   // auto-settle only for confirmed payments
@@ -1113,7 +1119,7 @@ export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId
 export function confirmPayment(paymentId: string, actor: string, role: string, providerRef?: string) {
   state.payments = state.payments.map((p) =>
     p.id === paymentId && p.status === "pending"
-      ? { ...p, status: "confirmed", providerRef: providerRef ?? p.providerRef }
+      ? { ...p, status: "confirmed", providerRef: providerRef ?? p.providerRef, receiptGenerated: true, receiptId: nextReceiptId() }
       : p,
   );
   const payment = state.payments.find((p) => p.id === paymentId);
@@ -1173,6 +1179,8 @@ export function processRefund(paymentId: string, refundAmount: number, reason: s
     refundReason: reason,
     refundedBy: actor,
     refundedAt: todayISO(),
+    receiptGenerated: true,
+    receiptId: nextReceiptId(),
   };
   state.payments = [...state.payments, refund];
   logAudit({ actor, role, module: "billing", action: "Refund processed", entity: `${refund.folioId} ${fmtUGX(refundAmount)} via ${original.method} — ${reason}`, severity: "warn" });
