@@ -44,6 +44,7 @@ import {
   type MaintSeverity,
   type RoomStatus,
 } from "@/lib/pms-store";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/housekeeping")({
   head: () => ({ meta: [{ title: "Housekeeping — Jambo PMS" }] }),
@@ -532,30 +533,49 @@ function CreateTaskDialog({ onClose }: { onClose: () => void }) {
         </div>
         <div className="space-y-3">
           <label className="block text-xs font-medium text-muted-foreground">Room *</label>
-          <select value={roomId} onChange={(e) => setRoomId(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60">
-            <option value="">Select room</option>
-            {rooms.map((r) => <option key={r.id} value={r.id}>Room {r.id} (F{r.floor})</option>)}
-          </select>
+          <Select value={roomId} onValueChange={setRoomId}>
+            <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="Select room" />
+            </SelectTrigger>
+            <SelectContent>
+              {rooms.map((r) => <SelectItem key={r.id} value={r.id}>Room {r.id} (F{r.floor})</SelectItem>)}
+            </SelectContent>
+          </Select>
 
           <label className="block text-xs font-medium text-muted-foreground">Task type</label>
-          <select value={type} onChange={(e) => setType(e.target.value as HkTaskType)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60">
-            {(["turnover", "deep_clean", "room_service", "linen_change", "inspection"] as HkTaskType[]).map((t) => (
-              <option key={t} value={t}>{TASK_TYPE_LABEL[t]}</option>
-            ))}
-          </select>
+          <Select value={type} onValueChange={(v) => setType(v as HkTaskType)}>
+            <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent>
+              {(["turnover", "deep_clean", "room_service", "linen_change", "inspection"] as HkTaskType[]).map((t) => (
+                <SelectItem key={t} value={t}>{TASK_TYPE_LABEL[t]}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <label className="block text-xs font-medium text-muted-foreground">Priority</label>
-          <select value={priority} onChange={(e) => setPriority(e.target.value as HkPriority)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60">
-            <option value="standard">Standard</option>
-            <option value="high">High</option>
-            <option value="vip">VIP</option>
-          </select>
+          <Select value={priority} onValueChange={(v) => setPriority(v as HkPriority)}>
+            <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="Select priority" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="standard">Standard</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="vip">VIP</SelectItem>
+            </SelectContent>
+          </Select>
 
           <label className="block text-xs font-medium text-muted-foreground">Assign to</label>
-          <select value={assignee} onChange={(e) => setAssignee(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60">
-            <option value="">Unassigned</option>
-            {hkUsers.map((u) => <option key={u.id} value={u.id}>{u.name}</option>)}
-          </select>
+          <Select value={assignee} onValueChange={setAssignee}>
+            <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="Unassigned" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Unassigned</SelectItem>
+              {hkUsers.map((u) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
 
           <label className="block text-xs font-medium text-muted-foreground">Due time</label>
           <input type="time" value={due} onChange={(e) => setDue(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" />
@@ -601,12 +621,17 @@ function FlagIssueDialog({ taskId, onClose }: { taskId: string; onClose: () => v
           <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60" placeholder="Broken fixture, damage, missing item…" />
 
           <label className="block text-xs font-medium text-muted-foreground">Severity</label>
-          <select value={severity} onChange={(e) => setSeverity(e.target.value as MaintSeverity)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-          </select>
+          <Select value={severity} onValueChange={(v) => setSeverity(v as MaintSeverity)}>
+            <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="Select severity" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="mt-6 flex justify-end gap-2">
           <button onClick={onClose} className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted">Cancel</button>

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState, useMemo } from "react";
 import { Search, Eye, CalendarDays, PartyPopper, MapPin, Users, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/events/list")({
   head: () => ({ meta: [{ title: "Events List — Jambo ERP" }] }),
@@ -261,24 +262,17 @@ function EventsListPage() {
             />
           </div>
 
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as EventStatus | "All")}
-            className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60"
-          >
-            <option value="All" className="bg-card">
-              All statuses
-            </option>
-            <option value="Confirmed" className="bg-card">
-              Confirmed
-            </option>
-            <option value="Tentative" className="bg-card">
-              Tentative
-            </option>
-            <option value="Cancelled" className="bg-card">
-              Cancelled
-            </option>
-          </select>
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as EventStatus | "All")}>
+            <SelectTrigger className="rounded-xl border border-border/70 bg-card/40 px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All statuses</SelectItem>
+              <SelectItem value="Confirmed">Confirmed</SelectItem>
+              <SelectItem value="Tentative">Tentative</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

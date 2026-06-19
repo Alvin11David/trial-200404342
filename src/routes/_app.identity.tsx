@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Plus, Search, ShieldCheck, KeyRound, Check, X, Power } from "lucide-react";
 import { ROLES, type Role } from "@/lib/role";
 import { toggleUserActive, upsertUser, useStore, type UserRecord } from "@/lib/pms-store";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/identity")({
   head: () => ({ meta: [{ title: "Identity & Access — Jambo PMS" }] }),
@@ -216,9 +217,14 @@ function UserEditor({ initial, onClose }: { initial: UserRecord | null; onClose:
             <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
           </Labeled>
           <Labeled label="Role">
-            <select value={role} onChange={(e) => setRole(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
-              {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
-            </select>
+            <Select value={role} onValueChange={setRole}>
+              <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                <SelectValue placeholder="Select role" />
+              </SelectTrigger>
+              <SelectContent>
+                {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </Labeled>
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={active} onChange={(e) => setActive(e.target.checked)} /> Active

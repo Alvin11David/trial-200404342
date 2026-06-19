@@ -15,6 +15,7 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/events/new")({
   head: () => ({ meta: [{ title: "New Event — Jambo ERP" }] }),
@@ -188,17 +189,16 @@ function NewEventPage() {
                 <label className="mb-1.5 flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5" /> Venue / Room
                 </label>
-                <select
-                  value={form.venue}
-                  onChange={(e) => set("venue", e.target.value)}
-                  className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60"
-                >
-                  {venues.map((v) => (
-                    <option key={v} value={v} className="bg-card">
-                      {v}
-                    </option>
-                  ))}
-                </select>
+                <Select value={form.venue} onValueChange={(v) => set("venue", v)}>
+                  <SelectTrigger className="w-full rounded-xl border border-border/70 bg-card/40 px-4 py-2.5 text-sm outline-none transition focus:border-primary/60 focus:bg-card/60 focus:ring-0 shadow-none">
+                    <SelectValue placeholder="Select venue" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {venues.map((v) => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <FormField
                 icon={<Users className="h-4 w-4" />}

@@ -16,6 +16,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/inventory/requisitions")({
   head: () => ({ meta: [{ title: "Requisitions — Jambo ERP" }] }),

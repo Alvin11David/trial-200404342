@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Download, ShieldCheck } from "lucide-react";
 import { useStore, type AuditSeverity } from "@/lib/pms-store";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/audit")({
   head: () => ({ meta: [{ title: "Audit Trail — Jambo PMS" }] }),
@@ -82,13 +83,23 @@ function AuditPage() {
             className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-primary/60"
           />
         </div>
-        <select value={actor} onChange={(e) => setActor(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2 text-sm">
-          <option value="all">All users</option>
-          {actors.map((a) => <option key={a} value={a}>{a}</option>)}
-        </select>
-        <select value={mod} onChange={(e) => setMod(e.target.value)} className="rounded-lg border border-border bg-background px-3 py-2 text-sm capitalize">
-          {MODULES.map((m) => <option key={m} value={m}>{m === "all" ? "All modules" : m}</option>)}
-        </select>
+        <Select value={actor} onValueChange={setActor}>
+          <SelectTrigger className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+            <SelectValue placeholder="All users" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All users</SelectItem>
+            {actors.map((a) => <SelectItem key={a} value={a}>{a}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <Select value={mod} onValueChange={setMod}>
+          <SelectTrigger className="rounded-lg border border-border bg-background px-3 py-2 text-sm capitalize outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+            <SelectValue placeholder="All modules" />
+          </SelectTrigger>
+          <SelectContent>
+            {MODULES.map((m) => <SelectItem key={m} value={m}>{m === "all" ? "All modules" : m}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <div className="inline-flex rounded-lg border border-border bg-card p-0.5 text-xs">
           {(["all", "info", "warn", "critical"] as const).map((s) => (
             <button
