@@ -230,7 +230,7 @@ function FrontDeskDashboard() {
         <Link to="/check-in" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><UserPlus className="h-3.5 w-3.5" /> Check In <ArrowRight className="h-3 w-3" /></Link>
         <Link to="/check-out" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><LogOut className="h-3.5 w-3.5" /> Check Out <ArrowRight className="h-3 w-3" /></Link>
         <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/billing" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><CreditCard className="h-3.5 w-3.5" /> Record Payment <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><CreditCard className="h-3.5 w-3.5" /> Record Payment <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -328,7 +328,7 @@ function ReservationsDashboard() {
       <div className="flex flex-wrap gap-2">
         <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
         <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/revenue" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><BarChart3 className="h-3.5 w-3.5" /> Revenue Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><BarChart3 className="h-3.5 w-3.5" /> Reports <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -350,7 +350,7 @@ function AccountantDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/billing" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Receipt className="h-3.5 w-3.5" /> View Billing <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Receipt className="h-3.5 w-3.5" /> View Billing <ArrowRight className="h-3 w-3" /></Link>
         <Link to="/accounting" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><Calculator className="h-3.5 w-3.5" /> Accounting <ArrowRight className="h-3 w-3" /></Link>
         <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><BarChart3 className="h-3.5 w-3.5" /> Run Reports <ArrowRight className="h-3 w-3" /></Link>
         <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
