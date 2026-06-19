@@ -152,9 +152,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "sticky top-0 z-20 flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300",
+          "fixed left-0 top-0 z-20 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300",
           collapsed ? "w-[72px]" : "w-[200px] xl:w-[244px]",
-          "fixed -translate-x-full md:relative md:translate-x-0",
+          "-translate-x-full md:translate-x-0",
           mobileOpen && "translate-x-0",
         )}
       >
@@ -257,7 +257,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Main column */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className={cn("flex min-w-0 flex-1 flex-col transition-[margin] duration-300", collapsed ? "md:ml-[72px]" : "md:ml-[200px] xl:ml-[244px]")}>
         <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-border bg-card/80 px-4 backdrop-blur md:gap-3 md:px-6">
           <button
             onClick={() => setMobileOpen(true)}
