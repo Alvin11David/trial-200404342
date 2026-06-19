@@ -718,6 +718,8 @@ const state: State = {
   folios: persisted?.folios ?? FOLIOS,
   charges: persisted?.charges ?? CHARGES,
   payments: persisted?.payments ?? PAYMENTS,
+  invoices: persisted?.invoices ?? INVOICES,
+  invoiceLineItems: persisted?.invoiceLineItems ?? INVOICE_LINE_ITEMS,
   users: persisted?.users ?? USERS,
   audit: persisted?.audit ?? AUDIT,
   housekeepingTasks: persisted?.housekeepingTasks ?? HK_TASKS,
