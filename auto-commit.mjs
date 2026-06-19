@@ -17,7 +17,7 @@ function commit() {
       .slice(0, 5)
       .map((l) => l.trim())
       .join("; ");
-    const msg = `Auto-commit: ${lines.length} file(s) changed — ${summary}`.slice(0, 120);
+    const msg = `${lines.length} — ${summary}`.slice(0, 120);
 
     execSync("git add -A", { cwd: "." });
     execSync(`git commit -m "${msg}"`, { cwd: "." });
