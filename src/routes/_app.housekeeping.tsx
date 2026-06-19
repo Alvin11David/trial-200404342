@@ -98,7 +98,7 @@ function HousekeepingPage() {
         ))}
       </div>
 
-      {tab === "board" && <RoomStatusBoard statusFilter={statusFilter} onStatusFilter={setStatusFilter} />}
+      {tab === "board" && <RoomStatusBoard />}
       {tab === "tasks" && <TaskQueue />}
       {tab === "inspections" && <InspectionsTab />}
       {tab === "schedule" && <ScheduleTab />}
@@ -109,16 +109,7 @@ function HousekeepingPage() {
 
 /* ============================== Status Stats ============================== */
 
-const STAT_FILTERS: { label: string; color: string; key: string; filter: string[] }[] = [
-  { label: "Dirty", color: "bg-red-500", key: "dirty", filter: ["dirty"] },
-  { label: "In Progress", color: "bg-amber-500", key: "inProgress", filter: ["in_progress"] },
-  { label: "Clean (pending inspect)", color: "bg-sky-500", key: "clean", filter: ["clean"] },
-  { label: "Inspected / Available", color: "bg-emerald-500", key: "inspected", filter: ["inspected", "available"] },
-  { label: "Blocked / Maint", color: "bg-slate-500", key: "blocked", filter: ["blocked", "maintenance"] },
-  { label: "Queued Tasks", color: "bg-violet-500", key: "queued", filter: [] },
-];
-
-function RoomStatusStats({ statusFilter, onStatusFilter }: { statusFilter: string | null; onStatusFilter: (s: string | null) => void }) {
+function RoomStatusStats() {
   const rooms = useStore((s) => s.rooms);
   const tasks = useStore((s) => s.housekeepingTasks);
 
@@ -139,33 +130,19 @@ function RoomStatusStats({ statusFilter, onStatusFilter }: { statusFilter: strin
 
   return (
     <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
-      {STAT_FILTERS.map((s) => (
-        <Stat
-          key={s.key}
-          color={s.color}
-          label={s.label}
-          value={stats[s.key as keyof typeof stats]}
-          active={statusFilter !== null && s.filter.includes(statusFilter)}
-          onClick={() => onStatusFilter(
-            statusFilter !== null && s.filter.includes(statusFilter) ? null : (s.filter[0] ?? null),
-          )}
-        />
-      ))}
+      <Stat color="bg-red-500" label="Dirty" value={stats.dirty} />
+      <Stat color="bg-amber-500" label="In Progress" value={stats.inProgress} />
+      <Stat color="bg-sky-500" label="Clean (pending inspect)" value={stats.clean} />
+      <Stat color="bg-emerald-500" label="Inspected / Available" value={stats.inspected} />
+      <Stat color="bg-slate-500" label="Blocked / Maint" value={stats.blocked} />
+      <Stat color="bg-violet-500" label="Queued Tasks" value={stats.queued} />
     </div>
   );
 }
 
-function Stat({ label, value, color, active, onClick }: { label: string; value: number; color: string; active?: boolean; onClick?: () => void }) {
+function Stat({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "relative overflow-hidden rounded-xl border bg-card p-4 text-left transition-all duration-200",
-        active
-          ? "border-primary/50 ring-2 ring-primary/20 shadow-md -translate-y-0.5"
-          : "border-border hover:border-primary/30 hover:shadow-sm hover:-translate-y-0.5",
-      )}
-    >
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
       <span className={cn("absolute left-0 top-0 h-full w-[3px]", color)} />
       <div className="flex items-center gap-3 pl-1">
         <span className={cn("h-3 w-3 rounded-full", color)} />
@@ -174,7 +151,7 @@ function Stat({ label, value, color, active, onClick }: { label: string; value: 
           <div className="text-2xl font-bold tabular-nums">{value}</div>
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -191,15 +168,14 @@ const STATUS_META: Record<RoomStatus, { bg: string; label: string; text: string 
   blocked: { bg: "bg-slate-100 text-slate-600 border-slate-300", label: "Blocked", text: "text-slate-600" },
 };
 
-function RoomStatusBoard({ statusFilter, onStatusFilter }: { statusFilter: string | null; onStatusFilter: (s: string | null) => void }) {
+function RoomStatusBoard() {
   const rooms = useStore((s) => s.rooms);
   const roomTypes = useStore((s) => s.roomTypes);
   const activeDnd = useStore(() => getActiveDND());
   const [floorFilter, setFloorFilter] = useState<string>("all");
 
   const floors = useMemo(() => [...new Set(rooms.map((r) => r.floor))].sort(), [rooms]);
-  const byFloor = floorFilter === "all" ? rooms : rooms.filter((r) => r.floor === Number(floorFilter));
-  const filtered = statusFilter ? byFloor.filter((r) => r.status === statusFilter) : byFloor;
+  const filtered = floorFilter === "all" ? rooms : rooms.filter((r) => r.floor === Number(floorFilter));
 
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
