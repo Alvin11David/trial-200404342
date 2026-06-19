@@ -407,6 +407,12 @@ const accentMap: Record<Accent, string> = {
   warning: "bg-warning/10 text-warning",
   info: "bg-info/10 text-info",
 };
+const accentColor: Record<Accent, string> = {
+  primary: "var(--color-primary)",
+  success: "var(--color-success)",
+  warning: "var(--color-warning)",
+  info: "var(--color-info)",
+};
 
 function KpiCard({
   label, value, delta, deltaPositive, icon, accent = "primary", extra,
@@ -420,8 +426,12 @@ function KpiCard({
   extra?: ReactNode;
 }) {
   return (
-    <div className="card-hover rounded-xl border border-border bg-card p-5">
-      <div className="flex items-start justify-between">
+    <div className="card-hover relative overflow-hidden rounded-xl border border-border bg-card p-5">
+      <div
+        className="absolute left-0 top-0 h-full w-[3px]"
+        style={{ background: accentColor[accent], boxShadow: `0 0 10px ${accentColor[accent]}` }}
+      />
+      <div className="flex items-start justify-between pl-1">
         <div>
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
           <p className="mt-1.5 font-display text-2xl font-bold tracking-tight">{value}</p>

@@ -1378,10 +1378,17 @@ function InvoiceView({ folioId }: { folioId: string }) {
 /* ============================== Shared helpers ============================== */
 
 function Stat({ label, value, tone }: { label: string; value: string; tone?: "success" | "warning" }) {
+  const barColor = tone === "success" ? "var(--color-success)" : tone === "warning" ? "var(--color-warning)" : "var(--color-primary)";
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-      <div className={cn("mt-1 text-2xl font-bold", tone === "success" && "text-success", tone === "warning" && "text-warning")}>{value}</div>
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
+      <div
+        className="absolute left-0 top-0 h-full w-[3px]"
+        style={{ background: barColor, boxShadow: `0 0 10px ${barColor}` }}
+      />
+      <div className="pl-1">
+        <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className={cn("mt-1 text-2xl font-bold", tone === "success" && "text-success", tone === "warning" && "text-warning")}>{value}</div>
+      </div>
     </div>
   );
 }

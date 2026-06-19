@@ -267,12 +267,22 @@ function PLCard({
     primary: "from-primary/30 to-primary/5 text-primary",
     info: "from-[oklch(0.66_0.18_220)]/30 to-[oklch(0.66_0.18_220)]/5 text-[oklch(0.72_0.18_220)]",
   };
+  const barColorMap: Record<string, string> = {
+    success: "var(--color-success)",
+    destructive: "var(--color-destructive)",
+    primary: "var(--color-primary)",
+    info: "oklch(0.72 0.18 220)",
+  };
   return (
     <div className="glass card-hover relative overflow-hidden rounded-2xl p-5">
       <div
         className={`absolute -right-8 -top-8 h-28 w-28 rounded-full bg-gradient-to-br ${toneMap[tone]} blur-2xl opacity-40`}
       />
-      <div className="relative">
+      <div
+        className="absolute left-0 top-0 h-full w-[3px]"
+        style={{ background: barColorMap[tone], boxShadow: `0 0 10px ${barColorMap[tone]}` }}
+      />
+      <div className="relative pl-1">
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">
             {label}

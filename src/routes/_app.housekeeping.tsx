@@ -142,8 +142,9 @@ function RoomStatusStats() {
 
 function Stat({ label, value, color }: { label: string; value: number; color: string }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center gap-3">
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
+      <span className={cn("absolute left-0 top-0 h-full w-[3px]", color)} />
+      <div className="flex items-center gap-3 pl-1">
         <span className={cn("h-3 w-3 rounded-full", color)} />
         <div>
           <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
