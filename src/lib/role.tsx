@@ -89,6 +89,7 @@ const COMMON: { [k: string]: NavItem } = {
   settings: { label: "Settings", to: "/settings", icon: Settings },
   notifications: { label: "Notifications", to: "/notifications", icon: Bell },
   events: { label: "Events", to: "/events", icon: Calendar },
+  invoices: { label: "Invoices", to: "/invoices", icon: Receipt },
   hr: { label: "HR Dashboard", to: "/hr", icon: Users },
   leaveManagement: { label: "Leave Management", to: "/hr/leaves", icon: CalendarDays },
   inventoryDashboard: { label: "Dashboard", to: "/inventory", icon: Package },
@@ -105,7 +106,7 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
     { section: "Overview", items: [COMMON.dashboard] },
     { section: "Operations", items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.housekeeping, COMMON.events] },
     { section: "Revenue", items: [COMMON.rates] },
-    { section: "Finance", items: [COMMON.billing, COMMON.reports] },
+    { section: "Finance", items: [COMMON.billing, COMMON.invoices, COMMON.reports] },
     { section: "Inventory", items: [COMMON.inventoryDashboard, COMMON.inventoryList, COMMON.requisitions, COMMON.purchaseOrders] },
     { section: "HR", items: [COMMON.hr, COMMON.leaveManagement, COMMON.schedule] },
     { section: "System", items: [COMMON.notifications, COMMON.audit, COMMON.settings] },
@@ -130,7 +131,7 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
   ],
   Accountant: [
     { section: "Today", items: [COMMON.dashboard] },
-    { section: "Finance", items: [COMMON.billing, COMMON.accounting, COMMON.reports] },
+    { section: "Finance", items: [COMMON.billing, COMMON.invoices, COMMON.accounting, COMMON.reports] },
     { section: "Reference", items: [COMMON.rates] },
   ],
   "System Administrator": [
