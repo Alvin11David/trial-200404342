@@ -392,6 +392,7 @@ function ReservationsPage() {
                         <div className="flex items-center gap-3">
                           <Link
                             to="/guests"
+                            search={{ guest: undefined }}
                             className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary hover:bg-primary/20"
                             title="View guest profile"
                           >
