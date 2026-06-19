@@ -378,6 +378,7 @@ RESERVATIONS.forEach((r) => {
       method: "mtn_momo",
       phone: r.guestPhone,
       amount: r.ratePerNight,
+      status: "confirmed",
     });
   }
 });
@@ -434,6 +435,7 @@ for (let k = 1; k <= 6; k++) {
     date: iso(checkOut),
     method: (["cash", "card", "mtn_momo"] as PaymentMethod[])[k % 3],
     amount: total,
+    status: "confirmed",
   });
 }
 
@@ -1048,7 +1050,7 @@ export function checkOut(reservationId: string): { ok: true } | { ok: false; err
 
 export function folioBalance(folioId: string): number {
   const charges = state.charges.filter((c) => c.folioId === folioId).reduce((s, c) => s + c.amount, 0);
-  const payments = state.payments.filter((p) => p.folioId === folioId).reduce((s, p) => s + p.amount, 0);
+  const payments = state.payments.filter((p) => p.folioId === folioId && p.status === "confirmed").reduce((s, p) => s + p.amount, 0);
   return charges - payments;
 }
 
