@@ -85,7 +85,7 @@ async function run() {
     const dialog = page.locator(".fixed.inset-0.z-50");
     await dialog.locator("label").filter({ hasText: "Type" }).locator("select").selectOption("misc");
     await dialog.locator("label").filter({ hasText: "Description" }).locator("input").fill("Tour booking");
-    await dialog.locator("label").filter({ hasText: "Amount" }).locator("input").fill("120000");
+    await dialog.locator("label").filter({ hasText: "Amount (UGX)" }).locator("input").fill("120000");
     await page.locator("button:has-text('Post charge')").click();
     await page.waitForTimeout(1500);
     await ss("at05-charge-added");
@@ -113,7 +113,7 @@ async function run() {
 
     const payDialog = page.locator(".fixed.inset-0.z-50");
     await payDialog.locator("label").filter({ hasText: "Method" }).locator("select").selectOption("card");
-    await payDialog.locator("label").filter({ hasText: "Amount" }).locator("input").fill("50000");
+    await payDialog.locator("label").filter({ hasText: "Amount (UGX)" }).locator("input").fill("50000");
     await page.locator("button:has-text('Record payment')").last().click();
     await page.waitForTimeout(1500);
     await ss("at07-payment-added");

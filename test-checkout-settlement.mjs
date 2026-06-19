@@ -99,7 +99,7 @@ async function run() {
 
     const payDialog = page.locator(".fixed.inset-0.z-50");
     // Amount should be pre-filled to full balance
-    const amountInput = payDialog.locator("label").filter({ hasText: "Amount" }).locator("input");
+    const amountInput = payDialog.locator("label").filter({ hasText: "Amount (UGX)" }).locator("input");
     const preFilledAmount = await amountInput.inputValue();
     console.log(`  Pre-filled amount: ${preFilledAmount}`);
 

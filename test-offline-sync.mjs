@@ -179,7 +179,7 @@ async function run() {
 
     const payDialog = page.locator(".fixed.inset-0.z-50");
     await payDialog.locator("label").filter({ hasText: "Method" }).locator("select").selectOption("cash");
-    await payDialog.locator("label").filter({ hasText: "Amount" }).locator("input").fill("30000");
+    await payDialog.locator("label").filter({ hasText: "Amount (UGX)" }).locator("input").fill("30000");
     await page.locator("button:has-text('Record payment')").last().click();
     await page.waitForTimeout(1500);
     await ss("os11-offline-payment-added");

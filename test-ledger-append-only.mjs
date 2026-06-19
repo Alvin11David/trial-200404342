@@ -126,7 +126,7 @@ async function run() {
 
     const payDialog = page.locator(".fixed.inset-0.z-50");
     await payDialog.locator("label").filter({ hasText: "Method" }).locator("select").selectOption("card");
-    await payDialog.locator("label").filter({ hasText: "Amount" }).locator("input").fill("25000");
+    await payDialog.locator("label").filter({ hasText: "Amount (UGX)" }).locator("input").fill("25000");
     await page.locator("button:has-text('Record payment')").last().click();
     await page.waitForTimeout(1500);
     await ss("al07-payment-added");
