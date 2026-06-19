@@ -57,14 +57,17 @@ function AuditPage() {
 
       <div className="grid gap-4 sm:grid-cols-4">
         {[
-          { l: "Total events", v: audit.length.toString() },
-          { l: "Critical", v: audit.filter((a) => a.severity === "critical").length.toString(), tone: "text-destructive" },
-          { l: "Warnings", v: audit.filter((a) => a.severity === "warn").length.toString(), tone: "text-warning" },
-          { l: "Actors", v: actors.length.toString() },
+          { l: "Total events", v: audit.length.toString(), bar: "var(--color-primary)" },
+          { l: "Critical", v: audit.filter((a) => a.severity === "critical").length.toString(), tone: "text-destructive", bar: "var(--color-destructive)" },
+          { l: "Warnings", v: audit.filter((a) => a.severity === "warn").length.toString(), tone: "text-warning", bar: "var(--color-warning)" },
+          { l: "Actors", v: actors.length.toString(), bar: "var(--color-info)" },
         ].map((s) => (
-          <div key={s.l} className="rounded-xl border border-border bg-card p-4">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.l}</p>
-            <p className={"mt-1 font-display text-2xl font-bold " + (s.tone ?? "")}>{s.v}</p>
+          <div key={s.l} className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
+            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: s.bar, boxShadow: `0 0 10px ${s.bar}` }} />
+            <div className="pl-1">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.l}</p>
+              <p className={"mt-1 font-display text-2xl font-bold " + (s.tone ?? "")}>{s.v}</p>
+            </div>
           </div>
         ))}
       </div>

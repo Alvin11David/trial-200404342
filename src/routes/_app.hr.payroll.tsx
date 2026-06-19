@@ -96,25 +96,37 @@ function PayrollPage() {
 
       {/* Summary cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-border/50 bg-card p-5">
-          <p className="text-xs font-medium text-muted-foreground">Total Employees</p>
-          <p className="mt-1 font-display text-2xl font-bold">{CURRENT_PAY.length}</p>
-          <p className="mt-1 text-[11px] text-success flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> +2 this quarter</p>
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5">
+          <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-primary)", boxShadow: "0 0 10px var(--color-primary)" }} />
+          <div className="pl-1">
+            <p className="text-xs font-medium text-muted-foreground">Total Employees</p>
+            <p className="mt-1 font-display text-2xl font-bold">{CURRENT_PAY.length}</p>
+            <p className="mt-1 text-[11px] text-success flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> +2 this quarter</p>
+          </div>
         </div>
-        <div className="rounded-2xl border border-border/50 bg-card p-5">
-          <p className="text-xs font-medium text-muted-foreground">Monthly Gross</p>
-          <p className="mt-1 font-display text-2xl font-bold">{ugx(PAYROLL_RUNS[0].gross)}</p>
-          <p className="mt-1 text-[11px] text-success flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> +6.8% from last month</p>
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5">
+          <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-success)", boxShadow: "0 0 10px var(--color-success)" }} />
+          <div className="pl-1">
+            <p className="text-xs font-medium text-muted-foreground">Monthly Gross</p>
+            <p className="mt-1 font-display text-2xl font-bold">{ugx(PAYROLL_RUNS[0].gross)}</p>
+            <p className="mt-1 text-[11px] text-success flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> +6.8% from last month</p>
+          </div>
         </div>
-        <div className="rounded-2xl border border-border/50 bg-card p-5">
-          <p className="text-xs font-medium text-muted-foreground">Total Deductions</p>
-          <p className="mt-1 font-display text-2xl font-bold">{ugx(PAYROLL_RUNS[0].deductions)}</p>
-          <p className="mt-1 text-[11px] text-muted-foreground">14% of gross</p>
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5">
+          <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-warning)", boxShadow: "0 0 10px var(--color-warning)" }} />
+          <div className="pl-1">
+            <p className="text-xs font-medium text-muted-foreground">Total Deductions</p>
+            <p className="mt-1 font-display text-2xl font-bold">{ugx(PAYROLL_RUNS[0].deductions)}</p>
+            <p className="mt-1 text-[11px] text-muted-foreground">14% of gross</p>
+          </div>
         </div>
-        <div className="rounded-2xl border border-border/50 bg-card p-5">
-          <p className="text-xs font-medium text-muted-foreground">Net Payroll</p>
-          <p className="mt-1 font-display text-2xl font-bold">{ugx(PAYROLL_RUNS[0].net)}</p>
-          <p className="mt-1 text-[11px] text-success flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> Last run: May 2026</p>
+        <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5">
+          <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-success)", boxShadow: "0 0 10px var(--color-success)" }} />
+          <div className="pl-1">
+            <p className="text-xs font-medium text-muted-foreground">Net Payroll</p>
+            <p className="mt-1 font-display text-2xl font-bold">{ugx(PAYROLL_RUNS[0].net)}</p>
+            <p className="mt-1 text-[11px] text-success flex items-center gap-1"><ArrowUpRight className="h-3 w-3" /> Last run: May 2026</p>
+          </div>
         </div>
       </div>
 

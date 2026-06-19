@@ -177,14 +177,17 @@ function ReservationsPage() {
       {/* Quick stats */}
       <div className="grid gap-3 sm:grid-cols-4">
         {[
-          { label: "Open", value: counts.confirmed ?? 0 },
-          { label: "In-house", value: counts.checked_in ?? 0 },
-          { label: "Checked Out", value: counts.checked_out ?? 0 },
-          { label: "Cancelled", value: counts.cancelled ?? 0 },
+          { label: "Open", value: counts.confirmed ?? 0, bar: "var(--color-primary)" },
+          { label: "In-house", value: counts.checked_in ?? 0, bar: "var(--color-success)" },
+          { label: "Checked Out", value: counts.checked_out ?? 0, bar: "var(--color-info)" },
+          { label: "Cancelled", value: counts.cancelled ?? 0, bar: "var(--color-destructive)" },
         ].map((s) => (
-          <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-            <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
-            <div className="mt-1 text-2xl font-bold">{s.value}</div>
+          <div key={s.label} className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
+            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: s.bar, boxShadow: `0 0 10px ${s.bar}` }} />
+            <div className="pl-1">
+              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{s.label}</div>
+              <div className="mt-1 text-2xl font-bold">{s.value}</div>
+            </div>
           </div>
         ))}
       </div>

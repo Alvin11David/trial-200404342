@@ -268,15 +268,18 @@ function GuestDetail({ guest, onBack }: { guest: Guest; onBack: () => void }) {
         </div>
 
         <div className="mt-6 grid grid-cols-3 gap-4">
-          <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
+          <div className="relative overflow-hidden rounded-lg border border-border bg-muted/30 p-3 text-center">
+            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-primary)", boxShadow: "0 0 10px var(--color-primary)" }} />
             <div className="font-bold text-foreground">{guest.totalVisits}</div>
             <div className="text-[11px] text-muted-foreground">Visits</div>
           </div>
-          <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
+          <div className="relative overflow-hidden rounded-lg border border-border bg-muted/30 p-3 text-center">
+            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-success)", boxShadow: "0 0 10px var(--color-success)" }} />
             <div className="font-bold text-foreground">{fmtUGX(guest.totalRevenue)}</div>
             <div className="text-[11px] text-muted-foreground">Revenue</div>
           </div>
-          <div className="rounded-lg border border-border bg-muted/30 p-3 text-center">
+          <div className="relative overflow-hidden rounded-lg border border-border bg-muted/30 p-3 text-center">
+            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-info)", boxShadow: "0 0 10px var(--color-info)" }} />
             <div className="font-bold text-foreground">{guestReservations.length}</div>
             <div className="text-[11px] text-muted-foreground">Bookings</div>
           </div>

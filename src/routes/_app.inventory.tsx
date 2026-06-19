@@ -286,67 +286,78 @@ function StockDashboard() {
 
       {/* Top cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="glass card-hover rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Total Stock Value
-            </span>
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary/30 to-success/30">
-              <Package className="h-4 w-4 text-primary" />
-            </span>
-          </div>
-          <div className="mt-3 text-2xl font-bold tabular-nums">
-            UGX {totalValue.toLocaleString()}
-          </div>
-          <div className="mt-1 flex items-center gap-1 text-xs text-success">
-            <ArrowUpRight className="h-3 w-3" />
-            <span>+3.2% from last month</span>
-          </div>
-        </div>
-
-        <div className="glass card-hover rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Total Items
-            </span>
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-info/30 to-info/20">
-              <Warehouse className="h-4 w-4 text-info" />
-            </span>
-          </div>
-          <div className="mt-3 text-2xl font-bold">{stockItems.length}</div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            Across {Object.keys(categoryColors).length} categories
+        <div className="glass card-hover relative overflow-hidden rounded-2xl p-5">
+          <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-primary)", boxShadow: "0 0 10px var(--color-primary)" }} />
+          <div className="pl-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                Total Stock Value
+              </span>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary/30 to-success/30">
+                <Package className="h-4 w-4 text-primary" />
+              </span>
+            </div>
+            <div className="mt-3 text-2xl font-bold tabular-nums">
+              UGX {totalValue.toLocaleString()}
+            </div>
+            <div className="mt-1 flex items-center gap-1 text-xs text-success">
+              <ArrowUpRight className="h-3 w-3" />
+              <span>+3.2% from last month</span>
+            </div>
           </div>
         </div>
 
-        <div className="glass card-hover rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Low Stock Alerts
-            </span>
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-warning/30 to-warning/20">
-              <AlertTriangle className="h-4 w-4 text-warning" />
-            </span>
-          </div>
-          <div className="mt-3 text-2xl font-bold text-warning">{lowStock.length}</div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            {critical.length} critical · {amber.length} low
+        <div className="glass card-hover relative overflow-hidden rounded-2xl p-5">
+          <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-info)", boxShadow: "0 0 10px var(--color-info)" }} />
+          <div className="pl-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                Total Items
+              </span>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-info/30 to-info/20">
+                <Warehouse className="h-4 w-4 text-info" />
+              </span>
+            </div>
+            <div className="mt-3 text-2xl font-bold">{stockItems.length}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              Across {Object.keys(categoryColors).length} categories
+            </div>
           </div>
         </div>
 
-        <div className="glass card-hover rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground">
-              Categories
-            </span>
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-success/30 to-success/20">
-              <TrendingUp className="h-4 w-4 text-success" />
-            </span>
+        <div className="glass card-hover relative overflow-hidden rounded-2xl p-5">
+          <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-warning)", boxShadow: "0 0 10px var(--color-warning)" }} />
+          <div className="pl-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                Low Stock Alerts
+              </span>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-warning/30 to-warning/20">
+                <AlertTriangle className="h-4 w-4 text-warning" />
+              </span>
+            </div>
+            <div className="mt-3 text-2xl font-bold text-warning">{lowStock.length}</div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              {critical.length} critical · {amber.length} low
+            </div>
           </div>
-          <div className="mt-3 space-y-1">
-            {categoryValue.slice(0, 3).map(([cat, val]) => (
-              <div key={cat} className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">{cat}</span>
+        </div>
+
+        <div className="glass card-hover relative overflow-hidden rounded-2xl p-5">
+          <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-success)", boxShadow: "0 0 10px var(--color-success)" }} />
+          <div className="pl-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                Categories
+              </span>
+              <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-success/30 to-success/20">
+                <TrendingUp className="h-4 w-4 text-success" />
+              </span>
+            </div>
+            <div className="mt-3 space-y-1">
+              {categoryValue.slice(0, 3).map(([cat, val]) => (
+                <div key={cat} className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">{cat}</span>
                 <span className="font-medium tabular-nums">
                   UGX {(val / 1_000_000).toFixed(1)}M
                 </span>
