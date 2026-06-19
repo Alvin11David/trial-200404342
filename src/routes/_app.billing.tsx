@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, useSearch, Link } from "@tanstack/react-r
 import { useMemo, useState } from "react";
 import {
   Plus, Printer, Receipt, CreditCard, X, ArrowLeft, Ban,
-  Moon, CheckCircle2, AlertTriangle, Smartphone, Check,
+  Moon, CheckCircle2, AlertTriangle, Smartphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -33,6 +33,7 @@ import {
   type FolioStatus,
 } from "@/lib/pms-store";
 import { ROLE_META, useRole, type Role } from "@/lib/role";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/billing")({
   head: () => ({ meta: [{ title: "Billing & Folio — Jambo PMS" }] }),
@@ -962,6 +963,179 @@ function RefundDialog({
         )}
       </div>
       <DialogFooter onCancel={onClose} onSubmit={handleRefund} submitLabel="Process refund" disabled={!reason.trim() || refundAmount <= 0} />
+    </Modal>
+  );
+}
+
+function ReceiptDialog({
+  payment,
+  folio,
+  tenant,
+  onClose,
+  onSms,
+}: {
+  payment: Payment;
+  folio: { id: string; reservationId: string; status: FolioStatus };
+  tenant: { name: string; address: string; phone: string; email: string; tin: string };
+  onClose: () => void;
+  onSms?: () => void;
+}) {
+  const charges = useStore((s) => s.charges);
+  const res = reservationById(folio.reservationId);
+  const folioCharges = charges.filter((c) => c.folioId === folio.id && !c.voided);
+  const totalCharged = folioCharges.reduce((s, c) => s + c.amount, 0);
+
+  const guestPhone = payment.phone || res?.guestPhone || "";
+  const label = payment.refundOf
+    ? "Refund (" + PAYMENT_METHOD_LABEL[payment.method] + ")"
+    : PAYMENT_METHOD_LABEL[payment.method];
+
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-xl border border-border bg-card p-6 shadow-2xl">
+        <div className="mb-4 flex items-start justify-between">
+          <h3 className="font-display text-lg font-bold">Payment Receipt</h3>
+          <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="rounded-lg border border-border p-4 text-sm">
+          {/* Hotel info */}
+          <div className="border-b border-border pb-3 text-center">
+            <p className="font-display text-lg font-bold">{tenant.name}</p>
+            <p className="text-[11px] text-muted-foreground">{tenant.address}</p>
+            <p className="text-[11px] text-muted-foreground">{tenant.phone} · {tenant.email}</p>
+            <p className="text-[11px] text-muted-foreground">TIN: {tenant.tin}</p>
+          </div>
+
+          {/* Receipt info */}
+          <div className="mt-3 flex items-start justify-between">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Receipt</p>
+              <p className="font-mono text-xs font-semibold">{payment.receiptId ?? payment.id}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Date</p>
+              <p className="text-xs">{payment.date}</p>
+            </div>
+          </div>
+
+          {/* Guest info */}
+          <div className="mt-3 border-t border-border pt-3">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Guest</p>
+            <p className="text-sm font-medium">{res?.guestName ?? "—"}</p>
+            <p className="text-xs text-muted-foreground">{res?.guestEmail}{guestPhone ? ` · ${guestPhone}` : ""}</p>
+            {res && <p className="text-xs text-muted-foreground">{res.checkIn} → {res.checkOut} · {res.roomId ? `Room ${res.roomId}` : "—"}</p>}
+          </div>
+
+          {/* Payment details */}
+          <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Payment</p>
+              <p className="text-sm font-medium">{label}</p>
+              {payment.reference && <p className="text-xs text-muted-foreground">Ref: {payment.reference}</p>}
+              {payment.providerRef && <p className="text-xs text-muted-foreground">Provider: {payment.providerRef}</p>}
+            </div>
+            <div className="text-right">
+              <p className={cn("text-lg font-bold tabular-nums", payment.refundOf ? "text-destructive" : "text-success")}>
+                {payment.refundOf ? "" : "−"}{fmtUGX(Math.abs(payment.amount))}
+              </p>
+              {payment.refundOf && payment.refundReason && (
+                <p className="text-[10px] text-destructive">{payment.refundReason}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Folio summary */}
+          <div className="mt-3 border-t border-border pt-3">
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Charges total</span>
+              <span>{fmtUGX(totalCharged)}</span>
+            </div>
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>Folio</span>
+              <span className="font-mono">{folio.id}</span>
+            </div>
+            {res?.id && (
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Reservation</span>
+                <span className="font-mono">{res.id}</span>
+              </div>
+            )}
+          </div>
+
+          <p className="mt-4 text-center text-[10px] text-muted-foreground">
+            Thank you for choosing {tenant.name}. This is a system-generated receipt.
+          </p>
+        </div>
+
+        <div className="mt-4 flex items-center justify-end gap-2">
+          {guestPhone && (
+            <button
+              onClick={onSms}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs hover:bg-muted"
+            >
+              <Smartphone className="h-3.5 w-3.5" /> Send via SMS
+            </button>
+          )}
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            <Printer className="h-3.5 w-3.5" /> Print
+          </button>
+        </div>
+      </div>
+      <style>{`@media print { body { background: white; } .fixed.inset-0.z-50 { position: static !important; background: none !important; backdrop-filter: none !important; } .fixed.inset-0.z-50 > div { max-width: none !important; box-shadow: none !important; border: none !important; } header, aside, button:not(.fixed.inset-0.z-50 button) { display: none !important; } }`}</style>
+    </div>
+  );
+}
+
+function SmsDialog({
+  payment,
+  folio,
+  tenant,
+  onClose,
+}: {
+  payment: Payment;
+  folio: { id: string };
+  tenant: { name: string };
+  onClose: () => void;
+}) {
+  const res = reservationById(folio.reservationId);
+  const guestPhone = payment.phone || res?.guestPhone || "";
+
+  const handleSend = () => {
+    toast.success(`Receipt sent to ${guestPhone}`);
+    onClose();
+  };
+
+  return (
+    <Modal title="Send receipt via SMS" onClose={onClose}>
+      <div className="space-y-4">
+        <div className="rounded-lg border border-border bg-muted/30 p-4">
+          <Field label="Recipient phone">
+            <input
+              value={guestPhone}
+              readOnly
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+            />
+          </Field>
+        </div>
+        <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <p className="text-[11px] font-medium text-muted-foreground">Message preview</p>
+          <p className="mt-1 text-xs">
+            Dear guest, thank you for your payment of {fmtUGX(Math.abs(payment.amount))} via{" "}
+            {PAYMENT_METHOD_LABEL[payment.method]}. Receipt: {payment.receiptId ?? payment.id}. — {tenant.name}
+          </p>
+        </div>
+        <DialogFooter
+          onCancel={onClose}
+          onSubmit={handleSend}
+          submitLabel="Send SMS"
+        />
+      </div>
     </Modal>
   );
 }
