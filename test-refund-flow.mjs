@@ -97,9 +97,8 @@ async function run() {
 
     // ===== 7. Switch to Accountant role and reopen folio =====
     console.log("\n=== 7. Switch to Accountant role ===");
-    await page.evaluate(() => localStorage.setItem("jambo-role", "Accountant"));
-    // Reload with load state — HMR websocket keeps networkidle from firing
-    await page.goto(folioUrl, { waitUntil: "load", timeout: 60000 });
+    await page.evaluate(() => { localStorage.setItem("jambo-role", "Accountant"); location.reload(); });
+    await page.waitForLoadState("domcontentloaded", { timeout: 60000 });
     await page.waitForTimeout(3000);
     await ss("rf05-accountant-folio");
     ok(true, "Switched to Accountant role");
