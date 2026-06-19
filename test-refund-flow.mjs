@@ -6,6 +6,11 @@ const PASSED = [], FAILED = [];
 const ok  = (cond, m) => { if (cond) { PASSED.push(m ?? cond); console.log("  \u2713 " + (m ?? cond)); } else { FAILED.push(m ?? cond); console.log("  \u2717 " + (m ?? cond)); } };
 const no  = (m) => { FAILED.push(m); console.log("  \u2717 " + m); };
 
+async function goto(page, url) {
+  await page.goto(url, { waitUntil: "load", timeout: 30000 });
+  await page.waitForTimeout(1000);
+}
+
 async function fillField(page, label, value) {
   const labelEl = page.locator("label").filter({ hasText: label }).first();
   const parent = labelEl.locator("..");
@@ -20,6 +25,21 @@ function parseUgx(text) {
   return parseInt(cleaned, 10) || 0;
 }
 
+async function loginAs(page, role) {
+  await goto(page, BASE + "/");
+  await fillField(page, "Email address", "admin@jambo.com");
+  await fillField(page, "Password", "admin123");
+  // Select role via dropdown if not the default (Owner / GM)
+  if (role !== "Owner / GM") {
+    await page.locator("button:has-text('Owner / GM')").click();
+    await page.waitForTimeout(500);
+    await page.locator("button:has-text('" + role + "')").click();
+    await page.waitForTimeout(300);
+  }
+  await page.locator("button:has-text('Sign in')").click();
+  await page.waitForTimeout(2000);
+}
+
 async function run() {
   if (!existsSync("test-screenshots")) mkdirSync("test-screenshots");
   const ss = (n) => page.screenshot({ path: "test-screenshots/" + n + ".png" }).catch(() => {});
@@ -29,21 +49,24 @@ async function run() {
   const page = await context.newPage();
 
   try {
-    // ===== 1. Login as Front Desk =====
+    // ===== 1. Login as Front Desk (explicitly select role) =====
     console.log("\n=== 1. Login as Front Desk ===");
-    await page.goto(BASE + "/", { waitUntil: "networkidle", timeout: 30000 });
-    await page.waitForTimeout(2000);
-    await ss("rf01-login");
+    await goto(page, BASE + "/");
     await fillField(page, "Email address", "admin@jambo.com");
     await fillField(page, "Password", "admin123");
+    // Select Front Desk role
+    await page.locator("button:has-text('Owner / GM')").click();
+    await page.waitForTimeout(500);
+    await page.locator("button:has-text('Front Desk')").click();
+    await page.waitForTimeout(300);
     await page.locator("button:has-text('Sign in')").click();
     await page.waitForTimeout(2000);
-    ok(true, "Logged in as Front Desk (default)");
+    await ss("rf01-login");
+    ok(true, "Logged in as Front Desk");
 
     // ===== 2. Billing =====
     console.log("\n=== 2. Billing ===");
-    await page.goto(BASE + "/billing", { waitUntil: "networkidle", timeout: 30000 });
-    await page.waitForTimeout(2000);
+    await goto(page, BASE + "/billing");
     await ss("rf02-billing");
     ok(await page.locator("table").isVisible(), "Folios table visible");
 
@@ -83,14 +106,15 @@ async function run() {
 
     // ===== 6. Front Desk should NOT see Refund button =====
     console.log("\n=== 6. Refund button NOT visible for Front Desk ===");
+    await page.waitForTimeout(500);
     const refundBtn = page.locator("button:has-text('Refund')");
-    ok(await refundBtn.count() === 0, "Front Desk cannot see Refund button (authorisation enforced)");
+    const refundCount = await refundBtn.count();
+    ok(refundCount === 0, "Front Desk cannot see Refund button (authorisation enforced, found " + refundCount + ")");
 
     // ===== 7. Login as Accountant =====
     console.log("\n=== 7. Login as Accountant ===");
     await page.evaluate(() => { localStorage.removeItem("jambo-pms-auth"); localStorage.removeItem("jambo-role"); });
-    await page.goto(BASE + "/", { waitUntil: "networkidle", timeout: 30000 });
-    await page.waitForTimeout(1500);
+    await goto(page, BASE + "/");
     await fillField(page, "Email address", "admin@jambo.com");
     await fillField(page, "Password", "admin123");
     // Select Accountant role
@@ -100,18 +124,19 @@ async function run() {
     await page.waitForTimeout(300);
     await page.locator("button:has-text('Sign in')").click();
     await page.waitForTimeout(2000);
+    await ss("rf05-accountant-login");
     ok(true, "Logged in as Accountant");
 
     // ===== 8. Accountant opens same folio =====
     console.log("\n=== 8. Accountant opens folio ===");
-    await page.goto(BASE + "/billing", { waitUntil: "networkidle", timeout: 30000 });
-    await page.waitForTimeout(2000);
+    await goto(page, BASE + "/billing");
+    await ss("rf06-accountant-billing");
     const table2 = page.locator("table");
     const sameRow = table2.locator("tbody tr").filter({ hasText: guestName.trim() }).first();
     ok(await sameRow.isVisible(), "Folio visible");
     await sameRow.click();
     await page.waitForTimeout(1500);
-    await ss("rf05-accountant-folio");
+    await ss("rf07-accountant-folio");
 
     const balanceLocator2 = page.locator("text=Outstanding balance").locator("..").locator("p.text-3xl").first();
     ok(await balanceLocator2.isVisible(), "Folio detail loaded");
@@ -125,7 +150,7 @@ async function run() {
     console.log("\n=== 10. Process refund of 20,000 ===");
     await refundBtn2.click();
     await page.waitForTimeout(800);
-    await ss("rf06-refund-dialog");
+    await ss("rf08-refund-dialog");
 
     ok(await page.locator(".fixed.inset-0.z-50").isVisible(), "Refund dialog opened");
 
@@ -135,16 +160,16 @@ async function run() {
     await refundAmountInput.fill("20000");
 
     await refundDialog.locator("label").filter({ hasText: "Reason" }).locator("textarea").fill("Guest overpaid — partial refund");
-    await ss("rf07-refund-filled");
+    await ss("rf09-refund-filled");
 
     await refundDialog.locator("button:has-text('Process refund')").click();
     await page.waitForTimeout(1500);
-    await ss("rf08-after-refund");
+    await ss("rf10-after-refund");
 
     // ===== 11. Verify balance increased =====
     console.log("\n=== 11. Balance increased ===");
     const balanceAfterRefund = parseUgx((await balanceLocator2.textContent()) || "");
-    const expectedAfterRefund = balanceAfterPay + 20000; // Refund adds back to balance
+    const expectedAfterRefund = balanceAfterPay + 20000;
     ok(balanceAfterRefund === expectedAfterRefund,
       "Balance increased from UGX " + balanceAfterPay.toLocaleString() + " to UGX " + balanceAfterRefund.toLocaleString() + " (expected UGX " + expectedAfterRefund.toLocaleString() + ")");
 
@@ -159,9 +184,8 @@ async function run() {
 
     // ===== 13. Verify audit trail =====
     console.log("\n=== 13. Audit trail ===");
-    await page.goto(BASE + "/audit", { waitUntil: "networkidle", timeout: 30000 });
-    await page.waitForTimeout(1500);
-    await ss("rf09-audit");
+    await goto(page, BASE + "/audit");
+    await ss("rf11-audit");
 
     const auditBody = (await page.locator("body").textContent()) || "";
     ok(auditBody.includes("Refund processed"), "Audit contains 'Refund processed' entry");
@@ -169,17 +193,12 @@ async function run() {
     ok(auditBody.includes("cash") || auditBody.includes("Cash"), "Audit references original method");
     ok(auditBody.includes("Guest overpaid"), "Audit contains refund reason");
 
-    // ===== 14. Verify no refund button on refund entry =====
-    console.log("\n=== 14. No refund on refund ===");
-    await page.goto(BASE + "/billing?folio=F-3016", { waitUntil: "networkidle", timeout: 30000 });
+    // ===== 14. Verify original payment still has Refund button (not on refund entry) =====
+    console.log("\n=== 14. Refund button on original, not on refund ===");
+    await goto(page, BASE + "/billing?folio=F-3016");
     await page.waitForTimeout(1500);
-    const bodyAfter = (await page.locator("body").textContent()) || "";
-    // The refund entry itself should not have a Refund button (refundOf check prevents it)
-    const refundEntries = (bodyAfter.match(/Refund/g) || []).length;
-    ok(refundEntries >= 1, "Refund entry shown in folio");
-    // There should be exactly one "Refund" button (on the ORIGINAL payment), not on the refund entry
-    const refundButtons = await page.locator("button:has-text('Refund')").count();
-    ok(refundButtons >= 1, "Refund button exists on original payment");
+    const refundBtns = await page.locator("button:has-text('Refund')").count();
+    ok(refundBtns >= 1, "Refund button visible on original payment (found " + refundBtns + ")");
 
   } catch (err) {
     console.log("\n  ERROR: " + err.message);
