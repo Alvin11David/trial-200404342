@@ -740,7 +740,9 @@ function NewJournalForm({ onClose }: { onClose: () => void }) {
 
       <div className="mb-4 grid gap-3 md:grid-cols-3">
         <label className="block">
-          <span className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Date</span>
+          <span className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+            Date
+          </span>
           <DatePicker value={date} onChange={setDate} />
         </label>
         <FloatInput label="Reference" placeholder="e.g. INV-10250" />
@@ -1019,7 +1021,9 @@ function PaymentModal({
 
         <div className="space-y-3">
           <label className="block">
-            <span className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Date</span>
+            <span className="mb-1 block text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              Date
+            </span>
             <DatePicker value={date} onChange={setDate} />
           </label>
           <FloatInput label="Amount (UGX)" type="number" placeholder="0" />
