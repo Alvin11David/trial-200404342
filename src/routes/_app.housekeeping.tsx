@@ -57,7 +57,6 @@ type Tab = "board" | "tasks" | "inspections" | "schedule" | "issues";
 
 function HousekeepingPage() {
   const [tab, setTab] = useState<Tab>("board");
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -73,7 +72,7 @@ function HousekeepingPage() {
         </div>
       </header>
 
-      <RoomStatusStats statusFilter={statusFilter} onStatusFilter={setStatusFilter} />
+      <RoomStatusStats />
 
       <div className="flex flex-wrap gap-1 rounded-xl border border-border bg-card p-1">
         {([
@@ -192,14 +191,15 @@ const STATUS_META: Record<RoomStatus, { bg: string; label: string; text: string 
   blocked: { bg: "bg-slate-100 text-slate-600 border-slate-300", label: "Blocked", text: "text-slate-600" },
 };
 
-function RoomStatusBoard() {
+function RoomStatusBoard({ statusFilter, onStatusFilter }: { statusFilter: string | null; onStatusFilter: (s: string | null) => void }) {
   const rooms = useStore((s) => s.rooms);
   const roomTypes = useStore((s) => s.roomTypes);
   const activeDnd = useStore(() => getActiveDND());
   const [floorFilter, setFloorFilter] = useState<string>("all");
 
   const floors = useMemo(() => [...new Set(rooms.map((r) => r.floor))].sort(), [rooms]);
-  const filtered = floorFilter === "all" ? rooms : rooms.filter((r) => r.floor === Number(floorFilter));
+  const byFloor = floorFilter === "all" ? rooms : rooms.filter((r) => r.floor === Number(floorFilter));
+  const filtered = statusFilter ? byFloor.filter((r) => r.status === statusFilter) : byFloor;
 
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
