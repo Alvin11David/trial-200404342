@@ -199,7 +199,7 @@ async function run() {
     await ss("cs09-audit");
 
     const auditBody = await page.locator("body").textContent() || "";
-    ok(auditBody.includes("Posted payment"), "Audit trail: 'Posted payment' entry");
+    ok(auditBody.includes("Posted confirmed payment") || auditBody.includes("Posted payment"), "Audit trail: 'Posted payment' entry");
     ok(auditBody.includes("Sarah Nakato") || auditBody.includes("Owner"), "Audit trail: actor shown");
 
     // ===== 10. Checkout from reservations page =====

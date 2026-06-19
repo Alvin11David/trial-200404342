@@ -122,7 +122,7 @@ async function run() {
     ok(audit2.auditCount === audit1.auditCount + 1,
       `Audit count increased after add-payment: ${audit1.auditCount} → ${audit2.auditCount}`);
     const payEntry = audit2.audit[0];
-    ok(payEntry.action === "Posted payment", `Audit action is "Posted payment", got "${payEntry.action}"`);
+    ok(payEntry.action === "Posted confirmed payment", `Audit action is "Posted confirmed payment", got "${payEntry.action}"`);
     ok(payEntry.module === "billing");
     ok(payEntry.severity === "info");
     ok(payEntry.actor === "Sarah Nakato", `Audit actor is Sarah Nakato, got "${payEntry.actor}"`);
@@ -180,6 +180,7 @@ async function run() {
     // First/visible rows should include our billing actions
     const firstRowText = await auditRows.first().textContent() || "";
     const rowIncludesBilling = firstRowText.includes("Voided charge") ||
+                               firstRowText.includes("Posted confirmed payment") ||
                                firstRowText.includes("Posted payment") ||
                                firstRowText.includes("Posted charge");
     ok(rowIncludesBilling || rowCount >= 10, "Recent billing actions visible in audit table");
@@ -252,7 +253,7 @@ async function run() {
 
     // Check for 50000 in posted payment
     const hasPay50k = billingEntries.some(
-      (e) => e.action === "Posted payment" && e.entity.includes("50,000") && e.entity.includes("card")
+      (e) => (e.action === "Posted payment" || e.action === "Posted confirmed payment") && e.entity.includes("50,000") && e.entity.includes("card")
     );
     ok(hasPay50k, "Posted payment audit entry contains amount 50,000 via card");
 

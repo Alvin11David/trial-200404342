@@ -146,7 +146,7 @@ async function run() {
     await ss("cc08-audit");
 
     const auditBody = await page.locator("body").textContent() || "";
-    ok(auditBody.includes("Posted payment"), "Audit trail contains 'Posted payment' entries");
+    ok(auditBody.includes("Posted confirmed payment") || auditBody.includes("Posted payment"), "Audit trail contains 'Posted payment' entries");
     ok(auditBody.includes("Cash") || auditBody.includes("cash"), "Audit references Cash method");
     ok(auditBody.includes(payAmount.toLocaleString()) || auditBody.includes(String(payAmount)),
       "Audit contains payment amount");
