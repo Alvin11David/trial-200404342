@@ -102,7 +102,7 @@ async function run() {
     const payDialog = page.locator(".fixed.inset-0.z-50");
     await payDialog.locator("label").filter({ hasText: "Method" }).locator("select").selectOption("cash");
     // Override default amount (pre-filled to full balance) with partial payment
-    await payDialog.locator("label").filter({ hasText: "Amount" }).locator("input").fill("50000");
+    await payDialog.locator("label").filter({ hasText: "Amount (UGX)" }).locator("input").fill("50000");
     await ss("p05-payment-filled");
 
     const submitPayBtn = page.locator("button:has-text('Record payment')").last();
@@ -137,7 +137,7 @@ async function run() {
 
     const payDialog2 = page.locator(".fixed.inset-0.z-50");
     await payDialog2.locator("label").filter({ hasText: "Method" }).locator("select").selectOption("card");
-    await payDialog2.locator("label").filter({ hasText: "Amount" }).locator("input").fill("30000");
+    await payDialog2.locator("label").filter({ hasText: "Amount (UGX)" }).locator("input").fill("30000");
     await ss("p08-second-payment-filled");
 
     await page.locator("button:has-text('Record payment')").last().click();
