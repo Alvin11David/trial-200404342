@@ -1,11 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, Plus, CalendarCheck2, Phone, Mail, MapPin, Award, TrendingUp } from "lucide-react";
+import { Search, Plus, CalendarCheck2, Phone, Mail, MapPin, Award, TrendingUp, X, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fmtUGX, useStore, type Guest } from "@/lib/pms-store";
 
 export const Route = createFileRoute("/_app/guests")({
   head: () => ({ meta: [{ title: "Guests — Jambo PMS" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    guest: typeof search.guest === "string" ? search.guest : undefined,
+  }),
   component: GuestsPage,
 });
 
@@ -32,9 +35,17 @@ const guestAccents = [
 function GuestsPage() {
   const guests = useStore((s) => s.guests);
   const reservations = useStore((s) => s.reservations);
+  const navigate = useNavigate();
+  const { guest: guestId } = useSearch({ from: "/_app/guests" });
 
   const [query, setQuery] = useState("");
   const [tierFilter, setTierFilter] = useState<string>("All");
+
+  const selectedGuest = guestId ? guests.find((g) => g.id === guestId) : null;
+
+  if (selectedGuest) {
+    return <GuestDetail guest={selectedGuest} onBack={() => navigate({ to: "/guests", search: { guest: undefined } })} />;
+  }
 
   const filtered = useMemo(() => {
     return guests.filter((g) => {
@@ -66,7 +77,10 @@ function GuestsPage() {
           <h1 className="font-display text-3xl font-bold tracking-tight">Guests</h1>
           <p className="mt-1 text-sm text-muted-foreground">{guests.length} guest profiles on record.</p>
         </div>
-        <button className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90">
+        <button
+          onClick={() => navigate({ to: "/guests", search: { guest: "new" } })}
+          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+        >
           <Plus className="h-4 w-4" /> Add Guest
         </button>
       </div>
@@ -176,7 +190,10 @@ function GuestsPage() {
                 )}
 
                 <div className="mt-4 flex items-center gap-2">
-                  <button className="flex-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition">
+                  <button
+                    onClick={() => navigate({ to: "/guests", search: { guest: guest.id } })}
+                    className="flex-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-muted transition"
+                  >
                     View Profile
                   </button>
                   <Link
