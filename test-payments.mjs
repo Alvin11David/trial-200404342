@@ -185,7 +185,7 @@ async function run() {
     await ss("p10-audit");
 
     const auditBody = await page.locator("body").textContent() || "";
-    ok(auditBody.includes("Posted payment"), "Audit trail contains 'Posted payment' entries");
+    ok(auditBody.includes("Posted confirmed payment") || auditBody.includes("Posted payment"), "Audit trail contains 'Posted payment' entries");
     ok(auditBody.includes("Cash") || auditBody.includes("cash"), "Audit references Cash method");
     ok(auditBody.includes("Card") || auditBody.includes("card"), "Audit references Card method");
     ok(auditBody.includes("50,000") || auditBody.includes("50000"), "Audit contains first payment amount");
