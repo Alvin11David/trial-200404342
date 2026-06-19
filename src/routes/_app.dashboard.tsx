@@ -16,6 +16,17 @@ import {
   Wallet,
   Users,
   SearchX,
+  Plus,
+  ArrowRight,
+  Settings,
+  CreditCard,
+  BarChart3,
+  UserPlus,
+  LogOut,
+  Menu as MenuIcon,
+  Calculator,
+  Building2,
+  PoundSterling,
 } from "lucide-react";
 import { useRole, ROLE_META } from "@/lib/role";
 import {
@@ -84,6 +95,13 @@ function OwnerGMDashboard() {
 
   return (
     <>
+      {/* CTA buttons */}
+      <div className="flex flex-wrap gap-2">
+        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><BarChart3 className="h-3.5 w-3.5" /> View Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
+      </div>
+
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
@@ -207,6 +225,14 @@ function OwnerGMDashboard() {
 function FrontDeskDashboard() {
   return (
     <>
+      {/* CTA buttons */}
+      <div className="flex flex-wrap gap-2">
+        <Link to="/check-in" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><UserPlus className="h-3.5 w-3.5" /> Check In <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/check-out" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><LogOut className="h-3.5 w-3.5" /> Check Out <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/billing" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><CreditCard className="h-3.5 w-3.5" /> Record Payment <ArrowRight className="h-3 w-3" /></Link>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Arrivals today" value="12" delta="3 walked-in" icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" />
         <KpiCard label="Departures today" value="9" delta="2 pending" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" />
@@ -242,6 +268,12 @@ function FrontDeskDashboard() {
 function HousekeepingDashboard() {
   return (
     <>
+      {/* CTA buttons */}
+      <div className="flex flex-wrap gap-2">
+        <Link to="/housekeeping" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><ClipboardList className="h-3.5 w-3.5" /> Update Room Status <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rooms" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><Building2 className="h-3.5 w-3.5" /> View All Rooms <ArrowRight className="h-3 w-3" /></Link>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Rooms to clean" value="14" delta="9 high priority" icon={<Sparkles className="h-4 w-4" />} accent="primary" />
         <KpiCard label="In progress" value="6" delta="3 attendants" icon={<ClipboardList className="h-4 w-4" />} accent="warning" />
