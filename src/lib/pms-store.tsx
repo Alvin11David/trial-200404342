@@ -105,6 +105,8 @@ export type Payment = {
   reference?: string;   // txn id
   phone?: string;       // for momo
   amount: number;
+  tendered?: number;    // cash tendered (for cash payments)
+  change?: number;      // change given back (for cash payments)
 };
 
 export type FolioStatus = "open" | "active" | "pending_settlement" | "settled" | "closed" | "void";
@@ -853,6 +855,8 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
         reference: input.payment.reference,
         phone: input.payment.phone,
         amount: input.payment.amount,
+        tendered: input.payment.tendered,
+        change: input.payment.change,
       },
     ];
     logAudit({
@@ -1072,6 +1076,8 @@ export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId
       reference: input.reference,
       phone: input.phone,
       amount: input.amount,
+      tendered: input.tendered,
+      change: input.change,
     },
   ];
   // auto-settle if balance hits zero
