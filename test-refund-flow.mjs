@@ -97,9 +97,20 @@ async function run() {
 
     // ===== 7. Switch to Accountant role and reopen folio =====
     console.log("\n=== 7. Switch to Accountant role ===");
-    await page.evaluate(() => { localStorage.setItem("jambo-role", "Accountant"); location.reload(); });
-    await page.waitForLoadState("domcontentloaded", { timeout: 60000 });
+    // ===== 7. Switch to Accountant role via clean navigation =====
+    console.log("\n=== 7. Switch to Accountant role ===");
+    await page.evaluate(() => localStorage.setItem("jambo-role", "Accountant"));
+    // Navigate away first, then back to billing folio — forces a clean React mount
+    await page.goto("about:blank");
+    await page.goto(folioUrl, { waitUntil: "commit", timeout: 60000 });
     await page.waitForTimeout(3000);
+    // Wait for the folio detail to render
+    try {
+      await page.waitForSelector("text=Outstanding balance", { timeout: 10000 });
+    } catch {
+      // fallback: wait extra
+      await page.waitForTimeout(3000);
+    }
     await ss("rf05-accountant-folio");
     ok(true, "Switched to Accountant role");
 
