@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export const Route = createFileRoute("/_app/rates")({
   head: () => ({ meta: [{ title: "Rates & Availability — Jambo PMS" }] }),
@@ -828,19 +829,15 @@ function RatePlanForm({
             </Select>
           </Field>
           <Field label="Valid from">
-            <input
-              type="date"
+            <DatePicker
               value={form.validFrom}
-              onChange={(e) => setForm({ ...form, validFrom: e.target.value })}
-              className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
+              onChange={(v) => setForm({ ...form, validFrom: v })}
             />
           </Field>
           <Field label="Valid to">
-            <input
-              type="date"
+            <DatePicker
               value={form.validTo}
-              onChange={(e) => setForm({ ...form, validTo: e.target.value })}
-              className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
+              onChange={(v) => setForm({ ...form, validTo: v })}
             />
           </Field>
           <div className="md:col-span-2">
