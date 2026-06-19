@@ -19,6 +19,13 @@ import {
 import { useStore, type RoomType, type Room } from "@/lib/pms-store";
 import { useRole } from "@/lib/role";
 import { cn } from "@/lib/utils";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/rates")({
   head: () => ({ meta: [{ title: "Rates & Availability — Jambo PMS" }] }),
@@ -824,26 +831,32 @@ function RatePlanForm({
             />
           </Field>
           <Field label="VAT treatment">
-            <select
+            <Select
               value={form.vatTreatment}
-              onChange={(e) =>
-                setForm({ ...form, vatTreatment: e.target.value as VatTreatment })
-              }
-              className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
+              onValueChange={(v) => setForm({ ...form, vatTreatment: v as VatTreatment })}
             >
-              <option value="inclusive">VAT inclusive</option>
-              <option value="exclusive">VAT exclusive</option>
-            </select>
+              <SelectTrigger className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                <SelectValue placeholder="Select VAT treatment" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="inclusive">VAT inclusive</SelectItem>
+                <SelectItem value="exclusive">VAT exclusive</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <Field label="Status">
-            <select
+            <Select
               value={form.active ? "1" : "0"}
-              onChange={(e) => setForm({ ...form, active: e.target.value === "1" })}
-              className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
+              onValueChange={(v) => setForm({ ...form, active: v === "1" })}
             >
-              <option value="1">Active</option>
-              <option value="0">Archived</option>
-            </select>
+              <SelectTrigger className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">Active</SelectItem>
+                <SelectItem value="0">Archived</SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
           <Field label="Valid from">
             <input
@@ -1005,17 +1018,18 @@ function CalendarTab({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-card p-3">
-        <select
-          value={planId}
-          onChange={(e) => setPlanId(e.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-        >
-          {activePlans.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.code} — {p.name}
-            </option>
-          ))}
-        </select>
+        <Select value={planId} onValueChange={setPlanId}>
+          <SelectTrigger className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+            <SelectValue placeholder="Select a plan" />
+          </SelectTrigger>
+          <SelectContent>
+            {activePlans.map((p) => (
+              <SelectItem key={p.id} value={p.id}>
+                {p.code} — {p.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <input
           type="date"
           value={start}
@@ -1130,18 +1144,19 @@ function AvailabilityTab() {
           onChange={(e) => setStart(e.target.value)}
           className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
         />
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
-        >
-          <option value="all">All room types</option>
-          {roomTypes.map((rt) => (
-            <option key={rt.id} value={rt.id}>
-              {rt.name}
-            </option>
-          ))}
-        </select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+            <SelectValue placeholder="Filter by room type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All room types</SelectItem>
+            {roomTypes.map((rt) => (
+              <SelectItem key={rt.id} value={rt.id}>
+                {rt.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <div className="ml-auto flex items-center gap-3 text-[11px] text-muted-foreground">
           <Legend dotClass="bg-success/60" label="Free" />
           <Legend dotClass="bg-primary/60" label="Booked" />
