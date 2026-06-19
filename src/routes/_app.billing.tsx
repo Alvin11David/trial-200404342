@@ -1099,7 +1099,7 @@ function SmsDialog({
   onClose,
 }: {
   payment: Payment;
-  folio: { id: string };
+  folio: { id: string; reservationId: string };
   tenant: { name: string };
   onClose: () => void;
 }) {
