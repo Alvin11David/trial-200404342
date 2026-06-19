@@ -83,6 +83,7 @@ function ReservationsPage() {
   const [openCancel, setOpenCancel] = useState<string | null>(null);
   const [openCheckOutConfirm, setOpenCheckOutConfirm] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"table" | "calendar">("table");
+  const [showMoreFilters, setShowMoreFilters] = useState(false);
   const [calendarDate, setCalendarDate] = useState(() => {
     const d = new Date();
     return d.toISOString().slice(0, 7);

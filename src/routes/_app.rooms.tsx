@@ -36,6 +36,7 @@ function RoomsBoard() {
   const [type, setType] = useState<string>("All");
   const [dragId, setDragId] = useState<string | null>(null);
   const [hoverCol, setHoverCol] = useState<RoomStatus | null>(null);
+  const [showExtraFilters, setShowExtraFilters] = useState(false);
 
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
