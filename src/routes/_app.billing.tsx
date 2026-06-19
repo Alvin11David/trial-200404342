@@ -12,6 +12,7 @@ import {
   addPayment,
   confirmPayment,
   failPayment,
+  processRefund,
   voidCharge,
   settleFolio,
   runNightAudit,
@@ -63,6 +64,10 @@ function useCanVoid(): boolean {
 function useCanNightAudit(): boolean {
   const { role } = useRole();
   return role === "Accountant" || role === "Owner / GM";
+}
+function useCanRefund(): boolean {
+  const { role } = useRole();
+  return role === "Accountant" || role === "Owner / GM" || role === "System Administrator";
 }
 function useActorName(): string {
   const { role } = useRole();
@@ -230,11 +235,13 @@ function FolioDetail({ folioId }: { folioId: string }) {
   const [showVoid, setShowVoid] = useState<string | null>(null);
   const [showSettle, setShowSettle] = useState(false);
   const [showNightAudit, setShowNightAudit] = useState(false);
+  const [showRefund, setShowRefund] = useState<string | null>(null);
 
   const canPost = useCanPostCharge();
   const canVoid = useCanVoid();
   const canSettle = useCanSettle();
   const canAudit = useCanNightAudit();
+  const canRefund = useCanRefund();
   const actor = useActorName();
   const actorRole = useActorRole();
 
