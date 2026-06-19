@@ -300,6 +300,13 @@ function HousekeepingDashboard() {
 function PosDashboard() {
   return (
     <>
+      {/* CTA buttons */}
+      <div className="flex flex-wrap gap-2">
+        <Link to="/pos" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><ShoppingCart className="h-3.5 w-3.5" /> Open POS <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/pos/orders" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><ClipboardList className="h-3.5 w-3.5" /> View Orders <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/pos/menu" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><MenuIcon className="h-3.5 w-3.5" /> Manage Menu <ArrowRight className="h-3 w-3" /></Link>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Open tabs" value="7" icon={<ShoppingCart className="h-4 w-4" />} accent="primary" />
         <KpiCard label="Orders today" value="42" delta="+12 vs. yest." deltaPositive icon={<ClipboardList className="h-4 w-4" />} accent="info" />
@@ -317,6 +324,13 @@ function PosDashboard() {
 function ReservationsDashboard() {
   return (
     <>
+      {/* CTA buttons */}
+      <div className="flex flex-wrap gap-2">
+        <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/revenue" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><BarChart3 className="h-3.5 w-3.5" /> Revenue Reports <ArrowRight className="h-3 w-3" /></Link>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Pipeline (7d)" value="38" delta="+6" deltaPositive icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" />
         <KpiCard label="Forecast Occ (7d)" value="74%" icon={<BedDouble className="h-4 w-4" />} accent="info" />
@@ -334,6 +348,14 @@ function ReservationsDashboard() {
 function AccountantDashboard() {
   return (
     <>
+      {/* CTA buttons */}
+      <div className="flex flex-wrap gap-2">
+        <Link to="/billing" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Receipt className="h-3.5 w-3.5" /> View Billing <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/accounting" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><Calculator className="h-3.5 w-3.5" /> Accounting <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><BarChart3 className="h-3.5 w-3.5" /> Run Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="primary" />
         <KpiCard label="Payments today" value={ugx(3_120_000)} delta="+12%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" />
@@ -351,6 +373,13 @@ function AccountantDashboard() {
 function SysadminDashboard() {
   return (
     <>
+      {/* CTA buttons */}
+      <div className="flex flex-wrap gap-2">
+        <Link to="/identity" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Users className="h-3.5 w-3.5" /> Manage Users <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><FileSearch className="h-3.5 w-3.5" /> Audit Log <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/settings" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><Settings className="h-3.5 w-3.5" /> System Settings <ArrowRight className="h-3 w-3" /></Link>
+      </div>
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Active users" value="24" icon={<Users className="h-4 w-4" />} accent="primary" />
         <KpiCard label="Roles" value="7" icon={<ShieldCheck className="h-4 w-4" />} accent="info" />
