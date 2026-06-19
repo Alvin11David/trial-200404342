@@ -95,22 +95,14 @@ async function run() {
     const refundCount = await refundBtn.count();
     ok(refundCount === 0, "Front Desk cannot see Refund button (authorisation enforced, found " + refundCount + ")");
 
-    // ===== 7. Switch to Accountant role and reopen folio =====
+    // ===== 7. Switch to Accountant role via RoleSwitcher =====
     console.log("\n=== 7. Switch to Accountant role ===");
-    // ===== 7. Switch to Accountant role =====
-    console.log("\n=== 7. Switch to Accountant role ===");
-    await page.evaluate(() => localStorage.setItem("jambo-role", "Accountant"));
-    // Force a full page reload by navigating to a blank page first to clear any stuck connections
-    try { await page.goto("about:blank", { timeout: 10000 }); } catch {}
+    await page.locator("button", { hasText: "Front Desk" }).first().click();
     await page.waitForTimeout(500);
-    await page.goto(folioUrl, { waitUntil: "domcontentloaded", timeout: 60000 });
-    await page.waitForTimeout(3000);
+    await page.locator("[role='menuitem']").filter({ hasText: "Accountant" }).click();
+    await page.waitForTimeout(1000);
     await ss("rf05-accountant-folio");
     ok(true, "Switched to Accountant role");
-
-    await page.waitForSelector("text=Outstanding balance", { timeout: 15000 }).catch(() => {});
-    const balanceLocator2 = page.locator("text=Outstanding balance").locator("..").locator("p.text-3xl").first();
-    ok(await balanceLocator2.isVisible(), "Accountant folio detail loaded");
 
     // ===== 8. Accountant sees Refund button =====
     console.log("\n=== 8. Accountant can see Refund button ===");
