@@ -38,6 +38,7 @@ import { Route as AppPosMenuRouteImport } from './routes/_app.pos.menu'
 import { Route as AppInventoryRequisitionsRouteImport } from './routes/_app.inventory.requisitions'
 import { Route as AppInventoryPurchaseOrdersRouteImport } from './routes/_app.inventory.purchase-orders'
 import { Route as AppInventoryListRouteImport } from './routes/_app.inventory.list'
+import { Route as AppHrScheduleRouteImport } from './routes/_app.hr.schedule'
 import { Route as AppHrProfileRouteImport } from './routes/_app.hr.profile'
 import { Route as AppHrPayrollRouteImport } from './routes/_app.hr.payroll'
 import { Route as AppHrLeavesRouteImport } from './routes/_app.hr.leaves'
@@ -190,6 +191,11 @@ const AppInventoryListRoute = AppInventoryListRouteImport.update({
   path: '/list',
   getParentRoute: () => AppInventoryRoute,
 } as any)
+const AppHrScheduleRoute = AppHrScheduleRouteImport.update({
+  id: '/schedule',
+  path: '/schedule',
+  getParentRoute: () => AppHrRoute,
+} as any)
 const AppHrProfileRoute = AppHrProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -244,6 +250,7 @@ export interface FileRoutesByFullPath {
   '/hr/leaves': typeof AppHrLeavesRoute
   '/hr/payroll': typeof AppHrPayrollRoute
   '/hr/profile': typeof AppHrProfileRoute
+  '/hr/schedule': typeof AppHrScheduleRoute
   '/inventory/list': typeof AppInventoryListRoute
   '/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
   '/inventory/requisitions': typeof AppInventoryRequisitionsRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/hr/leaves': typeof AppHrLeavesRoute
   '/hr/payroll': typeof AppHrPayrollRoute
   '/hr/profile': typeof AppHrProfileRoute
+  '/hr/schedule': typeof AppHrScheduleRoute
   '/inventory/list': typeof AppInventoryListRoute
   '/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
   '/inventory/requisitions': typeof AppInventoryRequisitionsRoute
@@ -316,6 +324,7 @@ export interface FileRoutesById {
   '/_app/hr/leaves': typeof AppHrLeavesRoute
   '/_app/hr/payroll': typeof AppHrPayrollRoute
   '/_app/hr/profile': typeof AppHrProfileRoute
+  '/_app/hr/schedule': typeof AppHrScheduleRoute
   '/_app/inventory/list': typeof AppInventoryListRoute
   '/_app/inventory/purchase-orders': typeof AppInventoryPurchaseOrdersRoute
   '/_app/inventory/requisitions': typeof AppInventoryRequisitionsRoute
@@ -353,6 +362,7 @@ export interface FileRouteTypes {
     | '/hr/leaves'
     | '/hr/payroll'
     | '/hr/profile'
+    | '/hr/schedule'
     | '/inventory/list'
     | '/inventory/purchase-orders'
     | '/inventory/requisitions'
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/hr/leaves'
     | '/hr/payroll'
     | '/hr/profile'
+    | '/hr/schedule'
     | '/inventory/list'
     | '/inventory/purchase-orders'
     | '/inventory/requisitions'
@@ -424,6 +435,7 @@ export interface FileRouteTypes {
     | '/_app/hr/leaves'
     | '/_app/hr/payroll'
     | '/_app/hr/profile'
+    | '/_app/hr/schedule'
     | '/_app/inventory/list'
     | '/_app/inventory/purchase-orders'
     | '/_app/inventory/requisitions'
@@ -644,6 +656,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppInventoryListRouteImport
       parentRoute: typeof AppInventoryRoute
     }
+    '/_app/hr/schedule': {
+      id: '/_app/hr/schedule'
+      path: '/schedule'
+      fullPath: '/hr/schedule'
+      preLoaderRoute: typeof AppHrScheduleRouteImport
+      parentRoute: typeof AppHrRoute
+    }
     '/_app/hr/profile': {
       id: '/_app/hr/profile'
       path: '/profile'
@@ -700,12 +719,14 @@ interface AppHrRouteChildren {
   AppHrLeavesRoute: typeof AppHrLeavesRoute
   AppHrPayrollRoute: typeof AppHrPayrollRoute
   AppHrProfileRoute: typeof AppHrProfileRoute
+  AppHrScheduleRoute: typeof AppHrScheduleRoute
 }
 
 const AppHrRouteChildren: AppHrRouteChildren = {
   AppHrLeavesRoute: AppHrLeavesRoute,
   AppHrPayrollRoute: AppHrPayrollRoute,
   AppHrProfileRoute: AppHrProfileRoute,
+  AppHrScheduleRoute: AppHrScheduleRoute,
 }
 
 const AppHrRouteWithChildren = AppHrRoute._addFileChildren(AppHrRouteChildren)
