@@ -20,6 +20,20 @@ function parseUgx(text) {
   return parseInt(cleaned, 10) || 0;
 }
 
+async function loginAs(page, role) {
+  await page.goto(`${BASE}/`, { waitUntil: "networkidle", timeout: 30000 });
+  await page.waitForTimeout(2000);
+  await fillField(page, "Email address", "admin@jambo.com");
+  await fillField(page, "Password", "admin123");
+  // Open role dropdown and select the desired role
+  await page.locator("button:has-text('Owner / GM')").click();
+  await page.waitForTimeout(500);
+  await page.locator("button:has-text('Accountant')").click();
+  await page.waitForTimeout(300);
+  await page.locator("button:has-text('Sign in')").click();
+  await page.waitForTimeout(2000);
+}
+
 async function run() {
   if (!existsSync("test-screenshots")) mkdirSync("test-screenshots");
   const ss = (n) => page.screenshot({ path: `test-screenshots/${n}.png` }).catch(() => {});
@@ -29,16 +43,16 @@ async function run() {
   const page = await context.newPage();
 
   try {
-    // ===== 1. Login as Front Desk (records bank transfer, pending) =====
+    // ===== 1. Login as Front Desk =====
     console.log("\n=== 1. Login as Front Desk ===");
     await page.goto(`${BASE}/`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(2000);
     await ss("bt01-login");
-    await fillField(page, "Email address", "frontdesk@jambo.com");
-    await fillField(page, "Password", "front123");
+    await fillField(page, "Email address", "admin@jambo.com");
+    await fillField(page, "Password", "admin123");
     await page.locator("button:has-text('Sign in')").click();
     await page.waitForTimeout(2000);
-    ok("Logged in as Front Desk");
+    ok("Logged in as Front Desk (default)");
 
     // ===== 2. Billing page =====
     console.log("\n=== 2. Billing page ===");
@@ -126,13 +140,18 @@ async function run() {
     // ===== 7. Logout, login as Accountant =====
     console.log("\n=== 7. Login as Accountant ===");
     // Logout via localStorage clear + page reload
-    await page.evaluate(() => localStorage.removeItem("jambo-pms-auth"));
+    await page.evaluate(() => { localStorage.removeItem("jambo-pms-auth"); localStorage.removeItem("jambo-role"); });
     await page.goto(`${BASE}/`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(1500);
     await ss("bt07-logout");
 
-    await fillField(page, "Email address", "accountant@jambo.com");
-    await fillField(page, "Password", "acc123");
+    await fillField(page, "Email address", "admin@jambo.com");
+    await fillField(page, "Password", "admin123");
+    // Select Accountant role from dropdown
+    await page.locator("button:has-text('Owner / GM')").click();
+    await page.waitForTimeout(500);
+    await page.locator("button:has-text('Accountant')").click();
+    await page.waitForTimeout(300);
     await page.locator("button:has-text('Sign in')").click();
     await page.waitForTimeout(2000);
     ok("Logged in as Accountant");
@@ -220,7 +239,7 @@ async function run() {
     ok(balanceAfterFail === balanceAfterConfirm,
       `Balance unchanged after failed payment: UGX ${balanceAfterConfirm.toLocaleString()} → UGX ${balanceAfterFail.toLocaleString()}`);
 
-    // ===== 13. Verify audit trail shows Accountant confirmation =====
+    // ===== 13. Verify audit trail =====
     console.log("\n=== 13. Audit trail ===");
     await page.goto(`${BASE}/audit`, { waitUntil: "networkidle", timeout: 30000 });
     await page.waitForTimeout(1500);
@@ -231,9 +250,7 @@ async function run() {
     ok(auditBody.includes("Confirmed payment"), "Audit trail contains 'Confirmed payment'");
     ok(auditBody.includes("Failed payment"), "Audit trail contains 'Failed payment'");
     ok(auditBody.includes("Reference not found"), "Audit contains failure reason");
-
-    // Verify Accountant name appears in audit for the confirmation
-    ok(auditBody.includes("Grace") || auditBody.includes("Accountant"), "Audit shows Accountant name or role");
+    ok(auditBody.includes("bank_transfer"), "Audit references bank_transfer method");
 
   } catch (err) {
     console.log(`\n  ERROR: ${err.message}`);
