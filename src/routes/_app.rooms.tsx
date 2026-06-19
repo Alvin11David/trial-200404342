@@ -11,6 +11,7 @@ import {
   GripVertical,
   User,
   Eye,
+  Search,
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -37,9 +38,9 @@ function RoomsBoard() {
   const [type, setType] = useState<string>("All");
   const [floorOpen, setFloorOpen] = useState(false);
   const [typeOpen, setTypeOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [dragId, setDragId] = useState<string | null>(null);
   const [hoverCol, setHoverCol] = useState<RoomStatus | null>(null);
-  const [showExtraFilters, setShowExtraFilters] = useState(false);
 
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
@@ -60,9 +61,10 @@ function RoomsBoard() {
       rooms.filter((r) => {
         if (floor !== "All" && r.floor !== Number(floor)) return false;
         if (type !== "All" && roomTypeMap[r.typeId] !== type) return false;
+        if (search && !r.id.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
       }),
-    [rooms, floor, type, roomTypeMap],
+    [rooms, floor, type, roomTypeMap, search],
   );
 
   const counts = useMemo(() => {
@@ -148,12 +150,23 @@ function RoomsBoard() {
             </>
           )}
         </div>
-        <button
-          onClick={() => setShowExtraFilters(!showExtraFilters)}
-          className="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/30 px-3 py-2 text-xs text-muted-foreground hover:text-foreground"
-        >
-          <Filter className="h-3.5 w-3.5" /> {showExtraFilters ? "Less" : "More"}
-        </button>
+        <div className="relative ml-auto">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search rooms…"
+            className="w-44 rounded-xl border border-border/70 bg-card/40 px-3 py-2 pl-9 text-sm outline-none transition focus:w-56 focus:border-primary/60"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-5">
