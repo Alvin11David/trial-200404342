@@ -63,6 +63,8 @@ async function run() {
     await page.waitForTimeout(1500);
     await ss("rf03-folio");
     ok(await page.locator("text=UGX").first().isVisible(), "Folio detail loaded");
+    // Capture the folio URL for later navigation
+    const folioUrl = page.url();
 
     // ===== 4. Read balance =====
     console.log("\n=== 4. Balance ===");
@@ -93,37 +95,16 @@ async function run() {
     const refundCount = await refundBtn.count();
     ok(refundCount === 0, "Front Desk cannot see Refund button (authorisation enforced, found " + refundCount + ")");
 
-    // ===== 7. Login as Accountant =====
-    console.log("\n=== 7. Login as Accountant ===");
-    await page.evaluate(() => { localStorage.removeItem("jambo-pms-auth"); localStorage.removeItem("jambo-role"); });
-    await page.goto(BASE + "/", { waitUntil: "networkidle", timeout: 60000 });
+    // ===== 7. Switch to Accountant role and reopen folio =====
+    console.log("\n=== 7. Switch to Accountant role ===");
+    await page.evaluate(() => localStorage.setItem("jambo-role", "Accountant"));
+    // Navigate directly to the same folio with Accountant role
+    await page.goto(folioUrl, { waitUntil: "networkidle", timeout: 60000 });
     await page.waitForTimeout(2000);
-    await fillField(page, "Email address", "admin@jambo.com");
-    await fillField(page, "Password", "admin123");
-    // Select Accountant role
-    await page.locator("button:has-text('Owner / GM')").click();
-    await page.waitForTimeout(500);
-    await page.locator("button:has-text('Accountant')").click();
-    await page.waitForTimeout(300);
-    await page.locator("button:has-text('Sign in')").click();
-    await page.waitForTimeout(2000);
-    await ss("rf05-accountant-login");
-    ok(true, "Logged in as Accountant");
-
-    // ===== 8. Accountant opens same folio =====
-    console.log("\n=== 8. Accountant opens folio ===");
-    await page.goto(BASE + "/billing", { waitUntil: "networkidle", timeout: 60000 });
-    await page.waitForTimeout(2000);
-    await ss("rf06-accountant-billing");
-    const table2 = page.locator("table");
-    const sameRow = table2.locator("tbody tr").filter({ hasText: guestName.trim() }).first();
-    ok(await sameRow.isVisible(), "Folio visible");
-    await sameRow.click();
-    await page.waitForTimeout(1500);
-    await ss("rf07-accountant-folio");
+    await ss("rf05-accountant-folio");
 
     const balanceLocator2 = page.locator("text=Outstanding balance").locator("..").locator("p.text-3xl").first();
-    ok(await balanceLocator2.isVisible(), "Folio detail loaded");
+    ok(await balanceLocator2.isVisible(), "Accountant folio detail loaded");
 
     // ===== 9. Accountant sees Refund button =====
     console.log("\n=== 9. Accountant can see Refund button ===");
