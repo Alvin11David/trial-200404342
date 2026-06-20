@@ -241,6 +241,15 @@ function FrontDeskDashboard() {
         <KpiCard label="In-house guests" value="86" delta="78% occ" deltaPositive icon={<Users className="h-4 w-4" />} accent="info" />
         <KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="success" />
       </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card title="7-day occupancy trend" subtitle="Rolling daily occupancy %" className="lg:col-span-2">
+          <OccupancyChart />
+        </Card>
+        <Card title="Revenue by source" subtitle="Today">
+          <RevenueBars />
+        </Card>
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Arrivals" action={<Link to="/reservations" className="text-xs text-primary">View all →</Link>}>
           <GuestTable
