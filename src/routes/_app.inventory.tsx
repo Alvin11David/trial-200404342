@@ -11,6 +11,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
+import { Pie, PieChart, Cell } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_app/inventory")({
@@ -503,34 +505,37 @@ function DonutChart({
   total: number;
   colors: Record<string, string>;
 }) {
-  const r = 80;
-  const c = 2 * Math.PI * r;
-  let offset = 0;
+  const chartConfig = {
+    inventory: { label: "Inventory" },
+  } satisfies ChartConfig;
+
+  const chartData = data.map(([cat, val]) => ({
+    name: cat,
+    value: val,
+    fill: colors[cat] || "oklch(0.7 0.15 240)",
+  }));
 
   return (
-    <svg width="200" height="200" viewBox="0 0 200 200" className="-rotate-90">
-      <circle cx="100" cy="100" r={r} stroke="oklch(1 0 0 / 0.06)" strokeWidth="32" fill="none" />
-      {data.map(([cat, val]) => {
-        const pct = val / total;
-        const seg = c * pct;
-        const dashOffset = -offset;
-        offset += seg;
-        return (
-          <circle
-            key={cat}
-            cx="100"
-            cy="100"
-            r={r}
-            stroke={colors[cat] || "oklch(0.7 0.15 240)"}
-            strokeWidth="32"
-            strokeDasharray={`${seg} ${c - seg}`}
-            strokeDashoffset={dashOffset}
-            strokeLinecap="round"
-            fill="none"
-            style={{ filter: `drop-shadow(0 0 6px ${colors[cat] || "oklch(0.7 0.15 240)"} / 0.3)` }}
-          />
-        );
-      })}
-    </svg>
+    <ChartContainer config={chartConfig} className="h-[200px] w-[200px]">
+      <PieChart>
+        <Pie
+          data={chartData}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          innerRadius={55}
+          outerRadius={85}
+          strokeWidth={0}
+          cornerRadius={4}
+          paddingAngle={2}
+        >
+          {chartData.map((entry) => (
+            <Cell key={entry.name} fill={entry.fill} />
+          ))}
+        </Pie>
+        <ChartTooltip content={<ChartTooltipContent />} />
+      </PieChart>
+    </ChartContainer>
   );
 }
