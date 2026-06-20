@@ -28,6 +28,8 @@ import {
   Building2,
   PoundSterling,
 } from "lucide-react";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis, RadialBarChart, RadialBar } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { useRole, ROLE_META } from "@/lib/role";
 import {
   adrOnDate,
@@ -473,24 +475,31 @@ function Card({ title, subtitle, children, action, className }: {
 }
 
 function Ring({ percent }: { percent: number }) {
-  const r = 18;
-  const c = 2 * Math.PI * r;
-  const off = c - (percent / 100) * c;
   return (
-    <svg width="44" height="44" viewBox="0 0 44 44" className="-mr-1">
-      <circle cx="22" cy="22" r={r} className="stroke-muted" strokeWidth="4" fill="none" />
-      <circle
-        cx="22" cy="22" r={r}
-        className="stroke-primary"
-        strokeWidth="4"
-        fill="none"
-        strokeDasharray={c}
-        strokeDashoffset={off}
-        strokeLinecap="round"
-        transform="rotate(-90 22 22)"
-      />
-      <text x="22" y="25" textAnchor="middle" className="fill-foreground text-[10px] font-bold">{percent}%</text>
-    </svg>
+    <div className="-mr-1">
+      <RadialBarChart
+        width={44}
+        height={44}
+        data={[{ name: "Occupancy", value: percent }]}
+        innerRadius="75%"
+        outerRadius="100%"
+        barSize={6}
+        startAngle={90}
+        endAngle={-270}
+        cx="50%"
+        cy="50%"
+      >
+        <RadialBar
+          dataKey="value"
+          fill="var(--color-primary)"
+          cornerRadius={3}
+          background={{ fill: "var(--color-muted)" }}
+        />
+        <text x={22} y={27} textAnchor="middle" className="fill-foreground text-[10px] font-bold">
+          {percent}%
+        </text>
+      </RadialBarChart>
+    </div>
   );
 }
 
@@ -499,34 +508,45 @@ function OccupancyChart() {
   const start = new Date(today);
   start.setDate(start.getDate() - 6);
   const days = dateRangeList(start.toISOString().slice(0, 10), today);
-  const data = days.map((d) => Math.round(occupancyOnDate(d).pct * 100));
-  const labels = days.map((d) => new Date(d).toLocaleDateString("en-US", { weekday: "short" }));
-  const W = 600, H = 200, P = 28;
-  const max = 100, min = 0;
-  const x = (i: number) => P + (i * (W - 2 * P)) / Math.max(1, data.length - 1);
-  const y = (v: number) => H - P - ((v - min) / (max - min)) * (H - 2 * P);
-  const linePath = data.map((v, i) => (i === 0 ? "M" : "L") + x(i) + " " + y(v)).join(" ");
-  const areaPath = linePath + ` L ${x(data.length - 1)} ${H - P} L ${x(0)} ${H - P} Z`;
+  const chartData = days.map((d) => ({
+    day: new Date(d).toLocaleDateString("en-US", { weekday: "short" }),
+    occupancy: Math.round(occupancyOnDate(d).pct * 100),
+  }));
+
+  const chartConfig = {
+    occupancy: {
+      label: "Occupancy",
+      color: "var(--color-primary)",
+    },
+  } satisfies ChartConfig;
+
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-52 w-full">
-      <defs>
-        <linearGradient id="occgrad" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {[25,50,75,100].map((g) => (
-        <line key={g} x1={P} x2={W-P} y1={y(g)} y2={y(g)} className="stroke-border" strokeDasharray="3 4" />
-      ))}
-      <path d={areaPath} fill="url(#occgrad)" />
-      <path d={linePath} className="stroke-primary" strokeWidth="2.5" fill="none" />
-      {data.map((v, i) => (
-        <circle key={i} cx={x(i)} cy={y(v)} r="3.5" className="fill-card stroke-primary" strokeWidth="2" />
-      ))}
-      {labels.map((l, i) => (
-        <text key={l} x={x(i)} y={H - 8} textAnchor="middle" className="fill-muted-foreground text-[10px]">{l}</text>
-      ))}
-    </svg>
+    <ChartContainer config={chartConfig} className="h-52 w-full">
+      <AreaChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+      >
+        <defs>
+          <linearGradient id="fillOccupancy" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+        <XAxis dataKey="day" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+        <YAxis domain={[0, 100]} tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}%`} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+        <Area
+          type="monotone"
+          dataKey="occupancy"
+          stroke="var(--color-primary)"
+          strokeWidth={2.5}
+          fill="url(#fillOccupancy)"
+          dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2, r: 3.5 }}
+          activeDot={{ r: 5, stroke: "var(--color-primary)", strokeWidth: 2, fill: "var(--color-primary)" }}
+        />
+      </AreaChart>
+    </ChartContainer>
   );
 }
 
