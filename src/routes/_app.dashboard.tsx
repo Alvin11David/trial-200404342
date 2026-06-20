@@ -28,7 +28,7 @@ import {
   Building2,
   PoundSterling,
 } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis, RadialBarChart, RadialBar } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis, RadialBarChart, RadialBar, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { useRole, ROLE_META } from "@/lib/role";
 import {
@@ -530,30 +530,39 @@ function OccupancyChart() {
   } satisfies ChartConfig;
 
   return (
-    <ChartContainer config={chartConfig} className="h-52 w-full">
+    <ChartContainer config={chartConfig} className="h-56 w-full">
       <AreaChart
         data={chartData}
-        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+        margin={{ top: 20, right: 20, left: -20, bottom: 0 }}
       >
         <defs>
           <linearGradient id="fillOccupancy" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+            <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.35} />
             <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
         <XAxis dataKey="day" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
         <YAxis domain={[0, 100]} tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}%`} />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" className="rounded-xl" />} />
         <Area
           type="monotone"
           dataKey="occupancy"
           stroke="var(--color-primary)"
           strokeWidth={2.5}
           fill="url(#fillOccupancy)"
-          dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2, r: 3.5 }}
-          activeDot={{ r: 5, stroke: "var(--color-primary)", strokeWidth: 2, fill: "var(--color-primary)" }}
-        />
+          dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2.5, r: 4.5 }}
+          activeDot={{ r: 6, stroke: "var(--color-primary)", strokeWidth: 2.5, fill: "var(--color-primary)" }}
+        >
+          <LabelList
+            dataKey="occupancy"
+            position="top"
+            className="fill-foreground"
+            fontSize={11}
+            fontWeight={600}
+            formatter={(v: number) => `${v}%`}
+          />
+        </Area>
       </AreaChart>
     </ChartContainer>
   );
@@ -572,16 +581,24 @@ function RevenueBars({ labels = ["Rooms","F&B","Events","Other"], values = [62, 
   } satisfies ChartConfig;
 
   return (
-    <ChartContainer config={chartConfig} className="h-36 w-full">
-      <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+    <ChartContainer config={chartConfig} className="h-44 w-full">
+      <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
         <XAxis dataKey="source" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
         <YAxis hide domain={[0, 100]} />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-        <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={40}>
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" />} />
+        <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={44}>
           {chartData.map((entry) => (
             <Cell key={entry.source} fill={colors[labels.indexOf(entry.source) % colors.length]} />
           ))}
+          <LabelList
+            dataKey="value"
+            position="top"
+            className="fill-foreground"
+            fontSize={11}
+            fontWeight={600}
+            formatter={(v: number) => `${v}%`}
+          />
         </Bar>
       </BarChart>
     </ChartContainer>

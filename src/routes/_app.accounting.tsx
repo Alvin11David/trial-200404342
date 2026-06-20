@@ -18,7 +18,7 @@ import {
   Filter,
   Download,
 } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import {
   Select,
