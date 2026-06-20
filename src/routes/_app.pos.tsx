@@ -377,7 +377,9 @@ function POSPage() {
                 <div className="flex h-full flex-col items-center justify-center text-center">
                   <ShoppingCart className="mb-3 h-12 w-12 text-muted-foreground/30" />
                   <p className="text-sm text-muted-foreground">Order is empty</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">Tap items on the left to add</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">
+                    Tap items on the left to add
+                  </p>
                 </div>
               ) : (
                 <ul className="space-y-2">
@@ -683,7 +685,10 @@ const hourlyChartConfig = {
 
 function HourlySalesChart({ data }: { data: typeof posHourlyData }) {
   return (
-    <ChartContainer config={hourlyChartConfig} className="h-24 w-full [&_.recharts-surface]:!h-full">
+    <ChartContainer
+      config={hourlyChartConfig}
+      className="h-24 w-full [&_.recharts-surface]:!h-full"
+    >
       <AreaChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: -4 }}>
         <defs>
           <linearGradient id="posSalesFill" x1="0" y1="0" x2="0" y2="1">
@@ -692,9 +697,25 @@ function HourlySalesChart({ data }: { data: typeof posHourlyData }) {
           </linearGradient>
         </defs>
         <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
-        <XAxis dataKey="hour" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 9 }} interval={1} />
+        <XAxis
+          dataKey="hour"
+          tickLine={false}
+          axisLine={false}
+          className="text-muted-foreground"
+          tick={{ fontSize: 9 }}
+          interval={1}
+        />
         <YAxis hide domain={[0, "dataMax + 50000"]} />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-lg text-xs" formatter={(v: number) => "UGX " + v.toLocaleString()} />} />
+        <ChartTooltip
+          cursor={false}
+          content={
+            <ChartTooltipContent
+              indicator="dot"
+              className="rounded-lg text-xs"
+              formatter={(v: number) => "UGX " + v.toLocaleString()}
+            />
+          }
+        />
         <Area
           type="monotone"
           dataKey="sales"
@@ -733,7 +754,14 @@ function CategoryPieChart({ data }: { data: typeof posCategoryData }) {
               <Cell key={entry.name} fill={entry.color} />
             ))}
           </Pie>
-          <ChartTooltip content={<ChartTooltipContent className="rounded-lg text-xs" formatter={(v: number) => "UGX " + v.toLocaleString()} />} />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                className="rounded-lg text-xs"
+                formatter={(v: number) => "UGX " + v.toLocaleString()}
+              />
+            }
+          />
         </RechartPie>
       </ChartContainer>
       <div className="mt-1.5 w-full space-y-1">
@@ -743,9 +771,7 @@ function CategoryPieChart({ data }: { data: typeof posCategoryData }) {
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.color }} />
               {d.name}
             </span>
-            <span className="font-medium tabular-nums">
-              {Math.round((d.value / total) * 100)}%
-            </span>
+            <span className="font-medium tabular-nums">{Math.round((d.value / total) * 100)}%</span>
           </div>
         ))}
       </div>
@@ -777,7 +803,14 @@ function PaymentPieChart({ data }: { data: typeof posPaymentData }) {
               <Cell key={entry.name} fill={entry.color} />
             ))}
           </Pie>
-          <ChartTooltip content={<ChartTooltipContent className="rounded-lg text-xs" formatter={(v: number) => "UGX " + v.toLocaleString()} />} />
+          <ChartTooltip
+            content={
+              <ChartTooltipContent
+                className="rounded-lg text-xs"
+                formatter={(v: number) => "UGX " + v.toLocaleString()}
+              />
+            }
+          />
         </RechartPie>
       </ChartContainer>
       <div className="mt-1.5 w-full space-y-1">
@@ -787,9 +820,7 @@ function PaymentPieChart({ data }: { data: typeof posPaymentData }) {
               <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.color }} />
               {d.name}
             </span>
-            <span className="font-medium tabular-nums">
-              {Math.round((d.value / total) * 100)}%
-            </span>
+            <span className="font-medium tabular-nums">{Math.round((d.value / total) * 100)}%</span>
           </div>
         ))}
       </div>
