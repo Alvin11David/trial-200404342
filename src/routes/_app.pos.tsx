@@ -16,7 +16,30 @@ import {
   X,
   TicketCheck,
   ShoppingCart,
+  TrendingUp,
+  BarChart3,
+  PieChart,
+  Wallet,
 } from "lucide-react";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart as RechartPie,
+  XAxis,
+  YAxis,
+  LabelList,
+} from "recharts";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/pms-store";
 
@@ -119,6 +142,7 @@ function POSPage() {
   const [search, setSearch] = useState("");
   const [showReceipt, setShowReceipt] = useState(false);
   const [showTablePicker, setShowTablePicker] = useState(false);
+  const [rightTab, setRightTab] = useState<"order" | "analytics">("order");
 
   const filtered = useMemo(
     () =>
