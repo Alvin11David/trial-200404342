@@ -545,3 +545,306 @@ function POSPage() {
     </div>
   );
 }
+
+/* ============================================================
+   POS Analytics — modern visual graphs for the cashier screen
+   ============================================================ */
+
+const posHourlyData = [
+  { hour: "08", sales: 0 },
+  { hour: "09", sales: 45000 },
+  { hour: "10", sales: 120000 },
+  { hour: "11", sales: 185000 },
+  { hour: "12", sales: 320000 },
+  { hour: "13", sales: 280000 },
+  { hour: "14", sales: 195000 },
+  { hour: "15", sales: 160000 },
+  { hour: "16", sales: 240000 },
+  { hour: "17", sales: 310000 },
+  { hour: "18", sales: 420000 },
+  { hour: "19", sales: 380000 },
+  { hour: "20", sales: 260000 },
+  { hour: "21", sales: 140000 },
+  { hour: "22", sales: 35000 },
+];
+
+const posCategoryData = [
+  { name: "Soft Drinks", value: 445000, color: "var(--color-chart-1)" },
+  { name: "Spirits", value: 280000, color: "var(--color-chart-2)" },
+  { name: "Food", value: 215000, color: "var(--color-chart-3)" },
+  { name: "Snacks", value: 125000, color: "var(--color-chart-5)" },
+];
+
+const posPaymentData = [
+  { name: "Cash", value: 685000, color: "var(--color-success)" },
+  { name: "Card", value: 425000, color: "var(--color-primary)" },
+  { name: "Mobile", value: 145000, color: "var(--color-info)" },
+  { name: "Credit", value: 85000, color: "var(--color-warning)" },
+];
+
+const posTopItems = [
+  { name: "Coca Cola", qty: 32, revenue: 160000 },
+  { name: "Grilled Chicken", qty: 24, revenue: 600000 },
+  { name: "French Fries", qty: 20, revenue: 160000 },
+  { name: "Johnnie Walker Red", qty: 17, revenue: 595000 },
+  { name: "Fanta Orange", qty: 15, revenue: 75000 },
+];
+
+const totalSales = posHourlyData.reduce((s, d) => s + d.sales, 0);
+const totalOrders = 47;
+const totalItems = posTopItems.reduce((s, d) => s + d.qty, 0);
+
+function POSAnalytics() {
+  const fmt = (n: number) => "UGX " + n.toLocaleString();
+
+  return (
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        {/* KPI banner */}
+        <div className="rounded-xl border border-border/60 bg-gradient-to-br from-primary/5 via-card to-card p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                Today's Revenue
+              </p>
+              <p className="mt-0.5 font-display text-xl font-bold tracking-tight text-gradient-primary">
+                {fmt(totalSales)}
+              </p>
+            </div>
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+              <Wallet className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+              {totalOrders} orders
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-chart-2" />
+              {totalItems} items
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <span className="h-1.5 w-1.5 rounded-full bg-chart-3" />
+              +18% vs yesterday
+            </span>
+          </div>
+        </div>
+
+        {/* Hourly Sales Trend */}
+        <div className="rounded-xl border border-border/60 bg-card p-3.5">
+          <div className="mb-2 flex items-center gap-2">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />
+            <span className="text-xs font-semibold">Hourly Sales</span>
+          </div>
+          <HourlySalesChart data={posHourlyData} />
+        </div>
+
+        {/* Category & Payment donuts side by side */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-border/60 bg-card p-3.5">
+            <div className="mb-1 flex items-center gap-2">
+              <PieChart className="h-3.5 w-3.5 text-chart-1" />
+              <span className="text-xs font-semibold">Categories</span>
+            </div>
+            <CategoryPieChart data={posCategoryData} />
+          </div>
+          <div className="rounded-xl border border-border/60 bg-card p-3.5">
+            <div className="mb-1 flex items-center gap-2">
+              <CreditCard className="h-3.5 w-3.5 text-success" />
+              <span className="text-xs font-semibold">Payments</span>
+            </div>
+            <PaymentPieChart data={posPaymentData} />
+          </div>
+        </div>
+
+        {/* Top Items */}
+        <div className="rounded-xl border border-border/60 bg-card p-3.5">
+          <div className="mb-2 flex items-center gap-2">
+            <BarChart3 className="h-3.5 w-3.5 text-chart-2" />
+            <span className="text-xs font-semibold">Top Items</span>
+          </div>
+          <TopItemsChart data={posTopItems} />
+        </div>
+
+        <div className="pb-2 text-center text-[10px] text-muted-foreground/60">
+          Live data · auto-refreshes every 30s
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Hourly Sales Trend (AreaChart) ---------- */
+
+const hourlyChartConfig = {
+  sales: { label: "Sales", color: "var(--color-primary)" },
+} satisfies ChartConfig;
+
+function HourlySalesChart({ data }: { data: typeof posHourlyData }) {
+  return (
+    <ChartContainer config={hourlyChartConfig} className="h-24 w-full [&_.recharts-surface]:!h-full">
+      <AreaChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: -4 }}>
+        <defs>
+          <linearGradient id="posSalesFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
+        <XAxis dataKey="hour" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 9 }} interval={1} />
+        <YAxis hide domain={[0, "dataMax + 50000"]} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-lg text-xs" formatter={(v: number) => "UGX " + v.toLocaleString()} />} />
+        <Area
+          type="monotone"
+          dataKey="sales"
+          stroke="var(--color-primary)"
+          strokeWidth={2}
+          fill="url(#posSalesFill)"
+          dot={false}
+          activeDot={{ r: 4, fill: "var(--color-primary)", strokeWidth: 0 }}
+        />
+      </AreaChart>
+    </ChartContainer>
+  );
+}
+
+/* ---------- Category Donut (PieChart) ---------- */
+
+function CategoryPieChart({ data }: { data: typeof posCategoryData }) {
+  const total = data.reduce((s, d) => s + d.value, 0);
+  return (
+    <div className="flex flex-col items-center">
+      <ChartContainer config={{ value: { label: "Value" } }} className="h-24 w-24">
+        <RechartPie>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={24}
+            outerRadius={38}
+            strokeWidth={0}
+            cornerRadius={3}
+            paddingAngle={2}
+          >
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
+            ))}
+          </Pie>
+          <ChartTooltip content={<ChartTooltipContent className="rounded-lg text-xs" formatter={(v: number) => "UGX " + v.toLocaleString()} />} />
+        </RechartPie>
+      </ChartContainer>
+      <div className="mt-1.5 w-full space-y-1">
+        {data.map((d) => (
+          <div key={d.name} className="flex items-center justify-between text-[10px]">
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.color }} />
+              {d.name}
+            </span>
+            <span className="font-medium tabular-nums">
+              {Math.round((d.value / total) * 100)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Payment Donut (PieChart) ---------- */
+
+function PaymentPieChart({ data }: { data: typeof posPaymentData }) {
+  const total = data.reduce((s, d) => s + d.value, 0);
+  return (
+    <div className="flex flex-col items-center">
+      <ChartContainer config={{ value: { label: "Value" } }} className="h-24 w-24">
+        <RechartPie>
+          <Pie
+            data={data}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            innerRadius={24}
+            outerRadius={38}
+            strokeWidth={0}
+            cornerRadius={3}
+            paddingAngle={2}
+          >
+            {data.map((entry) => (
+              <Cell key={entry.name} fill={entry.color} />
+            ))}
+          </Pie>
+          <ChartTooltip content={<ChartTooltipContent className="rounded-lg text-xs" formatter={(v: number) => "UGX " + v.toLocaleString()} />} />
+        </RechartPie>
+      </ChartContainer>
+      <div className="mt-1.5 w-full space-y-1">
+        {data.map((d) => (
+          <div key={d.name} className="flex items-center justify-between text-[10px]">
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.color }} />
+              {d.name}
+            </span>
+            <span className="font-medium tabular-nums">
+              {Math.round((d.value / total) * 100)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Top Items (Horizontal BarChart) ---------- */
+
+const topItemsConfig = {
+  qty: { label: "Qty", color: "var(--color-chart-2)" },
+} satisfies ChartConfig;
+
+function TopItemsChart({ data }: { data: typeof posTopItems }) {
+  const maxQty = Math.max(...data.map((d) => d.qty));
+  return (
+    <ChartContainer config={topItemsConfig} className="h-32 w-full">
+      <BarChart
+        data={data}
+        layout="vertical"
+        margin={{ top: 0, right: 40, left: 0, bottom: 0 }}
+        barSize={16}
+      >
+        <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/30" />
+        <XAxis type="number" hide domain={[0, maxQty + 8]} />
+        <YAxis
+          type="category"
+          dataKey="name"
+          tickLine={false}
+          axisLine={false}
+          className="text-muted-foreground"
+          tick={{ fontSize: 10 }}
+          width={90}
+        />
+        <ChartTooltip
+          cursor={false}
+          content={
+            <ChartTooltipContent
+              className="rounded-lg text-xs"
+              formatter={(v: number, name: string) =>
+                name === "qty" ? `${v} sold` : "UGX " + v.toLocaleString()
+              }
+            />
+          }
+        />
+        <Bar dataKey="qty" fill="var(--color-chart-2)" radius={[0, 4, 4, 0]}>
+          <LabelList
+            dataKey="qty"
+            position="right"
+            className="fill-foreground"
+            fontSize={10}
+            fontWeight={600}
+          />
+        </Bar>
+      </BarChart>
+    </ChartContainer>
+  );
+}
