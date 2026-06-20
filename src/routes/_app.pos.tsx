@@ -321,135 +321,170 @@ function POSPage() {
         </div>
       </div>
 
-      {/* Right: Cart */}
+      {/* Right: Cart / Analytics */}
       <div className="flex w-[380px] shrink-0 flex-col border-l border-border/60 bg-card/30 backdrop-blur">
-        <div className="flex items-center justify-between border-b border-border/60 px-5 py-4">
-          <div>
-            <h2 className="font-display text-lg font-semibold">Current Order</h2>
-            <p className="text-xs text-muted-foreground">
-              {table} · {itemCount} item{itemCount !== 1 ? "s" : ""}
-            </p>
-          </div>
-          {cart.length > 0 && (
-            <button
-              onClick={clearCart}
-              className="rounded-lg border border-border/60 bg-card/40 p-1.5 text-muted-foreground hover:border-destructive/50 hover:text-destructive"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          )}
+        {/* Tabs */}
+        <div className="flex items-stretch border-b border-border/60">
+          <button
+            onClick={() => setRightTab("order")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium transition",
+              rightTab === "order"
+                ? "border-b-2 border-primary text-primary bg-primary/5"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent/30",
+            )}
+          >
+            <ShoppingCart className="h-4 w-4" />
+            Order
+          </button>
+          <button
+            onClick={() => setRightTab("analytics")}
+            className={cn(
+              "flex flex-1 items-center justify-center gap-2 px-4 py-3.5 text-sm font-medium transition",
+              rightTab === "analytics"
+                ? "border-b-2 border-primary text-primary bg-primary/5"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent/30",
+            )}
+          >
+            <BarChart3 className="h-4 w-4" />
+            Insights
+          </button>
         </div>
 
-        {/* Cart items */}
-        <div className="flex-1 overflow-y-auto px-5 py-3">
-          {cart.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <ShoppingCart className="mb-3 h-12 w-12 text-muted-foreground/30" />
-              <p className="text-sm text-muted-foreground">Order is empty</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">Tap items on the left to add</p>
-            </div>
-          ) : (
-            <ul className="space-y-2">
-              {cart.map((entry) => (
-                <li
-                  key={entry.item.id}
-                  className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/40 p-3 transition hover:border-primary/40"
+        {rightTab === "order" ? (
+          <>
+            {/* Order Header */}
+            <div className="flex items-center justify-between px-5 py-4">
+              <div>
+                <h2 className="font-display text-lg font-semibold">Current Order</h2>
+                <p className="text-xs text-muted-foreground">
+                  {table} · {itemCount} item{itemCount !== 1 ? "s" : ""}
+                </p>
+              </div>
+              {cart.length > 0 && (
+                <button
+                  onClick={clearCart}
+                  className="rounded-lg border border-border/60 bg-card/40 p-1.5 text-muted-foreground hover:border-destructive/50 hover:text-destructive"
                 >
-                  <div className="flex-1 min-w-0">
-                    <div className="truncate text-sm font-medium">{entry.item.name}</div>
-                    <div className="text-xs text-muted-foreground">
-                      UGX {entry.item.price.toLocaleString()} each
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      onClick={() => updateQty(entry.item.id, -1)}
-                      className="grid h-7 w-7 place-items-center rounded-lg border border-border/60 bg-card/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Cart items */}
+            <div className="flex-1 overflow-y-auto px-5 py-3">
+              {cart.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center text-center">
+                  <ShoppingCart className="mb-3 h-12 w-12 text-muted-foreground/30" />
+                  <p className="text-sm text-muted-foreground">Order is empty</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">Tap items on the left to add</p>
+                </div>
+              ) : (
+                <ul className="space-y-2">
+                  {cart.map((entry) => (
+                    <li
+                      key={entry.item.id}
+                      className="flex items-center gap-3 rounded-xl border border-border/50 bg-card/40 p-3 transition hover:border-primary/40"
                     >
-                      <Minus className="h-3 w-3" />
-                    </button>
-                    <span className="min-w-[24px] text-center text-sm font-semibold tabular-nums">
-                      {entry.qty}
-                    </span>
-                    <button
-                      onClick={() => updateQty(entry.item.id, 1)}
-                      className="grid h-7 w-7 place-items-center rounded-lg border border-border/60 bg-card/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                    >
-                      <Plus className="h-3 w-3" />
-                    </button>
-                  </div>
-                  <div className="min-w-[72px] text-right text-sm font-semibold tabular-nums">
-                    UGX {(entry.item.price * entry.qty).toLocaleString()}
-                  </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="truncate text-sm font-medium">{entry.item.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          UGX {entry.item.price.toLocaleString()} each
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => updateQty(entry.item.id, -1)}
+                          className="grid h-7 w-7 place-items-center rounded-lg border border-border/60 bg-card/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                        >
+                          <Minus className="h-3 w-3" />
+                        </button>
+                        <span className="min-w-[24px] text-center text-sm font-semibold tabular-nums">
+                          {entry.qty}
+                        </span>
+                        <button
+                          onClick={() => updateQty(entry.item.id, 1)}
+                          className="grid h-7 w-7 place-items-center rounded-lg border border-border/60 bg-card/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                        >
+                          <Plus className="h-3 w-3" />
+                        </button>
+                      </div>
+                      <div className="min-w-[72px] text-right text-sm font-semibold tabular-nums">
+                        UGX {(entry.item.price * entry.qty).toLocaleString()}
+                      </div>
+                      <button
+                        onClick={() => removeItem(entry.item.id)}
+                        className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground/50 hover:text-destructive"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Totals */}
+            <div className="border-t border-border/60 px-5 py-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="tabular-nums">UGX {subtotal.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Tax ({Math.round(taxRate * 100)}%)</span>
+                <span className="tabular-nums">UGX {tax.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between border-t border-border/40 pt-2">
+                <span className="text-base font-semibold">Total</span>
+                <span className="text-xl font-bold text-gradient-primary tabular-nums">
+                  UGX {total.toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            {/* Payment & Actions */}
+            <div className="border-t border-border/60 px-5 py-4 space-y-3">
+              <div className="flex flex-wrap gap-1.5">
+                {paymentMethods.map((pm) => (
                   <button
-                    onClick={() => removeItem(entry.item.id)}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground/50 hover:text-destructive"
+                    key={pm}
+                    onClick={() => setPaymentMethod(pm)}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition",
+                      paymentMethod === pm
+                        ? "border-primary/50 bg-primary/15 text-primary"
+                        : "border-border/60 bg-card/40 text-muted-foreground hover:border-primary/40 hover:text-foreground",
+                    )}
                   >
-                    <X className="h-3.5 w-3.5" />
+                    {pm === "Cash" && <Banknote className="h-3.5 w-3.5" />}
+                    {pm === "Card" && <CreditCard className="h-3.5 w-3.5" />}
+                    {pm === "Room Charge" && <BedDouble className="h-3.5 w-3.5" />}
+                    {pm === "Credit" && <ScrollText className="h-3.5 w-3.5" />}
+                    {pm}
                   </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                ))}
+              </div>
 
-        {/* Totals */}
-        <div className="border-t border-border/60 px-5 py-4 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span className="tabular-nums">UGX {subtotal.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Tax ({Math.round(taxRate * 100)}%)</span>
-            <span className="tabular-nums">UGX {tax.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between border-t border-border/40 pt-2">
-            <span className="text-base font-semibold">Total</span>
-            <span className="text-xl font-bold text-gradient-primary tabular-nums">
-              UGX {total.toLocaleString()}
-            </span>
-          </div>
-        </div>
-
-        {/* Payment & Actions */}
-        <div className="border-t border-border/60 px-5 py-4 space-y-3">
-          <div className="flex flex-wrap gap-1.5">
-            {paymentMethods.map((pm) => (
-              <button
-                key={pm}
-                onClick={() => setPaymentMethod(pm)}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-medium transition",
-                  paymentMethod === pm
-                    ? "border-primary/50 bg-primary/15 text-primary"
-                    : "border-border/60 bg-card/40 text-muted-foreground hover:border-primary/40 hover:text-foreground",
-                )}
-              >
-                {pm === "Cash" && <Banknote className="h-3.5 w-3.5" />}
-                {pm === "Card" && <CreditCard className="h-3.5 w-3.5" />}
-                {pm === "Room Charge" && <BedDouble className="h-3.5 w-3.5" />}
-                {pm === "Credit" && <ScrollText className="h-3.5 w-3.5" />}
-                {pm}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={handleCharge}
-              disabled={cart.length === 0}
-              className="flex-1 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.78_0.20_75)] py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:shadow-primary/50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {paymentMethod === "Cash" ? "Charge" : `Charge ${paymentMethod}`}
-            </button>
-            <button
-              disabled={cart.length === 0}
-              className="rounded-xl border border-border/60 bg-card/40 p-3 text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Printer className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleCharge}
+                  disabled={cart.length === 0}
+                  className="flex-1 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.78_0.20_75)] py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:shadow-primary/50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {paymentMethod === "Cash" ? "Charge" : `Charge ${paymentMethod}`}
+                </button>
+                <button
+                  disabled={cart.length === 0}
+                  className="rounded-xl border border-border/60 bg-card/40 p-3 text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Printer className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <POSAnalytics />
+        )}
       </div>
 
       {/* Receipt Modal */}
