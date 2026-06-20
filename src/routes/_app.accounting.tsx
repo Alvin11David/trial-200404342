@@ -18,6 +18,8 @@ import {
   Filter,
   Download,
 } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import {
   Select,
   SelectContent,
@@ -303,65 +305,37 @@ function PLCard({
 }
 
 function RevenueAreaChart({ data }: { data: { m: string; v: number }[] }) {
-  const w = 720;
-  const h = 220;
-  const pad = { l: 36, r: 12, t: 12, b: 26 };
-  const max = Math.max(...data.map((d) => d.v)) * 1.1;
-  const min = 0;
-  const xs = (i: number) => pad.l + (i * (w - pad.l - pad.r)) / (data.length - 1);
-  const ys = (v: number) => pad.t + (1 - (v - min) / (max - min)) * (h - pad.t - pad.b);
-  const linePath = data.map((d, i) => `${i ? "L" : "M"}${xs(i)},${ys(d.v)}`).join(" ");
-  const areaPath = linePath + ` L${xs(data.length - 1)},${h - pad.b} L${xs(0)},${h - pad.b} Z`;
-  const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => Math.round(max * t));
+  const chartConfig = {
+    revenue: {
+      label: "Revenue",
+      color: "oklch(0.74 0.21 71)",
+    },
+  } satisfies ChartConfig;
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="h-[220px] w-full">
-      <defs>
-        <linearGradient id="rev-fill" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.74 0.21 71)" stopOpacity="0.45" />
-          <stop offset="100%" stopColor="oklch(0.74 0.21 71)" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {ticks.map((t, i) => {
-        const y = ys(t);
-        return (
-          <g key={i}>
-            <line
-              x1={pad.l}
-              x2={w - pad.r}
-              y1={y}
-              y2={y}
-              stroke="oklch(0.35 0.04 250 / 0.25)"
-              strokeDasharray="2 4"
-            />
-            <text
-              x={pad.l - 6}
-              y={y + 3}
-              textAnchor="end"
-              fontSize="10"
-              fill="oklch(0.65 0.03 250)"
-            >
-              {t}
-            </text>
-          </g>
-        );
-      })}
-      <path d={areaPath} fill="url(#rev-fill)" />
-      <path
-        d={linePath}
-        fill="none"
-        stroke="oklch(0.74 0.21 71)"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-      {data.map((d, i) => (
-        <g key={i}>
-          <circle cx={xs(i)} cy={ys(d.v)} r="3" fill="oklch(0.74 0.21 71)" />
-          <text x={xs(i)} y={h - 8} textAnchor="middle" fontSize="10" fill="oklch(0.65 0.03 250)">
-            {d.m}
-          </text>
-        </g>
-      ))}
-    </svg>
+    <ChartContainer config={chartConfig} className="h-[220px] w-full">
+      <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+        <defs>
+          <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="oklch(0.74 0.21 71)" stopOpacity={0.45} />
+            <stop offset="95%" stopColor="oklch(0.74 0.21 71)" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="2 4" vertical={false} className="stroke-border/30" />
+        <XAxis dataKey="m" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+        <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+        <Area
+          type="monotone"
+          dataKey="v"
+          stroke="oklch(0.74 0.21 71)"
+          strokeWidth={2.5}
+          fill="url(#revFill)"
+          dot={{ fill: "oklch(0.74 0.21 71)", stroke: "var(--color-card)", strokeWidth: 2, r: 3 }}
+          activeDot={{ r: 5, fill: "oklch(0.74 0.21 71)" }}
+        />
+      </AreaChart>
+    </ChartContainer>
   );
 }
 

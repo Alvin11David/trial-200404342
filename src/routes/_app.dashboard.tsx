@@ -551,17 +551,31 @@ function OccupancyChart() {
 }
 
 function RevenueBars({ labels = ["Rooms","F&B","Events","Other"], values = [62, 22, 11, 5] }: { labels?: string[]; values?: number[] }) {
-  const colors = ["bg-primary","bg-success","bg-warning","bg-info","bg-chart-5"];
+  const chartData = labels.map((l, i) => ({
+    source: l,
+    value: values[i],
+  }));
+
+  const colors = ["var(--color-primary)", "var(--color-success)", "var(--color-warning)", "var(--color-info)"];
+
+  const chartConfig = {
+    value: { label: "Share" },
+  } satisfies ChartConfig;
+
   return (
-    <div className="flex items-end justify-between gap-3 h-36">
-      {labels.map((l, i) => (
-        <div key={l} className="flex flex-col items-center flex-1 h-full justify-end">
-          <span className="font-semibold text-[11px]">{values[i]}%</span>
-          <div className={`w-full ${colors[i % colors.length]}`} style={{ height: `${values[i]}%`, borderRadius: "6px 6px 0 0" }} />
-          <span className="text-muted-foreground text-[10px]">{l}</span>
-        </div>
-      ))}
-    </div>
+    <ChartContainer config={chartConfig} className="h-36 w-full">
+      <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+        <XAxis dataKey="source" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+        <YAxis hide domain={[0, 100]} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+        <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={40}>
+          {chartData.map((entry) => (
+            <Cell key={entry.source} fill={colors[labels.indexOf(entry.source) % colors.length]} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ChartContainer>
   );
 }
 
