@@ -307,14 +307,16 @@ function PLCard({
 function RevenueAreaChart({ data }: { data: { m: string; v: number }[] }) {
   const chartConfig = {
     revenue: {
-      label: "Revenue",
+      label: "Revenue (UGX M)",
       color: "oklch(0.74 0.21 71)",
     },
   } satisfies ChartConfig;
 
+  const ugxM = (n: number) => `${n}`;
+
   return (
-    <ChartContainer config={chartConfig} className="h-[220px] w-full">
-      <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+    <ChartContainer config={chartConfig} className="h-[240px] w-full">
+      <AreaChart data={data} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
         <defs>
           <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="oklch(0.74 0.21 71)" stopOpacity={0.45} />
@@ -323,17 +325,25 @@ function RevenueAreaChart({ data }: { data: { m: string; v: number }[] }) {
         </defs>
         <CartesianGrid strokeDasharray="2 4" vertical={false} className="stroke-border/30" />
         <XAxis dataKey="m" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-        <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+        <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}`} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" className="rounded-xl" />} />
         <Area
           type="monotone"
           dataKey="v"
           stroke="oklch(0.74 0.21 71)"
           strokeWidth={2.5}
           fill="url(#revFill)"
-          dot={{ fill: "oklch(0.74 0.21 71)", stroke: "var(--color-card)", strokeWidth: 2, r: 3 }}
-          activeDot={{ r: 5, fill: "oklch(0.74 0.21 71)" }}
-        />
+          dot={{ fill: "oklch(0.74 0.21 71)", stroke: "var(--color-card)", strokeWidth: 2.5, r: 4 }}
+          activeDot={{ r: 6, fill: "oklch(0.74 0.21 71)" }}
+        >
+          <LabelList
+            dataKey="v"
+            position="top"
+            className="fill-foreground"
+            fontSize={10}
+            fontWeight={600}
+          />
+        </Area>
       </AreaChart>
     </ChartContainer>
   );

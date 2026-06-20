@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Calendar, Download, BarChart3 } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
 import {
   adrOnDate,
@@ -102,19 +102,21 @@ function OccupancyReport({ from, to }: { from: string; to: string }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-border bg-card p-5">
-        <ChartContainer config={chartConfig} className="h-52 w-full">
-          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+        <ChartContainer config={chartConfig} className="h-56 w-full">
+          <AreaChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="occFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.35} />
                 <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
             <XAxis dataKey="date" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
             <YAxis domain={[0, 100]} tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}%`} />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-            <Area type="monotone" dataKey="occupancy" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#occFill)" dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5, fill: "var(--color-primary)" }} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" className="rounded-xl" />} />
+            <Area type="monotone" dataKey="occupancy" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#occFill)" dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2.5, r: 4.5 }} activeDot={{ r: 6, fill: "var(--color-primary)" }}>
+              <LabelList dataKey="occupancy" position="top" className="fill-foreground" fontSize={11} fontWeight={600} formatter={(v: number) => `${v}%`} />
+            </Area>
           </AreaChart>
         </ChartContainer>
       </div>
