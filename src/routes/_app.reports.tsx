@@ -160,12 +160,12 @@ function RevenueReport({ from, to }: { from: string; to: string }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-border bg-card p-5">
-        <ChartContainer config={chartConfig} className="h-52 w-full">
-          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+        <ChartContainer config={chartConfig} className="h-56 w-full">
+          <BarChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
             <XAxis dataKey="date" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
             <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => fmtUGX(v)} />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" />} />
             <ChartLegend content={<ChartLegendContent />} />
             <Bar dataKey="room" fill="var(--color-primary)" radius={[4, 4, 0, 0]} barSize={12} stackId="a" />
             <Bar dataKey="fnb" fill="var(--color-success)" radius={[4, 4, 0, 0]} barSize={12} stackId="a" />
@@ -291,15 +291,19 @@ function TrendsReport({ from, to }: { from: string; to: string }) {
   return (
     <div className="space-y-4">
       <div className="rounded-xl border border-border bg-card p-5">
-        <ChartContainer config={chartConfig} className="h-52 w-full">
-          <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+        <ChartContainer config={chartConfig} className="h-56 w-full">
+          <LineChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
             <XAxis dataKey="date" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
             <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => fmtUGX(v)} />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" />} />
             <ChartLegend content={<ChartLegendContent />} />
-            <Line type="monotone" dataKey="adr" stroke="var(--color-primary)" strokeWidth={2.5} dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5, fill: "var(--color-primary)" }} />
-            <Line type="monotone" dataKey="revpar" stroke="var(--color-success)" strokeWidth={2.5} dot={{ fill: "var(--color-card)", stroke: "var(--color-success)", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5, fill: "var(--color-success)" }} />
+            <Line type="monotone" dataKey="adr" stroke="var(--color-primary)" strokeWidth={2.5} dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2.5, r: 4.5 }} activeDot={{ r: 6, fill: "var(--color-primary)" }}>
+              <LabelList dataKey="adr" position="top" className="fill-foreground" fontSize={10} fontWeight={600} formatter={(v: number) => fmtUGX(v)} />
+            </Line>
+            <Line type="monotone" dataKey="revpar" stroke="var(--color-success)" strokeWidth={2.5} dot={{ fill: "var(--color-card)", stroke: "var(--color-success)", strokeWidth: 2.5, r: 4.5 }} activeDot={{ r: 6, fill: "var(--color-success)" }}>
+              <LabelList dataKey="revpar" position="bottom" className="fill-foreground" fontSize={10} fontWeight={600} formatter={(v: number) => fmtUGX(v)} />
+            </Line>
           </LineChart>
         </ChartContainer>
       </div>
