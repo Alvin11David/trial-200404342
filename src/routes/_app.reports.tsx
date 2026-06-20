@@ -142,13 +142,42 @@ function RevenueReport({ from, to }: { from: string; to: string }) {
     { room: 0, fnb: 0, misc: 0, total: 0 },
   );
 
+  const chartConfig = {
+    room: { label: "Rooms", color: "var(--color-primary)" },
+    fnb: { label: "F&B", color: "var(--color-success)" },
+    misc: { label: "Misc", color: "var(--color-warning)" },
+  } satisfies ChartConfig;
+
+  const chartData = rows.map((r) => ({
+    date: new Date(r.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    room: r.room,
+    fnb: r.fnb,
+    misc: r.misc,
+  }));
+
   return (
-    <ReportTable
-      title="Revenue report"
-      subtitle={`Total ${fmtUGX(totals.total)} · Rooms ${fmtUGX(totals.room)} · F&B ${fmtUGX(totals.fnb)} · Misc ${fmtUGX(totals.misc)}`}
-      headers={["Date", "Rooms", "F&B", "Misc", "Total"]}
-      rows={rows.map((r) => [r.date, fmtUGX(r.room), fmtUGX(r.fnb), fmtUGX(r.misc), fmtUGX(r.total)])}
-    />
+    <div className="space-y-4">
+      <div className="rounded-xl border border-border bg-card p-5">
+        <ChartContainer config={chartConfig} className="h-52 w-full">
+          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+            <XAxis dataKey="date" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+            <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => fmtUGX(v)} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+            <ChartLegend content={<ChartLegendContent />} />
+            <Bar dataKey="room" fill="var(--color-primary)" radius={[4, 4, 0, 0]} barSize={12} stackId="a" />
+            <Bar dataKey="fnb" fill="var(--color-success)" radius={[4, 4, 0, 0]} barSize={12} stackId="a" />
+            <Bar dataKey="misc" fill="var(--color-warning)" radius={[4, 4, 0, 0]} barSize={12} stackId="a" />
+          </BarChart>
+        </ChartContainer>
+      </div>
+      <ReportTable
+        title="Revenue report"
+        subtitle={`Total ${fmtUGX(totals.total)} · Rooms ${fmtUGX(totals.room)} · F&B ${fmtUGX(totals.fnb)} · Misc ${fmtUGX(totals.misc)}`}
+        headers={["Date", "Rooms", "F&B", "Misc", "Total"]}
+        rows={rows.map((r) => [r.date, fmtUGX(r.room), fmtUGX(r.fnb), fmtUGX(r.misc), fmtUGX(r.total)])}
+      />
+    </div>
   );
 }
 
@@ -168,12 +197,36 @@ function PaymentsReport({ from, to }: { from: string; to: string }) {
     total: filtered.filter((p) => p.date === d).reduce((s, p) => s + p.amount, 0),
   }));
 
+  const pieColors = ["var(--color-primary)", "var(--color-success)", "var(--color-warning)", "var(--color-info)", "var(--color-chart-5)"];
+  const pieConfig = {
+    value: { label: "Amount" },
+  } satisfies ChartConfig;
+
+  const barConfig = {
+    payments: { label: "Payments", color: "var(--color-success)" },
+  } satisfies ChartConfig;
+
+  const barData = byDate.map((r) => ({
+    date: new Date(r.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    payments: r.total,
+  }));
+
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-xl border border-border bg-card p-5">
           <h3 className="text-sm font-semibold">By method</h3>
           <p className="text-[11px] text-muted-foreground">Total {fmtUGX(totalPayments)}</p>
+          <ChartContainer config={pieConfig} className="mx-auto mt-2 h-44 w-44">
+            <PieChart>
+              <Pie data={byMethod.map(([m, a]) => ({ name: m.replace("_", " "), value: a }))} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={75} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
+                {byMethod.map(([m], i) => (
+                  <Cell key={m} fill={pieColors[i % pieColors.length]} />
+                ))}
+              </Pie>
+              <ChartTooltip content={<ChartTooltipContent />} />
+            </PieChart>
+          </ChartContainer>
           <table className="mt-4 w-full text-sm">
             <tbody className="divide-y divide-border">
               {byMethod.map(([method, amt]) => (
@@ -188,13 +241,26 @@ function PaymentsReport({ from, to }: { from: string; to: string }) {
             </tbody>
           </table>
         </div>
-        <ReportTable
-          title="By date"
-          subtitle={`Total ${fmtUGX(totalPayments)}`}
-          headers={["Date", "Collected"]}
-          rows={byDate.map((r) => [r.date, fmtUGX(r.total)])}
-          flat
-        />
+        <div className="space-y-4">
+          <div className="rounded-xl border border-border bg-card p-5">
+            <ChartContainer config={barConfig} className="h-40 w-full">
+              <BarChart data={barData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+                <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => fmtUGX(v)} />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+                <Bar dataKey="payments" fill="var(--color-success)" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
+            </ChartContainer>
+          </div>
+          <ReportTable
+            title="By date"
+            subtitle={`Total ${fmtUGX(totalPayments)}`}
+            headers={["Date", "Collected"]}
+            rows={byDate.map((r) => [r.date, fmtUGX(r.total)])}
+            flat
+          />
+        </div>
       </div>
     </div>
   );
@@ -208,13 +274,40 @@ function TrendsReport({ from, to }: { from: string; to: string }) {
     revpar: revparOnDate(d),
     rev: roomRevenueOnDate(d),
   }));
+
+  const chartConfig = {
+    adr: { label: "ADR", color: "var(--color-primary)" },
+    revpar: { label: "RevPAR", color: "var(--color-success)" },
+  } satisfies ChartConfig;
+
+  const chartData = rows.map((r) => ({
+    date: new Date(r.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    adr: r.adr,
+    revpar: r.revpar,
+  }));
+
   return (
-    <ReportTable
-      title="ADR &amp; RevPAR trends"
-      subtitle="Computed from posted room charges"
-      headers={["Date", "Room revenue", "ADR", "RevPAR"]}
-      rows={rows.map((r) => [r.date, fmtUGX(r.rev), fmtUGX(r.adr), fmtUGX(r.revpar)])}
-    />
+    <div className="space-y-4">
+      <div className="rounded-xl border border-border bg-card p-5">
+        <ChartContainer config={chartConfig} className="h-52 w-full">
+          <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+            <XAxis dataKey="date" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+            <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => fmtUGX(v)} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
+            <ChartLegend content={<ChartLegendContent />} />
+            <Line type="monotone" dataKey="adr" stroke="var(--color-primary)" strokeWidth={2.5} dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5, fill: "var(--color-primary)" }} />
+            <Line type="monotone" dataKey="revpar" stroke="var(--color-success)" strokeWidth={2.5} dot={{ fill: "var(--color-card)", stroke: "var(--color-success)", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5, fill: "var(--color-success)" }} />
+          </LineChart>
+        </ChartContainer>
+      </div>
+      <ReportTable
+        title="ADR &amp; RevPAR trends"
+        subtitle="Computed from posted room charges"
+        headers={["Date", "Room revenue", "ADR", "RevPAR"]}
+        rows={rows.map((r) => [r.date, fmtUGX(r.rev), fmtUGX(r.adr), fmtUGX(r.revpar)])}
+      />
+    </div>
   );
 }
 
