@@ -439,32 +439,43 @@ RESERVATIONS.forEach((r) => {
   }
 });
 
-// A couple of historical checked_out reservations with settled folios for revenue history.
-for (let k = 1; k <= 6; k++) {
-  const dayOff = -k;
-  const rt = ROOM_TYPES[k % 3];
+// Historical checked-out reservations spanning the past 10 days so the
+// 7-day occupancy chart on the dashboard shows a realistic, varied curve.
+const HISTORICAL_GUESTS = [
+  "Kwame Boateng", "Maria Lopez", "Aliya Hassan", "Brian Otim",
+  "Jane Wairimu", "Samuel Tenywa", "Grace Akello", "Paul Mugisha",
+  "Ruth Kemigisha", "Hassan Ssebunya", "Diana Nalwoga", "Isaac Kintu",
+  "Martha Kyomugisha", "Fred Muwonge", "Catherine Nakayima",
+  "Peter Wasswa", "Joyce Namutebi", "Robert Ssali",
+];
+HISTORICAL_GUESTS.forEach((name, k) => {
+  const daysAgo = 1 + (k % 9);           // 1..9 days in the past
+  const nights = 1 + (k % 3);             // 1..3 night stays
+  const checkIn = addDays(TODAY, -daysAgo - 1);
+  const checkOut = addDays(TODAY, -daysAgo);
+  const rt = ROOM_TYPES[k % ROOM_TYPES.length];
+  const sameTypeRooms = ROOMS.filter((r) => r.typeId === rt.id);
+  const room = sameTypeRooms[k % sameTypeRooms.length];
   const id = nextResId();
-  const checkIn = addDays(TODAY, dayOff - 2);
-  const checkOut = addDays(TODAY, dayOff);
   const res: Reservation = {
     id,
-    guestName: ["Kwame Boateng", "Maria Lopez", "Aliya Hassan", "Brian Otim", "Jane Wairimu", "Samuel Tenywa"][k % 6],
-    guestEmail: "guest" + k + "@example.com",
-    guestPhone: "+256 700000" + k,
-    nationality: "Uganda",
-    idType: "Passport",
-    idNumber: "P" + 9000000 + k,
+    guestName: name,
+    guestEmail: name.toLowerCase().replace(" ", ".") + "@hist.example.com",
+    guestPhone: "+256 701" + (100000 + k * 11).toString().slice(0, 8),
+    nationality: ["Uganda", "Kenya", "Rwanda", "Tanzania"][k % 4],
+    idType: k % 2 ? "Passport" : "National ID",
+    idNumber: "P" + (8000000 + k * 73).toString(),
     roomTypeId: rt.id,
-    roomId: ROOMS.filter((r) => r.typeId === rt.id)[k % 4]?.id ?? null,
+    roomId: room.id,
     checkIn: iso(checkIn),
     checkOut: iso(checkOut),
-    adults: 1,
-    children: 0,
+    adults: 1 + (k % 2),
+    children: k % 5 === 0 ? 1 : 0,
     ratePerNight: rt.baseRate,
-    mealPlan: "BB",
-    source: ["Direct", "Booking.com", "Expedia"][k % 3],
+    mealPlan: ["RO", "BB", "HB"][k % 3],
+    source: ["Direct", "Booking.com", "Expedia", "Corporate"][k % 4],
     status: "checked_out",
-    createdAt: addDays(checkIn, -3).toISOString(),
+    createdAt: addDays(TODAY, -30).toISOString(),
   };
   RESERVATIONS.push(res);
   const folio: Folio = {
@@ -476,24 +487,24 @@ for (let k = 1; k <= 6; k++) {
   };
   res.folioId = folio.id;
   FOLIOS.push(folio);
-  const total = res.ratePerNight * 2;
+  const total = res.ratePerNight * nights;
   CHARGES.push({
     id: nextChargeId(),
     folioId: folio.id,
     date: iso(checkIn),
     type: "room",
-    description: `Room ${res.roomId} — 2 nights`,
+    description: `Room ${res.roomId} — ${nights} nights`,
     amount: total,
   });
   PAYMENTS.push({
     id: nextPayId(),
     folioId: folio.id,
     date: iso(checkOut),
-    method: (["cash", "card", "mtn_momo"] as PaymentMethod[])[k % 3],
+    method: (["cash", "card", "mtn_momo", "airtel_money"] as PaymentMethod[])[k % 4],
     amount: total,
     status: "confirmed",
   });
-}
+});
 
 /* Seed historical invoices for settled folios */
 const INVOICES: Invoice[] = [];
@@ -572,33 +583,6 @@ export const nightsBetween = (a: string, b: string) =>
 const GUESTS: Guest[] = (() => {
   const seen = new Map<string, Guest>();
   const allRsvps = [...RESERVATIONS];
-
-  // for historical checked-out
-  for (let k = 1; k <= 6; k++) {
-    const rt = ROOM_TYPES[k % 3];
-    const dayOff = -k;
-    const checkIn = addDays(TODAY, dayOff - 2);
-    const checkOut = addDays(TODAY, dayOff);
-    const name = ["Kwame Boateng", "Maria Lopez", "Aliya Hassan", "Brian Otim", "Jane Wairimu", "Samuel Tenywa"][k % 6];
-    const email = "guest" + k + "@example.com";
-    const phone = "+256 700000" + k;
-    const key = email + phone;
-    if (!seen.has(key)) {
-      seen.set(key, {
-        id: nextGuestId(),
-        name,
-        email,
-        phone,
-        nationality: "Uganda",
-        idType: "Passport",
-        idNumber: "P" + 9000000 + k,
-        createdAt: addDays(TODAY, -30).toISOString(),
-        totalVisits: 1,
-        totalRevenue: rt.baseRate * 2,
-        tier: "Bronze",
-      });
-    }
-  }
 
   allRsvps.forEach((r) => {
     const key = r.guestEmail + r.guestPhone;
