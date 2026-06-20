@@ -340,46 +340,35 @@ function RevenueAreaChart({ data }: { data: { m: string; v: number }[] }) {
 }
 
 function DonutChart({ data }: { data: { name: string; value: number; color: string }[] }) {
-  const total = data.reduce((s, d) => s + d.value, 0);
-  const size = 180;
-  const r = 70;
-  const stroke = 22;
-  const c = 2 * Math.PI * r;
-  let offset = 0;
+  const chartConfig = {
+    expenses: { label: "Expenses" },
+  } satisfies ChartConfig;
+
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="relative">
-        <svg width={size} height={size} className="-rotate-90">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={r}
-            fill="none"
-            stroke="oklch(0.25 0.03 250 / 0.5)"
-            strokeWidth={stroke}
-          />
-          {data.map((d, i) => {
-            const len = (d.value / total) * c;
-            const dash = `${len} ${c - len}`;
-            const el = (
-              <circle
-                key={i}
-                cx={size / 2}
-                cy={size / 2}
-                r={r}
-                fill="none"
-                stroke={d.color}
-                strokeWidth={stroke}
-                strokeDasharray={dash}
-                strokeDashoffset={-offset}
-                strokeLinecap="butt"
-              />
-            );
-            offset += len;
-            return el;
-          })}
-        </svg>
-        <div className="absolute inset-0 grid place-items-center">
+        <ChartContainer config={chartConfig} className="h-[180px] w-[180px]">
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              innerRadius={55}
+              outerRadius={80}
+              strokeWidth={0}
+              cornerRadius={4}
+              paddingAngle={2}
+            >
+              {data.map((entry) => (
+                <Cell key={entry.name} fill={entry.color} />
+              ))}
+            </Pie>
+            <ChartTooltip content={<ChartTooltipContent />} />
+          </PieChart>
+        </ChartContainer>
+        <div className="pointer-events-none absolute inset-0 grid place-items-center">
           <div className="text-center">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Total</div>
             <div className="font-display text-lg font-bold">{ugx(184_500_000)}</div>

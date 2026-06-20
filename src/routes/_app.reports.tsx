@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Calendar, Download, BarChart3 } from "lucide-react";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Line, LineChart, Pie, PieChart, XAxis, YAxis } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, type ChartConfig } from "@/components/ui/chart";
 import {
   adrOnDate,
   dateRangeList,
@@ -88,13 +90,41 @@ function OccupancyReport({ from, to }: { from: string; to: string }) {
   });
   const avg = rows.length ? rows.reduce((s, r) => s + r.pct, 0) / rows.length : 0;
 
+  const chartConfig = {
+    occupancy: { label: "Occupancy", color: "var(--color-primary)" },
+  } satisfies ChartConfig;
+
+  const chartData = rows.map((r) => ({
+    date: new Date(r.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    occupancy: +(r.pct * 100).toFixed(1),
+  }));
+
   return (
-    <ReportTable
-      title="Occupancy report"
-      subtitle={`Avg occupancy ${(avg * 100).toFixed(1)}%`}
-      headers={["Date", "Total rooms", "Occupied", "Occupancy %"]}
-      rows={rows.map((r) => [r.date, r.total.toString(), r.occupied.toString(), (r.pct * 100).toFixed(1) + "%"])}
-    />
+    <div className="space-y-4">
+      <div className="rounded-xl border border-border bg-card p-5">
+        <ChartContainer config={chartConfig} className="h-52 w-full">
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="occFill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/50" />
+            <XAxis dataKey="date" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+            <YAxis domain={[0, 100]} tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}%`} />
+            <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
+            <Area type="monotone" dataKey="occupancy" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#occFill)" dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2, r: 3.5 }} activeDot={{ r: 5, fill: "var(--color-primary)" }} />
+          </AreaChart>
+        </ChartContainer>
+      </div>
+      <ReportTable
+        title="Occupancy report"
+        subtitle={`Avg occupancy ${(avg * 100).toFixed(1)}%`}
+        headers={["Date", "Total rooms", "Occupied", "Occupancy %"]}
+        rows={rows.map((r) => [r.date, r.total.toString(), r.occupied.toString(), (r.pct * 100).toFixed(1) + "%"])}
+      />
+    </div>
   );
 }
 
