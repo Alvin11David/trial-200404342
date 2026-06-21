@@ -714,52 +714,26 @@ function KpiCard({
   accent?: Accent;
   extra?: ReactNode;
 }) {
-  const color = accentColor[accent];
   return (
-    <div
-      className="group relative overflow-hidden rounded-2xl p-5 shadow-sm backdrop-blur-xl cursor-pointer transition-all duration-250 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      style={{
-        background: `linear-gradient(135deg, ${color}0C, var(--color-card))`,
-        border: `1px solid ${color}22`,
-      }}
-    >
-      {/* Top gradient accent bar */}
+    <div className="card-hover relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
       <div
-        className="absolute left-0 top-0 h-[3px] w-full transition-all duration-250 group-hover:h-[4px]"
-        style={{ background: `linear-gradient(90deg, ${color}, ${color}70)` }}
+        className="absolute left-0 top-0 h-full w-[3px]"
+        style={{ background: accentColor[accent], boxShadow: `0 0 10px ${accentColor[accent]}` }}
       />
-
-      {/* Decorative radial glow in top-right corner */}
-      <div
-        className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full opacity-0 transition-opacity duration-250 group-hover:opacity-40"
-        style={{ background: `radial-gradient(circle, ${color}40, transparent)` }}
-      />
-
-      <div className="relative z-10 flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color }}>
-            {label}
-          </p>
-          <p className="mt-1.5 font-display text-2xl font-bold tracking-tight text-foreground">
-            {value}
-          </p>
+      <div className="flex items-start justify-between pl-1">
+        <div>
+          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="mt-1.5 font-display text-2xl font-bold tracking-tight">{value}</p>
           {delta && (
-            <p className={"mt-1 inline-flex items-center gap-1 text-[11px] font-medium " + (deltaPositive ? "text-success" : "")}
-              style={!deltaPositive ? { color: `${color}CC` } : undefined}
-            >
+            <p className={"mt-1 inline-flex items-center gap-1 text-[11px] font-medium " + (deltaPositive ? "text-success" : "text-muted-foreground")}>
               {deltaPositive ? <ArrowUpRight className="h-3 w-3" /> : null}
               {delta}
             </p>
           )}
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex items-center gap-2">
           {extra}
-          <span
-            className="grid h-10 w-10 place-items-center rounded-xl text-white shadow-sm transition-all duration-250 group-hover:shadow-md group-hover:scale-105"
-            style={{ background: `linear-gradient(135deg, ${color}, ${color}DD)` }}
-          >
-            <span className="text-white">{icon}</span>
-          </span>
+          <span className={"grid h-9 w-9 place-items-center rounded-lg " + accentMap[accent]}>{icon}</span>
         </div>
       </div>
     </div>
