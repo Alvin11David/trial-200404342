@@ -555,9 +555,37 @@ function AccountantDashboard() {
 }
 
 function SysadminDashboard() {
+  const auditTrend = [
+    { d: "Mon", events: 245, logins: 18 },
+    { d: "Tue", events: 312, logins: 24 },
+    { d: "Wed", events: 278, logins: 21 },
+    { d: "Thu", events: 356, logins: 29 },
+    { d: "Fri", events: 410, logins: 35 },
+    { d: "Sat", events: 189, logins: 12 },
+    { d: "Sun", events: 134, logins: 8 },
+  ];
+
+  const roleDist = [
+    { name: "Front Desk", value: 8, color: "var(--color-chart-1)" },
+    { name: "Housekeeping", value: 6, color: "var(--color-chart-2)" },
+    { name: "Management", value: 4, color: "var(--color-chart-3)" },
+    { name: "Accountant", value: 3, color: "var(--color-chart-4)" },
+    { name: "Sysadmin", value: 2, color: "var(--color-chart-5)" },
+    { name: "Other", value: 3, color: "var(--color-muted-foreground)" },
+  ];
+
+  const activityData = [
+    { name: "Reservations", value: 142, color: "var(--color-chart-1)" },
+    { name: "Billing", value: 98, color: "var(--color-chart-2)" },
+    { name: "Housekeeping", value: 76, color: "var(--color-chart-3)" },
+    { name: "Settings", value: 34, color: "var(--color-chart-4)" },
+    { name: "Reports", value: 28, color: "var(--color-chart-5)" },
+  ];
+
+  const roleTotal = roleDist.reduce((s, r) => s + r.value, 0);
+
   return (
     <>
-      {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
         <Link to="/identity" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Users className="h-3.5 w-3.5" /> Manage Users <ArrowRight className="h-3 w-3" /></Link>
         <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><FileSearch className="h-3.5 w-3.5" /> Audit Log <ArrowRight className="h-3 w-3" /></Link>
@@ -570,12 +598,88 @@ function SysadminDashboard() {
         <KpiCard label="Audit events (24h)" value="318" icon={<FileSearch className="h-4 w-4" />} accent="warning" />
         <KpiCard label="Failed logins" value="2" icon={<ShieldCheck className="h-4 w-4" />} accent="success" />
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card title="Audit Events" subtitle="This week" className="lg:col-span-2">
+          <ChartContainer config={{ events: { label: "Events", color: "var(--color-chart-1)" }, logins: { label: "Logins", color: "var(--color-warning)" } }} className="h-44 w-full">
+            <AreaChart data={auditTrend} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="evtFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-chart-1)" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
+              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" />} />
+              <Area type="monotone" dataKey="events" stroke="var(--color-chart-1)" strokeWidth={2.5} fill="url(#evtFill)" dot={{ r: 4, fill: "var(--color-card)", stroke: "var(--color-chart-1)", strokeWidth: 2.5 }} activeDot={{ r: 6 }} />
+              <Area type="monotone" dataKey="logins" stroke="var(--color-warning)" strokeWidth={2} fill="none" dot={{ r: 3, fill: "var(--color-warning)" }} activeDot={{ r: 5 }} />
+            </AreaChart>
+          </ChartContainer>
+        </Card>
+        <Card title="Users by Role" subtitle={`${roleTotal} roles · ${24} users`}>
+          <ChartContainer config={{ value: { label: "Users" } }} className="h-28 w-full">
+            <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <Pie data={roleDist} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={28} outerRadius={46} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
+                {roleDist.map((e) => <Cell key={e.name} fill={e.color} />)}
+              </Pie>
+              <ChartTooltip content={<ChartTooltipContent className="rounded-xl" />} />
+            </PieChart>
+          </ChartContainer>
+          <div className="mt-2 space-y-1">
+            {roleDist.map((d) => (
+              <div key={d.name} className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.color }} />
+                  {d.name}
+                </span>
+                <span className="font-medium tabular-nums">{d.value}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Module Activity" subtitle="Events today">
+          <ChartContainer config={{ value: { label: "Events", color: "var(--color-chart-1)" } }} className="h-44 w-full">
+            <BarChart data={activityData} layout="vertical" margin={{ top: 0, right: 36, left: 0, bottom: 0 }} barSize={20}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/40" />
+              <XAxis type="number" hide domain={[0, "dataMax + 20"]} />
+              <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} width={100} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent className="rounded-xl" />} />
+              <Bar dataKey="value" radius={[0, 6, 6, 0]}>
+                {activityData.map((e) => <Cell key={e.name} fill={e.color} />)}
+                <LabelList dataKey="value" position="right" className="fill-foreground" fontSize={10} fontWeight={600} />
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        </Card>
         <Card title="Identity & Access" action={<Link to="/identity" className="text-xs text-primary">Manage →</Link>}>
           <p className="text-sm text-muted-foreground">Manage users, roles and permissions for property staff.</p>
-        </Card>
-        <Card title="Recent audit events" action={<Link to="/audit" className="text-xs text-primary">View log →</Link>}>
-          <p className="text-sm text-muted-foreground">All folio edits, voids and role changes are logged.</p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-lg border border-border/60 bg-card/40 p-3">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Users</p>
+              <p className="mt-1 font-display text-xl font-bold">24</p>
+              <p className="text-[10px] text-success">+2 this month</p>
+            </div>
+            <div className="rounded-lg border border-border/60 bg-card/40 p-3">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Roles</p>
+              <p className="mt-1 font-display text-xl font-bold">7</p>
+              <p className="text-[10px] text-muted-foreground">4 active today</p>
+            </div>
+            <div className="rounded-lg border border-border/60 bg-card/40 p-3">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Sessions</p>
+              <p className="mt-1 font-display text-xl font-bold">14</p>
+              <p className="text-[10px] text-success">+3 vs. yesterday</p>
+            </div>
+            <div className="rounded-lg border border-border/60 bg-card/40 p-3">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Failed logins</p>
+              <p className="mt-1 font-display text-xl font-bold">2</p>
+              <p className="text-[10px] text-destructive">-1 from last week</p>
+            </div>
+          </div>
         </Card>
       </div>
     </>
