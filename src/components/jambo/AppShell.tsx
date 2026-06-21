@@ -28,6 +28,36 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const NAV_ICON_COLORS: Record<string, { pale: string; vivid: string }> = {
+  "/dashboard": { pale: "#93C5FD", vivid: "#3B82F6" },
+  "/check-in": { pale: "#86EFAC", vivid: "#22C55E" },
+  "/check-out": { pale: "#FDBA74", vivid: "#F97316" },
+  "/reservations": { pale: "#A5B4FC", vivid: "#6366F1" },
+  "/rooms": { pale: "#7DD3FC", vivid: "#0EA5E9" },
+  "/guests": { pale: "#C4B5FD", vivid: "#8B5CF6" },
+  "/housekeeping": { pale: "#F9A8D4", vivid: "#EC4899" },
+  "/billing": { pale: "#94A3B8", vivid: "#64748B" },
+  "/pos": { pale: "#FCD34D", vivid: "#F59E0B" },
+  "/pos/orders": { pale: "#FCD34D", vivid: "#F59E0B" },
+  "/pos/menu": { pale: "#FDBA74", vivid: "#F97316" },
+  "/reports": { pale: "#67E8F9", vivid: "#06B6D4" },
+  "/accounting": { pale: "#FDE047", vivid: "#EAB308" },
+  "/rates": { pale: "#F0ABFC", vivid: "#D946EF" },
+  "/audit": { pale: "#FDA4AF", vivid: "#F43F5E" },
+  "/identity": { pale: "#A5B4FC", vivid: "#6366F1" },
+  "/settings": { pale: "#9CA3AF", vivid: "#6B7280" },
+  "/notifications": { pale: "#FCD34D", vivid: "#F59E0B" },
+  "/events": { pale: "#D8B4FE", vivid: "#A855F7" },
+  "/invoices": { pale: "#94A3B8", vivid: "#64748B" },
+  "/hr": { pale: "#C4B5FD", vivid: "#8B5CF6" },
+  "/hr/leaves": { pale: "#C4B5FD", vivid: "#8B5CF6" },
+  "/hr/schedule": { pale: "#94A3B8", vivid: "#64748B" },
+  "/inventory": { pale: "#99F6E4", vivid: "#14B8A6" },
+  "/inventory/list": { pale: "#99F6E4", vivid: "#14B8A6" },
+  "/inventory/purchase-orders": { pale: "#FDA4AF", vivid: "#F43F5E" },
+  "/inventory/requisitions": { pale: "#86EFAC", vivid: "#22C55E" },
+};
+
 const BREADCRUMB_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   "check-in": "Check-In",
@@ -152,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-20 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-[width] duration-300",
+          "fixed left-0 top-0 z-20 flex h-screen flex-col border-r border-sidebar-border/60 bg-sidebar/70 backdrop-blur-2xl transition-[width] duration-300",
           collapsed ? "w-[72px]" : "w-[200px] xl:w-[244px]",
           "-translate-x-full md:translate-x-0",
           mobileOpen && "translate-x-0",
@@ -160,58 +190,74 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div
           className={cn(
-            "flex h-16 items-center border-b border-sidebar-border px-4",
+            "flex h-16 items-center border-b border-sidebar-border/50 px-4",
             collapsed && "justify-center px-2",
           )}
         >
           {collapsed ? <Logo showText={false} size="sm" /> : <Logo size="sm" />}
           <button
             onClick={() => setMobileOpen(false)}
-            className="ml-auto grid h-8 w-8 place-items-center rounded-lg text-sidebar-foreground/60 hover:text-sidebar-foreground md:hidden"
+            className="ml-auto grid h-8 w-8 place-items-center rounded-lg text-sidebar-foreground/50 hover:text-sidebar-foreground md:hidden"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
+        <nav className="flex-1 overflow-y-auto px-2 py-4">
           {nav.map((group) => (
-            <div key={group.section} className="mb-5">
+            <div key={group.section} className="mb-4">
               {!collapsed && (
-                <div className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/80">
-                  {group.section}
+                <div className="mb-2 flex items-center gap-2 px-2">
+                  <span className="h-px flex-1 bg-sidebar-border/40" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
+                    {group.section}
+                  </span>
+                  <span className="h-px flex-1 bg-sidebar-border/40" />
                 </div>
               )}
               <ul className="space-y-0.5">
                 {group.items.map((it) => {
                   const active = pathname === it.to || pathname.startsWith(it.to + "/");
                   const Icon = it.icon;
+                  const c = NAV_ICON_COLORS[it.to];
                   return (
                     <li key={it.label + it.to}>
                       <Link
                         to={it.to}
                         className={cn(
-                          "group/nav-item relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200",
-                          active
-                            ? "bg-primary/10 text-primary"
-                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-foreground",
+                          "group/nav-item relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                           collapsed && "justify-center px-0",
                         )}
+                        style={active && c ? {
+                          background: `${c.vivid}14`,
+                          color: c.vivid,
+                          boxShadow: active ? `inset 0 0 0 1px ${c.vivid}25` : "none",
+                        } : {
+                          color: "var(--color-sidebar-foreground)",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!active && c) e.currentTarget.style.background = `${c.pale}12`;
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!active) e.currentTarget.style.background = "transparent";
+                        }}
                       >
-                        {active && (
-                          <span className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-primary shadow-sm animate-sidebar-accent-in" />
+                        {active && c && (
+                          <span
+                            className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full shadow-sm animate-sidebar-accent-in"
+                            style={{ background: c.vivid, boxShadow: `0 0 8px ${c.vivid}60` }}
+                          />
                         )}
                         <span className={cn(
                           "relative flex shrink-0 items-center justify-center rounded-lg p-0.5 transition-all duration-200",
-                          active && "animate-sidebar-glow-rotate",
-                        )}>
+                          active && "backdrop-blur-sm",
+                        )}
+                          style={active && c ? { background: `${c.vivid}18` } : undefined}
+                        >
                           <span className="relative flex shrink-0 items-center justify-center">
                             <Icon
-                              className={cn(
-                                "h-[18px] w-[18px] transition-all duration-200",
-                                active
-                                  ? "text-primary animate-sidebar-icon-float drop-shadow-[0_0_8px_var(--color-primary)]"
-                                  : "text-muted-foreground animate-sidebar-icon-bounce-hover",
-                              )}
+                              className="h-[18px] w-[18px] transition-all duration-200 group-hover/nav-item:scale-110"
+                              style={{ color: c ? (active ? c.vivid : c.pale) : undefined }}
                             />
                           </span>
                         </span>
@@ -224,7 +270,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                               {it.label}
                             </span>
                             {it.badge && (
-                              <span className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary">
+                              <span
+                                className="rounded-md px-1.5 py-0.5 text-[10px] font-semibold backdrop-blur-sm"
+                                style={c ? { background: `${c.vivid}18`, color: c.vivid } : undefined}
+                              >
                                 {it.badge}
                               </span>
                             )}
@@ -239,25 +288,23 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        <div className={cn("border-t border-sidebar-border p-3", collapsed && "px-2")}>
+        <div className={cn("border-t border-sidebar-border/40 p-3", collapsed && "px-2")}>
           <button
             onClick={() => setCollapsed((c) => !c)}
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-sidebar-border bg-card py-1.5 text-xs text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-          >
-            {collapsed ? (
-              <ChevronRight className="h-3.5 w-3.5" />
-            ) : (
-              <>
-                <ChevronLeft className="h-3.5 w-3.5" />
-                Collapse
-              </>
+            className={cn(
+              "flex w-full items-center justify-center gap-1.5 rounded-xl border border-sidebar-border/50 bg-sidebar-accent/50 py-2 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-all duration-200 hover:border-primary/30 hover:text-foreground hover:shadow-sm",
+              collapsed && "px-0",
             )}
+          >
+            <ChevronLeft className={cn("h-3.5 w-3.5 transition-transform duration-200", collapsed && "rotate-180")} />
+            {!collapsed && "Collapse"}
           </button>
         </div>
       </aside>
 
       {/* Main column */}
       <div className={cn("flex min-w-0 flex-1 flex-col transition-[margin] duration-300", collapsed ? "md:ml-[72px]" : "md:ml-[200px] xl:ml-[244px]")}>
+        {/* Header — permanent sticky top bar, outside the rounded panel */}
         <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-border bg-card/80 px-4 backdrop-blur md:gap-3 md:px-6">
           <button
             onClick={() => setMobileOpen(true)}
@@ -348,11 +395,12 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-5 md:px-6 md:py-7">
+        <main className="flex-1 px-4 py-5 md:px-6 md:py-7 md:rounded-b-2xl">
           <Breadcrumbs pathname={pathname} />
           {children}
         </main>
       </div>
+    </div>
     </div>
   );
 }

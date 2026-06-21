@@ -53,8 +53,8 @@ function Dashboard() {
   const meta = ROLE_META[role];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6" role="main" aria-label="Dashboard">
-      <header className="flex flex-wrap items-end justify-between gap-3">
+    <div className="mx-auto max-w-7xl space-y-6 min-h-screen py-1 relative mesh-bg" role="main" aria-label="Dashboard">
+      <header className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border/40 bg-card/50 px-6 py-5 backdrop-blur-sm">
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-primary">{role}</p>
           <h1 className="mt-1 font-display text-2xl font-bold tracking-tight">
@@ -99,10 +99,11 @@ function OwnerGMDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><BarChart3 className="h-3.5 w-3.5" /> View Reports <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><BarChart3 className="h-3.5 w-3.5" /> View Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
       </div>
+
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -179,7 +180,7 @@ function OwnerGMDashboard() {
         <Card title="Housekeeping needs attention" subtitle={`${dirtyRooms.length} rooms in queue`} className="lg:col-span-2">
           <div className="grid gap-2 sm:grid-cols-2">
             {dirtyRooms.slice(0, 6).map((r) => (
-              <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
+              <div key={r.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-card/60 px-3 py-2.5 backdrop-blur-sm cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-sm">
                 <div>
                   <div className="text-sm font-semibold">Room {r.id}</div>
                   <div className="text-[11px] text-muted-foreground">Floor {r.floor} · awaiting turnover</div>
@@ -188,7 +189,7 @@ function OwnerGMDashboard() {
               </div>
             ))}
             {dirtyRooms.length === 0 && (
-              <p className="col-span-2 rounded-md border border-success/20 bg-success/10 px-3 py-3 text-xs text-success">
+              <p className="col-span-2 rounded-xl border border-success/20 bg-success/10 px-3 py-3 text-xs text-success backdrop-blur-sm">
                 All rooms clean.
               </p>
             )}
@@ -207,7 +208,7 @@ function OwnerGMDashboard() {
                 <Link
                   key={r.t}
                   to="/reports"
-                  className="group rounded-lg border border-border bg-card p-3 transition hover:border-primary/40 hover:bg-primary/5"
+                  className="group rounded-xl border border-border/60 bg-card/60 p-3 backdrop-blur-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm cursor-pointer"
                 >
                   <Icon className="h-4 w-4 text-primary" />
                   <div className="mt-2 text-xs font-semibold">{r.t}</div>
@@ -229,10 +230,10 @@ function FrontDeskDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/check-in" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><UserPlus className="h-3.5 w-3.5" /> Check In <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/check-out" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><LogOut className="h-3.5 w-3.5" /> Check Out <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><CreditCard className="h-3.5 w-3.5" /> Record Payment <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/check-in" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><UserPlus className="h-3.5 w-3.5" /> Check In <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/check-out" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><LogOut className="h-3.5 w-3.5" /> Check Out <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success backdrop-blur-sm transition hover:bg-success/15 hover:shadow-sm"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><CreditCard className="h-3.5 w-3.5" /> Record Payment <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -281,8 +282,8 @@ function HousekeepingDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/housekeeping" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><ClipboardList className="h-3.5 w-3.5" /> Update Room Status <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/rooms" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><Building2 className="h-3.5 w-3.5" /> View All Rooms <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/housekeeping" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><ClipboardList className="h-3.5 w-3.5" /> Update Room Status <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rooms" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><Building2 className="h-3.5 w-3.5" /> View All Rooms <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -294,7 +295,7 @@ function HousekeepingDashboard() {
       <Card title="My assigned rooms">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {["101","102","103","204","205","305","306","402","410"].map((r, i) => (
-            <div key={r} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2.5">
+            <div key={r} className="flex items-center justify-between rounded-xl border border-border/60 bg-card/60 px-3 py-2.5 backdrop-blur-sm cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-sm">
               <div>
                 <div className="text-sm font-semibold">Room {r}</div>
                 <div className="text-[11px] text-muted-foreground">{i % 2 ? "Stayover" : "Departure clean"}</div>
@@ -339,9 +340,9 @@ function PosDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/pos" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><ShoppingCart className="h-3.5 w-3.5" /> Open POS <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/pos/orders" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><ClipboardList className="h-3.5 w-3.5" /> View Orders <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/pos/menu" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><MenuIcon className="h-3.5 w-3.5" /> Manage Menu <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/pos" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><ShoppingCart className="h-3.5 w-3.5" /> Open POS <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/pos/orders" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><ClipboardList className="h-3.5 w-3.5" /> View Orders <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/pos/menu" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><MenuIcon className="h-3.5 w-3.5" /> Manage Menu <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -422,9 +423,9 @@ function ReservationsDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><BarChart3 className="h-3.5 w-3.5" /> Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success backdrop-blur-sm transition hover:bg-success/15 hover:shadow-sm"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><BarChart3 className="h-3.5 w-3.5" /> Reports <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -472,10 +473,10 @@ function AccountantDashboard() {
   return (
     <>
       <div className="flex flex-wrap gap-2">
-        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Receipt className="h-3.5 w-3.5" /> View Billing <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/accounting" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><Calculator className="h-3.5 w-3.5" /> Accounting <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><BarChart3 className="h-3.5 w-3.5" /> Run Reports <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-lg bg-success/10 px-3.5 py-2 text-xs font-semibold text-success transition hover:bg-success/20"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><Receipt className="h-3.5 w-3.5" /> View Billing <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/accounting" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><Calculator className="h-3.5 w-3.5" /> Accounting <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><BarChart3 className="h-3.5 w-3.5" /> Run Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success backdrop-blur-sm transition hover:bg-success/15 hover:shadow-sm"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -587,9 +588,9 @@ function SysadminDashboard() {
   return (
     <>
       <div className="flex flex-wrap gap-2">
-        <Link to="/identity" className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Users className="h-3.5 w-3.5" /> Manage Users <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-lg bg-warning/10 px-3.5 py-2 text-xs font-semibold text-warning transition hover:bg-warning/20"><FileSearch className="h-3.5 w-3.5" /> Audit Log <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/settings" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><Settings className="h-3.5 w-3.5" /> System Settings <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/identity" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><Users className="h-3.5 w-3.5" /> Manage Users <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><FileSearch className="h-3.5 w-3.5" /> Audit Log <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/settings" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><Settings className="h-3.5 w-3.5" /> System Settings <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -659,22 +660,22 @@ function SysadminDashboard() {
         <Card title="Identity & Access" action={<Link to="/identity" className="text-xs text-primary">Manage →</Link>}>
           <p className="text-sm text-muted-foreground">Manage users, roles and permissions for property staff.</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-lg border border-border/60 bg-card/40 p-3">
+            <div className="rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Users</p>
               <p className="mt-1 font-display text-xl font-bold">24</p>
               <p className="text-[10px] text-success">+2 this month</p>
             </div>
-            <div className="rounded-lg border border-border/60 bg-card/40 p-3">
+            <div className="rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Roles</p>
               <p className="mt-1 font-display text-xl font-bold">7</p>
               <p className="text-[10px] text-muted-foreground">4 active today</p>
             </div>
-            <div className="rounded-lg border border-border/60 bg-card/40 p-3">
+            <div className="rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Sessions</p>
               <p className="mt-1 font-display text-xl font-bold">14</p>
               <p className="text-[10px] text-success">+3 vs. yesterday</p>
             </div>
-            <div className="rounded-lg border border-border/60 bg-card/40 p-3">
+            <div className="rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Failed logins</p>
               <p className="mt-1 font-display text-xl font-bold">2</p>
               <p className="text-[10px] text-destructive">-1 from last week</p>
@@ -714,7 +715,7 @@ function KpiCard({
   extra?: ReactNode;
 }) {
   return (
-    <div className="card-hover relative overflow-hidden rounded-xl border border-border bg-card p-5">
+    <div className="card-hover relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
       <div
         className="absolute left-0 top-0 h-full w-[3px]"
         style={{ background: accentColor[accent], boxShadow: `0 0 10px ${accentColor[accent]}` }}
@@ -747,7 +748,7 @@ function Card({ title, subtitle, children, action, className }: {
   className?: string;
 }) {
   return (
-    <div className={"rounded-xl border border-border bg-card p-5 " + (className ?? "")}>
+    <div className={"rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl transition-all duration-250 hover:shadow-md hover:border-border/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " + (className ?? "")}>
       <div className="mb-4 flex items-end justify-between gap-2">
         <div>
           <h3 className="text-sm font-semibold">{title}</h3>
@@ -888,7 +889,7 @@ function GuestTable({ rows, kind }: {
 }) {
   if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-10 text-center">
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-card/30 py-10 text-center backdrop-blur-sm">
         <SearchX className="mb-2 h-8 w-8 text-muted-foreground/40" />
         <p className="text-sm font-medium text-muted-foreground">No {kind === "arrival" ? "arrivals" : "departures"} today</p>
         <p className="mt-0.5 text-xs text-muted-foreground/60">
@@ -898,7 +899,7 @@ function GuestTable({ rows, kind }: {
     );
   }
   return (
-    <div className="overflow-hidden rounded-lg border border-border">
+    <div className="overflow-hidden rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm">
       <table className="w-full text-sm">
         <thead className="bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
           <tr>
@@ -911,7 +912,7 @@ function GuestTable({ rows, kind }: {
         </thead>
         <tbody className="divide-y divide-border">
           {rows.map((r) => (
-            <tr key={r.name} className="hover:bg-muted/30">
+            <tr key={r.name} className="hover:bg-muted/30 cursor-pointer transition-colors duration-150">
               <td className="px-3 py-2.5">
                 <div className="flex items-center gap-2.5">
                   <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
