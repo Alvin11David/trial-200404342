@@ -395,12 +395,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-5 md:px-6 md:py-7 md:rounded-b-2xl">
-          <Breadcrumbs pathname={pathname} />
-          {children}
-        </main>
+        <div className="mx-0 flex flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none md:mx-4 md:mb-4 md:rounded-2xl md:border md:border-border/60 md:bg-card md:shadow-sm">
+          <main className="flex-1 px-4 py-5 md:px-6 md:py-7">
+            <Breadcrumbs pathname={pathname} />
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
     </div>
   );
 }
