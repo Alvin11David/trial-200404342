@@ -309,6 +309,32 @@ function HousekeepingDashboard() {
 }
 
 function PosDashboard() {
+  const fmt = (n: number) => fmtUGX(n);
+
+  const hourlyData = [
+    { h: "08", v: 0 }, { h: "09", v: 45000 }, { h: "10", v: 120000 },
+    { h: "11", v: 185000 }, { h: "12", v: 320000 }, { h: "13", v: 280000 },
+    { h: "14", v: 195000 }, { h: "15", v: 160000 }, { h: "16", v: 240000 },
+    { h: "17", v: 310000 }, { h: "18", v: 420000 }, { h: "19", v: 380000 },
+    { h: "20", v: 260000 }, { h: "21", v: 140000 }, { h: "22", v: 35000 },
+  ];
+
+  const catData = [
+    { name: "Soft Drinks", value: 445000, color: "var(--color-chart-1)" },
+    { name: "Spirits", value: 280000, color: "var(--color-chart-2)" },
+    { name: "Food", value: 215000, color: "var(--color-chart-3)" },
+    { name: "Snacks", value: 125000, color: "var(--color-chart-5)" },
+  ];
+
+  const topItems = [
+    { name: "Coca Cola", qty: 32 }, { name: "Grilled Chicken", qty: 24 },
+    { name: "French Fries", qty: 20 }, { name: "Johnnie Walker Red", qty: 17 },
+    { name: "Fanta Orange", qty: 15 },
+  ];
+
+  const total = hourlyData.reduce((s, d) => s + d.v, 0);
+  const catTotal = catData.reduce((s, d) => s + d.value, 0);
+
   return (
     <>
       {/* CTA buttons */}
@@ -321,13 +347,72 @@ function PosDashboard() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Open tabs" value="7" icon={<ShoppingCart className="h-4 w-4" />} accent="primary" />
         <KpiCard label="Orders today" value="42" delta="+12 vs. yest." deltaPositive icon={<ClipboardList className="h-4 w-4" />} accent="info" />
-        <KpiCard label="POS revenue" value={ugx(1_980_000)} delta="+8.1%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" />
-        <KpiCard label="Cash drawer" value={ugx(640_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" />
+        <KpiCard label="POS revenue" value={fmt(1_980_000)} delta="+8.1%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" />
+        <KpiCard label="Cash drawer" value={fmt(640_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" />
       </div>
-      <Card title="Recent orders">
-        <p className="text-sm text-muted-foreground">Open the POS to manage active orders.</p>
-        <Link to="/pos" className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open POS →</Link>
-      </Card>
+
+      {/* Charts row */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card title="Hourly Sales" subtitle={`Today · ${fmt(total)} total`} className="lg:col-span-2">
+          <ChartContainer config={{ sales: { label: "Sales", color: "var(--color-primary)" } }} className="h-44 w-full">
+            <AreaChart data={hourlyData} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="posDashFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
+              <XAxis dataKey="h" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => fmt(v)} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" formatter={(v: number) => fmt(v)} />} />
+              <Area type="monotone" dataKey="v" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#posDashFill)" dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2.5, r: 4 }} activeDot={{ r: 6 }} />
+            </AreaChart>
+          </ChartContainer>
+        </Card>
+        <Card title="Categories" subtitle="Sales split">
+          <ChartContainer config={{ value: { label: "Value" } }} className="h-44 w-full">
+            <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <Pie data={catData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={65} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
+                {catData.map((e) => <Cell key={e.name} fill={e.color} />)}
+              </Pie>
+              <ChartTooltip content={<ChartTooltipContent className="rounded-xl" formatter={(v: number) => fmt(v)} />} />
+            </PieChart>
+          </ChartContainer>
+          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
+            {catData.map((d) => (
+              <div key={d.name} className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.color }} />
+                  {d.name}
+                </span>
+                <span className="font-medium tabular-nums">{Math.round((d.value / catTotal) * 100)}%</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      {/* Bottom row */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Top Selling Items" subtitle="Today">
+          <ChartContainer config={{ qty: { label: "Qty", color: "var(--color-chart-2)" } }} className="h-40 w-full">
+            <BarChart data={topItems} layout="vertical" margin={{ top: 0, right: 36, left: 0, bottom: 0 }} barSize={18}>
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/40" />
+              <XAxis type="number" hide domain={[0, "dataMax + 8"]} />
+              <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} width={100} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent className="rounded-xl" />} />
+              <Bar dataKey="qty" fill="var(--color-chart-2)" radius={[0, 4, 4, 0]}>
+                <LabelList dataKey="qty" position="right" className="fill-foreground" fontSize={10} fontWeight={600} />
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        </Card>
+        <Card title="Recent orders">
+          <p className="text-sm text-muted-foreground">Open the POS to manage active orders.</p>
+          <Link to="/pos" className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open POS →</Link>
+        </Card>
+      </div>
     </>
   );
 }
