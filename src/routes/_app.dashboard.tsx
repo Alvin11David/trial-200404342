@@ -28,7 +28,7 @@ import {
   Building2,
   PoundSterling,
 } from "lucide-react";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis, RadialBarChart, RadialBar, LabelList } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis, RadialBarChart, RadialBar, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import { useRole, ROLE_META } from "@/lib/role";
 import {
