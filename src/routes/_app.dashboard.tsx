@@ -442,9 +442,35 @@ function ReservationsDashboard() {
 }
 
 function AccountantDashboard() {
+  const revTrend = [
+    { d: "Mon", rev: 4.2, exp: 2.8 },
+    { d: "Tue", rev: 5.1, exp: 3.2 },
+    { d: "Wed", rev: 4.8, exp: 2.6 },
+    { d: "Thu", rev: 6.3, exp: 3.5 },
+    { d: "Fri", rev: 7.2, exp: 4.1 },
+    { d: "Sat", rev: 8.6, exp: 3.8 },
+    { d: "Sun", rev: 5.9, exp: 2.9 },
+  ];
+
+  const expenseData = [
+    { name: "Payroll", value: 42, color: "var(--color-chart-1)" },
+    { name: "Utilities", value: 18, color: "var(--color-chart-2)" },
+    { name: "F&B Supplies", value: 16, color: "var(--color-chart-3)" },
+    { name: "Maintenance", value: 12, color: "var(--color-chart-4)" },
+    { name: "Marketing", value: 7, color: "var(--color-chart-5)" },
+    { name: "Other", value: 5, color: "var(--color-muted-foreground)" },
+  ];
+
+  const txData = [
+    { d: "Mon", tx: 28 }, { d: "Tue", tx: 35 }, { d: "Wed", tx: 31 },
+    { d: "Thu", tx: 42 }, { d: "Fri", tx: 48 }, { d: "Sat", tx: 56 },
+    { d: "Sun", tx: 38 },
+  ];
+
+  const expTotal = expenseData.reduce((s, e) => s + e.value, 0);
+
   return (
     <>
-      {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
         <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary transition hover:bg-primary/20"><Receipt className="h-3.5 w-3.5" /> View Billing <ArrowRight className="h-3 w-3" /></Link>
         <Link to="/accounting" className="inline-flex items-center gap-1.5 rounded-lg bg-info/10 px-3.5 py-2 text-xs font-semibold text-info transition hover:bg-info/20"><Calculator className="h-3.5 w-3.5" /> Accounting <ArrowRight className="h-3 w-3" /></Link>
@@ -458,10 +484,72 @@ function AccountantDashboard() {
         <KpiCard label="Outstanding" value={ugx(5_120_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" />
         <KpiCard label="Refunds" value={ugx(80_000)} icon={<ArrowDownRight className="h-4 w-4" />} accent="info" />
       </div>
-      <Card title="Today's payments">
-        <p className="text-sm text-muted-foreground">View detailed payment log in Billing.</p>
-        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open billing →</Link>
-      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card title="Revenue vs Expenses" subtitle="This week · UGX (M)" className="lg:col-span-2">
+          <ChartContainer config={{ rev: { label: "Revenue", color: "var(--color-success)" }, exp: { label: "Expenses", color: "var(--color-destructive)" } }} className="h-48 w-full">
+            <AreaChart data={revTrend} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-success)" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="var(--color-success)" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="expFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--color-destructive)" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="var(--color-destructive)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
+              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}M`} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" formatter={(v: number) => `UGX ${v}M`} />} />
+              <Area type="monotone" dataKey="rev" stroke="var(--color-success)" strokeWidth={2.5} fill="url(#revFill)" dot={{ r: 4, fill: "var(--color-card)", stroke: "var(--color-success)", strokeWidth: 2.5 }} activeDot={{ r: 6 }} />
+              <Area type="monotone" dataKey="exp" stroke="var(--color-destructive)" strokeWidth={2.5} fill="url(#expFill)" dot={{ r: 4, fill: "var(--color-card)", stroke: "var(--color-destructive)", strokeWidth: 2.5 }} activeDot={{ r: 6 }} />
+            </AreaChart>
+          </ChartContainer>
+        </Card>
+        <Card title="Expense Breakdown" subtitle="YTD spend">
+          <ChartContainer config={{ value: { label: "%" } }} className="h-36 w-full">
+            <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+              <Pie data={expenseData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={36} outerRadius={58} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
+                {expenseData.map((e) => <Cell key={e.name} fill={e.color} />)}
+              </Pie>
+              <ChartTooltip content={<ChartTooltipContent className="rounded-xl" formatter={(v: number) => `${v}%`} />} />
+            </PieChart>
+          </ChartContainer>
+          <div className="mt-2 space-y-1">
+            {expenseData.map((d) => (
+              <div key={d.name} className="flex items-center justify-between text-xs">
+                <span className="flex items-center gap-1.5 text-muted-foreground">
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: d.color }} />
+                  {d.name}
+                </span>
+                <span className="font-medium tabular-nums">{d.value}%</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Daily Transactions" subtitle="This week">
+          <ChartContainer config={{ tx: { label: "Transactions", color: "var(--color-chart-1)" } }} className="h-40 w-full">
+            <BarChart data={txData} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
+              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" />} />
+              <Bar dataKey="tx" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} barSize={32}>
+                <LabelList dataKey="tx" position="top" className="fill-foreground" fontSize={10} fontWeight={600} />
+              </Bar>
+            </BarChart>
+          </ChartContainer>
+        </Card>
+        <Card title="Today's payments">
+          <p className="text-sm text-muted-foreground">View detailed payment log in Billing.</p>
+          <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open billing →</Link>
+        </Card>
+      </div>
     </>
   );
 }
