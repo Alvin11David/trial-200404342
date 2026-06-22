@@ -910,7 +910,7 @@ function Field({
           placeholder=" "
           className="peer block w-full bg-transparent px-11 pb-2.5 pt-6 text-sm outline-none placeholder-transparent"
         />
-        <label className="pointer-events-none absolute left-11 top-1.5 text-[11px] text-primary peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:text-muted-foreground peer-focus:top-1.5 peer-focus:text-[11px] peer-focus:text-primary">
+        <label className="pointer-events-none absolute left-11 top-1.5 text-[11px] text-muted-foreground peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-1.5 peer-focus:text-[11px] peer-focus:text-primary">
           {label}
         </label>
       </div>
@@ -940,7 +940,7 @@ function SelectField({
           </span>
         )}
         <Select value={value} onValueChange={onChange}>
-          <SelectTrigger className="block w-full bg-transparent px-11 pb-2.5 pt-6 text-sm outline-none border-0 shadow-none focus:ring-0">
+          <SelectTrigger className="flex w-full bg-transparent px-11 pb-2.5 pt-6 text-sm outline-none border-0 shadow-none focus:ring-0 h-auto">
             <SelectValue placeholder={label} />
           </SelectTrigger>
           <SelectContent>
