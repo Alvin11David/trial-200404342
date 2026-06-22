@@ -6,13 +6,11 @@ import {
   BedDouble,
   Check,
   CheckCircle2,
-  CreditCard,
   IdCard,
   Mail,
   MapPin,
   Phone,
   Smartphone,
-  Building2,
   Landmark,
   User,
   Utensils,
@@ -38,6 +36,26 @@ function AirtelIcon({ className }: { className?: string }) {
       <text x="12" y="16" textAnchor="middle" fontWeight="700" fontSize="13" fill="#FFF" fontFamily="Arial">
         A
       </text>
+    </svg>
+  );
+}
+
+function CashIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="1.5" />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M2 9h3m14 0h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CardIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="2" y1="10" x2="22" y2="10" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="6" y1="14" x2="10" y2="14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -765,8 +783,8 @@ function StepReview({
                     {[
                       { id: "mtn_momo" as const, label: "MTN MoMo", icon: MtnIcon },
                       { id: "airtel_money" as const, label: "Airtel Money", icon: AirtelIcon },
-                      { id: "card" as const, label: "Card", icon: CreditCard },
-                      { id: "cash" as const, label: "Cash", icon: Building2 },
+                      { id: "card" as const, label: "Card", icon: CardIcon },
+                      { id: "cash" as const, label: "Cash", icon: CashIcon },
                     ].map((pm) => (
                       <button
                         key={pm.id}
