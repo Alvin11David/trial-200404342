@@ -478,7 +478,7 @@ function StepGuestDetails({
           options={["Passport", "National ID", "Driver's License", "Other"]}
         />
         <Field
-          icon={<CreditCard className="h-4 w-4" />}
+          icon={<IdCard className="h-4 w-4" />}
           label="ID number"
           value={form.idNumber}
           onChange={(v) => set("idNumber", v)}
