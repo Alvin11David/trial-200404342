@@ -19,6 +19,28 @@ import {
   Calendar as CalIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+function MtnIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="20" height="20" rx="4" fill="#FFC915" />
+      <text x="12" y="16" textAnchor="middle" fontWeight="700" fontSize="13" fill="#000" fontFamily="Arial">
+        M
+      </text>
+    </svg>
+  );
+}
+
+function AirtelIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="20" height="20" rx="4" fill="#E40101" />
+      <text x="12" y="16" textAnchor="middle" fontWeight="700" fontSize="13" fill="#FFF" fontFamily="Arial">
+        A
+      </text>
+    </svg>
+  );
+}
 import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
@@ -741,8 +763,8 @@ function StepReview({
                   </label>
                   <div className="mt-1.5 grid grid-cols-2 gap-2">
                     {[
-                      { id: "mtn_momo" as const, label: "MTN MoMo", icon: Smartphone },
-                      { id: "airtel_money" as const, label: "Airtel Money", icon: Smartphone },
+                      { id: "mtn_momo" as const, label: "MTN MoMo", icon: MtnIcon },
+                      { id: "airtel_money" as const, label: "Airtel Money", icon: AirtelIcon },
                       { id: "card" as const, label: "Card", icon: CreditCard },
                       { id: "cash" as const, label: "Cash", icon: Building2 },
                     ].map((pm) => (
