@@ -268,69 +268,82 @@ function POSMenuPage() {
             <div
               key={item.id}
               className={cn(
-                "group relative overflow-hidden rounded-2xl border bg-card/70 backdrop-blur-sm shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",
-                cfg.border,
+                "group relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-xl",
+                cfg.border.replace("hover:border", "hover:shadow"),
               )}
               style={{ animationDelay: `${idx * 50}ms` }}
             >
-              <div className={cn("absolute inset-x-0 top-0 h-1 transition-all duration-500 group-hover:h-1.5", cfg.bar)} />
-              <div className={cn("pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100", cfg.iconBg)} />
+              {/* Top accent bar */}
+              <div className={cn("absolute inset-x-0 top-0 h-1 transition-all duration-500 group-hover:h-1.5 z-10", cfg.bar)} />
 
-              <div className="relative px-5 pt-5">
-                <div className="flex items-start justify-between">
-                  <div className={cn("flex h-12 w-12 items-center justify-center rounded-xl ring-1 ring-border/40", cfg.iconBg)}>
-                    <Icon className={cn("h-6 w-6", cfg.iconColor)} />
-                  </div>
-                  <div className="flex gap-1 opacity-0 -translate-x-2 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0">
-                    <button
-                      onClick={() => openEdit(item)}
-                      className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground/60 transition-colors hover:bg-muted/40 hover:text-foreground"
-                      aria-label={`Edit ${item.name}`}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={() => setConfirmDelete(item.id)}
-                      className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
-                      aria-label={`Delete ${item.name}`}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
+              {/* Action buttons */}
+              <div className="absolute right-3 top-3 z-20 flex gap-1 opacity-0 -translate-x-3 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
+                <button
+                  onClick={() => openEdit(item)}
+                  className="grid h-8 w-8 place-items-center rounded-xl bg-card/80 backdrop-blur-sm border border-border/40 shadow-sm text-muted-foreground/70 transition-all hover:bg-card hover:text-foreground hover:border-border/60"
+                  aria-label={`Edit ${item.name}`}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  onClick={() => setConfirmDelete(item.id)}
+                  className="grid h-8 w-8 place-items-center rounded-xl bg-card/80 backdrop-blur-sm border border-border/40 shadow-sm text-muted-foreground/70 transition-all hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                  aria-label={`Delete ${item.name}`}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
 
-                <div className="mt-4">
-                  <h3 className="font-display text-base font-semibold leading-tight text-foreground">{item.name}</h3>
-                  <span className={cn("mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-medium", cfg.badge)}>
-                    <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
-                    {item.category}
-                  </span>
+              {/* Art zone */}
+              <div className="px-4 pt-4">
+                <div className={cn("relative h-44 overflow-hidden rounded-2xl flex items-center justify-center", cfg.blobFrom, cfg.blobTo)}>
+                  {/* Glow layer */}
+                  <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50 blur-2xl transition-opacity duration-500 group-hover:opacity-100", cfg.blobFrom, cfg.blobTo)} />
+                  {/* Subtle ring */}
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/[0.06]" />
+                  {/* Icon circle */}
+                  <div className={cn("relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-xl", cfg.iconFrom, cfg.iconTo)}>
+                    <Icon className="h-7 w-7 text-white" />
+                  </div>
                 </div>
               </div>
 
-              <div className="relative mt-5 flex items-baseline gap-1.5 border-t border-border/40 px-5 py-4">
-                <span className="text-[10px] font-medium text-muted-foreground/60">{item.currency}</span>
-                <span className="text-2xl font-bold tabular-nums tracking-tight">{item.price.toLocaleString()}</span>
+              {/* Info zone */}
+              <div className="px-4 mt-3.5">
+                <h3 className="font-display text-lg font-bold leading-snug text-foreground">{item.name}</h3>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className={cn("h-1.5 w-1.5 rounded-full", cfg.dot)} />
+                  <span className="text-xs text-muted-foreground/70">{item.category}</span>
+                </div>
               </div>
 
+              {/* Price bar */}
+              <div className="mt-3.5 mx-4 mb-4 flex items-baseline gap-1.5 rounded-xl bg-muted/30 px-4 py-3.5 border border-border/40">
+                <span className="text-[11px] font-medium text-muted-foreground/50">{item.currency}</span>
+                <span className="text-2xl font-bold tabular-nums tracking-tight text-foreground">{item.price.toLocaleString()}</span>
+              </div>
+
+              {/* Delete overlay */}
               {confirmDelete === item.id && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-card/90 backdrop-blur-sm">
-                  <div className="p-5 text-center">
-                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-destructive/10">
-                      <Trash2 className="h-5 w-5 text-destructive" />
+                <div className="absolute inset-0 z-30 flex items-end rounded-2xl bg-gradient-to-t from-card/95 via-card/80 to-card/60 backdrop-blur-sm">
+                  <div className="w-full p-5 animate-slide-up-fade">
+                    <div className="text-center mb-5">
+                      <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-destructive/10 ring-1 ring-destructive/20">
+                        <Trash2 className="h-6 w-6 text-destructive" />
+                      </div>
+                      <p className="text-base font-bold">Delete &ldquo;{item.name}&rdquo;?</p>
+                      <p className="text-xs text-muted-foreground/60 mt-1">This action cannot be undone.</p>
                     </div>
-                    <p className="mb-1 text-sm font-semibold">Delete &ldquo;{item.name}&rdquo;?</p>
-                    <p className="mb-4 text-[11px] text-muted-foreground/60">This action cannot be undone.</p>
-                    <div className="flex justify-center gap-2">
+                    <div className="flex gap-2.5">
                       <button
                         onClick={() => setConfirmDelete(null)}
-                        className="rounded-xl border border-border/60 bg-card/60 px-4 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        className="flex-1 rounded-xl border border-border/50 bg-card/80 px-4 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-card hover:text-foreground"
                       >
                         Cancel
                       </button>
                       <button
                         onClick={() => remove(item.id)}
-                        className="rounded-xl bg-destructive px-4 py-2 text-xs font-medium text-destructive-foreground transition-all hover:bg-destructive/90 hover:shadow-lg hover:shadow-destructive/30"
+                        className="flex-1 rounded-xl bg-destructive px-4 py-2.5 text-sm font-semibold text-destructive-foreground shadow-lg shadow-destructive/20 transition-all hover:bg-destructive/90 hover:shadow-xl hover:shadow-destructive/30"
                       >
                         Delete
                       </button>
@@ -365,13 +378,13 @@ function POSMenuPage() {
 
         <button
           onClick={openNew}
-          className="flex min-h-[220px] items-center justify-center rounded-2xl border-2 border-dashed border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-lg"
+          className="flex min-h-[240px] items-center justify-center rounded-2xl border-2 border-dashed border-border/40 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:scale-[1.02] hover:border-primary/40 hover:bg-primary/[0.03] hover:shadow-lg"
         >
           <div className="text-center">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
-              <Plus className="h-6 w-6 text-primary" />
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 ring-1 ring-primary/20">
+              <Plus className="h-7 w-7 text-primary" />
             </div>
-            <p className="mt-3 text-sm font-medium text-muted-foreground">Add Item</p>
+            <p className="mt-3 text-sm font-semibold text-muted-foreground">Add Item</p>
             <p className="mt-0.5 text-xs text-muted-foreground/40">Create a new menu item</p>
           </div>
         </button>
