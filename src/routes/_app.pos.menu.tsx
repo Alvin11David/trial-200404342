@@ -34,33 +34,36 @@ type MenuItem = {
   price: number;
   category: string;
   currency: string;
+  image?: string;
 };
+
+const unsplashImg = (id: string) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=400&h=400&q=80`;
 
 const categories = ["Soft Drinks", "Spirits", "Food", "Snacks"];
 
 const defaultItems: MenuItem[] = [
-  { id: "sd1", name: "Coca Cola", price: 5_000, category: "Soft Drinks", currency: "UGX" },
-  { id: "sd2", name: "Fanta Orange", price: 5_000, category: "Soft Drinks", currency: "UGX" },
-  { id: "sd3", name: "Sprite", price: 5_000, category: "Soft Drinks", currency: "UGX" },
-  { id: "sd4", name: "Mineral Water", price: 3_000, category: "Soft Drinks", currency: "UGX" },
-  { id: "sd5", name: "Fresh Orange Juice", price: 8_000, category: "Soft Drinks", currency: "UGX" },
-  { id: "sd6", name: "Mango Smoothie", price: 10_000, category: "Soft Drinks", currency: "UGX" },
-  { id: "sp1", name: "Johnnie Walker Red", price: 35_000, category: "Spirits", currency: "UGX" },
-  { id: "sp2", name: "Jameson Irish", price: 30_000, category: "Spirits", currency: "UGX" },
-  { id: "sp3", name: "Smirnoff Vodka", price: 25_000, category: "Spirits", currency: "UGX" },
+  { id: "sd1", name: "Coca Cola", price: 5_000, category: "Soft Drinks", currency: "UGX", image: unsplashImg("MTTrsZIWDgw") },
+  { id: "sd2", name: "Fanta Orange", price: 5_000, category: "Soft Drinks", currency: "UGX", image: unsplashImg("mnqoFuN1-Cg") },
+  { id: "sd3", name: "Sprite", price: 5_000, category: "Soft Drinks", currency: "UGX", image: unsplashImg("Kalvys-3j0Y") },
+  { id: "sd4", name: "Mineral Water", price: 3_000, category: "Soft Drinks", currency: "UGX", image: unsplashImg("E-QRhYh81n8") },
+  { id: "sd5", name: "Fresh Orange Juice", price: 8_000, category: "Soft Drinks", currency: "UGX", image: unsplashImg("2n3HqAwAV58") },
+  { id: "sd6", name: "Mango Smoothie", price: 10_000, category: "Soft Drinks", currency: "UGX", image: unsplashImg("KlVIYmGVRQ8") },
+  { id: "sp1", name: "Johnnie Walker Red", price: 35_000, category: "Spirits", currency: "UGX", image: unsplashImg("0hxdPojIK3c") },
+  { id: "sp2", name: "Jameson Irish", price: 30_000, category: "Spirits", currency: "UGX", image: unsplashImg("jpTC-bHk5e0") },
+  { id: "sp3", name: "Smirnoff Vodka", price: 25_000, category: "Spirits", currency: "UGX", image: unsplashImg("DbAQQBzvaDM") },
   { id: "sp4", name: "Beefeater Gin", price: 28_000, category: "Spirits", currency: "UGX" },
-  { id: "sp5", name: "Captain Morgan Rum", price: 26_000, category: "Spirits", currency: "UGX" },
+  { id: "sp5", name: "Captain Morgan Rum", price: 26_000, category: "Spirits", currency: "UGX", image: unsplashImg("-zA6mF9ruz4") },
   { id: "sp6", name: "Local Waragi", price: 15_000, category: "Spirits", currency: "UGX" },
-  { id: "fd1", name: "Grilled Chicken", price: 25_000, category: "Food", currency: "UGX" },
-  { id: "fd2", name: "Beef Steak", price: 35_000, category: "Food", currency: "UGX" },
-  { id: "fd3", name: "Fish & Chips", price: 22_000, category: "Food", currency: "UGX" },
-  { id: "fd4", name: "Chicken Burger", price: 18_000, category: "Food", currency: "UGX" },
+  { id: "fd1", name: "Grilled Chicken", price: 25_000, category: "Food", currency: "UGX", image: unsplashImg("46i7Fqy4bto") },
+  { id: "fd2", name: "Beef Steak", price: 35_000, category: "Food", currency: "UGX", image: unsplashImg("cdyZGJNax3Y") },
+  { id: "fd3", name: "Fish & Chips", price: 22_000, category: "Food", currency: "UGX", image: unsplashImg("DyGo_AGOQwI") },
+  { id: "fd4", name: "Chicken Burger", price: 18_000, category: "Food", currency: "UGX", image: unsplashImg("Znu9F5m82gs") },
   { id: "fd5", name: "Vegetable Curry", price: 20_000, category: "Food", currency: "UGX" },
-  { id: "fd6", name: "Pasta Bolognese", price: 22_000, category: "Food", currency: "UGX" },
-  { id: "sn1", name: "French Fries", price: 8_000, category: "Snacks", currency: "UGX" },
+  { id: "fd6", name: "Pasta Bolognese", price: 22_000, category: "Food", currency: "UGX", image: unsplashImg("n-mZm1_BcJI") },
+  { id: "sn1", name: "French Fries", price: 8_000, category: "Snacks", currency: "UGX", image: unsplashImg("vi0kZuoe0-8") },
   { id: "sn2", name: "Onion Rings", price: 7_000, category: "Snacks", currency: "UGX" },
-  { id: "sn3", name: "Chicken Wings", price: 15_000, category: "Snacks", currency: "UGX" },
-  { id: "sn4", name: "Samosas (4 pcs)", price: 6_000, category: "Snacks", currency: "UGX" },
+  { id: "sn3", name: "Chicken Wings", price: 15_000, category: "Snacks", currency: "UGX", image: unsplashImg("gE28aTnlqJA") },
+  { id: "sn4", name: "Samosas (4 pcs)", price: 6_000, category: "Snacks", currency: "UGX", image: unsplashImg("3oc6OzX4LaQ") },
   { id: "sn5", name: "Spring Rolls", price: 8_000, category: "Snacks", currency: "UGX" },
   { id: "sn6", name: "Nachos", price: 12_000, category: "Snacks", currency: "UGX" },
 ];
