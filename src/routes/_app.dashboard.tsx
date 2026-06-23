@@ -885,32 +885,32 @@ function OccupancyChart() {
     <ChartContainer config={chartConfig} className="h-56 w-full">
       <AreaChart
         data={chartData}
-        margin={{ top: 20, right: 20, left: -20, bottom: 0 }}
+        margin={{ top: 24, right: 20, left: -20, bottom: 4 }}
       >
         <defs>
           <linearGradient id="fillOccupancy" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.35} />
-            <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+            <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.4} />
+            <stop offset="100%" stopColor="var(--color-primary)" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
-        <XAxis dataKey="day" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-        <YAxis domain={[0, 100]} tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}%`} />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" className="rounded-xl" />} />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
+        <XAxis dataKey="day" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} dy={4} />
+        <YAxis domain={[0, 100]} tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}%`} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" />} />
         <Area
           type="monotone"
           dataKey="occupancy"
           stroke="var(--color-primary)"
           strokeWidth={2.5}
           fill="url(#fillOccupancy)"
-          dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2.5, r: 4.5 }}
-          activeDot={{ r: 6, stroke: "var(--color-primary)", strokeWidth: 2.5, fill: "var(--color-primary)" }}
+          dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2.5, r: 4 }}
+          activeDot={{ r: 7, stroke: "var(--color-primary)", strokeWidth: 2.5, fill: "var(--color-primary)" }}
         >
           <LabelList
             dataKey="occupancy"
             position="top"
-            className="fill-foreground"
-            fontSize={11}
+            className="fill-muted-foreground"
+            fontSize={10}
             fontWeight={600}
             formatter={(v: number) => `${v}%`}
           />
@@ -934,11 +934,11 @@ function RevenueBars({ labels = ["Rooms","F&B","Events","Other"], values = [62, 
 
   return (
     <ChartContainer config={chartConfig} className="h-44 w-full">
-      <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
-        <XAxis dataKey="source" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
+      <BarChart data={chartData} margin={{ top: 20, right: 10, left: -20, bottom: 4 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
+        <XAxis dataKey="source" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} dy={4} />
         <YAxis hide domain={[0, 100]} />
-        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" />} />
+        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" />} />
         <Bar dataKey="value" radius={[6, 6, 0, 0]} barSize={44}>
           {chartData.map((entry) => (
             <Cell key={entry.source} fill={colors[labels.indexOf(entry.source) % colors.length]} />
@@ -946,8 +946,8 @@ function RevenueBars({ labels = ["Rooms","F&B","Events","Other"], values = [62, 
           <LabelList
             dataKey="value"
             position="top"
-            className="fill-foreground"
-            fontSize={11}
+            className="fill-muted-foreground"
+            fontSize={10}
             fontWeight={600}
             formatter={(v: number) => `${v}%`}
           />
@@ -963,43 +963,43 @@ function GuestTable({ rows, kind }: {
 }) {
   if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-card/30 py-10 text-center backdrop-blur-sm transition-all">
-        <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-muted/50 ring-1 ring-border">
-          <SearchX className="h-6 w-6 text-muted-foreground/40" />
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/50 bg-card/20 py-10 text-center backdrop-blur-sm transition-all hover:border-border/70">
+        <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-muted/40 ring-1 ring-border/60">
+          <SearchX className="h-6 w-6 text-muted-foreground/30" />
         </span>
-        <p className="text-sm font-medium text-muted-foreground">No {kind === "arrival" ? "arrivals" : "departures"} today</p>
-        <p className="mt-0.5 text-xs text-muted-foreground/60">
-          {kind === "arrival" ? "No guests are scheduled to check in." : "All guests are staying another night."}
+        <p className="text-sm font-medium text-muted-foreground/80">No {kind === "arrival" ? "arrivals" : "departures"} today</p>
+        <p className="mt-1 text-xs text-muted-foreground/50">
+          {kind === "arrival" ? "No guests scheduled to check in." : "All guests staying another night."}
         </p>
       </div>
     );
   }
   return (
-    <div className="overflow-hidden rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm transition-all duration-200 hover:border-border/80">
+    <div className="overflow-hidden rounded-xl border border-border/50 bg-card/30 backdrop-blur-sm transition-all duration-200 hover:border-border/70">
       <table className="w-full text-sm">
-        <thead className="bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <thead className="bg-muted/20">
           <tr>
-            <th className="px-3 py-2.5 text-left font-semibold">Guest</th>
-            <th className="px-3 py-2.5 text-left font-semibold">Room</th>
-            <th className="px-3 py-2.5 text-left font-semibold">{kind === "arrival" ? "ETA" : "ETD"}</th>
-            <th className="px-3 py-2.5 text-left font-semibold">Nts</th>
-            <th className="px-3 py-2.5 text-left font-semibold">Status</th>
+            <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Guest</th>
+            <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Room</th>
+            <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">{kind === "arrival" ? "ETA" : "ETD"}</th>
+            <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Nts</th>
+            <th className="px-3 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border/60">
+        <tbody className="divide-y divide-border/40">
           {rows.map((r) => (
-            <tr key={r.name} className="group/row cursor-pointer transition-all duration-150 hover:bg-muted/20">
+            <tr key={r.name} className="group/row cursor-pointer transition-all duration-150 hover:bg-muted/15">
               <td className="px-3 py-2.5">
                 <div className="flex items-center gap-2.5">
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-[10px] font-bold text-primary ring-1 ring-primary/20 transition-all duration-200 group-hover/row:ring-2">
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-[10px] font-bold text-primary ring-1 ring-primary/20 transition-all duration-200 group-hover/row:ring-2 group-hover/row:ring-primary/30 group-hover/row:scale-105">
                     {r.name.split(" ").map((s) => s[0]).join("").slice(0,2)}
                   </span>
-                  <span className="font-medium transition-colors duration-200 group-hover/row:text-primary">{r.name}</span>
+                  <span className="font-medium text-sm transition-colors duration-200 group-hover/row:text-primary">{r.name}</span>
                 </div>
               </td>
-              <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground group-hover/row:text-foreground transition-colors duration-200">{r.room}</td>
-              <td className="px-3 py-2.5 text-muted-foreground/70">{r.time}</td>
-              <td className="px-3 py-2.5 tabular-nums">{r.nights}</td>
+              <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground/70 group-hover/row:text-foreground transition-colors duration-200">{r.room}</td>
+              <td className="px-3 py-2.5 text-muted-foreground/60 text-xs tabular-nums">{r.time || "\u2014"}</td>
+              <td className="px-3 py-2.5 tabular-nums text-sm font-medium">{r.nights}</td>
               <td className="px-3 py-2.5"><StatusBadge s={r.status} /></td>
             </tr>
           ))}
@@ -1011,24 +1011,32 @@ function GuestTable({ rows, kind }: {
 
 function StatusBadge({ s }: { s: string }) {
   const map: Record<string, string> = {
-    Confirmed: "bg-success/10 text-success border-success/20",
-    "Pre-paid": "bg-primary/10 text-primary border-primary/20",
-    Pending: "bg-warning/10 text-warning border-warning/20",
-    "Folio open": "bg-warning/10 text-warning border-warning/20",
-    Cleared: "bg-success/10 text-success border-success/20",
+    Confirmed: "bg-success/10 text-success",
+    "Pre-paid": "bg-primary/10 text-primary",
+    "Checked In": "bg-info/10 text-info",
+    Pending: "bg-warning/10 text-warning",
+    "Folio open": "bg-warning/10 text-warning",
+    Cleared: "bg-success/10 text-success",
   };
   return (
-    <span className={"inline-flex rounded-md border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide " + (map[s] ?? "bg-muted/50 text-muted-foreground border-border")}>
+    <span className={"inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-semibold tracking-wide " + (map[s] ?? "bg-muted/30 text-muted-foreground")}>
+      <span className={"h-1 w-1 rounded-full " + (map[s] ? "bg-current" : "bg-muted-foreground/50")} />
       {s}
     </span>
   );
 }
 
 function PriorityBadge({ p }: { p: string }) {
-  const map: Record<string, string> = {
-    High: "bg-destructive/10 text-destructive ring-1 ring-destructive/20",
-    Medium: "bg-warning/10 text-warning ring-1 ring-warning/20",
-    Low: "bg-success/10 text-success ring-1 ring-success/20",
+  const map: Record<string, { cls: string; dot: string }> = {
+    High: { cls: "bg-destructive/10 text-destructive", dot: "bg-destructive" },
+    Medium: { cls: "bg-warning/10 text-warning", dot: "bg-warning" },
+    Low: { cls: "bg-success/10 text-success", dot: "bg-success" },
   };
-  return <span className={"rounded-md px-2 py-0.5 text-[10px] font-semibold " + (map[p] ?? "bg-muted/50 text-muted-foreground")}>{p}</span>;
+  const m = map[p] ?? { cls: "bg-muted/30 text-muted-foreground", dot: "bg-muted-foreground/50" };
+  return (
+    <span className={"inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-semibold " + m.cls}>
+      <span className={"h-1 w-1 rounded-full " + m.dot} />
+      {p}
+    </span>
+  );
 }
