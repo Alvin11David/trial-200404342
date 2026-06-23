@@ -65,22 +65,26 @@ const defaultItems: MenuItem[] = [
   { id: "sn6", name: "Nachos", price: 12_000, category: "Snacks", currency: "UGX" },
 ];
 
-const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string }>; bar: string; iconBg: string; iconColor: string; badge: string; dot: string; border: string }> = {
+const categoryConfig: Record<string, { icon: React.ComponentType<{ className?: string }>; bar: string; iconBg: string; iconColor: string; badge: string; dot: string; border: string; blobFrom: string; blobTo: string; iconFrom: string; iconTo: string }> = {
   "Soft Drinks": {
     icon: CupSoda, bar: "bg-sky-500", iconBg: "bg-sky-500/10", iconColor: "text-sky-600",
     badge: "bg-sky-500/15 text-sky-600", dot: "bg-sky-500", border: "hover:border-sky-500/30",
+    blobFrom: "from-sky-400/20", blobTo: "to-sky-600/10", iconFrom: "from-sky-500", iconTo: "to-sky-700",
   },
   Spirits: {
     icon: FlaskConical, bar: "bg-amber-500", iconBg: "bg-amber-500/10", iconColor: "text-amber-600",
     badge: "bg-amber-500/15 text-amber-600", dot: "bg-amber-500", border: "hover:border-amber-500/30",
+    blobFrom: "from-amber-400/20", blobTo: "to-amber-600/10", iconFrom: "from-amber-500", iconTo: "to-amber-700",
   },
   Food: {
     icon: Pizza, bar: "bg-red-500", iconBg: "bg-red-500/10", iconColor: "text-red-600",
     badge: "bg-red-500/15 text-red-600", dot: "bg-red-500", border: "hover:border-red-500/30",
+    blobFrom: "from-red-400/20", blobTo: "to-red-600/10", iconFrom: "from-red-500", iconTo: "to-red-700",
   },
   Snacks: {
     icon: Cookie, bar: "bg-emerald-500", iconBg: "bg-emerald-500/10", iconColor: "text-emerald-600",
     badge: "bg-emerald-500/15 text-emerald-600", dot: "bg-emerald-500", border: "hover:border-emerald-500/30",
+    blobFrom: "from-emerald-400/20", blobTo: "to-emerald-600/10", iconFrom: "from-emerald-500", iconTo: "to-emerald-700",
   },
 };
 
