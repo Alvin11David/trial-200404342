@@ -51,20 +51,39 @@ export const Route = createFileRoute("/_app/dashboard")({
 function Dashboard() {
   const { role } = useRole();
   const meta = ROLE_META[role];
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+  const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 min-h-screen py-1 relative mesh-bg" role="main" aria-label="Dashboard">
-      <header className="flex flex-wrap items-end justify-between gap-3 rounded-2xl border border-border/40 bg-card/50 px-6 py-5 backdrop-blur-sm">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-primary">{role}</p>
-          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight">
-            Welcome back, {meta.person.split(" ")[0]}
+      <header className="group/header relative flex flex-wrap items-end justify-between gap-3 overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-card/85 via-card/65 to-card/40 px-6 py-5 shadow-sm before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:opacity-0 before:transition-opacity before:duration-500 group-hover/header:before:opacity-100 before:bg-gradient-to-r before:from-primary/[0.03] before:via-transparent before:to-primary/[0.02]">
+        {/* Decorative gradient blobs */}
+        <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-primary/[0.07] to-transparent blur-3xl transition-all duration-700 group-hover/header:scale-110 group-hover/header:from-primary/[0.12]" />
+        <div className="pointer-events-none absolute -bottom-16 -left-16 h-36 w-36 rounded-full bg-gradient-to-tr from-success/[0.05] to-transparent blur-3xl" />
+        <div className="pointer-events-none absolute left-1/2 top-0 h-px w-1/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
+
+        <div className="relative z-10">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-5 w-1 rounded-full bg-primary animate-accent-slide" />
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">{role}</p>
+            <span className="h-1.5 w-1.5 rounded-full bg-success animate-breathe" />
+            <span className="h-1.5 w-px bg-border/60" />
+            <span className="text-[10px] tabular-nums text-muted-foreground/60 font-medium">{dateStr}</span>
+          </div>
+          <h1 className="mt-2.5 font-display text-3xl font-bold tracking-tight">
+            <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/70 bg-clip-text text-transparent">
+              Good {now.getHours() < 12 ? "morning" : now.getHours() < 18 ? "afternoon" : "evening"}, {meta.person.split(" ")[0]}
+            </span>
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{meta.tagline}</p>
+          <p className="mt-1.5 text-sm text-muted-foreground/80 leading-relaxed max-w-xl">{meta.tagline}</p>
         </div>
-        <div className="hidden text-right md:block">
-          <p className="text-xs text-muted-foreground">Property</p>
-          <p className="text-sm font-semibold">Jambo Sphere Hotel · Kampala</p>
+        <div className="hidden md:flex flex-col items-end gap-1.5 relative z-10">
+          <div className="flex items-center gap-2 rounded-lg border border-border/40 bg-card/50 px-3 py-1.5 backdrop-blur-sm">
+            <span className="live-dot" />
+            <span className="text-[11px] font-medium text-muted-foreground tabular-nums">{timeStr}</span>
+          </div>
+          <p className="text-xs text-muted-foreground/60">Jambo Sphere Hotel · Kampala, UG</p>
         </div>
       </header>
 
@@ -99,43 +118,51 @@ function OwnerGMDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><BarChart3 className="h-3.5 w-3.5" /> View Reports <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reports" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary"><BarChart3 className="h-3.5 w-3.5" /> View Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rates" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          label="Occupancy"
-          value={(occ.pct * 100).toFixed(0) + "%"}
-          delta={`${occ.occupied} / ${occ.total} rooms`}
-          icon={<BedDouble className="h-4 w-4" />}
-          accent="primary"
-          extra={<Ring percent={Math.round(occ.pct * 100)} />}
-        />
-        <KpiCard
-          label="ADR"
-          value={ugx(adr)}
-          delta="Today"
-          icon={<TrendingUp className="h-4 w-4" />}
-          accent="success"
-        />
-        <KpiCard
-          label="RevPAR"
-          value={ugx(revpar)}
-          delta="Today"
-          icon={<DollarSign className="h-4 w-4" />}
-          accent="info"
-        />
-        <KpiCard
-          label="Today's Revenue"
-          value={ugx(revToday)}
-          delta="All sources"
-          icon={<Wallet className="h-4 w-4" />}
-          accent="warning"
-        />
+        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}>
+          <KpiCard
+            label="Occupancy"
+            value={(occ.pct * 100).toFixed(0) + "%"}
+            delta={`${occ.occupied} / ${occ.total} rooms`}
+            icon={<BedDouble className="h-4 w-4" />}
+            accent="primary"
+            extra={<Ring percent={Math.round(occ.pct * 100)} />}
+          />
+        </div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}>
+          <KpiCard
+            label="ADR"
+            value={ugx(adr)}
+            delta="Today"
+            icon={<TrendingUp className="h-4 w-4" />}
+            accent="success"
+          />
+        </div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}>
+          <KpiCard
+            label="RevPAR"
+            value={ugx(revpar)}
+            delta="Today"
+            icon={<DollarSign className="h-4 w-4" />}
+            accent="info"
+          />
+        </div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}>
+          <KpiCard
+            label="Today's Revenue"
+            value={ugx(revToday)}
+            delta="All sources"
+            icon={<Wallet className="h-4 w-4" />}
+            accent="warning"
+          />
+        </div>
       </div>
 
       {/* Charts */}
@@ -230,17 +257,17 @@ function FrontDeskDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/check-in" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><UserPlus className="h-3.5 w-3.5" /> Check In <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/check-out" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><LogOut className="h-3.5 w-3.5" /> Check Out <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success backdrop-blur-sm transition hover:bg-success/15 hover:shadow-sm"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><CreditCard className="h-3.5 w-3.5" /> Record Payment <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/check-in" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary"><UserPlus className="h-3.5 w-3.5" /> Check In <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/check-out" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning"><LogOut className="h-3.5 w-3.5" /> Check Out <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reservations/new" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info"><CreditCard className="h-3.5 w-3.5" /> Record Payment <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Arrivals today" value="12" delta="3 walked-in" icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" />
-        <KpiCard label="Departures today" value="9" delta="2 pending" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" />
-        <KpiCard label="In-house guests" value="86" delta="78% occ" deltaPositive icon={<Users className="h-4 w-4" />} accent="info" />
-        <KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="success" />
+        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Arrivals today" value="12" delta="3 walked-in" icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Departures today" value="9" delta="2 pending" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="In-house guests" value="86" delta="78% occ" deltaPositive icon={<Users className="h-4 w-4" />} accent="info" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="success" /></div>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
         <Card title="7-day occupancy trend" subtitle="Rolling daily occupancy %" className="lg:col-span-2">
@@ -282,15 +309,15 @@ function HousekeepingDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/housekeeping" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><ClipboardList className="h-3.5 w-3.5" /> Update Room Status <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/rooms" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><Building2 className="h-3.5 w-3.5" /> View All Rooms <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/housekeeping" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary"><ClipboardList className="h-3.5 w-3.5" /> Update Room Status <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rooms" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info"><Building2 className="h-3.5 w-3.5" /> View All Rooms <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Rooms to clean" value="14" delta="9 high priority" icon={<Sparkles className="h-4 w-4" />} accent="primary" />
-        <KpiCard label="In progress" value="6" delta="3 attendants" icon={<ClipboardList className="h-4 w-4" />} accent="warning" />
-        <KpiCard label="Inspected" value="32" delta="Today" deltaPositive icon={<BedDouble className="h-4 w-4" />} accent="success" />
-        <KpiCard label="Out of order" value="2" delta="Maintenance" icon={<BedDouble className="h-4 w-4" />} accent="info" />
+        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Rooms to clean" value="14" delta="9 high priority" icon={<Sparkles className="h-4 w-4" />} accent="primary" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="In progress" value="6" delta="3 attendants" icon={<ClipboardList className="h-4 w-4" />} accent="warning" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Inspected" value="32" delta="Today" deltaPositive icon={<BedDouble className="h-4 w-4" />} accent="success" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Out of order" value="2" delta="Maintenance" icon={<BedDouble className="h-4 w-4" />} accent="info" /></div>
       </div>
       <Card title="My assigned rooms">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -340,16 +367,16 @@ function PosDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/pos" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><ShoppingCart className="h-3.5 w-3.5" /> Open POS <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/pos/orders" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><ClipboardList className="h-3.5 w-3.5" /> View Orders <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/pos/menu" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><MenuIcon className="h-3.5 w-3.5" /> Manage Menu <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/pos" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary"><ShoppingCart className="h-3.5 w-3.5" /> Open POS <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/pos/orders" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning"><ClipboardList className="h-3.5 w-3.5" /> View Orders <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/pos/menu" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info"><MenuIcon className="h-3.5 w-3.5" /> Manage Menu <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Open tabs" value="7" icon={<ShoppingCart className="h-4 w-4" />} accent="primary" />
-        <KpiCard label="Orders today" value="42" delta="+12 vs. yest." deltaPositive icon={<ClipboardList className="h-4 w-4" />} accent="info" />
-        <KpiCard label="POS revenue" value={fmt(1_980_000)} delta="+8.1%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" />
-        <KpiCard label="Cash drawer" value={fmt(640_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" />
+        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Open tabs" value="7" icon={<ShoppingCart className="h-4 w-4" />} accent="primary" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Orders today" value="42" delta="+12 vs. yest." deltaPositive icon={<ClipboardList className="h-4 w-4" />} accent="info" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="POS revenue" value={fmt(1_980_000)} delta="+8.1%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Cash drawer" value={fmt(640_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" /></div>
       </div>
 
       {/* Charts row */}
@@ -423,16 +450,16 @@ function ReservationsDashboard() {
     <>
       {/* CTA buttons */}
       <div className="flex flex-wrap gap-2">
-        <Link to="/reservations/new" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/rates" className="inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success backdrop-blur-sm transition hover:bg-success/15 hover:shadow-sm"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><BarChart3 className="h-3.5 w-3.5" /> Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reservations/new" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary"><Plus className="h-3.5 w-3.5" /> New Booking <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/rates" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success"><PoundSterling className="h-3.5 w-3.5" /> Manage Rates <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reports" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info"><BarChart3 className="h-3.5 w-3.5" /> Reports <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Pipeline (7d)" value="38" delta="+6" deltaPositive icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" />
-        <KpiCard label="Forecast Occ (7d)" value="74%" icon={<BedDouble className="h-4 w-4" />} accent="info" />
-        <KpiCard label="ADR" value={ugx(285000)} delta="+2.1%" deltaPositive icon={<TrendingUp className="h-4 w-4" />} accent="success" />
-        <KpiCard label="Cancellations" value="3" delta="-2 vs. wk" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" />
+        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Pipeline (7d)" value="38" delta="+6" deltaPositive icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Forecast Occ (7d)" value="74%" icon={<BedDouble className="h-4 w-4" />} accent="info" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="ADR" value={ugx(285000)} delta="+2.1%" deltaPositive icon={<TrendingUp className="h-4 w-4" />} accent="success" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Cancellations" value="3" delta="-2 vs. wk" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" /></div>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
         <Card title="7-day occupancy forecast" className="lg:col-span-2"><OccupancyChart /></Card>
@@ -473,17 +500,17 @@ function AccountantDashboard() {
   return (
     <>
       <div className="flex flex-wrap gap-2">
-        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><Receipt className="h-3.5 w-3.5" /> View Billing <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/accounting" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><Calculator className="h-3.5 w-3.5" /> Accounting <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/reports" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><BarChart3 className="h-3.5 w-3.5" /> Run Reports <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success backdrop-blur-sm transition hover:bg-success/15 hover:shadow-sm"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary"><Receipt className="h-3.5 w-3.5" /> View Billing <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/accounting" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info"><Calculator className="h-3.5 w-3.5" /> Accounting <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/reports" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning"><BarChart3 className="h-3.5 w-3.5" /> Run Reports <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-success/10 px-4 py-2 text-xs font-semibold text-success"><FileSearch className="h-3.5 w-3.5" /> Audit Trail <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="primary" />
-        <KpiCard label="Payments today" value={ugx(3_120_000)} delta="+12%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" />
-        <KpiCard label="Outstanding" value={ugx(5_120_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" />
-        <KpiCard label="Refunds" value={ugx(80_000)} icon={<ArrowDownRight className="h-4 w-4" />} accent="info" />
+        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="primary" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Payments today" value={ugx(3_120_000)} delta="+12%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Outstanding" value={ugx(5_120_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Refunds" value={ugx(80_000)} icon={<ArrowDownRight className="h-4 w-4" />} accent="info" /></div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -588,16 +615,16 @@ function SysadminDashboard() {
   return (
     <>
       <div className="flex flex-wrap gap-2">
-        <Link to="/identity" className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition hover:bg-primary/15 hover:shadow-sm"><Users className="h-3.5 w-3.5" /> Manage Users <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/audit" className="inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning backdrop-blur-sm transition hover:bg-warning/15 hover:shadow-sm"><FileSearch className="h-3.5 w-3.5" /> Audit Log <ArrowRight className="h-3 w-3" /></Link>
-        <Link to="/settings" className="inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info backdrop-blur-sm transition hover:bg-info/15 hover:shadow-sm"><Settings className="h-3.5 w-3.5" /> System Settings <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/identity" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-4 py-2 text-xs font-semibold text-primary"><Users className="h-3.5 w-3.5" /> Manage Users <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/audit" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-warning/10 px-4 py-2 text-xs font-semibold text-warning"><FileSearch className="h-3.5 w-3.5" /> Audit Log <ArrowRight className="h-3 w-3" /></Link>
+        <Link to="/settings" className="dashboard-cta inline-flex items-center gap-1.5 rounded-xl bg-info/10 px-4 py-2 text-xs font-semibold text-info"><Settings className="h-3.5 w-3.5" /> System Settings <ArrowRight className="h-3 w-3" /></Link>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Active users" value="24" icon={<Users className="h-4 w-4" />} accent="primary" />
-        <KpiCard label="Roles" value="7" icon={<ShieldCheck className="h-4 w-4" />} accent="info" />
-        <KpiCard label="Audit events (24h)" value="318" icon={<FileSearch className="h-4 w-4" />} accent="warning" />
-        <KpiCard label="Failed logins" value="2" icon={<ShieldCheck className="h-4 w-4" />} accent="success" />
+        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Active users" value="24" icon={<Users className="h-4 w-4" />} accent="primary" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Roles" value="7" icon={<ShieldCheck className="h-4 w-4" />} accent="info" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Audit events (24h)" value="318" icon={<FileSearch className="h-4 w-4" />} accent="warning" /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Failed logins" value="2" icon={<ShieldCheck className="h-4 w-4" />} accent="success" /></div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -704,7 +731,7 @@ const accentColor: Record<Accent, string> = {
 };
 
 function KpiCard({
-  label, value, delta, deltaPositive, icon, accent = "primary", extra,
+  label, value, delta, deltaPositive, icon, accent = "primary", extra, index = 0,
 }: {
   label: string;
   value: string;
@@ -713,27 +740,48 @@ function KpiCard({
   icon?: ReactNode;
   accent?: Accent;
   extra?: ReactNode;
+  index?: number;
 }) {
   return (
-    <div className="card-hover relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+    <div
+      className="dashboard-card group/kpi relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      style={{ animationDelay: `${index * 80}ms` }}
+    >
+      {/* Accent bar with glow */}
       <div
-        className="absolute left-0 top-0 h-full w-[3px]"
-        style={{ background: accentColor[accent], boxShadow: `0 0 10px ${accentColor[accent]}` }}
+        className="absolute left-0 top-0 h-full w-[3px] transition-all duration-300 group-hover/kpi:w-[4px]"
+        style={{
+          background: `linear-gradient(180deg, ${accentColor[accent]}, color-mix(in oklab, ${accentColor[accent]} 60%, transparent))`,
+          boxShadow: `0 0 12px ${accentColor[accent]}`,
+        }}
       />
-      <div className="flex items-start justify-between pl-1">
-        <div>
-          <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className="mt-1.5 font-display text-2xl font-bold tracking-tight">{value}</p>
+      {/* Hover radial glow */}
+      <div
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full opacity-0 transition-all duration-500 group-hover/kpi:opacity-100 blur-2xl"
+        style={{
+          background: `radial-gradient(circle, ${accentColor[accent]} 0%, transparent 70%)`,
+        }}
+      />
+      <div className="flex items-start justify-between pl-1.5 relative z-10">
+        <div className="flex-1 min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">{label}</p>
+          <p className="mt-2 font-display text-2xl font-bold tracking-tight tabular-nums text-foreground truncate">{value}</p>
           {delta && (
-            <p className={"mt-1 inline-flex items-center gap-1 text-[11px] font-medium " + (deltaPositive ? "text-success" : "text-muted-foreground")}>
+            <p className={"mt-1.5 inline-flex items-center gap-1 text-[11px] font-medium transition-colors duration-200 " + (deltaPositive ? "text-success" : "text-muted-foreground/80")}>
               {deltaPositive ? <ArrowUpRight className="h-3 w-3" /> : null}
               {delta}
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0 ml-3">
           {extra}
-          <span className={"grid h-9 w-9 place-items-center rounded-lg " + accentMap[accent]}>{icon}</span>
+          <span className={"grid h-10 w-10 place-items-center rounded-xl transition-all duration-300 group-hover/kpi:scale-110 group-hover/kpi:shadow-lg " + accentMap[accent]}
+            style={{
+              boxShadow: `0 2px 8px color-mix(in oklab, ${accentColor[accent]} 20%, transparent)`,
+            }}
+          >
+            {icon}
+          </span>
         </div>
       </div>
     </div>
@@ -748,7 +796,7 @@ function Card({ title, subtitle, children, action, className }: {
   className?: string;
 }) {
   return (
-    <div className={"rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl transition-all duration-250 hover:shadow-md hover:border-border/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " + (className ?? "")}>
+    <div className={"dashboard-card rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " + (className ?? "")}>
       <div className="mb-4 flex items-end justify-between gap-2">
         <div>
           <h3 className="text-sm font-semibold">{title}</h3>
@@ -763,14 +811,14 @@ function Card({ title, subtitle, children, action, className }: {
 
 function Ring({ percent }: { percent: number }) {
   return (
-    <div className="-mr-1">
+    <div className="-mr-1 transition-all duration-300 hover:scale-110">
       <RadialBarChart
         width={44}
         height={44}
         data={[{ name: "Occupancy", value: percent }]}
-        innerRadius="75%"
+        innerRadius="72%"
         outerRadius="100%"
-        barSize={6}
+        barSize={7}
         startAngle={90}
         endAngle={-270}
         cx="50%"
@@ -779,10 +827,10 @@ function Ring({ percent }: { percent: number }) {
         <RadialBar
           dataKey="value"
           fill="var(--color-primary)"
-          cornerRadius={3}
-          background={{ fill: "var(--color-muted)" }}
+          cornerRadius={4}
+          background={{ fill: "color-mix(in oklab, var(--color-primary) 10%, transparent)" }}
         />
-        <text x={22} y={27} textAnchor="middle" className="fill-foreground text-[10px] font-bold">
+        <text x={22} y={27} textAnchor="middle" className="fill-foreground text-[10px] font-bold tabular-nums">
           {percent}%
         </text>
       </RadialBarChart>
@@ -889,8 +937,10 @@ function GuestTable({ rows, kind }: {
 }) {
   if (rows.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-card/30 py-10 text-center backdrop-blur-sm">
-        <SearchX className="mb-2 h-8 w-8 text-muted-foreground/40" />
+      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border/60 bg-card/30 py-10 text-center backdrop-blur-sm transition-all">
+        <span className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-muted/50 ring-1 ring-border">
+          <SearchX className="h-6 w-6 text-muted-foreground/40" />
+        </span>
         <p className="text-sm font-medium text-muted-foreground">No {kind === "arrival" ? "arrivals" : "departures"} today</p>
         <p className="mt-0.5 text-xs text-muted-foreground/60">
           {kind === "arrival" ? "No guests are scheduled to check in." : "All guests are staying another night."}
@@ -899,31 +949,31 @@ function GuestTable({ rows, kind }: {
     );
   }
   return (
-    <div className="overflow-hidden rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm">
+    <div className="overflow-hidden rounded-xl border border-border/60 bg-card/40 backdrop-blur-sm transition-all duration-200 hover:border-border/80">
       <table className="w-full text-sm">
-        <thead className="bg-muted/40 text-[10px] uppercase tracking-wider text-muted-foreground">
+        <thead className="bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground">
           <tr>
-            <th className="px-3 py-2 text-left font-semibold">Guest</th>
-            <th className="px-3 py-2 text-left font-semibold">Room</th>
-            <th className="px-3 py-2 text-left font-semibold">{kind === "arrival" ? "ETA" : "ETD"}</th>
-            <th className="px-3 py-2 text-left font-semibold">Nts</th>
-            <th className="px-3 py-2 text-left font-semibold">Status</th>
+            <th className="px-3 py-2.5 text-left font-semibold">Guest</th>
+            <th className="px-3 py-2.5 text-left font-semibold">Room</th>
+            <th className="px-3 py-2.5 text-left font-semibold">{kind === "arrival" ? "ETA" : "ETD"}</th>
+            <th className="px-3 py-2.5 text-left font-semibold">Nts</th>
+            <th className="px-3 py-2.5 text-left font-semibold">Status</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border">
+        <tbody className="divide-y divide-border/60">
           {rows.map((r) => (
-            <tr key={r.name} className="hover:bg-muted/30 cursor-pointer transition-colors duration-150">
+            <tr key={r.name} className="group/row cursor-pointer transition-all duration-150 hover:bg-muted/20">
               <td className="px-3 py-2.5">
                 <div className="flex items-center gap-2.5">
-                  <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                  <span className="grid h-7 w-7 place-items-center rounded-full bg-gradient-to-br from-primary/20 to-primary/5 text-[10px] font-bold text-primary ring-1 ring-primary/20 transition-all duration-200 group-hover/row:ring-2">
                     {r.name.split(" ").map((s) => s[0]).join("").slice(0,2)}
                   </span>
-                  <span className="font-medium">{r.name}</span>
+                  <span className="font-medium transition-colors duration-200 group-hover/row:text-primary">{r.name}</span>
                 </div>
               </td>
-              <td className="px-3 py-2.5 font-mono text-xs">{r.room}</td>
-              <td className="px-3 py-2.5 text-muted-foreground">{r.time}</td>
-              <td className="px-3 py-2.5">{r.nights}</td>
+              <td className="px-3 py-2.5 font-mono text-xs text-muted-foreground group-hover/row:text-foreground transition-colors duration-200">{r.room}</td>
+              <td className="px-3 py-2.5 text-muted-foreground/70">{r.time}</td>
+              <td className="px-3 py-2.5 tabular-nums">{r.nights}</td>
               <td className="px-3 py-2.5"><StatusBadge s={r.status} /></td>
             </tr>
           ))}
@@ -942,7 +992,7 @@ function StatusBadge({ s }: { s: string }) {
     Cleared: "bg-success/10 text-success border-success/20",
   };
   return (
-    <span className={"inline-flex rounded-md border px-1.5 py-0.5 text-[10px] font-semibold " + (map[s] ?? "bg-muted text-muted-foreground border-border")}>
+    <span className={"inline-flex rounded-md border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide " + (map[s] ?? "bg-muted/50 text-muted-foreground border-border")}>
       {s}
     </span>
   );
@@ -950,9 +1000,9 @@ function StatusBadge({ s }: { s: string }) {
 
 function PriorityBadge({ p }: { p: string }) {
   const map: Record<string, string> = {
-    High: "bg-destructive/10 text-destructive",
-    Medium: "bg-warning/10 text-warning",
-    Low: "bg-success/10 text-success",
+    High: "bg-destructive/10 text-destructive ring-1 ring-destructive/20",
+    Medium: "bg-warning/10 text-warning ring-1 ring-warning/20",
+    Low: "bg-success/10 text-success ring-1 ring-success/20",
   };
-  return <span className={"rounded-md px-2 py-0.5 text-[10px] font-semibold " + (map[p] ?? "bg-muted text-muted-foreground")}>{p}</span>;
+  return <span className={"rounded-md px-2 py-0.5 text-[10px] font-semibold " + (map[p] ?? "bg-muted/50 text-muted-foreground")}>{p}</span>;
 }

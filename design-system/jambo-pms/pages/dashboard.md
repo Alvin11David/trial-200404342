@@ -1,7 +1,7 @@
 # Dashboard Page Overrides
 
 > **PROJECT:** Jambo PMS
-> **Generated:** 2026-06-21 17:27:56
+> **Generated:** 2026-06-23 07:47:09
 > **Page Type:** Dashboard / Data View
 
 > ⚠️ **IMPORTANT:** Rules in this file **override** the Master file (`design-system/MASTER.md`).

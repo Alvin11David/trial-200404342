@@ -72,7 +72,7 @@ const BREADCRUMB_LABELS: Record<string, string> = {
   rates: "Rates & Availability",
   inventory: "Inventory",
   pos: "POS",
-  "hr": "HR",
+  hr: "HR",
   events: "Events",
   notifications: "Notifications",
   settings: "Settings",
@@ -101,7 +101,10 @@ function Breadcrumbs({ pathname }: { pathname: string }) {
   });
 
   return (
-    <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+    <nav
+      aria-label="Breadcrumb"
+      className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground"
+    >
       <Link to="/dashboard" className="hover:text-foreground transition-colors" aria-label="Home">
         <Home className="h-3.5 w-3.5" />
       </Link>
@@ -109,7 +112,9 @@ function Breadcrumbs({ pathname }: { pathname: string }) {
         <span key={crumb.href} className="flex items-center gap-1.5">
           <span className="text-muted-foreground/40">/</span>
           {crumb.isLast ? (
-            <span className="font-medium text-foreground" aria-current="page">{crumb.label}</span>
+            <span className="font-medium text-foreground" aria-current="page">
+              {crumb.label}
+            </span>
           ) : (
             <Link to={crumb.href} className="hover:text-foreground transition-colors">
               {crumb.label}
@@ -160,7 +165,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     month: "short",
     year: "numeric",
   });
-  const time = clock.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const time = clock.toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
   // derive page title
   const seg = pathname.split("/").filter(Boolean)[0] ?? "dashboard";
@@ -174,7 +183,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden cursor-pointer"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -182,7 +191,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 z-20 flex h-screen flex-col border-r border-sidebar-border/60 bg-sidebar/70 backdrop-blur-2xl transition-[width] duration-300",
+          "fixed left-0 top-0 z-20 flex h-screen flex-col border-r border-sidebar-border bg-sidebar shadow-2xl shadow-black/20 transition-[width] duration-300",
+          "md:left-3 md:top-3 md:h-[calc(100vh-24px)] md:rounded-2xl md:border md:border-white/5",
           collapsed ? "w-[72px]" : "w-[200px] xl:w-[244px]",
           "-translate-x-full md:translate-x-0",
           mobileOpen && "translate-x-0",
@@ -190,11 +200,21 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         <div
           className={cn(
-            "flex h-16 items-center border-b border-sidebar-border/50 px-4",
+            "flex h-16 items-center border-b border-sidebar-border px-4",
             collapsed && "justify-center px-2",
           )}
+          style={{ color: "var(--color-sidebar-foreground)" }}
         >
-          {collapsed ? <Logo showText={false} size="sm" /> : <Logo size="sm" />}
+          <div
+            style={
+              {
+                "--color-foreground": "#E2E8F0",
+                "--color-muted-foreground": "#94A3B8",
+              } as React.CSSProperties
+            }
+          >
+            {collapsed ? <Logo showText={false} size="sm" /> : <Logo size="sm" />}
+          </div>
           <button
             onClick={() => setMobileOpen(false)}
             className="ml-auto grid h-8 w-8 place-items-center rounded-lg text-sidebar-foreground/50 hover:text-sidebar-foreground md:hidden"
@@ -203,76 +223,111 @@ export function AppShell({ children }: { children: ReactNode }) {
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-2 py-4">
+        <nav className="sidebar-scroll flex-1 overflow-y-auto px-2 py-4">
           {nav.map((group) => (
             <div key={group.section} className="mb-4">
               {!collapsed && (
-                <div className="mb-2 flex items-center gap-2 px-2">
-                  <span className="h-px flex-1 bg-sidebar-border/40" />
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/60">
+                <div className="mb-2 px-3">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-sidebar-foreground/40">
                     {group.section}
                   </span>
-                  <span className="h-px flex-1 bg-sidebar-border/40" />
                 </div>
               )}
               <ul className="space-y-0.5">
-                {group.items.map((it) => {
-                  const active = pathname === it.to || pathname.startsWith(it.to + "/");
+                {group.items.map((it, idx) => {
+                  const hasMoreSpecificMatch = nav.some((g) =>
+                    g.items.some(
+                      (i) =>
+                        i.to !== it.to &&
+                        i.to.length > it.to.length &&
+                        (pathname === i.to || pathname.startsWith(i.to + "/")),
+                    ),
+                  );
+                  const active =
+                    pathname === it.to ||
+                    (pathname.startsWith(it.to + "/") && !hasMoreSpecificMatch);
                   const Icon = it.icon;
                   const c = NAV_ICON_COLORS[it.to];
                   return (
-                    <li key={it.label + it.to}>
+                    <li
+                      key={it.label + it.to}
+                      style={{ animationDelay: `${idx * 30}ms` }}
+                      className={cn(!collapsed && "animate-sidebar-item-enter")}
+                    >
                       <Link
                         to={it.to}
                         className={cn(
                           "group/nav-item relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                           collapsed && "justify-center px-0",
+                          active && c
+                            ? "shadow-sm"
+                            : "hover:bg-sidebar-accent/80 text-sidebar-foreground/80 hover:text-sidebar-foreground",
                         )}
-                        style={active && c ? {
-                          background: `${c.vivid}14`,
-                          color: c.vivid,
-                          boxShadow: active ? `inset 0 0 0 1px ${c.vivid}25` : "none",
-                        } : {
-                          color: "var(--color-sidebar-foreground)",
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!active && c) e.currentTarget.style.background = `${c.pale}12`;
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!active) e.currentTarget.style.background = "transparent";
-                        }}
+                        style={
+                          active && c
+                            ? {
+                                background: `${c.vivid}18`,
+                                color: c.vivid,
+                                boxShadow: `inset 0 0 0 1px ${c.vivid}30`,
+                              }
+                            : undefined
+                        }
                       >
                         {active && c && (
-                          <span
-                            className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full shadow-sm animate-sidebar-accent-in"
-                            style={{ background: c.vivid, boxShadow: `0 0 8px ${c.vivid}60` }}
-                          />
-                        )}
-                        <span className={cn(
-                          "relative flex shrink-0 items-center justify-center rounded-lg p-0.5 transition-all duration-200",
-                          active && "backdrop-blur-sm",
-                        )}
-                          style={active && c ? { background: `${c.vivid}18` } : undefined}
-                        >
-                          <span className="relative flex shrink-0 items-center justify-center">
-                            <Icon
-                              className="h-[18px] w-[18px] transition-all duration-200 group-hover/nav-item:scale-110"
-                              style={{ color: c ? (active ? c.vivid : c.pale) : undefined }}
+                          <>
+                            <span
+                              className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full animate-sidebar-accent-in"
+                              style={{
+                                background: `linear-gradient(to bottom, ${c.vivid}, ${c.pale})`,
+                                boxShadow: `0 0 10px ${c.vivid}80`,
+                              }}
                             />
-                          </span>
+                            <span
+                              className="absolute inset-0 rounded-xl opacity-30 animate-sidebar-glow-rotate"
+                              style={{
+                                background: `radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${c.vivid}15, transparent 40%)`,
+                              }}
+                            />
+                          </>
+                        )}
+                        <span
+                          className="relative flex shrink-0 items-center justify-center rounded-lg p-0.5 transition-all duration-200"
+                          style={active && c ? { background: `${c.vivid}20` } : undefined}
+                        >
+                          <Icon
+                            className={cn(
+                              "h-[18px] w-[18px] transition-all duration-200",
+                              "group-hover/nav-item:scale-110 group-hover/nav-item:-translate-y-0.5",
+                              active
+                                ? "animate-sidebar-icon-float"
+                                : "group-hover/nav-item:animate-sidebar-icon-bounce-hover",
+                            )}
+                            style={{
+                              color: c ? (active ? c.vivid : c.pale) : undefined,
+                            }}
+                          />
                         </span>
                         {!collapsed && (
                           <>
-                            <span className={cn(
-                              "flex-1 truncate transition-all duration-200",
-                              active && "font-semibold",
-                            )}>
+                            <span
+                              className={cn(
+                                "flex-1 truncate transition-all duration-200",
+                                active && "font-semibold",
+                              )}
+                            >
                               {it.label}
                             </span>
                             {it.badge && (
                               <span
-                                className="rounded-md px-1.5 py-0.5 text-[10px] font-semibold backdrop-blur-sm"
-                                style={c ? { background: `${c.vivid}18`, color: c.vivid } : undefined}
+                                className="rounded-md px-1.5 py-0.5 text-[10px] font-semibold animate-sidebar-badge-pulse"
+                                style={
+                                  c
+                                    ? {
+                                        background: `${c.vivid}20`,
+                                        color: c.vivid,
+                                      }
+                                    : undefined
+                                }
                               >
                                 {it.badge}
                               </span>
@@ -288,24 +343,37 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        <div className={cn("border-t border-sidebar-border/40 p-3", collapsed && "px-2")}>
+        {/* Gradient fade — hints scrollable content below */}
+        <div className="pointer-events-none relative -mt-12 h-12 bg-gradient-to-t from-sidebar to-transparent" />
+
+        <div className={cn("relative border-t border-sidebar-border p-3", collapsed && "px-2")}>
           <button
             onClick={() => setCollapsed((c) => !c)}
             className={cn(
-              "flex w-full items-center justify-center gap-1.5 rounded-xl border border-sidebar-border/50 bg-sidebar-accent/50 py-2 text-xs font-medium text-muted-foreground backdrop-blur-sm transition-all duration-200 hover:border-primary/30 hover:text-foreground hover:shadow-sm",
+              "flex w-full items-center justify-center gap-1.5 rounded-xl border border-sidebar-border bg-sidebar-accent/50 py-2 text-xs font-medium text-sidebar-foreground/60 transition-all duration-200 hover:border-sidebar-foreground/20 hover:text-sidebar-foreground",
               collapsed && "px-0",
             )}
           >
-            <ChevronLeft className={cn("h-3.5 w-3.5 transition-transform duration-200", collapsed && "rotate-180")} />
+            <ChevronLeft
+              className={cn(
+                "h-3.5 w-3.5 transition-transform duration-200",
+                collapsed && "rotate-180",
+              )}
+            />
             {!collapsed && "Collapse"}
           </button>
         </div>
       </aside>
 
       {/* Main column */}
-      <div className={cn("flex min-w-0 flex-1 flex-col transition-[margin] duration-300", collapsed ? "md:ml-[72px]" : "md:ml-[200px] xl:ml-[244px]")}>
+      <div
+        className={cn(
+          "flex min-w-0 flex-1 flex-col transition-[margin] duration-300",
+          collapsed ? "md:ml-[96px]" : "md:ml-[224px] xl:ml-[268px]",
+        )}
+      >
         {/* Header — permanent sticky top bar, outside the rounded panel */}
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-border bg-card/80 px-4 backdrop-blur md:gap-3 md:px-6">
+        <header className="sticky top-0 z-10 flex h-16 items-center gap-2 border-b border-border/50 bg-white/70 px-4 backdrop-blur-xl dark:bg-card/80 md:gap-3 md:px-6 md:shadow-[0_1px_0_0_var(--color-border)]">
           <button
             onClick={() => setMobileOpen(true)}
             className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted/50 hover:text-foreground md:hidden"
@@ -314,22 +382,26 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Menu className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-sm font-semibold leading-tight text-foreground md:text-base">{title || "Dashboard"}</h1>
-            <p className="text-[10px] text-muted-foreground md:text-[11px]">{now} · {time}</p>
+            <h1 className="text-sm font-semibold leading-tight text-foreground md:text-base">
+              {title || "Dashboard"}
+            </h1>
+            <p className="text-[10px] text-muted-foreground md:text-[11px]">
+              {now} · {time}
+            </p>
           </div>
 
-          <div className="relative ml-auto hidden max-w-[180px] flex-1 md:block lg:ml-6 lg:max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative ml-auto hidden max-w-[180px] flex-1 md:block lg:ml-6 lg:max-w-sm group">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50 transition-colors group-focus-within:text-primary" />
             <input
               placeholder="Search guests, rooms, folios…"
-              className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm outline-none transition-all duration-200 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-card"
             />
           </div>
 
           <div className="ml-auto flex items-center gap-2">
             <Link
               to="/reservations/new"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 hover:scale-105 active:scale-95"
             >
               <Plus className="h-3.5 w-3.5" /> New Booking
             </Link>
@@ -340,11 +412,12 @@ export function AppShell({ children }: { children: ReactNode }) {
             <button
               onClick={() => navigate({ to: "/notifications" })}
               className={cn(
-                "relative rounded-lg border border-border bg-card p-2 text-muted-foreground transition hover:border-primary/40 hover:text-foreground",
+                "relative rounded-lg border border-border bg-card p-2 text-muted-foreground transition-all duration-200 hover:border-primary/40 hover:text-foreground hover:shadow-sm hover:shadow-primary/10",
                 pathname === "/notifications" && "border-primary/40 bg-primary/5 text-primary",
               )}
+              aria-label="Notifications"
             >
-              <Bell className="h-4 w-4" />
+              <Bell className="h-4 w-4 transition-transform duration-200 hover:animate-sidebar-icon-bounce-hover" />
             </button>
 
             {/* Offline / sync indicator */}
@@ -352,7 +425,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div
                 className={cn(
                   "flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-[10px] font-medium",
-                  online ? "border-warning/30 bg-warning/10 text-warning" : "border-destructive/30 bg-destructive/10 text-destructive",
+                  online
+                    ? "border-warning/30 bg-warning/10 text-warning"
+                    : "border-destructive/30 bg-destructive/10 text-destructive",
                 )}
                 title={online ? `${syncCount} pending sync` : "Working offline"}
               >
@@ -388,7 +463,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <DropdownMenuItem>Preferences</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="text-destructive" asChild>
-                  <Link to="/"><LogOut className="mr-2 h-3.5 w-3.5" /> Sign out</Link>
+                  <Link to="/">
+                    <LogOut className="mr-2 h-3.5 w-3.5" /> Sign out
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -418,10 +495,11 @@ function RoleSwitcher({ role, setRole }: { role: Role; setRole: (r: Role) => voi
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72 p-2">
         <div className="mb-2 flex items-center gap-3 rounded-lg bg-muted/50 px-3 py-2.5">
-          
           <div>
             <p className="text-xs font-medium text-foreground">Switch role</p>
-            <p className="text-[10px] text-muted-foreground">Experience the app as a different role</p>
+            <p className="text-[10px] text-muted-foreground">
+              Experience the app as a different role
+            </p>
           </div>
         </div>
         <div className="-mx-1">
