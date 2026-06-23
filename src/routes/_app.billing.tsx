@@ -291,22 +291,33 @@ function FolioList() {
   );
 }
 
+const statusDot: Record<FolioStatus, string> = {
+  open: "bg-blue-500",
+  active: "bg-blue-500",
+  pending_settlement: "bg-amber-500",
+  settled: "bg-emerald-500",
+  closed: "bg-emerald-500",
+  void: "bg-destructive",
+};
+
+const statusBadge: Record<FolioStatus, string> = {
+  open: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800",
+  active: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800",
+  pending_settlement: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",
+  settled: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800",
+  closed: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800",
+  void: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800",
+};
+
 function FolioStatusBadge({ status }: { status: FolioStatus }) {
-  const colorMap: Record<FolioStatus, string> = {
-    open: "border-blue-200/30 bg-blue-500/10 text-blue-500",
-    active: "border-blue-200/30 bg-blue-500/10 text-blue-500",
-    pending_settlement: "border-amber-200/30 bg-amber-500/10 text-amber-500",
-    settled: "border-success/30 bg-success/10 text-success",
-    closed: "border-success/30 bg-success/10 text-success",
-    void: "border-destructive/30 bg-destructive/10 text-destructive",
-  };
   return (
     <span
       className={cn(
-        "inline-flex rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase",
-        colorMap[status],
+        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold",
+        statusBadge[status],
       )}
     >
+      <span className={cn("h-1.5 w-1.5 rounded-full", statusDot[status])} />
       {FOLIO_STATUS_LABEL[status]}
     </span>
   );
