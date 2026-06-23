@@ -287,19 +287,32 @@ function RequisitionsPage() {
       </div>
 
       {/* Quick stats */}
-      <div className="grid gap-3 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
-          { label: "Total Requests", value: String(reqs.length) },
-          { label: "Pending", value: String(reqs.filter((r) => r.status === "Pending").length) },
-          { label: "Approved", value: String(reqs.filter((r) => r.status === "Approved").length) },
-          {
-            label: "Processed",
-            value: String(reqs.filter((r) => r.status === "Processed").length),
-          },
+          { label: "Total Requests", value: String(reqs.length), icon: FileText, accent: "from-primary/20 to-primary/5", bar: "var(--color-primary)", text: "text-primary" },
+          { label: "Pending", value: String(reqs.filter((r) => r.status === "Pending").length), icon: Clock, accent: "from-warning/20 to-warning/5", bar: "var(--color-warning)", text: "text-warning" },
+          { label: "Approved", value: String(reqs.filter((r) => r.status === "Approved").length), icon: CheckCircle2, accent: "from-info/20 to-info/5", bar: "var(--color-info)", text: "text-info" },
+          { label: "Processed", value: String(reqs.filter((r) => r.status === "Processed").length), icon: CheckCircle2, accent: "from-success/20 to-success/5", bar: "var(--color-success)", text: "text-success" },
         ].map((s) => (
-          <div key={s.label} className="glass card-hover rounded-2xl p-4">
-            <div className="text-xs text-muted-foreground">{s.label}</div>
-            <div className="mt-1 text-2xl font-bold">{s.value}</div>
+          <div
+            key={s.label}
+            className="group relative overflow-hidden rounded-2xl border border-border/50 bg-gradient-to-br from-card to-muted/30 p-5 shadow-sm transition-all duration-300 hover:shadow-md hover:border-border/80"
+          >
+            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: s.bar, boxShadow: `0 0 12px ${s.bar}` }} />
+            <div className="absolute right-0 top-0 h-24 w-24 translate-x-6 -translate-y-6 rounded-full bg-gradient-to-br opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: `radial-gradient(circle, ${s.bar}15 0%, transparent 70%)` }} />
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+                  {s.label}
+                </div>
+                <div className="mt-2 text-3xl font-bold tabular-nums tracking-tight">
+                  {s.value}
+                </div>
+              </div>
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-card to-muted shadow-sm ring-1 ring-border/50">
+                <s.icon className={cn("h-4 w-4", s.text)} />
+              </div>
+            </div>
           </div>
         ))}
       </div>
