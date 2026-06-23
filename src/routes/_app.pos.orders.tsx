@@ -413,6 +413,7 @@ function POSOrdersPage() {
                         <Eye className="h-3.5 w-3.5" />
                       </button>
                       <button
+                        onClick={() => handlePrintOrder(o)}
                         className="rounded-lg border border-border/50 bg-card/40 p-1.5 text-muted-foreground hover:border-primary/40 hover:text-foreground"
                         title="Print receipt"
                       >
@@ -511,7 +512,10 @@ function POSOrdersPage() {
                 <span className="font-medium text-foreground">{detailOrder.paymentMethod}</span>
               </div>
               <div className="flex gap-2">
-                <button className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/40 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+                <button
+                  onClick={() => handlePrintOrder(detailOrder)}
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/40 px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+                >
                   <Printer className="h-4 w-4" />
                   Receipt
                 </button>
