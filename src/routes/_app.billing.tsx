@@ -13,6 +13,13 @@ import {
   AlertTriangle,
   Smartphone,
   Loader2,
+  Search,
+  User,
+  Home,
+  FileText,
+  Wallet,
+  ChevronRight,
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -154,13 +161,23 @@ function FolioList() {
     bal <= 0 ? "text-success" : bal > 0 && bal <= 500_000 ? "text-warning" : "text-destructive";
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      <header>
-        <h1 className="font-display text-3xl font-bold tracking-tight">Billing &amp; Folio</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Folios, charges, payments and invoices.
-        </p>
-      </header>
+    <div className="mx-auto max-w-7xl space-y-6 pb-24">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary ring-1 ring-primary/20">
+              <Receipt className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="font-display text-3xl font-bold tracking-tight">Billing &amp; Folios</h1>
+              <p className="text-sm text-muted-foreground">
+                Folios, charges, payments and invoices
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-4">
         <Stat label="Active folios" value={totals.count.toString()} kind="active" />
@@ -169,29 +186,35 @@ function FolioList() {
         <Stat label="Collected today" value={fmtUGX(totals.collectedToday)} tone="success" kind="collected" />
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-lg border border-border bg-card p-0.5 text-xs">
-          {(["active", "pending", "settled", "all"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={cn(
-                "rounded-md px-3 py-1.5 capitalize",
-                tab === t
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {t === "active" ? "Active" : t === "pending" ? "Pending Settlement" : t}
-            </button>
-          ))}
+      {/* Filter bar */}
+      <div className="rounded-2xl border border-border/50 bg-card/50 p-1 shadow-sm backdrop-blur">
+        <div className="flex flex-wrap items-center gap-2 p-3">
+          <div className="relative min-w-[200px] flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search guest, folio, reservation…"
+              className="w-full rounded-xl border border-border/50 bg-background/50 py-2.5 pl-10 pr-3 text-sm outline-none ring-0 transition-all placeholder:text-muted-foreground/40 focus:border-primary/60 focus:bg-background/80 focus:ring-2 focus:ring-primary/10"
+            />
+          </div>
+          <div className="flex items-center gap-1 rounded-xl border border-border/40 bg-background/30 p-1">
+            {(["active", "pending", "settled", "all"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={cn(
+                  "rounded-lg px-3 py-1.5 text-xs font-medium transition-all",
+                  tab === t
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground/70 hover:text-foreground hover:bg-background/50",
+                )}
+              >
+                {t === "active" ? "Active" : t === "pending" ? "Pending" : t === "settled" ? "Settled" : "All"}
+              </button>
+            ))}
+          </div>
         </div>
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Search guest, folio, reservation…"
-          className="min-w-[240px] flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm outline-none focus:border-primary/60"
-        />
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
