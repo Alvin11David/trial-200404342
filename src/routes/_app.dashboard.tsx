@@ -380,38 +380,38 @@ function PosDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Open tabs" value="7" icon={<ShoppingCart className="h-4 w-4" />} accent="primary" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Orders today" value="42" delta="+12 vs. yest." deltaPositive icon={<ClipboardList className="h-4 w-4" />} accent="info" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="POS revenue" value={fmt(1_980_000)} delta="+8.1%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Cash drawer" value={fmt(640_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" /></div>
+        <div className="animate-kpi-enter"><KpiCard label="Open tabs" value="7" icon={<ShoppingCart className="h-4 w-4" />} accent="primary" index={0} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Orders today" value="42" delta="+12 vs. yest." deltaPositive icon={<ClipboardList className="h-4 w-4" />} accent="info" index={1} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="POS revenue" value={fmt(1_980_000)} delta="+8.1%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" index={2} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Cash drawer" value={fmt(640_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" index={3} /></div>
       </div>
 
       {/* Charts row */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="Hourly Sales" subtitle={`Today · ${fmt(total)} total`} className="lg:col-span-2">
+        <Card title="Hourly Sales" subtitle={`Today \u00b7 ${fmt(total)} total`} className="lg:col-span-2" accent="primary">
           <ChartContainer config={{ sales: { label: "Sales", color: "var(--color-primary)" } }} className="h-44 w-full">
-            <AreaChart data={hourlyData} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
+            <AreaChart data={hourlyData} margin={{ top: 12, right: 12, left: -20, bottom: 4 }}>
               <defs>
                 <linearGradient id="posDashFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--color-primary)" stopOpacity={0.35} />
                   <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
-              <XAxis dataKey="h" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => fmt(v)} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" formatter={(v: number) => fmt(v)} />} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
+              <XAxis dataKey="h" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} dy={4} />
+              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} tickFormatter={(v: number) => fmt(v)} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v: number) => fmt(v)} />} />
               <Area type="monotone" dataKey="v" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#posDashFill)" dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2.5, r: 4 }} activeDot={{ r: 6 }} />
             </AreaChart>
           </ChartContainer>
         </Card>
-        <Card title="Categories" subtitle="Sales split">
+        <Card title="Categories" subtitle="Sales split" accent="success">
           <ChartContainer config={{ value: { label: "Value" } }} className="h-44 w-full">
             <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <Pie data={catData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={65} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
                 {catData.map((e) => <Cell key={e.name} fill={e.color} />)}
               </Pie>
-              <ChartTooltip content={<ChartTooltipContent className="rounded-xl" formatter={(v: number) => fmt(v)} />} />
+              <ChartTooltip content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v: number) => fmt(v)} />} />
             </PieChart>
           </ChartContainer>
           <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
@@ -430,22 +430,25 @@ function PosDashboard() {
 
       {/* Bottom row */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Top Selling Items" subtitle="Today">
+        <Card title="Top Selling Items" subtitle="Today" accent="success">
           <ChartContainer config={{ qty: { label: "Qty", color: "var(--color-chart-2)" } }} className="h-40 w-full">
             <BarChart data={topItems} layout="vertical" margin={{ top: 0, right: 36, left: 0, bottom: 0 }} barSize={18}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/40" />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/30" />
               <XAxis type="number" hide domain={[0, "dataMax + 8"]} />
-              <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} width={100} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent className="rounded-xl" />} />
+              <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} width={100} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" />} />
               <Bar dataKey="qty" fill="var(--color-chart-2)" radius={[0, 4, 4, 0]}>
-                <LabelList dataKey="qty" position="right" className="fill-foreground" fontSize={10} fontWeight={600} />
+                <LabelList dataKey="qty" position="right" className="fill-muted-foreground" fontSize={10} fontWeight={600} />
               </Bar>
             </BarChart>
           </ChartContainer>
         </Card>
-        <Card title="Recent orders">
-          <p className="text-sm text-muted-foreground">Open the POS to manage active orders.</p>
-          <Link to="/pos" className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open POS →</Link>
+        <Card title="Recent orders" accent="warning">
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <ShoppingCart className="h-8 w-8 text-muted-foreground/20 mb-3" />
+            <p className="text-sm text-muted-foreground">Open the POS to manage active orders.</p>
+            <Link to="/pos" className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5">Open POS <ArrowRight className="h-3 w-3" /></Link>
+          </div>
         </Card>
       </div>
     </>
@@ -463,14 +466,14 @@ function ReservationsDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Pipeline (7d)" value="38" delta="+6" deltaPositive icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Forecast Occ (7d)" value="74%" icon={<BedDouble className="h-4 w-4" />} accent="info" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="ADR" value={ugx(285000)} delta="+2.1%" deltaPositive icon={<TrendingUp className="h-4 w-4" />} accent="success" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Cancellations" value="3" delta="-2 vs. wk" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" /></div>
+        <div className="animate-kpi-enter"><KpiCard label="Pipeline (7d)" value="38" delta="+6 vs. last week" deltaPositive icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" index={0} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Forecast Occ (7d)" value="74%" icon={<BedDouble className="h-4 w-4" />} accent="info" index={1} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="ADR" value={ugx(285000)} delta="+2.1%" deltaPositive icon={<TrendingUp className="h-4 w-4" />} accent="success" index={2} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Cancellations" value="3" delta="\u22122 vs. wk" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" index={3} /></div>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="7-day occupancy forecast" className="lg:col-span-2"><OccupancyChart /></Card>
-        <Card title="Channels"><RevenueBars labels={["Direct","OTA","Corporate"]} values={[55,30,15]} /></Card>
+        <Card title="Occupancy forecast" subtitle="7-day outlook" className="lg:col-span-2" accent="primary"><OccupancyChart /></Card>
+        <Card title="Channel breakdown" subtitle="Booking sources" accent="success"><RevenueBars labels={["Direct","OTA","Corporate"]} values={[55,30,15]} /></Card>
       </div>
     </>
   );
