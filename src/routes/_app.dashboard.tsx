@@ -268,22 +268,22 @@ function FrontDeskDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Arrivals today" value="12" delta="3 walked-in" icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Departures today" value="9" delta="2 pending" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="In-house guests" value="86" delta="78% occ" deltaPositive icon={<Users className="h-4 w-4" />} accent="info" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="success" /></div>
+        <div className="animate-kpi-enter"><KpiCard label="Arrivals today" value="12" delta="3 walked-in" icon={<CalendarCheck2 className="h-4 w-4" />} accent="primary" index={0} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Departures today" value="9" delta="2 pending" icon={<CalendarX2 className="h-4 w-4" />} accent="warning" index={1} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="In-house guests" value="86" delta="78% occ" deltaPositive icon={<Users className="h-4 w-4" />} accent="info" index={2} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="success" index={3} /></div>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="7-day occupancy trend" subtitle="Rolling daily occupancy %" className="lg:col-span-2">
+        <Card title="Occupancy trend" subtitle="7-day rolling" className="lg:col-span-2" accent="primary">
           <OccupancyChart />
         </Card>
-        <Card title="Revenue by source" subtitle="Today">
+        <Card title="Revenue by source" subtitle="Today" accent="success">
           <RevenueBars />
         </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Arrivals" action={<Link to="/reservations" className="text-xs text-primary">View all →</Link>}>
+        <Card title="Arrivals" action={<Link to="/reservations" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">View all &rarr;</Link>} accent="primary">
           <GuestTable
             rows={[
               { name: "Sarah Mwangi", room: "204", time: "14:00", nights: 3, status: "Confirmed" },
@@ -293,7 +293,7 @@ function FrontDeskDashboard() {
             kind="arrival"
           />
         </Card>
-        <Card title="Departures" action={<Link to="/reservations" className="text-xs text-primary">View all →</Link>}>
+        <Card title="Departures" action={<Link to="/reservations" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">View all &rarr;</Link>} accent="warning">
           <GuestTable
             rows={[
               { name: "Mark Tindyebwa", room: "112", time: "10:00", nights: 2, status: "Folio open" },
@@ -318,18 +318,21 @@ function HousekeepingDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Rooms to clean" value="14" delta="9 high priority" icon={<Sparkles className="h-4 w-4" />} accent="primary" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="In progress" value="6" delta="3 attendants" icon={<ClipboardList className="h-4 w-4" />} accent="warning" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Inspected" value="32" delta="Today" deltaPositive icon={<BedDouble className="h-4 w-4" />} accent="success" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Out of order" value="2" delta="Maintenance" icon={<BedDouble className="h-4 w-4" />} accent="info" /></div>
+        <div className="animate-kpi-enter"><KpiCard label="Rooms to clean" value="14" delta="9 high priority" icon={<Sparkles className="h-4 w-4" />} accent="primary" index={0} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="In progress" value="6" delta="3 attendants" icon={<ClipboardList className="h-4 w-4" />} accent="warning" index={1} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Inspected today" value="32" delta="+5 vs yesterday" deltaPositive icon={<BedDouble className="h-4 w-4" />} accent="success" index={2} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Out of order" value="2" delta="Maintenance" icon={<BedDouble className="h-4 w-4" />} accent="info" index={3} /></div>
       </div>
-      <Card title="My assigned rooms">
+      <Card title="My assigned rooms" subtitle="9 rooms · sorted by priority" accent="warning">
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {["101","102","103","204","205","305","306","402","410"].map((r, i) => (
-            <div key={r} className="flex items-center justify-between rounded-xl border border-border/60 bg-card/60 px-3 py-2.5 backdrop-blur-sm cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-sm">
-              <div>
-                <div className="text-sm font-semibold">Room {r}</div>
-                <div className="text-[11px] text-muted-foreground">{i % 2 ? "Stayover" : "Departure clean"}</div>
+            <div key={r} className="group/room flex items-center justify-between rounded-xl border border-border/50 bg-card/50 px-3.5 py-3 backdrop-blur-sm cursor-pointer transition-all duration-200 hover:border-primary/30 hover:bg-card/70 hover:shadow-md hover:-translate-y-0.5">
+              <div className="flex items-center gap-3">
+                <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-xs font-bold text-primary ring-1 ring-primary/20">{r}</span>
+                <div>
+                  <div className="text-sm font-semibold">Room {r}</div>
+                  <div className="text-[11px] text-muted-foreground/70">{i % 2 ? "Stayover" : "Departure clean"}</div>
+                </div>
               </div>
               <PriorityBadge p={i % 3 === 0 ? "High" : i % 3 === 1 ? "Medium" : "Low"} />
             </div>
