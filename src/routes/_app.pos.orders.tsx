@@ -12,6 +12,9 @@ import {
   ChevronDown,
   Calendar,
   TicketCheck,
+  Clock,
+  CheckCircle2,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -274,16 +277,34 @@ function POSOrdersPage() {
       {/* Quick stats */}
       <div className="grid gap-3 sm:grid-cols-4">
         {[
-          { label: "Today's Orders", value: "4" },
-          { label: "Pending", value: "2" },
-          { label: "Completed", value: "5" },
-          { label: "Revenue Today", value: "UGX 338K" },
-        ].map((s) => (
-          <div key={s.label} className="glass card-hover rounded-2xl p-4">
-            <div className="text-xs text-muted-foreground">{s.label}</div>
-            <div className="mt-1 text-2xl font-bold">{s.value}</div>
-          </div>
-        ))}
+          { label: "Today's Orders", value: "4", gradient: "from-sky-400 to-teal-500", icon: ShoppingCart },
+          { label: "Pending", value: "2", gradient: "from-amber-400 to-orange-500", icon: Clock },
+          { label: "Completed", value: "5", gradient: "from-emerald-400 to-green-500", icon: CheckCircle2 },
+          { label: "Revenue Today", value: "UGX 338K", gradient: "from-violet-400 to-purple-600", icon: TrendingUp },
+        ].map((s) => {
+          const Icon = s.icon;
+          return (
+            <div
+              key={s.label}
+              className="relative overflow-hidden rounded-2xl border border-border/60 bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              <div className="absolute right-0 top-0 h-20 w-20 translate-x-6 -translate-y-6 opacity-10">
+                <div className={`h-full w-full rounded-full bg-gradient-to-br ${s.gradient}`} />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {s.label}
+                </div>
+                <div className={`grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br ${s.gradient} text-white shadow-sm`}>
+                  <Icon className="h-4 w-4" />
+                </div>
+              </div>
+              <div className={`mt-2 text-2xl font-bold bg-gradient-to-br ${s.gradient} bg-clip-text text-transparent`}>
+                {s.value}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Filters */}
