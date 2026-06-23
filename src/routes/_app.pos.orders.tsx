@@ -565,7 +565,10 @@ function POSOrdersPage() {
       </div>
 
       {/* Order Detail Modal */}
-      {detailOrder && (
+      {detailOrder && (() => {
+        const StatusIcon = statusConfig[detailOrder.status].icon;
+        const PaymentIcon = paymentIcons[detailOrder.paymentMethod];
+        return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDetailOrder(null)} />
           <div className="relative w-full max-w-lg animate-in fade-in zoom-in-95 duration-200">
@@ -582,7 +585,7 @@ function POSOrdersPage() {
                         "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold",
                         statusConfig[detailOrder.status].badge,
                       )}>
-                        {React.createElement(statusConfig[detailOrder.status].icon, { className: "h-3 w-3" })}
+                        <StatusIcon className="h-3 w-3" />
                         {statusConfig[detailOrder.status].label}
                       </span>
                     </div>
@@ -651,7 +654,7 @@ function POSOrdersPage() {
                       <span>Cashier: <strong className="text-foreground/80">{detailOrder.cashier}</strong></span>
                     </div>
                     <div className="flex items-center gap-2">
-                      {React.createElement(paymentIcons[detailOrder.paymentMethod], { className: "h-3.5 w-3.5" })}
+                      <PaymentIcon className="h-3.5 w-3.5" />
                       <span>Payment: <strong className="text-foreground/80">{detailOrder.paymentMethod}</strong></span>
                     </div>
                   </div>
