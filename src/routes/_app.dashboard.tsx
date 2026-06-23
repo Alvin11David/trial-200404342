@@ -404,7 +404,7 @@ function PosDashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
               <XAxis dataKey="h" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} dy={4} />
               <YAxis tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} tickFormatter={(v) => fmt(Number(v))} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v) => fmt(Number(v))} />} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v: number) => fmt(v)} />} />
               <Area type="monotone" dataKey="v" stroke="var(--color-primary)" strokeWidth={2.5} fill="url(#posDashFill)" dot={{ fill: "var(--color-card)", stroke: "var(--color-primary)", strokeWidth: 2.5, r: 4 }} activeDot={{ r: 6 }} />
             </AreaChart>
           </ChartContainer>
