@@ -513,6 +513,7 @@ function POSPage() {
                   {paymentMethod === "Cash" ? "Charge" : `Charge ${paymentMethod}`}
                 </button>
                 <button
+                  onClick={() => handlePrintReceipt(paymentMethod)}
                   disabled={cart.length === 0}
                   className="rounded-xl border border-border/60 bg-card/40 p-3 text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -574,7 +575,10 @@ function POSPage() {
               >
                 New Order
               </button>
-              <button className="rounded-xl border border-border/60 bg-card/40 p-3 text-muted-foreground hover:text-foreground">
+              <button
+                onClick={() => handlePrintReceipt(paymentMethod)}
+                className="rounded-xl border border-border/60 bg-card/40 p-3 text-muted-foreground hover:text-foreground"
+              >
                 <Printer className="h-5 w-5" />
               </button>
             </div>
