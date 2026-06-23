@@ -557,11 +557,6 @@ function POSMenuPage() {
 
                   {/* Right: Live Preview */}
                   <div className="hidden md:block md:col-span-2 border-l border-border/30 bg-gradient-to-br from-muted/20 via-card to-muted/10 p-7">
-                    <div className="flex items-center gap-2 mb-5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40">Live Preview</span>
-                    </div>
-
                     {(() => {
                       const cat = form.category || categories[0];
                       const cfg = categoryConfig[cat];
