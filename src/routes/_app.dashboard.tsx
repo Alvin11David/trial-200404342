@@ -505,8 +505,6 @@ function AccountantDashboard() {
     { d: "Sun", tx: 38 },
   ];
 
-  const expTotal = expenseData.reduce((s, e) => s + e.value, 0);
-
   return (
     <>
       <div className="flex flex-wrap gap-2">
@@ -517,16 +515,16 @@ function AccountantDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="primary" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Payments today" value={ugx(3_120_000)} delta="+12%" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Outstanding" value={ugx(5_120_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Refunds" value={ugx(80_000)} icon={<ArrowDownRight className="h-4 w-4" />} accent="info" /></div>
+        <div className="animate-kpi-enter"><KpiCard label="Open folios" value="14" delta={ugx(8_240_000)} icon={<Receipt className="h-4 w-4" />} accent="primary" index={0} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Payments today" value={ugx(3_120_000)} delta="+12% vs. yesterday" deltaPositive icon={<DollarSign className="h-4 w-4" />} accent="success" index={1} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Outstanding" value={ugx(5_120_000)} icon={<Wallet className="h-4 w-4" />} accent="warning" index={2} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Refunds YTD" value={ugx(80_000)} icon={<ArrowDownRight className="h-4 w-4" />} accent="info" index={3} /></div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="Revenue vs Expenses" subtitle="This week · UGX (M)" className="lg:col-span-2">
+        <Card title="Revenue vs Expenses" subtitle="This week \u00b7 UGX (M)" className="lg:col-span-2" accent="success">
           <ChartContainer config={{ rev: { label: "Revenue", color: "var(--color-success)" }, exp: { label: "Expenses", color: "var(--color-destructive)" } }} className="h-48 w-full">
-            <AreaChart data={revTrend} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
+            <AreaChart data={revTrend} margin={{ top: 12, right: 12, left: -20, bottom: 4 }}>
               <defs>
                 <linearGradient id="revFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--color-success)" stopOpacity={0.35} />
@@ -537,22 +535,22 @@ function AccountantDashboard() {
                   <stop offset="95%" stopColor="var(--color-destructive)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
-              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}M`} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" formatter={(v: number) => `UGX ${v}M`} />} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
+              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} dy={4} />
+              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}M`} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v: number) => `UGX ${v}M`} />} />
               <Area type="monotone" dataKey="rev" stroke="var(--color-success)" strokeWidth={2.5} fill="url(#revFill)" dot={{ r: 4, fill: "var(--color-card)", stroke: "var(--color-success)", strokeWidth: 2.5 }} activeDot={{ r: 6 }} />
               <Area type="monotone" dataKey="exp" stroke="var(--color-destructive)" strokeWidth={2.5} fill="url(#expFill)" dot={{ r: 4, fill: "var(--color-card)", stroke: "var(--color-destructive)", strokeWidth: 2.5 }} activeDot={{ r: 6 }} />
             </AreaChart>
           </ChartContainer>
         </Card>
-        <Card title="Expense Breakdown" subtitle="YTD spend">
+        <Card title="Expense Breakdown" subtitle="YTD spend" accent="warning">
           <ChartContainer config={{ value: { label: "%" } }} className="h-36 w-full">
             <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <Pie data={expenseData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={36} outerRadius={58} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
                 {expenseData.map((e) => <Cell key={e.name} fill={e.color} />)}
               </Pie>
-              <ChartTooltip content={<ChartTooltipContent className="rounded-xl" formatter={(v: number) => `${v}%`} />} />
+              <ChartTooltip content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v: number) => `${v}%`} />} />
             </PieChart>
           </ChartContainer>
           <div className="mt-2 space-y-1">
@@ -570,22 +568,25 @@ function AccountantDashboard() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Daily Transactions" subtitle="This week">
+        <Card title="Daily Transactions" subtitle="This week" accent="primary">
           <ChartContainer config={{ tx: { label: "Transactions", color: "var(--color-chart-1)" } }} className="h-40 w-full">
-            <BarChart data={txData} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
-              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" />} />
+            <BarChart data={txData} margin={{ top: 12, right: 12, left: -20, bottom: 4 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
+              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} dy={4} />
+              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" />} />
               <Bar dataKey="tx" fill="var(--color-chart-1)" radius={[6, 6, 0, 0]} barSize={32}>
-                <LabelList dataKey="tx" position="top" className="fill-foreground" fontSize={10} fontWeight={600} />
+                <LabelList dataKey="tx" position="top" className="fill-muted-foreground" fontSize={10} fontWeight={600} />
               </Bar>
             </BarChart>
           </ChartContainer>
         </Card>
-        <Card title="Today's payments">
-          <p className="text-sm text-muted-foreground">View detailed payment log in Billing.</p>
-          <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">Open billing →</Link>
+        <Card title="Today's payments" accent="info">
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <Receipt className="h-8 w-8 text-muted-foreground/20 mb-3" />
+            <p className="text-sm text-muted-foreground">View detailed payment log in Billing.</p>
+            <Link to="/billing" search={{ folio: undefined, invoice: undefined }} className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5">Open Billing <ArrowRight className="h-3 w-3" /></Link>
+          </div>
         </Card>
       </div>
     </>
