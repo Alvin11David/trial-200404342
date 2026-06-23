@@ -163,10 +163,10 @@ function FolioList() {
       </header>
 
       <div className="grid gap-4 sm:grid-cols-4">
-        <Stat label="Active folios" value={totals.count.toString()} />
-        <Stat label="Total outstanding" value={fmtUGX(totals.open)} tone="warning" />
-        <Stat label="All outstanding" value={fmtUGX(totals.totalOutstanding)} tone="warning" />
-        <Stat label="Collected today" value={fmtUGX(totals.collectedToday)} tone="success" />
+        <Stat label="Active folios" value={totals.count.toString()} kind="active" />
+        <Stat label="Total outstanding" value={fmtUGX(totals.open)} tone="warning" kind="outstanding" />
+        <Stat label="All outstanding" value={fmtUGX(totals.totalOutstanding)} tone="warning" kind="all" />
+        <Stat label="Collected today" value={fmtUGX(totals.collectedToday)} tone="success" kind="collected" />
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -1561,15 +1561,38 @@ function InvoiceView({ folioId }: { folioId: string }) {
 
 /* ============================== Shared helpers ============================== */
 
+const statGradients: Record<string, { gradient: string; icon: React.ComponentType<{ className?: string }> }> = {
+  active: {
+    gradient: "from-sky-400 to-blue-600",
+    icon: CreditCard,
+  },
+  outstanding: {
+    gradient: "from-amber-400 to-orange-600",
+    icon: AlertTriangle,
+  },
+  collected: {
+    gradient: "from-emerald-400 to-green-600",
+    icon: CheckCircle2,
+  },
+  all: {
+    gradient: "from-violet-400 to-purple-600",
+    icon: Receipt,
+  },
+};
+
 function Stat({
   label,
   value,
   tone,
+  kind,
 }: {
   label: string;
   value: string;
   tone?: "success" | "warning";
+  kind?: string;
 }) {
+  const cfg = kind ? statGradients[kind] : null;
+  const Icon = cfg?.icon;
   const barColor =
     tone === "success"
       ? "var(--color-success)"
@@ -1577,20 +1600,25 @@ function Stat({
         ? "var(--color-warning)"
         : "var(--color-primary)";
   return (
-    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
-      <div
-        className="absolute left-0 top-0 h-full w-[3px]"
-        style={{ background: barColor, boxShadow: `0 0 10px ${barColor}` }}
-      />
-      <div className="pl-1">
-        <div className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</div>
-        <div
-          className={cn(
-            "mt-1 text-2xl font-bold",
-            tone === "success" && "text-success",
-            tone === "warning" && "text-warning",
+    <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg">
+      <div className="absolute right-0 top-0 h-24 w-24 translate-x-8 -translate-y-8 opacity-[0.06] transition-all duration-500 group-hover:scale-150 group-hover:opacity-[0.1]">
+        <div className={`h-full w-full rounded-full bg-gradient-to-br ${cfg?.gradient || "from-primary to-primary/50"}`} />
+      </div>
+      <div className="relative">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/70">{label}</span>
+          {Icon && (
+            <div className={`grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br ${cfg?.gradient || "from-primary to-primary/50"} text-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+              <Icon className="h-[18px] w-[18px]" />
+            </div>
           )}
-        >
+        </div>
+        <div className={cn(
+          "mt-2 text-2xl font-bold tracking-tight",
+          tone === "success" && "text-success",
+          tone === "warning" && "text-warning",
+          !tone && cfg && `bg-gradient-to-br ${cfg.gradient} bg-clip-text text-transparent`,
+        )}>
           {value}
         </div>
       </div>
