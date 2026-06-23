@@ -415,7 +415,7 @@ function PosDashboard() {
               <Pie data={catData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={40} outerRadius={65} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
                 {catData.map((e) => <Cell key={e.name} fill={e.color} />)}
               </Pie>
-              <ChartTooltip content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v: number) => fmt(v)} />} />
+              <ChartTooltip content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v) => fmt(Number(v))} />} />
             </PieChart>
           </ChartContainer>
           <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1">
@@ -542,7 +542,7 @@ function AccountantDashboard() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
               <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} dy={4} />
               <YAxis tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} tickFormatter={(v: number) => `${v}M`} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v: number) => `UGX ${v}M`} />} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v) => `UGX ${Number(v)}M`} />} />
               <Area type="monotone" dataKey="rev" stroke="var(--color-success)" strokeWidth={2.5} fill="url(#revFill)" dot={{ r: 4, fill: "var(--color-card)", stroke: "var(--color-success)", strokeWidth: 2.5 }} activeDot={{ r: 6 }} />
               <Area type="monotone" dataKey="exp" stroke="var(--color-destructive)" strokeWidth={2.5} fill="url(#expFill)" dot={{ r: 4, fill: "var(--color-card)", stroke: "var(--color-destructive)", strokeWidth: 2.5 }} activeDot={{ r: 6 }} />
             </AreaChart>
@@ -554,7 +554,7 @@ function AccountantDashboard() {
               <Pie data={expenseData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={36} outerRadius={58} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
                 {expenseData.map((e) => <Cell key={e.name} fill={e.color} />)}
               </Pie>
-              <ChartTooltip content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v: number) => `${v}%`} />} />
+              <ChartTooltip content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" formatter={(v) => `${Number(v)}%`} />} />
             </PieChart>
           </ChartContainer>
           <div className="mt-2 space-y-1">
@@ -923,7 +923,7 @@ function OccupancyChart() {
             className="fill-muted-foreground"
             fontSize={10}
             fontWeight={600}
-            formatter={(v: number) => `${v}%`}
+            formatter={(v) => `${Number(v)}%`}
           />
         </Area>
       </AreaChart>
@@ -960,7 +960,7 @@ function RevenueBars({ labels = ["Rooms","F&B","Events","Other"], values = [62, 
             className="fill-muted-foreground"
             fontSize={10}
             fontWeight={600}
-            formatter={(v: number) => `${v}%`}
+            formatter={(v) => `${Number(v)}%`}
           />
         </Bar>
       </BarChart>
