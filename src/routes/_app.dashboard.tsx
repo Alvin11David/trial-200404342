@@ -126,7 +126,7 @@ function OwnerGMDashboard() {
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}>
+        <div className="animate-kpi-enter">
           <KpiCard
             label="Occupancy"
             value={(occ.pct * 100).toFixed(0) + "%"}
@@ -134,6 +134,7 @@ function OwnerGMDashboard() {
             icon={<BedDouble className="h-4 w-4" />}
             accent="primary"
             extra={<Ring percent={Math.round(occ.pct * 100)} />}
+            index={0}
           />
         </div>
         <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}>
@@ -143,6 +144,7 @@ function OwnerGMDashboard() {
             delta="Today"
             icon={<TrendingUp className="h-4 w-4" />}
             accent="success"
+            index={1}
           />
         </div>
         <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}>
@@ -152,6 +154,7 @@ function OwnerGMDashboard() {
             delta="Today"
             icon={<DollarSign className="h-4 w-4" />}
             accent="info"
+            index={2}
           />
         </div>
         <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}>
@@ -161,6 +164,7 @@ function OwnerGMDashboard() {
             delta="All sources"
             icon={<Wallet className="h-4 w-4" />}
             accent="warning"
+            index={3}
           />
         </div>
       </div>
@@ -788,21 +792,38 @@ function KpiCard({
   );
 }
 
-function Card({ title, subtitle, children, action, className }: {
+function Card({ title, subtitle, children, action, className, accent }: {
   title: string;
   subtitle?: string;
   children: ReactNode;
   action?: ReactNode;
   className?: string;
+  accent?: Accent;
 }) {
   return (
-    <div className={"dashboard-card rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " + (className ?? "")}>
+    <div className={"dashboard-card group/card relative overflow-hidden rounded-2xl border border-border/60 bg-card/70 p-5 shadow-sm backdrop-blur-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " + (className ?? "")}>
+      {accent && (
+        <div
+          className="absolute left-0 top-0 h-full w-[2px] transition-all duration-300 group-hover/card:w-[3px]"
+          style={{
+            background: `linear-gradient(180deg, ${accentColor[accent]}, color-mix(in oklab, ${accentColor[accent]} 50%, transparent))`,
+            boxShadow: `0 0 8px ${accentColor[accent]}`,
+          }}
+        />
+      )}
       <div className="mb-4 flex items-end justify-between gap-2">
-        <div>
-          <h3 className="text-sm font-semibold">{title}</h3>
-          {subtitle && <p className="text-[11px] text-muted-foreground">{subtitle}</p>}
+        <div className="flex items-center gap-2.5">
+          {accent && (
+            <span className="h-4 w-0.5 rounded-full flex-shrink-0"
+              style={{ background: accentColor[accent] }}
+            />
+          )}
+          <div>
+            <h3 className="text-sm font-semibold">{title}</h3>
+            {subtitle && <p className="text-[11px] text-muted-foreground/70 mt-0.5">{subtitle}</p>}
+          </div>
         </div>
-        {action}
+        {action && <div className="flex-shrink-0">{action}</div>}
       </div>
       {children}
     </div>
@@ -810,15 +831,20 @@ function Card({ title, subtitle, children, action, className }: {
 }
 
 function Ring({ percent }: { percent: number }) {
+  const color = percent > 80
+    ? "var(--color-success)"
+    : percent > 50
+      ? "var(--color-warning)"
+      : "var(--color-destructive)";
   return (
-    <div className="-mr-1 transition-all duration-300 hover:scale-110">
+    <div className="-mr-1 transition-all duration-500 hover:scale-110 hover:-rotate-3">
       <RadialBarChart
-        width={44}
-        height={44}
+        width={46}
+        height={46}
         data={[{ name: "Occupancy", value: percent }]}
         innerRadius="72%"
         outerRadius="100%"
-        barSize={7}
+        barSize={8}
         startAngle={90}
         endAngle={-270}
         cx="50%"
@@ -826,11 +852,11 @@ function Ring({ percent }: { percent: number }) {
       >
         <RadialBar
           dataKey="value"
-          fill="var(--color-primary)"
-          cornerRadius={4}
-          background={{ fill: "color-mix(in oklab, var(--color-primary) 10%, transparent)" }}
+          fill={color}
+          cornerRadius={6}
+          background={{ fill: "color-mix(in oklab, var(--color-primary) 8%, transparent)" }}
         />
-        <text x={22} y={27} textAnchor="middle" className="fill-foreground text-[10px] font-bold tabular-nums">
+        <text x={23} y={28} textAnchor="middle" className="fill-foreground text-[10px] font-bold tabular-nums">
           {percent}%
         </text>
       </RadialBarChart>
