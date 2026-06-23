@@ -225,7 +225,7 @@ function RoomStatusBoard() {
         <div className="relative">
           <button
             onClick={() => setFloorOpen(!floorOpen)}
-            className="flex items-center gap-1 rounded-xl border border-border/70 bg-card/40 px-3 py-1.5 text-xs outline-none focus:border-primary/60"
+            className="flex items-center gap-1 rounded-xl border border-border bg-card px-3 py-1.5 text-xs shadow-sm outline-none focus:border-primary/60"
           >
             {floorFilter === "all" ? "All floors" : `Floor ${floorFilter}`}
             <ChevronDown className="h-3 w-3 text-muted-foreground" />
