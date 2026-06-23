@@ -193,9 +193,13 @@ function POSMenuPage() {
           { label: "Min Price", value: Math.min(...items.map(i => i.price)).toLocaleString() },
           { label: "Max Price", value: Math.max(...items.map(i => i.price)).toLocaleString() },
         ].map((stat, i) => (
-          <div key={stat.label} className="rounded-xl border border-border/50 bg-card/60 px-4 py-3 backdrop-blur-sm" style={{ animationDelay: `${i * 80}ms` }}>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">{stat.label}</p>
-            <p className="mt-1 text-xl font-bold tabular-nums">{stat.value}</p>
+          <div
+            key={stat.label}
+            className="rounded-xl border border-border/40 bg-gradient-to-br from-primary to-[oklch(0.78_0.20_75)] px-4 py-3 shadow-lg shadow-primary/20"
+            style={{ animationDelay: `${i * 80}ms` }}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-primary-foreground/60">{stat.label}</p>
+            <p className="mt-1 text-xl font-bold tabular-nums text-primary-foreground">{stat.value}</p>
           </div>
         ))}
       </div>
