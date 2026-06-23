@@ -188,10 +188,10 @@ function POSMenuPage() {
       {/* Stats bar */}
       <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Total Items", value: String(items.length), from: "from-primary", to: "to-[oklch(0.68_0.22_255)]", shadow: "shadow-primary/25" },
-          { label: "Categories", value: String(categories.length), from: "from-amber-600", to: "to-[oklch(0.72_0.23_75)]", shadow: "shadow-amber-600/25" },
-          { label: "Min Price", value: Math.min(...items.map(i => i.price)).toLocaleString(), from: "from-emerald-600", to: "to-[oklch(0.68_0.22_160)]", shadow: "shadow-emerald-600/25" },
-          { label: "Max Price", value: Math.max(...items.map(i => i.price)).toLocaleString(), from: "from-red-600", to: "to-[oklch(0.68_0.22_30)]", shadow: "shadow-red-600/25" },
+          { label: "Total Items", value: String(items.length) },
+          { label: "Categories", value: String(categories.length) },
+          { label: "Min Price", value: Math.min(...items.map(i => i.price)).toLocaleString() },
+          { label: "Max Price", value: Math.max(...items.map(i => i.price)).toLocaleString() },
         ].map((stat, i) => (
           <div
             key={stat.label}
