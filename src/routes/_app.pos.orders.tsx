@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState, useMemo, type ComponentType } from "react";
+import { useState, useMemo } from "react";
 import {
   Search,
   Printer,
@@ -680,7 +680,7 @@ function POSOrdersPage() {
             </div>
           </div>
         </div>
-      )}
+      )})()}
     </div>
   );
 }
