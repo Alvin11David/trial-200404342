@@ -195,7 +195,7 @@ function POSMenuPage() {
         ].map((stat, i) => (
           <div
             key={stat.label}
-            className={"rounded-xl border border-border/40 bg-gradient-to-br " + stat.from + " " + stat.to + " px-4 py-3 shadow-lg " + stat.shadow}
+            className="rounded-xl border border-border/40 bg-gradient-to-br from-primary to-[oklch(0.68_0.22_255)] px-4 py-3 shadow-lg shadow-primary/25"
             style={{ animationDelay: `${i * 80}ms` }}
           >
             <p className="text-[10px] font-semibold uppercase tracking-widest text-primary-foreground/60">{stat.label}</p>
