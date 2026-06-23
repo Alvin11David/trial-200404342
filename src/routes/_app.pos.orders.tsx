@@ -26,6 +26,13 @@ import {
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/pms-store";
 import { printReceipt } from "@/lib/print-receipt";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_app/pos/orders")({
   head: () => ({ meta: [{ title: "POS Orders — Jambo ERP" }] }),
@@ -372,28 +379,30 @@ function POSOrdersPage() {
           </div>
 
           {/* Cashier filter */}
-          <select
-            value={cashierFilter}
-            onChange={(e) => setCashierFilter(e.target.value)}
-            className="rounded-xl border border-border/40 bg-background/30 px-3 py-2 text-xs font-medium text-muted-foreground outline-none transition-all focus:border-primary/60 focus:ring-2 focus:ring-primary/10"
-          >
-            <option value="All">All cashiers</option>
-            {cashiers.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          <Select value={cashierFilter} onValueChange={setCashierFilter}>
+            <SelectTrigger className="h-9 rounded-xl border border-border/40 bg-background/30 px-3 text-xs font-medium text-muted-foreground shadow-none outline-none ring-0 focus:border-primary/60 focus:ring-2 focus:ring-primary/10 [&>svg]:text-muted-foreground/50">
+              <SelectValue placeholder="All cashiers" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All cashiers</SelectItem>
+              {cashiers.map((c) => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {/* Table filter */}
-          <select
-            value={tableFilter}
-            onChange={(e) => setTableFilter(e.target.value)}
-            className="rounded-xl border border-border/40 bg-background/30 px-3 py-2 text-xs font-medium text-muted-foreground outline-none transition-all focus:border-primary/60 focus:ring-2 focus:ring-primary/10"
-          >
-            <option value="All">All tables</option>
-            {tables.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
+          <Select value={tableFilter} onValueChange={setTableFilter}>
+            <SelectTrigger className="h-9 rounded-xl border border-border/40 bg-background/30 px-3 text-xs font-medium text-muted-foreground shadow-none outline-none ring-0 focus:border-primary/60 focus:ring-2 focus:ring-primary/10 [&>svg]:text-muted-foreground/50">
+              <SelectValue placeholder="All tables" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All tables</SelectItem>
+              {tables.map((t) => (
+                <SelectItem key={t} value={t}>{t}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           {/* Date range */}
           <div className="flex items-center gap-1.5 rounded-xl border border-border/40 bg-background/30 px-3 py-2 text-xs text-muted-foreground">
