@@ -539,7 +539,7 @@ function AssigneeSelect({
     <select
       value={task.assignedTo ?? ""}
       onChange={(e) => assignHkTask(task.id, e.target.value || null)}
-      className="max-w-[130px] rounded-lg border border-border bg-background px-2 py-1 text-[11px] outline-none focus:border-primary/60"
+      className="max-w-[130px] rounded-xl border border-border bg-card px-2 py-1 text-[11px] shadow-sm outline-none focus:border-primary/60"
     >
       <option value="">Unassigned</option>
       {hkUsers.map((u) => (
