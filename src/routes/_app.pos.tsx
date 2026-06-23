@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/pms-store";
+import { printReceipt, type ReceiptData } from "@/lib/print-receipt";
 
 export const Route = createFileRoute("/_app/pos")({
   head: () => ({ meta: [{ title: "POS — Jambo ERP" }] }),
@@ -185,8 +186,44 @@ function POSPage() {
     setCart([]);
   }
 
+  const tenant = useStore((s) => s.tenant);
+  const cashierName =
+    useStore((s) => s.users.find((u) => u.role === "POS / Cashier" && u.active)?.name) ??
+    "Cashier";
+
+  let receiptCounter = 1000;
+  function nextReceiptId() {
+    receiptCounter++;
+    return `RCT-${receiptCounter}`;
+  }
+
+  function buildReceiptData(payment: PaymentMethod, receiptId: string): ReceiptData {
+    return {
+      id: receiptId,
+      items: cart.map((e) => ({ name: e.item.name, qty: e.qty, price: e.item.price })),
+      subtotal,
+      tax,
+      taxRate,
+      total,
+      paymentMethod: payment,
+      table,
+      cashier: cashierName,
+      businessName: tenant.name,
+      businessAddress: tenant.address,
+      businessPhone: tenant.phone,
+      businessEmail: tenant.email,
+      businessTin: tenant.tin,
+    };
+  }
+
   function handleCharge() {
     setShowReceipt(true);
+  }
+
+  function handlePrintReceipt(payment: PaymentMethod) {
+    if (cart.length === 0) return;
+    const rid = nextReceiptId();
+    printReceipt(buildReceiptData(payment, rid));
   }
 
   const itemCount = cart.reduce((s, e) => s + e.qty, 0);
