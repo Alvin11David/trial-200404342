@@ -411,7 +411,7 @@ function TaskQueue() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as HkTaskStatus | "all")}
-          className="appearance-none rounded-xl border border-border/70 bg-card/40 px-2 py-1.5 text-xs outline-none focus:border-primary/60"
+          className="appearance-none rounded-xl border border-border bg-card px-2 py-1.5 text-xs shadow-sm outline-none focus:border-primary/60"
         >
           <option value="all">All statuses</option>
           <option value="queued">Queued</option>
