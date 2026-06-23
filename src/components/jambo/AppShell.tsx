@@ -132,6 +132,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { role, setRole } = useRole();
+  const canCreateBooking =
+    role === "Front Desk" || role === "Reservations / Revenue" || role === "Owner / GM";
   const [online, setOnline] = useState(true);
   const [syncCount, setSyncCount] = useState(() => getPendingSyncCount());
 
@@ -399,12 +401,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <Link
-              to="/reservations/new"
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 hover:scale-105 active:scale-95"
-            >
-              <Plus className="h-3.5 w-3.5" /> New Booking
-            </Link>
+            {canCreateBooking && (
+              <Link
+                to="/reservations/new"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-sm transition-all duration-200 hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25 hover:scale-105 active:scale-95"
+              >
+                <Plus className="h-3.5 w-3.5" /> New Booking
+              </Link>
+            )}
 
             {/* Role switcher */}
             <RoleSwitcher role={role} setRole={setRole} />
