@@ -1563,113 +1563,119 @@ function InvoiceView({ folioId }: { folioId: string }) {
         <Link
           to="/billing"
           search={{ folio: folioId } as never}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" /> Back to folio
         </Link>
         <button
           onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:from-primary/90 hover:to-primary/70 hover:shadow-md"
         >
           <Printer className="h-3.5 w-3.5" /> Print invoice
         </button>
       </div>
-      <div className="rounded-xl border border-border bg-card p-10 shadow-sm print:border-0 print:shadow-none">
-        <div className="flex items-start justify-between border-b border-border pb-6">
-          <div>
-            <h1 className="font-display text-2xl font-bold tracking-tight">{tenant.name}</h1>
-            <p className="text-xs text-muted-foreground">{tenant.address}</p>
-            <p className="text-xs text-muted-foreground">
-              {tenant.phone} · {tenant.email}
-            </p>
-            <p className="text-xs text-muted-foreground">TIN: {tenant.tin}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">
-              Tax Invoice
-            </p>
-            <p className="font-display text-xl font-bold">{folio.id.replace("F-", "INV-")}</p>
-            <p className="text-xs text-muted-foreground">
-              Issued: {new Date().toISOString().slice(0, 10)}
-            </p>
-            <p className="mt-1">
-              <FolioStatusBadgeMini status={folio.status} />
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-6 py-6 sm:grid-cols-2">
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Bill to</p>
-            <p className="font-semibold">{res?.guestName}</p>
-            <p className="text-xs text-muted-foreground">{res?.guestEmail}</p>
-            <p className="text-xs text-muted-foreground">{res?.guestPhone}</p>
-          </div>
-          <div className="sm:text-right">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Stay</p>
-            <p className="text-sm font-semibold">
-              {res?.checkIn} → {res?.checkOut}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Room {res?.roomId ?? "—"} · Reservation {res?.id}
-            </p>
-            {res?.vatTreatment && (
-              <p className="mt-1 text-[10px] text-muted-foreground">
-                Prices are VAT {isInclusive ? "inclusive" : "exclusive"}
+      <div className="overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm print:border-0 print:shadow-none">
+        <div className="p-8 sm:p-10">
+          <div className="flex items-start justify-between border-b border-border/50 pb-6">
+            <div className="space-y-1">
+              <h1 className="font-display text-2xl font-bold tracking-tight">{tenant.name}</h1>
+              <p className="text-xs text-muted-foreground/70">{tenant.address}</p>
+              <p className="text-xs text-muted-foreground/70">
+                {tenant.phone} · {tenant.email}
               </p>
-            )}
+              <p className="text-xs text-muted-foreground/60">TIN: {tenant.tin}</p>
+            </div>
+            <div className="text-right">
+              <div className="inline-flex rounded-xl bg-gradient-to-br from-primary/[0.08] to-transparent px-4 py-2 ring-1 ring-primary/10">
+                <div>
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/50">
+                    Tax Invoice
+                  </p>
+                  <p className="font-display text-xl font-bold">{folio.id.replace("F-", "INV-")}</p>
+                  <p className="text-[10px] text-muted-foreground/60">
+                    Issued: {new Date().toISOString().slice(0, 10)}
+                  </p>
+                  <div className="mt-1">
+                    <FolioStatusBadgeMini status={folio.status} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <table className="w-full text-sm">
-          <thead className="border-y border-border text-[10px] uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th className="py-2 text-left font-semibold">Date</th>
-              <th className="py-2 text-left font-semibold">Description</th>
-              <th className="py-2 text-left font-semibold">Type</th>
-              <th className="py-2 text-right font-semibold">Amount</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {folioCharges.map((c) => (
-              <tr key={c.id}>
-                <td className="py-2 text-xs text-muted-foreground">{c.date}</td>
-                <td className="py-2">{c.description}</td>
-                <td className="py-2 text-xs text-muted-foreground">{CHARGE_TYPE_LABEL[c.type]}</td>
-                <td className="py-2 text-right font-medium tabular-nums">{fmtUGX(c.amount)}</td>
+          <div className="grid gap-6 py-6 sm:grid-cols-2">
+            <div>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/50">Bill to</p>
+              <p className="mt-1 text-sm font-semibold">{res?.guestName}</p>
+              <p className="text-xs text-muted-foreground/70">{res?.guestEmail}</p>
+              <p className="text-xs text-muted-foreground/70">{res?.guestPhone}</p>
+            </div>
+            <div className="sm:text-right">
+              <p className="text-[9px] font-semibold uppercase tracking-[0.15em] text-muted-foreground/50">Stay</p>
+              <p className="mt-1 text-sm font-semibold">
+                {res?.checkIn} → {res?.checkOut}
+              </p>
+              <p className="text-xs text-muted-foreground/70">
+                Room {res?.roomId ?? "—"} · Reservation {res?.id}
+              </p>
+              {res?.vatTreatment && (
+                <p className="mt-1 text-[10px] text-muted-foreground/50">
+                  Prices are VAT {isInclusive ? "inclusive" : "exclusive"}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-y border-border/40 text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
+                <th className="py-2.5 text-left">Date</th>
+                <th className="py-2.5 text-left">Description</th>
+                <th className="py-2.5 text-left">Type</th>
+                <th className="py-2.5 text-right">Amount</th>
               </tr>
-            ))}
-            {folioPayments.map((p) => (
-              <tr key={p.id} className="text-success">
-                <td className="py-2 text-xs">{p.date}</td>
-                <td className="py-2">{PAYMENT_METHOD_LABEL[p.method]} payment</td>
-                <td className="py-2 text-xs">Payment</td>
-                <td className="py-2 text-right font-medium tabular-nums">−{fmtUGX(p.amount)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-border/30">
+              {folioCharges.map((c) => (
+                <tr key={c.id} className="transition-colors hover:bg-muted/20">
+                  <td className="py-2.5 text-xs text-muted-foreground/70">{c.date}</td>
+                  <td className="py-2.5 text-sm">{c.description}</td>
+                  <td className="py-2.5 text-xs text-muted-foreground/70">{CHARGE_TYPE_LABEL[c.type]}</td>
+                  <td className="py-2.5 text-right font-semibold tabular-nums">{fmtUGX(c.amount)}</td>
+                </tr>
+              ))}
+              {folioPayments.map((p) => (
+                <tr key={p.id} className="text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-muted/20">
+                  <td className="py-2.5 text-xs text-muted-foreground/70">{p.date}</td>
+                  <td className="py-2.5 text-sm">{PAYMENT_METHOD_LABEL[p.method]} payment</td>
+                  <td className="py-2.5 text-xs text-muted-foreground/70">Payment</td>
+                  <td className="py-2.5 text-right font-semibold tabular-nums">−{fmtUGX(p.amount)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-        <div className="ml-auto mt-6 grid w-full max-w-xs gap-1.5 text-sm">
-          <Row label="Subtotal (net)" value={fmtUGX(net)} />
-          <Row label={`VAT (${(effectiveVatRate * 100).toFixed(0)}%)`} value={fmtUGX(vat)} />
-          <div className="border-t border-border pt-1.5">
-            <Row label="Total" value={fmtUGX(gross)} bold />
+          <div className="ml-auto mt-6 w-full max-w-xs space-y-2">
+            <Row label="Subtotal (net)" value={fmtUGX(net)} />
+            <Row label={`VAT (${(effectiveVatRate * 100).toFixed(0)}%)`} value={fmtUGX(vat)} />
+            <div className="border-t border-border/50 pt-2">
+              <Row label="Total" value={fmtUGX(gross)} bold />
+            </div>
+            {paid > 0 && <Row label="Paid" value={"−" + fmtUGX(paid)} tone="success" />}
+            <div className="border-t border-border/50 pt-2">
+              <Row
+                label="Balance due"
+                value={fmtUGX(Math.max(0, due))}
+                bold
+                tone={due > 0 ? "warning" : "success"}
+              />
+            </div>
           </div>
-          {paid > 0 && <Row label="Paid" value={"−" + fmtUGX(paid)} tone="success" />}
-          <div className="border-t border-border pt-1.5">
-            <Row
-              label="Balance due"
-              value={fmtUGX(Math.max(0, due))}
-              bold
-              tone={due > 0 ? "warning" : "success"}
-            />
-          </div>
+
+          <p className="mt-10 text-center text-[10px] text-muted-foreground/50">
+            Thank you for staying with {tenant.name}. This is a system-generated tax invoice.
+          </p>
         </div>
-
-        <p className="mt-10 text-center text-[10px] text-muted-foreground">
-          Thank you for staying with {tenant.name}. This is a system-generated tax invoice.
-        </p>
       </div>
       <style>{`@media print { body { background: white; } header, aside { display: none !important; } main { padding: 0 !important; } }`}</style>
     </div>
@@ -1845,3 +1851,12 @@ void Moon;
 void CheckCircle2;
 void AlertTriangle;
 void Receipt;
+void Smartphone;
+void Loader2;
+void Search;
+void User;
+void Home;
+void FileText;
+void Wallet;
+void ChevronRight;
+void Clock;
