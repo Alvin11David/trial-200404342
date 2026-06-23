@@ -830,16 +830,17 @@ function FolioDetail({ folioId }: { folioId: string }) {
 }
 
 function FolioStatusBadgeMini({ status }: { status: FolioStatus }) {
-  const colorMap: Record<FolioStatus, string> = {
-    open: "text-blue-500",
-    active: "text-blue-500",
-    pending_settlement: "text-amber-500",
-    settled: "text-success",
-    closed: "text-success",
-    void: "text-destructive",
+  const dotColor: Record<FolioStatus, string> = {
+    open: "bg-blue-500",
+    active: "bg-blue-500",
+    pending_settlement: "bg-amber-500",
+    settled: "bg-emerald-500",
+    closed: "bg-emerald-500",
+    void: "bg-destructive",
   };
   return (
-    <span className={cn("text-xs font-medium", colorMap[status])}>
+    <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-muted-foreground">
+      <span className={cn("h-1.5 w-1.5 rounded-full", dotColor[status])} />
       {FOLIO_STATUS_LABEL[status]}
     </span>
   );
@@ -1752,18 +1753,18 @@ function Modal({
   onClose: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl">
-        <div className="mb-4 flex items-start justify-between">
-          <h3 className="font-display text-lg font-bold">{title}</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="mx-auto w-full max-w-md animate-in zoom-in-95 fade-in rounded-2xl border border-border/50 bg-card p-6 shadow-2xl shadow-black/10 duration-200">
+        <div className="mb-5 flex items-center justify-between">
+          <h3 className="font-display text-lg font-bold tracking-tight">{title}</h3>
           <button
             onClick={onClose}
-            className="rounded-md p-1.5 text-muted-foreground hover:bg-muted"
+            className="rounded-xl p-1.5 text-muted-foreground/50 transition-colors hover:bg-muted hover:text-foreground"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
-        {children}
+        <div className="space-y-4">{children}</div>
       </div>
     </div>
   );
@@ -1771,8 +1772,8 @@ function Modal({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="block">
-      <span className="mb-1 block text-[11px] font-medium text-muted-foreground">{label}</span>
+    <label className="block space-y-1.5">
+      <span className="block text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">{label}</span>
       {children}
     </label>
   );
@@ -1790,17 +1791,17 @@ function DialogFooter({
   disabled?: boolean;
 }) {
   return (
-    <div className="mt-6 flex items-center justify-end gap-2">
+    <div className="mt-6 flex items-center justify-end gap-3">
       <button
         onClick={onCancel}
-        className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted"
+        className="rounded-xl border border-border/60 px-4 py-2.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
         Cancel
       </button>
       <button
         onClick={onSubmit}
         disabled={disabled}
-        className="rounded-md bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        className="rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm transition-all hover:from-primary/90 hover:to-primary/70 hover:shadow-md disabled:opacity-50 disabled:shadow-none"
       >
         {submitLabel}
       </button>
