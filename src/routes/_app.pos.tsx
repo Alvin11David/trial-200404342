@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import {
   Search,
   Plus,
@@ -191,10 +191,10 @@ function POSPage() {
     useStore((s) => s.users.find((u) => u.role === "POS / Cashier" && u.active)?.name) ??
     "Cashier";
 
-  let receiptCounter = 1000;
+  const receiptCounter = useRef(1000);
   function nextReceiptId() {
-    receiptCounter++;
-    return `RCT-${receiptCounter}`;
+    receiptCounter.current++;
+    return `RCT-${receiptCounter.current}`;
   }
 
   function buildReceiptData(payment: PaymentMethod, receiptId: string): ReceiptData {
