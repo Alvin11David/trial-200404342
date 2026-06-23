@@ -22,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useStore } from "@/lib/pms-store";
+import { printReceipt } from "@/lib/print-receipt";
 
 export const Route = createFileRoute("/_app/pos/orders")({
   head: () => ({ meta: [{ title: "POS Orders — Jambo ERP" }] }),
@@ -205,6 +207,27 @@ function POSOrdersPage() {
   const [dateTo, setDateTo] = useState("");
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+
+  const tenant = useStore((s) => s.tenant);
+
+  function handlePrintOrder(order: Order) {
+    printReceipt({
+      id: order.id,
+      items: order.items,
+      subtotal: order.subtotal,
+      tax: order.tax,
+      taxRate: 0.18,
+      total: order.total,
+      paymentMethod: order.paymentMethod,
+      table: order.table,
+      cashier: order.cashier,
+      businessName: tenant.name,
+      businessAddress: tenant.address,
+      businessPhone: tenant.phone,
+      businessEmail: tenant.email,
+      businessTin: tenant.tin,
+    });
+  }
 
   const filtered = useMemo(
     () =>
