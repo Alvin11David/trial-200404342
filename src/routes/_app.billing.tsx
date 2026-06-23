@@ -419,67 +419,83 @@ function FolioDetail({ folioId }: { folioId: string }) {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Folio</p>
-            <h2 className="font-display text-2xl font-bold">{folio.id}</h2>
-            <p className="text-sm text-muted-foreground">
-              {res ? (
-                <Link
-                  to="/reservations"
-                  search={{ q: res.id } as never}
-                  className="text-primary hover:underline"
-                >
-                  Reservation {res.id}
-                </Link>
-              ) : (
-                "Reservation —"
-              )}
-              {" · "}Guest {res?.guestName}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              Room {room?.id ?? "—"} ({rt?.name ?? "—"}) · {res?.checkIn} → {res?.checkOut}
-            </p>
-            <div className="mt-1 flex items-center gap-2">
-              <FolioStatusBadge status={folio.status} />
+      {/* Folio header card */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent" />
+        <div className="relative p-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/50">Folio</span>
+                <div className="h-3 w-px bg-border" />
+                <FolioStatusBadge status={folio.status} />
+              </div>
+              <h2 className="font-display text-2xl font-bold tracking-tight">{folio.id}</h2>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5">
+                  <User className="h-3.5 w-3.5" />
+                  {res?.guestName ?? "—"}
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Home className="h-3.5 w-3.5" />
+                  Room {room?.id ?? "—"} ({rt?.name ?? "—"})
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <FileText className="h-3.5 w-3.5" />
+                  {res ? (
+                    <Link to="/reservations" search={{ q: res.id } as never} className="text-primary hover:underline">
+                      {res.id}
+                    </Link>
+                  ) : "—"}
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-muted-foreground/60">
+                  <Clock className="h-3.5 w-3.5" />
+                  {res?.checkIn} → {res?.checkOut}
+                </span>
+              </div>
               {folio.closedAt && (
-                <span className="text-[10px] text-muted-foreground">
+                <span className="text-[10px] text-muted-foreground/50">
                   Closed {new Date(folio.closedAt).toLocaleDateString()}
                 </span>
               )}
+              {res?.vatTreatment && (
+                <span className="text-[10px] text-muted-foreground/50">
+                  VAT {res.vatTreatment} · Rate {(res.vatRate ?? 0) * 100}%
+                </span>
+              )}
             </div>
-            {res?.vatTreatment && (
-              <p className="mt-1 text-[10px] text-muted-foreground">
-                VAT {res.vatTreatment} · Rate {(res.vatRate ?? 0) * 100}%
-              </p>
-            )}
-          </div>
-          <div className="text-right">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground">
-              Outstanding balance
-            </p>
-            <p className={cn("text-3xl font-bold", balanceColor)}>{fmtUGX(balance)}</p>
-            {balance > 0 && (
-              <p className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-warning">
-                <AlertTriangle className="h-3 w-3" /> Amount due
-              </p>
-            )}
-            {balance <= 0 && (
-              <p className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-success">
-                <CheckCircle2 className="h-3 w-3" /> In credit / settled
-              </p>
-            )}
+            <div className="text-right">
+              <div className="inline-flex items-center rounded-xl bg-card/50 px-5 py-3 ring-1 ring-border/50">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                    Outstanding balance
+                  </p>
+                  <p className={cn("text-2xl font-bold tracking-tight", balanceColor)}>{fmtUGX(balance)}</p>
+                  {balance > 0 && (
+                    <p className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-warning">
+                      <AlertTriangle className="h-3 w-3" /> Amount due
+                    </p>
+                  )}
+                  {balance <= 0 && (
+                    <p className="mt-0.5 flex items-center justify-end gap-1 text-[10px] text-success">
+                      <CheckCircle2 className="h-3 w-3" /> In credit / settled
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border px-5 py-3">
+      {/* Charges & Payments */}
+      <div className="grid gap-4 xl:grid-cols-2">
+        {/* Charges */}
+        <div className="rounded-2xl border border-border/50 bg-card shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border/50 px-5 py-4">
             <div>
               <h3 className="text-sm font-semibold">Charges</h3>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground/60">
                 {folioCharges.filter((c) => !c.voided).length} line items
                 {voidedAmount > 0 && ` · ${folioCharges.filter((c) => c.voided).length} voided`}
               </p>
@@ -487,100 +503,117 @@ function FolioDetail({ folioId }: { folioId: string }) {
             {isOpen && canPost && (
               <button
                 onClick={() => setShowCharge(true)}
-                className="inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground hover:bg-primary/90"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-3 py-2 text-[11px] font-semibold text-primary-foreground shadow-sm transition-all hover:from-primary/90 hover:to-primary/70 hover:shadow-md"
               >
-                <Plus className="h-3 w-3" /> Add charge
+                <Plus className="h-3.5 w-3.5" /> Add charge
               </button>
             )}
           </div>
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-border/40">
             {folioCharges.length === 0 && (
-              <li className="px-5 py-10 text-center text-xs text-muted-foreground">
-                No charges yet.
+              <li className="px-5 py-14 text-center text-xs text-muted-foreground/50">
+                <Wallet className="mx-auto mb-2 h-8 w-8 text-muted-foreground/20" />
+                No charges yet
               </li>
             )}
             {folioCharges.map((c) => (
               <li
                 key={c.id}
                 className={cn(
-                  "flex items-start justify-between px-5 py-3",
+                  "flex items-start justify-between px-5 py-3.5 transition-colors hover:bg-muted/20",
                   c.voided && "opacity-40",
                 )}
               >
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className={cn("text-sm font-medium", c.voided && "line-through")}>
                       {c.description}
                     </span>
                     {c.voided && (
-                      <span className="inline-flex items-center gap-0.5 rounded-md border border-destructive/30 bg-destructive/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-destructive">
+                      <span className="inline-flex items-center gap-0.5 rounded-full border border-destructive/30 bg-destructive/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-destructive">
                         Voided
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {c.date} · {CHARGE_TYPE_LABEL[c.type]}
-                    {c.postedBy && ` · by ${c.postedBy}`}
-                    {c.voided && c.voidReason && ` · voided: ${c.voidReason}`}
+                  <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground/60">
+                    <span>{c.date}</span>
+                    <span className="inline-flex items-center gap-1">
+                      <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                      {CHARGE_TYPE_LABEL[c.type]}
+                    </span>
+                    {c.postedBy && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                        {c.postedBy}
+                      </span>
+                    )}
+                    {c.voided && c.voidReason && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                        voided: {c.voidReason}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <span
-                    className={cn("text-sm font-semibold tabular-nums", c.voided && "line-through")}
+                    className={cn("text-sm font-semibold tabular-nums", c.voided && "line-through text-muted-foreground")}
                   >
                     {fmtUGX(c.amount)}
                   </span>
                   {!c.voided && isOpen && canVoid && (
                     <button
                       onClick={() => setShowVoid(c.id)}
-                      className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                      className="rounded-lg p-1.5 text-muted-foreground/40 transition-colors hover:bg-destructive/10 hover:text-destructive"
                       title="Void charge"
                     >
-                      <Ban className="h-3 w-3" />
+                      <Ban className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
               </li>
             ))}
           </ul>
-          <div className="flex justify-between border-t border-border px-5 py-3 text-sm">
-            <span className="font-medium text-muted-foreground">Total charges</span>
-            <span className="font-semibold">{fmtUGX(totalCharges)}</span>
+          <div className="flex items-center justify-between border-t border-border/50 bg-muted/20 px-5 py-3.5">
+            <span className="text-xs font-medium text-muted-foreground">Total charges</span>
+            <span className="text-sm font-bold">{fmtUGX(totalCharges)}</span>
           </div>
           {voidedAmount > 0 && (
-            <div className="flex justify-between border-t border-border px-5 py-2 text-[11px]">
-              <span className="text-muted-foreground">Voided</span>
+            <div className="flex items-center justify-between border-t border-border/40 px-5 py-2 text-[11px]">
+              <span className="text-muted-foreground/60">Voided</span>
               <span className="text-destructive">−{fmtUGX(voidedAmount)}</span>
             </div>
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border px-5 py-3">
+        {/* Payments */}
+        <div className="rounded-2xl border border-border/50 bg-card shadow-sm overflow-hidden">
+          <div className="flex items-center justify-between border-b border-border/50 px-5 py-4">
             <div>
               <h3 className="text-sm font-semibold">Payments</h3>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground/60">
                 {folioPayments.length} transactions
               </p>
             </div>
             {isOpen && (
               <button
                 onClick={() => setShowPay(true)}
-                className="inline-flex items-center gap-1.5 rounded-md bg-success px-2.5 py-1.5 text-[11px] font-semibold text-success-foreground hover:opacity-90"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-3 py-2 text-[11px] font-semibold text-white shadow-sm transition-all hover:from-emerald-500/90 hover:to-emerald-600/90 hover:shadow-md"
               >
-                <CreditCard className="h-3 w-3" /> Record payment
+                <CreditCard className="h-3.5 w-3.5" /> Record payment
               </button>
             )}
           </div>
-          <ul className="divide-y divide-border">
+          <ul className="divide-y divide-border/40">
             {folioPayments.length === 0 && (
-              <li className="px-5 py-10 text-center text-xs text-muted-foreground">
-                No payments yet.
+              <li className="px-5 py-14 text-center text-xs text-muted-foreground/50">
+                <CreditCard className="mx-auto mb-2 h-8 w-8 text-muted-foreground/20" />
+                No payments yet
               </li>
             )}
             {folioPayments.map((p) => (
-              <li key={p.id} className="flex items-start justify-between px-5 py-3">
-                <div className="flex-1">
+              <li key={p.id} className="flex items-start justify-between px-5 py-3.5 transition-colors hover:bg-muted/20">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">
                       {p.refundOf
@@ -588,79 +621,109 @@ function FolioDetail({ folioId }: { folioId: string }) {
                         : PAYMENT_METHOD_LABEL[p.method]}
                     </span>
                     {p.status === "pending" && (
-                      <span className="rounded bg-warning/15 px-1.5 py-0.5 text-[10px] font-semibold text-warning">
+                      <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
                         Pending
                       </span>
                     )}
                     {p.status === "failed" && (
-                      <span className="rounded bg-destructive/15 px-1.5 py-0.5 text-[10px] font-semibold text-destructive">
+                      <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-600 dark:text-red-400 ring-1 ring-red-500/20">
                         Failed
                       </span>
                     )}
                   </div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {p.date} {p.phone ? `· ${p.phone}` : ""} {p.reference ? `· ${p.reference}` : ""}
-                    {p.providerRef ? `· ${p.providerRef}` : ""}
-                    {p.failureReason ? `· ${p.failureReason}` : ""}
-                    {p.refundReason ? `· Refund: ${p.refundReason}` : ""}
-                    {p.refundedBy ? `· by ${p.refundedBy}` : ""}
+                  <div className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground/60">
+                    <span>{p.date}</span>
+                    {p.phone && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                        {p.phone}
+                      </span>
+                    )}
+                    {p.reference && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                        {p.reference}
+                      </span>
+                    )}
+                    {p.providerRef && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                        {p.providerRef}
+                      </span>
+                    )}
+                    {p.failureReason && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                        {p.failureReason}
+                      </span>
+                    )}
+                    {p.refundReason && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                        Refund: {p.refundReason}
+                      </span>
+                    )}
+                    {p.refundedBy && (
+                      <span className="inline-flex items-center gap-1">
+                        <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+                        by {p.refundedBy}
+                      </span>
+                    )}
                   </div>
-                  {p.status === "pending" && (
-                    <div className="mt-1.5 flex gap-1.5">
-                      <button
-                        disabled={confirmingId === p.id}
-                        onClick={async () => {
-                          setConfirmingId(p.id);
-                          const res = await simulateGatewayConfirm(p.id, actor, actorRole);
-                          setConfirmingId(null);
-                          if (res.ok) toast.success(res.message);
-                          else toast.error(res.message);
-                        }}
-                        className="inline-flex items-center gap-1 rounded bg-success/15 px-2 py-0.5 text-[10px] font-semibold text-success hover:bg-success/25 disabled:opacity-50"
-                      >
-                        {confirmingId === p.id ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : null}
-                        {confirmingId === p.id ? "Confirming…" : "Confirm"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          const r = prompt("Failure reason:");
-                          if (r) failPayment(p.id, r, actor, actorRole);
-                        }}
-                        className="rounded bg-destructive/15 px-2 py-0.5 text-[10px] font-semibold text-destructive hover:bg-destructive/25"
-                      >
-                        Fail
-                      </button>
-                    </div>
-                  )}
-                  {p.status === "confirmed" && !p.refundOf && canRefund && (
-                    <div className="mt-1.5">
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {p.status === "pending" && (
+                      <>
+                        <button
+                          disabled={confirmingId === p.id}
+                          onClick={async () => {
+                            setConfirmingId(p.id);
+                            const res = await simulateGatewayConfirm(p.id, actor, actorRole);
+                            setConfirmingId(null);
+                            if (res.ok) toast.success(res.message);
+                            else toast.error(res.message);
+                          }}
+                          className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
+                        >
+                          {confirmingId === p.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : null}
+                          {confirmingId === p.id ? "Confirming…" : "Confirm"}
+                        </button>
+                        <button
+                          onClick={() => {
+                            const r = prompt("Failure reason:");
+                            if (r) failPayment(p.id, r, actor, actorRole);
+                          }}
+                          className="rounded-lg bg-red-500/10 px-2.5 py-1 text-[10px] font-semibold text-red-600 dark:text-red-400 ring-1 ring-red-500/20 transition-colors hover:bg-red-500/20"
+                        >
+                          Fail
+                        </button>
+                      </>
+                    )}
+                    {p.status === "confirmed" && !p.refundOf && canRefund && (
                       <button
                         onClick={() => setShowRefund(p.id)}
-                        className="rounded bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive hover:bg-destructive/20"
+                        className="rounded-lg bg-red-500/10 px-2.5 py-1 text-[10px] font-semibold text-red-600 dark:text-red-400 ring-1 ring-red-500/20 transition-colors hover:bg-red-500/20"
                       >
                         Refund
                       </button>
-                    </div>
-                  )}
-                  {p.status === "confirmed" && (
-                    <div className="mt-1.5">
+                    )}
+                    {p.status === "confirmed" && (
                       <button
                         onClick={() => setShowReceipt(p.id)}
-                        className="rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary hover:bg-primary/20"
+                        className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-[10px] font-semibold text-primary ring-1 ring-primary/20 transition-colors hover:bg-primary/20"
                       >
-                        <Receipt className="mr-0.5 inline h-3 w-3" />
+                        <Receipt className="h-3 w-3" />
                         Receipt
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
                 <span
-                  className={
-                    "text-sm font-semibold tabular-nums " +
-                    (p.refundOf ? "text-destructive" : "text-success")
-                  }
+                  className={cn(
+                    "text-sm font-bold tabular-nums shrink-0 ml-2",
+                    p.refundOf ? "text-destructive" : "text-success",
+                  )}
                 >
                   {p.refundOf ? "" : "−"}
                   {fmtUGX(p.amount)}
@@ -668,18 +731,19 @@ function FolioDetail({ folioId }: { folioId: string }) {
               </li>
             ))}
           </ul>
-          <div className="flex justify-between border-t border-border px-5 py-3 text-sm">
-            <span className="font-medium text-muted-foreground">Total payments</span>
-            <span className="font-semibold text-success">{fmtUGX(totalPayments)}</span>
+          <div className="flex items-center justify-between border-t border-border/50 bg-muted/20 px-5 py-3.5">
+            <span className="text-xs font-medium text-muted-foreground">Total payments</span>
+            <span className="text-sm font-bold text-success">{fmtUGX(totalPayments)}</span>
           </div>
         </div>
       </div>
 
+      {/* Balance warning / settle */}
       {canSettle && isOpen && balance <= 0 && (
         <div className="flex justify-end">
           <button
             onClick={() => setShowSettle(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-success px-4 py-2 text-sm font-semibold text-success-foreground hover:opacity-90"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:from-emerald-500/90 hover:to-green-600/90 hover:shadow-md"
           >
             <CheckCircle2 className="h-4 w-4" /> Settle & close folio
           </button>
@@ -687,12 +751,12 @@ function FolioDetail({ folioId }: { folioId: string }) {
       )}
 
       {canSettle && isOpen && balance > 0 && (
-        <div className="rounded-xl border border-amber-200/30 bg-amber-500/5 p-4 text-center">
-          <p className="text-sm text-amber-600">
-            Outstanding balance of <strong>{fmtUGX(balance)}</strong> must be cleared before
-            checkout.
+        <div className="rounded-2xl border border-amber-200/30 bg-gradient-to-br from-amber-500/[0.04] to-transparent p-6 text-center shadow-sm">
+          <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-amber-500" />
+          <p className="text-sm font-medium text-amber-600 dark:text-amber-400">
+            Outstanding balance of <strong>{fmtUGX(balance)}</strong> must be cleared before checkout.
           </p>
-          <p className="mt-0.5 text-[11px] text-amber-500/70">
+          <p className="mt-0.5 text-[11px] text-amber-500/60">
             Record a payment above to reduce the balance.
           </p>
         </div>
