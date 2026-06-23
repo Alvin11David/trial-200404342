@@ -923,7 +923,7 @@ function OccupancyChart() {
             className="fill-muted-foreground"
             fontSize={10}
             fontWeight={600}
-            formatter={(v) => `${Number(v)}%`}
+            formatter={(v: number) => `${v}%`}
           />
         </Area>
       </AreaChart>
@@ -960,7 +960,7 @@ function RevenueBars({ labels = ["Rooms","F&B","Events","Other"], values = [62, 
             className="fill-muted-foreground"
             fontSize={10}
             fontWeight={600}
-            formatter={(v) => `${Number(v)}%`}
+            formatter={(v: number) => `${v}%`}
           />
         </Bar>
       </BarChart>
