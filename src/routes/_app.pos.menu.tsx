@@ -104,6 +104,7 @@ function POSMenuPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [failedImages, setFailedImages] = useState<Record<string, true>>({});
 
   const filtered = useMemo(
     () => items.filter(
@@ -299,16 +300,25 @@ function POSMenuPage() {
 
               {/* Art zone */}
               <div className="px-4 pt-4">
-                <div className={cn("relative h-44 overflow-hidden rounded-2xl flex items-center justify-center", cfg.blobFrom, cfg.blobTo)}>
-                  {/* Glow layer */}
-                  <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50 blur-2xl transition-opacity duration-500 group-hover:opacity-100", cfg.blobFrom, cfg.blobTo)} />
-                  {/* Subtle ring */}
-                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/[0.06]" />
-                  {/* Icon circle */}
-                  <div className={cn("relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-xl", cfg.iconFrom, cfg.iconTo)}>
-                    <Icon className="h-7 w-7 text-white" />
+                {item.image && !failedImages[item.id] ? (
+                  <div className="relative h-44 overflow-hidden rounded-2xl">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="h-full w-full object-cover transition-all duration-500 group-hover:scale-110"
+                      onError={() => setFailedImages((prev) => ({ ...prev, [item.id]: true }))}
+                    />
+                    <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/[0.06]" />
                   </div>
-                </div>
+                ) : (
+                  <div className={cn("relative h-44 overflow-hidden rounded-2xl flex items-center justify-center", cfg.blobFrom, cfg.blobTo)}>
+                    <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50 blur-2xl transition-opacity duration-500 group-hover:opacity-100", cfg.blobFrom, cfg.blobTo)} />
+                    <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/[0.06]" />
+                    <div className={cn("relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-xl", cfg.iconFrom, cfg.iconTo)}>
+                      <Icon className="h-7 w-7 text-white" />
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Info zone */}
