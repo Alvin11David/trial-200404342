@@ -171,34 +171,34 @@ function OwnerGMDashboard() {
 
       {/* Charts */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="7-day occupancy trend" subtitle="Rolling daily occupancy %" className="lg:col-span-2">
+        <Card title="Occupancy trend" subtitle="7-day rolling" className="lg:col-span-2" accent="primary">
           <OccupancyChart />
         </Card>
-        <Card title="Revenue by source" subtitle="Today">
+        <Card title="Revenue by source" subtitle="Today" accent="success">
           <RevenueBars />
         </Card>
       </div>
 
       {/* Tables */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Today's arrivals" subtitle={`${arrivals.length} expected check-ins`} action={<Link to="/reservations" className="text-xs font-medium text-primary hover:underline">View all →</Link>}>
+        <Card title="Today's arrivals" subtitle={`${arrivals.length} expected check-ins`} action={<Link to="/reservations" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">View all &rarr;</Link>} accent="primary">
           <GuestTable
             rows={arrivals.slice(0, 5).map((r) => ({
               name: r.guestName,
-              room: r.roomId ?? "—",
-              time: "—",
+              room: r.roomId ?? "\u2014",
+              time: "\u2014",
               nights: Math.max(1, Math.round((new Date(r.checkOut).getTime() - new Date(r.checkIn).getTime()) / 86_400_000)),
               status: r.status === "checked_in" ? "Checked In" : "Confirmed",
             }))}
             kind="arrival"
           />
         </Card>
-        <Card title="Today's departures" subtitle={`${departures.length} scheduled check-outs`} action={<Link to="/reservations" className="text-xs font-medium text-primary hover:underline">View all →</Link>}>
+        <Card title="Today's departures" subtitle={`${departures.length} scheduled check-outs`} action={<Link to="/reservations" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">View all &rarr;</Link>} accent="warning">
           <GuestTable
             rows={departures.slice(0, 5).map((r) => ({
               name: r.guestName,
-              room: r.roomId ?? "—",
-              time: "—",
+              room: r.roomId ?? "\u2014",
+              time: "\u2014",
               nights: Math.max(1, Math.round((new Date(r.checkOut).getTime() - new Date(r.checkIn).getTime()) / 86_400_000)),
               status: r.status === "checked_out" ? "Cleared" : "Folio open",
             }))}
@@ -208,25 +208,29 @@ function OwnerGMDashboard() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="Housekeeping needs attention" subtitle={`${dirtyRooms.length} rooms in queue`} className="lg:col-span-2">
+        <Card title="Housekeeping" subtitle={`${dirtyRooms.length} rooms in queue`} className="lg:col-span-2" accent="warning">
           <div className="grid gap-2 sm:grid-cols-2">
             {dirtyRooms.slice(0, 6).map((r) => (
-              <div key={r.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-card/60 px-3 py-2.5 backdrop-blur-sm cursor-pointer transition-all duration-200 hover:border-primary/40 hover:shadow-sm">
-                <div>
-                  <div className="text-sm font-semibold">Room {r.id}</div>
-                  <div className="text-[11px] text-muted-foreground">Floor {r.floor} · awaiting turnover</div>
+              <div key={r.id} className="group/room flex items-center justify-between rounded-xl border border-border/50 bg-card/50 px-3.5 py-3 backdrop-blur-sm cursor-pointer transition-all duration-200 hover:border-primary/30 hover:bg-card/70 hover:shadow-md hover:-translate-y-0.5">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-xs font-bold text-primary ring-1 ring-primary/20">{r.id}</span>
+                  <div>
+                    <div className="text-sm font-semibold">Room {r.id}</div>
+                    <div className="text-[11px] text-muted-foreground/70">Floor {r.floor} &middot; awaiting turnover</div>
+                  </div>
                 </div>
                 <PriorityBadge p="High" />
               </div>
             ))}
             {dirtyRooms.length === 0 && (
-              <p className="col-span-2 rounded-xl border border-success/20 bg-success/10 px-3 py-3 text-xs text-success backdrop-blur-sm">
-                All rooms clean.
-              </p>
+              <div className="col-span-2 flex items-center gap-2 rounded-xl border border-success/20 bg-success/5 px-4 py-3 text-xs text-success backdrop-blur-sm">
+                <BedDouble className="h-3.5 w-3.5" />
+                All rooms are clean and ready.
+              </div>
             )}
           </div>
         </Card>
-        <Card title="Quick reports" subtitle="Generate now">
+        <Card title="Quick reports" subtitle="Generate instantly" accent="info">
           <div className="grid grid-cols-2 gap-2">
             {[
               { t: "Occupancy", icon: BedDouble },
@@ -239,11 +243,11 @@ function OwnerGMDashboard() {
                 <Link
                   key={r.t}
                   to="/reports"
-                  className="group rounded-xl border border-border/60 bg-card/60 p-3 backdrop-blur-sm transition-all duration-200 hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm cursor-pointer"
+                  className="group/report rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm transition-all duration-200 hover:border-primary/30 hover:bg-primary/5 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
                 >
-                  <Icon className="h-4 w-4 text-primary" />
+                  <Icon className="h-4 w-4 text-primary transition-transform duration-200 group-hover/report:scale-110" />
                   <div className="mt-2 text-xs font-semibold">{r.t}</div>
-                  <div className="mt-0.5 text-[10px] text-muted-foreground">View →</div>
+                  <div className="mt-0.5 text-[10px] text-muted-foreground/60 group-hover/report:text-primary transition-colors">View &rarr;</div>
                 </Link>
               );
             })}
@@ -632,38 +636,38 @@ function SysadminDashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="animate-kpi-enter" style={{ animationDelay: "0ms" }}><KpiCard label="Active users" value="24" icon={<Users className="h-4 w-4" />} accent="primary" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="Roles" value="7" icon={<ShieldCheck className="h-4 w-4" />} accent="info" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Audit events (24h)" value="318" icon={<FileSearch className="h-4 w-4" />} accent="warning" /></div>
-        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Failed logins" value="2" icon={<ShieldCheck className="h-4 w-4" />} accent="success" /></div>
+        <div className="animate-kpi-enter"><KpiCard label="Active users" value="24" icon={<Users className="h-4 w-4" />} accent="primary" index={0} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "80ms" }}><KpiCard label="System roles" value="7" icon={<ShieldCheck className="h-4 w-4" />} accent="info" index={1} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "160ms" }}><KpiCard label="Audit events (24h)" value="318" icon={<FileSearch className="h-4 w-4" />} accent="warning" index={2} /></div>
+        <div className="animate-kpi-enter" style={{ animationDelay: "240ms" }}><KpiCard label="Failed logins" value="2" icon={<ShieldCheck className="h-4 w-4" />} accent="success" index={3} /></div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="Audit Events" subtitle="This week" className="lg:col-span-2">
+        <Card title="Audit Events" subtitle="This week" className="lg:col-span-2" accent="primary">
           <ChartContainer config={{ events: { label: "Events", color: "var(--color-chart-1)" }, logins: { label: "Logins", color: "var(--color-warning)" } }} className="h-44 w-full">
-            <AreaChart data={auditTrend} margin={{ top: 12, right: 12, left: -20, bottom: 0 }}>
+            <AreaChart data={auditTrend} margin={{ top: 12, right: 12, left: -20, bottom: 4 }}>
               <defs>
                 <linearGradient id="evtFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--color-chart-1)" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/40" />
-              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl" />} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-border/30" />
+              <XAxis dataKey="d" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} dy={4} />
+              <YAxis tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" />} />
               <Area type="monotone" dataKey="events" stroke="var(--color-chart-1)" strokeWidth={2.5} fill="url(#evtFill)" dot={{ r: 4, fill: "var(--color-card)", stroke: "var(--color-chart-1)", strokeWidth: 2.5 }} activeDot={{ r: 6 }} />
               <Area type="monotone" dataKey="logins" stroke="var(--color-warning)" strokeWidth={2} fill="none" dot={{ r: 3, fill: "var(--color-warning)" }} activeDot={{ r: 5 }} />
             </AreaChart>
           </ChartContainer>
         </Card>
-        <Card title="Users by Role" subtitle={`${roleTotal} roles · ${24} users`}>
+        <Card title="Users by Role" subtitle={`${roleTotal} roles \u00b7 24 users`} accent="success">
           <ChartContainer config={{ value: { label: "Users" } }} className="h-28 w-full">
             <PieChart margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
               <Pie data={roleDist} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={28} outerRadius={46} strokeWidth={0} cornerRadius={4} paddingAngle={2}>
                 {roleDist.map((e) => <Cell key={e.name} fill={e.color} />)}
               </Pie>
-              <ChartTooltip content={<ChartTooltipContent className="rounded-xl" />} />
+              <ChartTooltip content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" />} />
             </PieChart>
           </ChartContainer>
           <div className="mt-2 space-y-1">
@@ -681,42 +685,42 @@ function SysadminDashboard() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Module Activity" subtitle="Events today">
+        <Card title="Module Activity" subtitle="Events today" accent="warning">
           <ChartContainer config={{ value: { label: "Events", color: "var(--color-chart-1)" } }} className="h-44 w-full">
             <BarChart data={activityData} layout="vertical" margin={{ top: 0, right: 36, left: 0, bottom: 0 }} barSize={20}>
-              <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/40" />
+              <CartesianGrid strokeDasharray="3 3" horizontal={false} className="stroke-border/30" />
               <XAxis type="number" hide domain={[0, "dataMax + 20"]} />
-              <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} className="text-muted-foreground" tick={{ fontSize: 10 }} width={100} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent className="rounded-xl" />} />
+              <YAxis type="category" dataKey="name" tickLine={false} axisLine={false} className="text-muted-foreground/60" tick={{ fontSize: 10 }} width={100} />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent className="rounded-xl border-border/50 shadow-lg backdrop-blur-xl" />} />
               <Bar dataKey="value" radius={[0, 6, 6, 0]}>
                 {activityData.map((e) => <Cell key={e.name} fill={e.color} />)}
-                <LabelList dataKey="value" position="right" className="fill-foreground" fontSize={10} fontWeight={600} />
+                <LabelList dataKey="value" position="right" className="fill-muted-foreground" fontSize={10} fontWeight={600} />
               </Bar>
             </BarChart>
           </ChartContainer>
         </Card>
-        <Card title="Identity & Access" action={<Link to="/identity" className="text-xs text-primary">Manage →</Link>}>
-          <p className="text-sm text-muted-foreground">Manage users, roles and permissions for property staff.</p>
+        <Card title="Identity & Access" action={<Link to="/identity" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">Manage &rarr;</Link>} accent="info">
+          <p className="text-sm text-muted-foreground/80">Manage users, roles and permissions for property staff.</p>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Users</p>
+            <div className="rounded-xl border border-border/40 bg-card/40 p-3 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/60">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Users</p>
               <p className="mt-1 font-display text-xl font-bold">24</p>
-              <p className="text-[10px] text-success">+2 this month</p>
+              <p className="text-[10px] text-success font-medium">+2 this month</p>
             </div>
-            <div className="rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Roles</p>
+            <div className="rounded-xl border border-border/40 bg-card/40 p-3 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/60">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Roles</p>
               <p className="mt-1 font-display text-xl font-bold">7</p>
-              <p className="text-[10px] text-muted-foreground">4 active today</p>
+              <p className="text-[10px] text-muted-foreground/70">4 active today</p>
             </div>
-            <div className="rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Sessions</p>
+            <div className="rounded-xl border border-border/40 bg-card/40 p-3 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/60">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Sessions</p>
               <p className="mt-1 font-display text-xl font-bold">14</p>
-              <p className="text-[10px] text-success">+3 vs. yesterday</p>
+              <p className="text-[10px] text-success font-medium">+3 vs. yesterday</p>
             </div>
-            <div className="rounded-xl border border-border/50 bg-card/50 p-3 backdrop-blur-sm">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Failed logins</p>
+            <div className="rounded-xl border border-border/40 bg-card/40 p-3 backdrop-blur-sm transition-all hover:border-primary/30 hover:bg-card/60">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">Failed logins</p>
               <p className="mt-1 font-display text-xl font-bold">2</p>
-              <p className="text-[10px] text-destructive">-1 from last week</p>
+              <p className="text-[10px] text-destructive font-medium">-1 from last week</p>
             </div>
           </div>
         </Card>
