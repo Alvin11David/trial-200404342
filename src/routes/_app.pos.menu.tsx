@@ -403,103 +403,232 @@ function POSMenuPage() {
         </button>
       </div>
 
-      {/* Modal */}
+      {/* Modal — Premium redesign */}
       {showModal && (
         <>
-          <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setShowModal(false)} />
+          <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setShowModal(false)} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
-              className="w-full max-w-md rounded-2xl border border-border/50 bg-card shadow-2xl"
+              className="w-full max-w-2xl animate-in fade-in zoom-in-95 duration-200"
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
               aria-label={editingId ? "Edit menu item" : "Add menu item"}
             >
-              <div className="relative overflow-hidden rounded-t-2xl border-b border-border/40 px-6 pb-4 pt-5">
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary via-amber-500 to-primary" />
-                <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-gradient-to-br from-primary/[0.05] to-transparent blur-2xl" />
-                <div className="relative flex items-center justify-between">
-                  <div>
-                    <h3 className="font-display text-lg font-bold">{editingId ? "Edit Item" : "Add Menu Item"}</h3>
-                    <p className="mt-0.5 text-xs text-muted-foreground/60">{editingId ? "Update item details below." : "Fill in the details for the new item."}</p>
-                  </div>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground/60 transition-colors hover:bg-muted/30 hover:text-foreground"
-                    aria-label="Close modal"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
+              <div className="overflow-hidden rounded-3xl border border-border/50 bg-card shadow-2xl">
+                {/* Gradient header bar */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-primary via-amber-500 to-primary" />
 
-              <div className="space-y-4 p-6">
-                <div>
-                  <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">Item Name</label>
-                  <input
-                    value={form.name}
-                    onChange={(e) => set("name", e.target.value)}
-                    placeholder="e.g. Grilled Chicken"
-                    className="w-full rounded-xl border border-border/60 bg-card/40 px-4 py-2.5 text-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/40 focus:border-primary/40 focus:bg-card focus:ring-2 focus:ring-primary/15"
-                    autoFocus
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">Category</label>
-                  <Select value={form.category} onValueChange={(v) => set("category", v)}>
-                    <SelectTrigger className="w-full rounded-xl border border-border/60 bg-card/40 px-4 py-2.5 text-sm outline-none transition-all duration-200 focus:border-primary/40 focus:ring-2 focus:ring-primary/15 shadow-none">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">Price</label>
-                    <input
-                      type="number"
-                      value={form.price}
-                      onChange={(e) => set("price", e.target.value)}
-                      placeholder="0"
-                      min="0"
-                      className="w-full rounded-xl border border-border/60 bg-card/40 px-4 py-2.5 text-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/40 focus:border-primary/40 focus:bg-card focus:ring-2 focus:ring-primary/15"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/70">Currency</label>
-                    <Select value={form.currency} onValueChange={(v) => set("currency", v)}>
-                      <SelectTrigger className="w-full rounded-xl border border-border/60 bg-card/40 px-4 py-2.5 text-sm outline-none transition-all duration-200 focus:border-primary/40 focus:ring-2 focus:ring-primary/15 shadow-none">
-                        <SelectValue placeholder="Select currency" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {currencies.map((c) => (
-                          <SelectItem key={c} value={c}>{c}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
+                <div className="grid gap-0 md:grid-cols-5">
+                  {/* Left: Form */}
+                  <div className="md:col-span-3 p-7 md:pr-4">
+                    <div className="flex items-start justify-between mb-7">
+                      <div>
+                        <div className="flex items-center gap-2.5 mb-1">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/50">
+                            {editingId ? "Edit Item" : "New Item"}
+                          </span>
+                        </div>
+                        <h3 className="font-display text-xl font-bold">{editingId ? "Edit Menu Item" : "Add Menu Item"}</h3>
+                        <p className="mt-0.5 text-xs text-muted-foreground/50">{editingId ? "Update item details below." : "Fill in the details for the new item."}</p>
+                      </div>
+                      <button
+                        onClick={() => setShowModal(false)}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border/50 bg-card/50 text-muted-foreground/50 shadow-sm transition-all hover:border-destructive/30 hover:text-destructive hover:bg-destructive/5 active:scale-90"
+                        aria-label="Close modal"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
 
-              <div className="flex items-center justify-end gap-2 border-t border-border/40 px-6 py-4">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="rounded-xl border border-border/60 bg-card/60 px-5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={save}
-                  disabled={!form.name.trim() || !form.price}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.78_0.20_75)] px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition-all hover:shadow-xl hover:shadow-primary/40 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Check className="h-4 w-4" />
-                  {editingId ? "Save Changes" : "Add Item"}
-                </button>
+                    <div className="space-y-5">
+                      {/* Item Name */}
+                      <div className="group relative">
+                        <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/[0.02] to-transparent opacity-0 transition-opacity group-focus-within:opacity-100" />
+                        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 group-focus-within:text-primary">
+                          Item Name
+                        </label>
+                        <div className="relative">
+                          <input
+                            value={form.name}
+                            onChange={(e) => set("name", e.target.value)}
+                            placeholder="e.g. Grilled Chicken"
+                            className="w-full rounded-2xl border border-border/50 bg-background/40 px-4 py-3 text-sm outline-none ring-0 transition-all duration-200 placeholder:text-muted-foreground/30 focus:border-primary/50 focus:bg-background/60 focus:ring-2 focus:ring-primary/15"
+                            autoFocus
+                          />
+                          {form.name && (
+                            <button
+                              onClick={() => set("name", "")}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-0.5 text-muted-foreground/30 transition-colors hover:text-muted-foreground"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="mt-1 flex justify-between">
+                          <span className="text-[10px] text-muted-foreground/30">Enter a descriptive name</span>
+                          <span className="text-[10px] text-muted-foreground/30 tabular-nums">{form.name.length}/50</span>
+                        </div>
+                      </div>
+
+                      {/* Category */}
+                      <div className="group relative">
+                        <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 group-focus-within:text-primary">
+                          Category
+                        </label>
+                        <Select value={form.category} onValueChange={(v) => set("category", v)}>
+                          <SelectTrigger className="w-full rounded-2xl border border-border/50 bg-background/40 px-4 py-3 text-sm outline-none ring-0 transition-all duration-200 focus:border-primary/50 focus:bg-background/60 focus:ring-2 focus:ring-primary/15 shadow-none">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map((c) => {
+                              const cfg = categoryConfig[c];
+                              const Icon = cfg?.icon;
+                              return (
+                                <SelectItem key={c} value={c}>
+                                  <span className="inline-flex items-center gap-2">
+                                    {Icon && <Icon className="h-4 w-4" />}
+                                    {c}
+                                  </span>
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Price & Currency */}
+                      <div className="grid grid-cols-5 gap-3">
+                        <div className="col-span-3 group relative">
+                          <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 group-focus-within:text-primary">
+                            Price
+                          </label>
+                          <div className="relative">
+                            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground/40">
+                              {form.currency}
+                            </span>
+                            <input
+                              type="number"
+                              value={form.price}
+                              onChange={(e) => set("price", e.target.value)}
+                              placeholder="0"
+                              min="0"
+                              className="w-full rounded-2xl border border-border/50 bg-background/40 py-3 pl-14 pr-4 text-sm font-semibold tabular-nums outline-none ring-0 transition-all duration-200 placeholder:text-muted-foreground/30 focus:border-primary/50 focus:bg-background/60 focus:ring-2 focus:ring-primary/15"
+                            />
+                          </div>
+                        </div>
+                        <div className="col-span-2 group relative">
+                          <label className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 group-focus-within:text-primary">
+                            Currency
+                          </label>
+                          <Select value={form.currency} onValueChange={(v) => set("currency", v)}>
+                            <SelectTrigger className="w-full rounded-2xl border border-border/50 bg-background/40 px-4 py-3 text-sm font-semibold outline-none ring-0 transition-all duration-200 focus:border-primary/50 focus:bg-background/60 focus:ring-2 focus:ring-primary/15 shadow-none">
+                              <SelectValue placeholder="Currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {currencies.map((c) => (
+                                <SelectItem key={c} value={c}>{c}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="mt-8 flex items-center justify-between border-t border-border/30 pt-5">
+                      <button
+                        onClick={() => setShowModal(false)}
+                        className="rounded-xl border border-border/50 bg-card/60 px-5 py-2.5 text-sm font-medium text-muted-foreground/70 shadow-sm transition-all hover:border-border/80 hover:text-foreground hover:shadow-md active:scale-95"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={save}
+                        disabled={!form.name.trim() || !form.price}
+                        className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-[oklch(0.78_0.20_75)] px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/35 hover:-translate-y-0.5 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+                      >
+                        <Check className="h-4 w-4" />
+                        {editingId ? "Save Changes" : "Add Item"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Right: Live Preview */}
+                  <div className="hidden md:block md:col-span-2 border-l border-border/30 bg-gradient-to-br from-muted/20 via-card to-muted/10 p-7">
+                    <div className="flex items-center gap-2 mb-5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40">Live Preview</span>
+                    </div>
+
+                    {(() => {
+                      const cat = form.category || categories[0];
+                      const cfg = categoryConfig[cat];
+                      const Icon = cfg?.icon;
+                      const previewPrice = parseInt(form.price) || 0;
+                      const previewName = form.name.trim() || "Item Name";
+                      return (
+                        <div className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all duration-300 hover:shadow-lg">
+                          {/* Accent bar */}
+                          <div className={`absolute inset-x-0 top-0 h-1 z-10 ${cfg?.bar || "bg-primary"}`} />
+
+                          {/* Art */}
+                          <div className="px-4 pt-4">
+                            <div className={`relative h-32 overflow-hidden rounded-2xl flex items-center justify-center ${cfg?.blobFrom || ""} ${cfg?.blobTo || ""}`}>
+                              <div className={`absolute inset-0 bg-gradient-to-br opacity-60 blur-2xl ${cfg?.blobFrom || ""} ${cfg?.blobTo || ""}`} />
+                              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/[0.06]" />
+                              <div className={`relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br shadow-lg ${cfg?.iconFrom || "from-primary"} ${cfg?.iconTo || "to-primary/70"}`}>
+                                {Icon && <Icon className="h-6 w-6 text-white" />}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Info */}
+                          <div className="px-4 mt-3">
+                            <h4 className="font-display text-base font-bold leading-snug text-foreground">{previewName}</h4>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              <span className={`h-1.5 w-1.5 rounded-full ${cfg?.dot || "bg-primary"}`} />
+                              <span className="text-xs text-muted-foreground/70">{cat}</span>
+                            </div>
+                          </div>
+
+                          {/* Price */}
+                          <div className="mt-2.5 mx-4 mb-4 flex items-baseline gap-1.5 rounded-xl bg-muted/30 px-4 py-3 border border-border/40">
+                            <span className="text-[11px] font-medium text-muted-foreground/50">{form.currency}</span>
+                            <span className="text-xl font-bold tabular-nums tracking-tight text-foreground">
+                              {previewPrice > 0 ? previewPrice.toLocaleString() : "—"}
+                            </span>
+                          </div>
+
+                          {/* Status dot */}
+                          <div className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-medium text-emerald-600 border border-emerald-500/20">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            New
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    <div className="mt-4 space-y-2 rounded-xl border border-border/30 bg-card/40 px-4 py-3">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground/50">Category color</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`h-2 w-2 rounded-full ${categoryConfig[form.category]?.dot || "bg-primary"}`} />
+                          <span className="font-medium text-foreground/70">{form.category}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground/50">Characters</span>
+                        <span className="font-medium text-foreground/70 tabular-nums">{form.name.length}/50</span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground/50">Mode</span>
+                        <span className="font-medium text-foreground/70">{editingId ? "Editing" : "Creating"}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
