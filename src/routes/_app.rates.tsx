@@ -666,7 +666,7 @@ function PlansTab({
                     key={id}
                     className="rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-foreground"
                   >
-                    {rt?.name ?? id}
+                    {rt?.typeName ?? id}
                   </span>
                 );
               })}
@@ -1136,7 +1136,7 @@ function AvailabilityTab() {
                   <td className="sticky left-0 z-10 bg-card px-3 py-2">
                     <div className="font-semibold">{room.id}</div>
                     <div className="text-[10px] text-muted-foreground">
-                      Floor {room.floor} · {rt?.name}
+                      Floor {room.floor} · {rt?.typeName}
                     </div>
                   </td>
                   {days.map((d) => {
@@ -1333,7 +1333,7 @@ function RestrictionsTab({
               return (
                 <tr key={r.id}>
                   <td className="px-5 py-2.5">{r.date}</td>
-                  <td className="px-3 py-2.5">{rt?.name ?? r.roomTypeId}</td>
+                  <td className="px-3 py-2.5">{rt?.typeName ?? r.roomTypeId}</td>
                   <td className="px-3 py-2.5 text-right font-mono">{r.minStay}</td>
                   <td className="px-3 py-2.5">
                     {r.closedToArrival ? (
@@ -1472,7 +1472,7 @@ function PromotionsTab({
                     key={id}
                     className="rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-foreground"
                   >
-                    {rt?.name ?? id}
+                    {rt?.typeName ?? id}
                   </span>
                 );
               })}

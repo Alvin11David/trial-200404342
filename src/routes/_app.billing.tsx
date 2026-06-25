@@ -438,7 +438,7 @@ function FolioDetail({ folioId }: { folioId: string }) {
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Home className="h-3.5 w-3.5" />
-                  Room {room?.id ?? "—"} ({rt?.name ?? "—"})
+                  Room {room?.id ?? "—"} ({rt?.typeName ?? "—"})
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <FileText className="h-3.5 w-3.5" />
