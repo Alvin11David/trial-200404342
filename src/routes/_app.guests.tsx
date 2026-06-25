@@ -1,6 +1,17 @@
 import { createFileRoute, Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { Search, Plus, CalendarCheck2, Phone, Mail, MapPin, Award, TrendingUp, X, ArrowLeft } from "lucide-react";
+import {
+  Search,
+  Plus,
+  CalendarCheck2,
+  Phone,
+  Mail,
+  MapPin,
+  Award,
+  TrendingUp,
+  X,
+  ArrowLeft,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fmtUGX, useStore, type Guest } from "@/lib/pms-store";
 
@@ -13,10 +24,12 @@ export const Route = createFileRoute("/_app/guests")({
 });
 
 const tierStyles: Record<Guest["tier"], string> = {
-  Platinum: "bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/30 dark:text-purple-400",
+  Platinum:
+    "bg-purple-100 text-purple-700 border-purple-300 dark:bg-purple-900/30 dark:text-purple-400",
   Gold: "bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/30 dark:text-amber-400",
   Silver: "bg-slate-100 text-slate-600 border-slate-300 dark:bg-slate-800/30 dark:text-slate-400",
-  Bronze: "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400",
+  Bronze:
+    "bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400",
 };
 
 const guestAccents = [
@@ -44,10 +57,17 @@ function GuestsPage() {
   const selectedGuest = guestId ? guests.find((g) => g.id === guestId) : null;
 
   if (selectedGuest) {
-    return <GuestDetail guest={selectedGuest} onBack={() => navigate({ to: "/guests", search: { guest: undefined } })} />;
+    return (
+      <GuestDetail
+        guest={selectedGuest}
+        onBack={() => navigate({ to: "/guests", search: { guest: undefined } })}
+      />
+    );
   }
   if (guestId === "new") {
-    return <NewGuestForm onBack={() => navigate({ to: "/guests", search: { guest: undefined } })} />;
+    return (
+      <NewGuestForm onBack={() => navigate({ to: "/guests", search: { guest: undefined } })} />
+    );
   }
 
   const filtered = useMemo(() => {
@@ -78,7 +98,9 @@ function GuestsPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight">Guests</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{guests.length} guest profiles on record.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {guests.length} guest profiles on record.
+          </p>
         </div>
         <button
           onClick={() => navigate({ to: "/guests", search: { guest: "new" } })}
@@ -135,7 +157,11 @@ function GuestsPage() {
                         guestAccents[idx % guestAccents.length],
                       )}
                     >
-                      {guest.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}
+                      {guest.name
+                        .split(" ")
+                        .map((p) => p[0])
+                        .join("")
+                        .slice(0, 2)}
                     </span>
                     <div>
                       <h3 className="font-semibold text-foreground">{guest.name}</h3>
@@ -243,63 +269,173 @@ function GuestDetail({ guest, onBack }: { guest: Guest; onBack: () => void }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+      <button
+        onClick={onBack}
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="h-4 w-4" /> Back to guests
       </button>
 
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <span className={cn("grid h-14 w-14 place-items-center rounded-xl bg-gradient-to-br text-lg font-bold text-white", guestAccents[parseInt(guest.id.replace("GST-", ""), 10) % guestAccents.length])}>
-              {guest.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+            <span
+              className={cn(
+                "grid h-14 w-14 place-items-center rounded-xl bg-gradient-to-br text-lg font-bold text-white",
+                guestAccents[parseInt(guest.id.replace("GST-", ""), 10) % guestAccents.length],
+              )}
+            >
+              {guest.name
+                .split(" ")
+                .map((n) => n[0])
+                .join("")
+                .slice(0, 2)}
             </span>
             <div>
               <h2 className="font-display text-xl font-bold">{guest.name}</h2>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1"><Mail className="h-3 w-3" /> {guest.email}</span>
-                <span className="inline-flex items-center gap-1"><Phone className="h-3 w-3" /> {guest.phone}</span>
-                <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {guest.nationality}</span>
+                <span className="inline-flex items-center gap-1">
+                  <Mail className="h-3 w-3" /> {guest.email}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Phone className="h-3 w-3" /> {guest.phone}
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="h-3 w-3" /> {guest.nationality}
+                </span>
               </div>
             </div>
           </div>
-          <span className={cn("rounded-md border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider", tierStyles[guest.tier])}>
-            <Award className="mr-1 inline h-3 w-3" />{guest.tier}
+          <span
+            className={cn(
+              "rounded-md border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider",
+              tierStyles[guest.tier],
+            )}
+          >
+            <Award className="mr-1 inline h-3 w-3" />
+            {guest.tier}
           </span>
         </div>
 
         <div className="mt-6 grid grid-cols-3 gap-4">
           <div className="relative overflow-hidden rounded-lg border border-border bg-muted/30 p-3 text-center">
-            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-primary)", boxShadow: "0 0 10px var(--color-primary)" }} />
+            <div
+              className="absolute left-0 top-0 h-full w-[3px]"
+              style={{
+                background: "var(--color-primary)",
+                boxShadow: "0 0 10px var(--color-primary)",
+              }}
+            />
             <div className="font-bold text-foreground">{guest.totalVisits}</div>
             <div className="text-[11px] text-muted-foreground">Visits</div>
           </div>
           <div className="relative overflow-hidden rounded-lg border border-border bg-muted/30 p-3 text-center">
-            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-success)", boxShadow: "0 0 10px var(--color-success)" }} />
+            <div
+              className="absolute left-0 top-0 h-full w-[3px]"
+              style={{
+                background: "var(--color-success)",
+                boxShadow: "0 0 10px var(--color-success)",
+              }}
+            />
             <div className="font-bold text-foreground">{fmtUGX(guest.totalRevenue)}</div>
             <div className="text-[11px] text-muted-foreground">Revenue</div>
           </div>
           <div className="relative overflow-hidden rounded-lg border border-border bg-muted/30 p-3 text-center">
-            <div className="absolute left-0 top-0 h-full w-[3px]" style={{ background: "var(--color-info)", boxShadow: "0 0 10px var(--color-info)" }} />
+            <div
+              className="absolute left-0 top-0 h-full w-[3px]"
+              style={{ background: "var(--color-info)", boxShadow: "0 0 10px var(--color-info)" }}
+            />
             <div className="font-bold text-foreground">{guestReservations.length}</div>
             <div className="text-[11px] text-muted-foreground">Bookings</div>
           </div>
+        </div>
+
+        <div className="mt-6 grid grid-cols-2 gap-3 rounded-lg border border-border bg-muted/20 p-4 text-sm">
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Date of Birth
+            </span>
+            <p className="mt-0.5 font-medium">{guest.dateOfBirth || "—"}</p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Gender
+            </span>
+            <p className="mt-0.5 font-medium">{guest.gender || "—"}</p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Company
+            </span>
+            <p className="mt-0.5 font-medium">{guest.company || "—"}</p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              ID Type / Number
+            </span>
+            <p className="mt-0.5 font-medium">
+              {guest.idType}: {guest.idNumber}
+            </p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Discount Rate
+            </span>
+            <p className="mt-0.5 font-medium">
+              {guest.discountRate ? `${guest.discountRate}%` : "—"}
+            </p>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Credit Limit
+            </span>
+            <p className="mt-0.5 font-medium">
+              {guest.creditLimit ? fmtUGX(guest.creditLimit) : "—"}
+            </p>
+          </div>
+          {guest.notes && (
+            <div className="col-span-2">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                Notes
+              </span>
+              <p className="mt-0.5 font-medium text-muted-foreground">{guest.notes}</p>
+            </div>
+          )}
         </div>
 
         {guestReservations.length > 0 && (
           <div className="mt-6">
             <h3 className="mb-3 text-sm font-semibold">Booking History</h3>
             <div className="space-y-2">
-              {guestReservations.sort((a, b) => b.checkIn.localeCompare(a.checkIn)).map((r) => (
-                <div key={r.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3 text-sm">
-                  <div>
-                    <span className="font-medium">{r.checkIn} → {r.checkOut}</span>
-                    <span className="ml-2 text-xs text-muted-foreground">{r.roomId ? `Room ${r.roomId}` : ""}</span>
+              {guestReservations
+                .sort((a, b) => b.checkIn.localeCompare(a.checkIn))
+                .map((r) => (
+                  <div
+                    key={r.id}
+                    className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-3 text-sm"
+                  >
+                    <div>
+                      <span className="font-medium">
+                        {r.checkIn} → {r.checkOut}
+                      </span>
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        {r.roomId ? `Room ${r.roomId}` : ""}
+                      </span>
+                    </div>
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold uppercase",
+                        r.status === "checked_in"
+                          ? "text-success"
+                          : r.status === "confirmed"
+                            ? "text-warning"
+                            : "text-muted-foreground",
+                      )}
+                    >
+                      {r.status}
+                    </span>
                   </div>
-                  <span className={cn("text-[10px] font-semibold uppercase", r.status === "checked_in" ? "text-success" : r.status === "confirmed" ? "text-warning" : "text-muted-foreground")}>
-                    {r.status}
-                  </span>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         )}
@@ -320,12 +456,17 @@ function GuestDetail({ guest, onBack }: { guest: Guest; onBack: () => void }) {
 function NewGuestForm({ onBack }: { onBack: () => void }) {
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+      <button
+        onClick={onBack}
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
         <ArrowLeft className="h-4 w-4" /> Back to guests
       </button>
       <div className="rounded-xl border border-border bg-card p-6 text-center">
         <p className="text-sm text-muted-foreground">Guest creation form coming soon.</p>
-        <p className="mt-1 text-xs text-muted-foreground">You can add a guest during the reservation process.</p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          You can add a guest during the reservation process.
+        </p>
       </div>
     </div>
   );

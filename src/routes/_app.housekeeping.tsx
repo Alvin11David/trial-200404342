@@ -213,7 +213,7 @@ function RoomStatusBoard() {
 
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
-    for (const rt of roomTypes) m[rt.id] = rt.name;
+    for (const rt of roomTypes) m[rt.id] = rt.typeName;
     return m;
   }, [roomTypes]);
 
@@ -456,6 +456,9 @@ function TaskQueue() {
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="text-sm">{TASK_TYPE_LABEL[t.type]}</div>
+                    {t.taskDescription && (
+                      <div className="text-[10px] text-muted-foreground">{t.taskDescription}</div>
+                    )}
                     {t.notes && (
                       <div className="text-[10px] text-muted-foreground line-clamp-1">
                         {t.notes}

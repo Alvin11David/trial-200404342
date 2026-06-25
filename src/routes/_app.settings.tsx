@@ -133,6 +133,34 @@ function TenantPanel() {
             className="input min-h-[72px]"
           />
         </Labeled>
+        <Labeled label="Logo URL">
+          <input
+            value={t.logo ?? ""}
+            onChange={(e) => setT({ ...t, logo: e.target.value || undefined })}
+            className="input"
+          />
+        </Labeled>
+        <Labeled label="Default Currency">
+          <input
+            value={t.defaultCurrency ?? t.currency}
+            onChange={(e) => setT({ ...t, defaultCurrency: e.target.value })}
+            className="input"
+          />
+        </Labeled>
+        <Labeled label="Booking Engine URL" className="sm:col-span-2">
+          <input
+            value={t.bookingEngineUrl ?? ""}
+            onChange={(e) => setT({ ...t, bookingEngineUrl: e.target.value || undefined })}
+            className="input"
+          />
+        </Labeled>
+        <Labeled label="Terms & Conditions" className="sm:col-span-2">
+          <textarea
+            value={t.terms ?? ""}
+            onChange={(e) => setT({ ...t, terms: e.target.value || undefined })}
+            className="input min-h-[72px]"
+          />
+        </Labeled>
       </div>
       <div className="mt-5 flex justify-end">
         <button
@@ -173,7 +201,7 @@ function RoomTypesPanel() {
           <tbody className="divide-y divide-border">
             {types.map((t) => (
               <tr key={t.id} className="hover:bg-muted/30">
-                <td className="px-4 py-3 font-medium">{t.name}</td>
+                <td className="px-4 py-3 font-medium">{t.typeName}</td>
                 <td className="px-4 py-3 text-right tabular-nums">
                   UGX {t.baseRate.toLocaleString()}
                 </td>
@@ -358,11 +386,11 @@ function RoomEditor({
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
             <SelectContent>
-              {types.map((t) => (
-                <SelectItem key={t.id} value={t.id}>
-                  {t.name}
-                </SelectItem>
-              ))}
+                {types.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>
+                    {t.typeName}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </Labeled>

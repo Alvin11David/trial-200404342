@@ -22,7 +22,15 @@ function MtnIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="20" height="20" rx="4" fill="#FFC915" />
-      <text x="12" y="16" textAnchor="middle" fontWeight="700" fontSize="13" fill="#000" fontFamily="Arial">
+      <text
+        x="12"
+        y="16"
+        textAnchor="middle"
+        fontWeight="700"
+        fontSize="13"
+        fill="#000"
+        fontFamily="Arial"
+      >
         M
       </text>
     </svg>
@@ -33,7 +41,15 @@ function AirtelIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="20" height="20" rx="4" fill="#E40101" />
-      <text x="12" y="16" textAnchor="middle" fontWeight="700" fontSize="13" fill="#FFF" fontFamily="Arial">
+      <text
+        x="12"
+        y="16"
+        textAnchor="middle"
+        fontWeight="700"
+        fontSize="13"
+        fill="#FFF"
+        fontFamily="Arial"
+      >
         A
       </text>
     </svg>
@@ -55,7 +71,15 @@ function CardIcon({ className }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="5" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="1.5" />
       <line x1="2" y1="10" x2="22" y2="10" stroke="currentColor" strokeWidth="1.5" />
-      <line x1="6" y1="14" x2="10" y2="14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <line
+        x1="6"
+        y1="14"
+        x2="10"
+        y2="14"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -102,6 +126,10 @@ type Form = {
   adults: number;
   children: number;
   notes: string;
+  arrivalTime: string;
+  extraBeds: number;
+  purpose: string;
+  carReg: string;
   paymentMethod: PaymentMethod | "";
   paymentPhone: string;
   paymentReference: string;
@@ -128,10 +156,10 @@ function useRoomOptions(checkIn: string, checkOut: string): RoomOption[] {
       : r.status === "available";
     return {
       id: r.id,
-      type: rt?.name ?? r.typeId,
+      type: rt?.typeName ?? r.typeId,
       typeId: r.typeId,
       rate: rt?.baseRate ?? 0,
-      beds: rt?.name === "Suite" ? "1 King + Sofa" : rt?.name === "Deluxe" ? "1 King" : "1 Queen",
+      beds: rt?.typeName === "Suite" ? "1 King + Sofa" : rt?.typeName === "Deluxe" ? "1 King" : "1 Queen",
       available,
     };
   });
@@ -162,6 +190,10 @@ function NewReservation() {
     adults: 1,
     children: 0,
     notes: "",
+    arrivalTime: "",
+    extraBeds: 0,
+    purpose: "",
+    carReg: "",
     paymentMethod: "",
     paymentPhone: "",
     paymentReference: "",
@@ -230,6 +262,10 @@ function NewReservation() {
       ratePerNight: room.rate,
       mealPlan: form.mealPlan,
       source: "Direct",
+      arrivalTime: form.arrivalTime || undefined,
+      extraBeds: form.extraBeds || undefined,
+      purpose: form.purpose || undefined,
+      carReg: form.carReg || undefined,
       notes: form.notes,
       ...(paymentAmount > 0 && form.paymentMethod
         ? {
@@ -484,6 +520,19 @@ function StepGuestDetails({
           onChange={(v) => set("idNumber", v)}
           className="sm:col-span-2"
         />
+        <Field
+          icon={<MapPin className="h-4 w-4" />}
+          label="Purpose of visit"
+          value={form.purpose}
+          onChange={(v) => set("purpose", v)}
+          className="sm:col-span-2"
+        />
+        <Field
+          icon={<Smartphone className="h-4 w-4" />}
+          label="Car registration"
+          value={form.carReg}
+          onChange={(v) => set("carReg", v)}
+        />
       </div>
     </div>
   );
@@ -615,6 +664,24 @@ function StepDatesAndPlan({
           onChange={(v) => set("children", v)}
           min={0}
           max={6}
+        />
+        <div className="glass rounded-xl p-4">
+          <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+            Arrival time
+          </div>
+          <input
+            type="time"
+            value={form.arrivalTime}
+            onChange={(e) => set("arrivalTime", e.target.value)}
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+          />
+        </div>
+        <NumberStepper
+          label="Extra beds"
+          value={form.extraBeds}
+          onChange={(v) => set("extraBeds", v)}
+          min={0}
+          max={5}
         />
       </div>
 
@@ -750,6 +817,10 @@ function StepReview({
               value={`${form.adults} adult${form.adults !== 1 ? "s" : ""}${form.children ? `, ${form.children} child` : ""}`}
             />
             <ReviewItem label="Meal plan" value={meal.label} />
+            {form.arrivalTime && <ReviewItem label="Arrival" value={form.arrivalTime} />}
+            {form.extraBeds > 0 && <ReviewItem label="Extra beds" value={String(form.extraBeds)} />}
+            {form.purpose && <ReviewItem label="Purpose" value={form.purpose} />}
+            {form.carReg && <ReviewItem label="Car" value={form.carReg} />}
           </div>
 
           {/* Payment section */}

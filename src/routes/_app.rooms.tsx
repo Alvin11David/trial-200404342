@@ -22,7 +22,12 @@ export const Route = createFileRoute("/_app/rooms")({
   component: RoomsBoard,
 });
 
-const STATUS_CONFIG: { id: RoomStatus; icon: React.ComponentType<{ className?: string }>; color: string; label: string }[] = [
+const STATUS_CONFIG: {
+  id: RoomStatus;
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;
+  label: string;
+}[] = [
   { id: "available", icon: CheckCircle2, color: "oklch(0.72 0.16 162)", label: "Available" },
   { id: "occupied", icon: BedDouble, color: "oklch(0.74 0.21 71)", label: "Occupied" },
   { id: "dirty", icon: Sparkles, color: "oklch(0.78 0.16 75)", label: "Dirty" },
@@ -44,15 +49,19 @@ function RoomsBoard() {
 
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
-    roomTypes.forEach((rt) => { m[rt.id] = rt.name; });
+    roomTypes.forEach((rt) => {
+      m[rt.id] = rt.typeName;
+    });
     return m;
   }, [roomTypes]);
 
   const guestMap = useMemo(() => {
     const m: Record<string, string> = {};
-    reservations.filter((r) => r.status === "checked_in").forEach((r) => {
-      if (r.roomId) m[r.roomId] = r.guestName;
-    });
+    reservations
+      .filter((r) => r.status === "checked_in")
+      .forEach((r) => {
+        if (r.roomId) m[r.roomId] = r.guestName;
+      });
     return m;
   }, [reservations]);
 
@@ -69,8 +78,12 @@ function RoomsBoard() {
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
-    STATUS_CONFIG.forEach((s) => { c[s.id] = 0; });
-    filtered.forEach((r) => { c[r.status] = (c[r.status] ?? 0) + 1; });
+    STATUS_CONFIG.forEach((s) => {
+      c[s.id] = 0;
+    });
+    filtered.forEach((r) => {
+      c[r.status] = (c[r.status] ?? 0) + 1;
+    });
     return c;
   }, [filtered]);
 
@@ -109,7 +122,10 @@ function RoomsBoard() {
                 {["All", 1, 2, 3, 4, 5].map((f) => (
                   <button
                     key={f}
-                    onClick={() => { setFloor(String(f)); setFloorOpen(false); }}
+                    onClick={() => {
+                      setFloor(String(f));
+                      setFloorOpen(false);
+                    }}
                     className={cn(
                       "w-full px-3 py-2 text-left text-sm transition hover:bg-muted",
                       floor === String(f) && "bg-primary/10 font-medium text-primary",
@@ -137,7 +153,10 @@ function RoomsBoard() {
                 {["All", "Standard", "Deluxe", "Suite"].map((t) => (
                   <button
                     key={t}
-                    onClick={() => { setType(t); setTypeOpen(false); }}
+                    onClick={() => {
+                      setType(t);
+                      setTypeOpen(false);
+                    }}
                     className={cn(
                       "w-full px-3 py-2 text-left text-sm transition hover:bg-muted",
                       type === t && "bg-primary/10 font-medium text-primary",
@@ -218,7 +237,9 @@ function RoomsBoard() {
               <div className="flex-1 space-y-2.5">
                 {list.map((r) => {
                   const guest = guestMap[r.id];
-                  const res = reservations.find((rv) => rv.roomId === r.id && rv.status === "checked_in");
+                  const res = reservations.find(
+                    (rv) => rv.roomId === r.id && rv.status === "checked_in",
+                  );
                   return (
                     <RoomCard
                       key={r.id}
@@ -255,7 +276,18 @@ function RoomCard({
   folioId,
   reservationId,
 }: {
-  room: { id: string; floor: number; status: string; notes?: string | null };
+  room: {
+    id: string;
+    floor: number;
+    status: string;
+    notes?: string | null;
+    building?: string;
+    beds?: string;
+    maxAdults?: number;
+    maxChildren?: number;
+    smoking?: string;
+    amenities?: string[];
+  };
   roomType: string;
   guest?: string;
   accent: string;
@@ -292,13 +324,68 @@ function RoomCard({
           ) : (
             <div className="mt-1 text-xs text-muted-foreground">Floor {room.floor}</div>
           )}
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {room.building && (
+              <span className="rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
+                {room.building}
+              </span>
+            )}
+            {room.beds && (
+              <span className="rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
+                {room.beds}
+              </span>
+            )}
+            {room.maxAdults && (
+              <span className="rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
+                Max {room.maxAdults}A/{room.maxChildren ?? 0}C
+              </span>
+            )}
+            {room.smoking && (
+              <span className="rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
+                {room.smoking}
+              </span>
+            )}
+          </div>
+          {room.amenities && room.amenities.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1">
+              {room.amenities.slice(0, 3).map((a) => (
+                <span
+                  key={a}
+                  className="rounded-full bg-primary/5 px-1.5 py-0.5 text-[8px] text-primary"
+                >
+                  {a}
+                </span>
+              ))}
+              {room.amenities.length > 3 && (
+                <span className="text-[8px] text-muted-foreground">
+                  +{room.amenities.length - 3}
+                </span>
+              )}
+            </div>
+          )}
         </div>
         <GripVertical className="h-4 w-4 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100" />
       </div>
 
       <div className="mt-2 flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-        {room.status === "available" && <TinyBtn icon={LogIn} label="Check in" tone="success" onClick={() => navigate({ to: "/check-in", search: { room: room.id } as never })} />}
-        {room.status === "dirty" && <TinyBtn icon={Sparkles} label="Mark clean" tone="primary" onClick={() => { setRoomStatus(room.id, "available"); }} />}
+        {room.status === "available" && (
+          <TinyBtn
+            icon={LogIn}
+            label="Check in"
+            tone="success"
+            onClick={() => navigate({ to: "/check-in", search: { room: room.id } as never })}
+          />
+        )}
+        {room.status === "dirty" && (
+          <TinyBtn
+            icon={Sparkles}
+            label="Mark clean"
+            tone="primary"
+            onClick={() => {
+              setRoomStatus(room.id, "available");
+            }}
+          />
+        )}
         {room.status === "occupied" && reservationId && (
           <Link
             to="/reservations"

@@ -55,9 +55,17 @@ function AuditPage() {
       if (to && day > to) return false;
       if (
         q &&
-        ![e.actor, e.action, e.entity, e.id, e.role, e.module].some((s) =>
-          s.toLowerCase().includes(q.toLowerCase()),
-        )
+        ![
+          e.actor,
+          e.action,
+          e.entity,
+          e.id,
+          e.role,
+          e.module,
+          e.tableName,
+          e.recordId,
+          e.ipAddress,
+        ].some((s) => s?.toLowerCase().includes(q.toLowerCase()))
       )
         return false;
       return true;
@@ -178,6 +186,9 @@ function AuditPage() {
               <th className="px-4 py-2.5 text-left font-semibold">Module</th>
               <th className="px-4 py-2.5 text-left font-semibold">Action</th>
               <th className="px-4 py-2.5 text-left font-semibold">Entity</th>
+              <th className="px-4 py-2.5 text-left font-semibold">Table</th>
+              <th className="px-4 py-2.5 text-left font-semibold">Record</th>
+              <th className="px-4 py-2.5 text-left font-semibold">IP Address</th>
               <th className="px-4 py-2.5 text-left font-semibold">Severity</th>
             </tr>
           </thead>
@@ -193,6 +204,15 @@ function AuditPage() {
                 <td className="px-4 py-3 text-xs capitalize text-muted-foreground">{e.module}</td>
                 <td className="px-4 py-3 text-sm">{e.action}</td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">{e.entity}</td>
+                <td className="px-4 py-3 text-[10px] font-mono text-muted-foreground">
+                  {e.tableName || "—"}
+                </td>
+                <td className="px-4 py-3 text-[10px] font-mono text-muted-foreground">
+                  {e.recordId || "—"}
+                </td>
+                <td className="px-4 py-3 text-[10px] font-mono text-muted-foreground">
+                  {e.ipAddress || "—"}
+                </td>
                 <td className="px-4 py-3">
                   <span
                     className={
@@ -207,7 +227,7 @@ function AuditPage() {
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-sm text-muted-foreground">
+                <td colSpan={10} className="px-4 py-10 text-center text-sm text-muted-foreground">
                   No matching events.
                 </td>
               </tr>

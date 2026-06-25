@@ -405,7 +405,7 @@ function Overview({
                 {roomTypes.map((rt) => (
                   <tr key={rt.id}>
                     <td className="py-2.5 pr-4">
-                      <div className="font-medium">{rt.name}</div>
+                      <div className="font-medium">{rt.typeName}</div>
                       <div className="text-[11px] text-muted-foreground">
                         capacity {rt.capacity}
                       </div>
@@ -864,7 +864,7 @@ function RatePlanForm({
                           : "border-border bg-background text-muted-foreground hover:text-foreground",
                       )}
                     >
-                      {rt.name}
+                      {rt.typeName}
                     </button>
                   );
                 })}
@@ -1096,7 +1096,7 @@ function AvailabilityTab() {
             <SelectItem value="all">All room types</SelectItem>
             {roomTypes.map((rt) => (
               <SelectItem key={rt.id} value={rt.id}>
-                {rt.name}
+                {rt.typeName}
               </SelectItem>
             ))}
           </SelectContent>

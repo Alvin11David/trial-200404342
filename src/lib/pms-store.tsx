@@ -18,9 +18,25 @@ import { useSyncExternalStore } from "react";
 
 export type RoomType = {
   id: string;
-  name: string;       // e.g. "Standard", "Deluxe", "Suite"
-  baseRate: number;   // UGX per night
+  typeName: string;
+  baseRate: number;
   capacity: number;
+  description?: string;
+  status?: string;
+  cloudStatus?: number;
+  remotePosting?: string;
+  reselivaRoomTypeId?: string | null;
+  sittingCapacity?: number;
+  breakfast?: string;
+  rackRate?: string;
+  deft?: string;
+  currency?: string;
+  hasInventory?: string;
+  available?: number;
+  payType?: string;
+  roomStayType?: string;
+  deleteStatus?: number;
+  amenities?: string[];
 };
 
 export type Guest = {
@@ -35,60 +51,135 @@ export type Guest = {
   totalVisits: number;
   totalRevenue: number;
   tier: "Bronze" | "Silver" | "Gold" | "Platinum";
+  dateOfBirth?: string;
+  gender?: string;
+  company?: string;
+  discountRate?: number;
+  creditLimit?: number;
+  blacklisted?: boolean;
+  notes?: string;
+  address?: string;
+  idPhoto?: string;
+  position?: string;
+  location?: string;
+  website?: string;
+  tinNo?: string;
+  clientType?: string;
+  blockReason?: string;
+  debtorClientId?: number;
+  contactPerson?: string;
+  blockStatus?: number;
+  cloudStatus?: number;
+  remotePosting?: string;
 };
 
-export type RoomStatus = "available" | "occupied" | "dirty" | "in_progress" | "clean" | "inspected" | "maintenance" | "blocked";
+export type RoomStatus =
+  | "available"
+  | "occupied"
+  | "dirty"
+  | "in_progress"
+  | "clean"
+  | "inspected"
+  | "maintenance"
+  | "blocked";
 export type Room = {
-  id: string;          // e.g. "204"
+  id: string;
   floor: number;
   typeId: string;
   status: RoomStatus;
-  assignedTo?: string | null; // housekeeping user id
+  assignedTo?: string | null;
   notes?: string;
+  building?: string;
+  description?: string;
+  beds?: string;
+  maxAdults?: number;
+  maxChildren?: number;
+  price?: number;
+  smoking?: string;
+  amenities?: string[];
+  images?: string[];
+  maintenance?: string;
+  laundry?: string;
+  housekeeping?: string;
+  blockStatus?: string;
 };
 
-export type ReservationStatus =
-  | "open"
-  | "confirmed"
-  | "checked_in"
-  | "checked_out"
-  | "cancelled";
+export type ReservationStatus = "open" | "confirmed" | "checked_in" | "checked_out" | "cancelled";
 
 export type VatTreatment = "inclusive" | "exclusive" | "exempt";
 
 export type Reservation = {
   id: string;
+  resNo?: number;
   guestName: string;
   guestEmail: string;
   guestPhone: string;
   nationality: string;
   idType: string;
   idNumber: string;
+  idPhoto?: string;
   roomTypeId: string;
-  roomId: string | null;     // assigned once available room is picked
-  checkIn: string;            // YYYY-MM-DD
-  checkOut: string;           // YYYY-MM-DD
+  roomId: string | null;
+  checkIn: string;
+  checkOut: string;
   adults: number;
   children: number;
-  ratePerNight: number;       // UGX
+  ratePerNight: number;
   mealPlan: string;
-  source: string;             // Direct, Booking.com, etc.
+  mealPlanAmount?: number;
+  mealPlanAmount2?: number;
+  source: string;
   status: ReservationStatus;
-  createdAt: string;          // ISO
+  createdAt: string;
   folioId?: string;
-  vatRate?: number;           // VAT rate applicable at booking time (for invoicing)
-  vatTreatment?: VatTreatment; // "inclusive" (default): price includes VAT; "exclusive": VAT added on top
+  vatRate?: number;
+  vatTreatment?: VatTreatment;
   notes?: string;
+  deposit?: number;
+  discount?: number;
+  arrivalTime?: string;
+  extraBeds?: number;
+  nightlyRate?: number;
+  checkInTime?: string;
+  checkOutTime?: string;
+  checkinBy?: string;
+  checkoutBy?: string;
+  purpose?: string;
+  comingFrom?: string;
+  carReg?: string;
+  bookingEngineUrl?: string;
+  exclude?: string;
+  govtTax?: number;
+  occupancyType?: string;
+  noOfDays?: number;
+  blockStatus?: string;
+  cancelledBy?: string;
+  reason?: string;
+  cancelDate?: string;
+  totalDays?: number;
+  currency?: string;
+  address?: string;
+  destination?: string;
+  departureTime?: string;
+  shortStay?: string;
+  resCode?: string;
+  isMailSent?: number;
+  payType?: string;
+  guestSpecialRequirements?: string;
+  cloudStatus?: number;
+  remotePosting?: string;
+  deleteStatus?: number;
+  channelManager?: string;
 };
 
 export type FolioChargeType = "room" | "fnb" | "tax" | "misc";
 export type FolioCharge = {
   id: string;
   folioId: string;
-  date: string;        // YYYY-MM-DD
+  date: string; // YYYY-MM-DD
   type: FolioChargeType;
   description: string;
-  amount: number;      // UGX (positive)
+  amount: number; // UGX (positive)
   vatTreatment?: VatTreatment;
   voided?: boolean;
   voidReason?: string;
@@ -104,20 +195,49 @@ export type Payment = {
   folioId: string;
   date: string;
   method: PaymentMethod;
-  reference?: string;   // txn id
-  phone?: string;       // for momo
+  paymentMode?: string;
+  paymentType?: string;
+  payMode?: string;
+  reference?: string;
+  phone?: string;
   amount: number;
-  tendered?: number;    // cash tendered (for cash payments)
-  change?: number;      // change given back (for cash payments)
+  totalAmount?: number;
+  balance?: number;
+  tendered?: number;
+  change?: number;
   status: PaymentStatus;
-  providerRef?: string; // provider transaction ID (MoMo, card gateway)
+  providerRef?: string;
   failureReason?: string;
-  refundOf?: string;    // original payment ID this refund references
-  refundReason?: string; // why the refund was processed
-  refundedBy?: string;   // who authorised it
-  refundedAt?: string;   // when
-  receiptGenerated?: boolean; // auto-generated receipt on confirmation
-  receiptId?: string;        // unique receipt number (RCT-XXXX)
+  refundOf?: string;
+  refundReason?: string;
+  refundedBy?: string;
+  refundedAt?: string;
+  receiptGenerated?: boolean;
+  receiptId?: string;
+  eventNo?: number;
+  organisation?: string;
+  currency?: string;
+  exchangeRate?: number;
+  details?: string;
+  visaCharge?: number;
+  receiptedBy?: string;
+  postingDate?: string;
+  cardNamez?: string;
+  cardNumber?: string;
+  cardNumber2?: string;
+  expdate?: string;
+  expdate2?: string;
+  paymentRefundedOnId?: number;
+  efrisInvoiceNo?: string;
+  efrisInvoiceId?: string;
+  efrisQRCode?: string;
+  efrisReferenceNumber?: string;
+  efrisVerificationCode?: string;
+  customerTin?: string;
+  refNo?: string;
+  receiptNo?: string;
+  cloudStatus?: number;
+  remotePosting?: string;
 };
 
 export type InvoiceStatus = "paid" | "partial" | "unpaid";
@@ -177,31 +297,78 @@ export type UserRecord = {
   email: string;
   role: string;
   active: boolean;
+  username?: string;
+  passwordHash?: string;
+  createdAt?: string;
   lastLogin?: string;
+  firstName?: string;
+  lastName?: string;
+  gender?: string;
+  bio?: string;
+  imageLocation?: string;
+  emailCode?: string;
+  confirmed?: number;
+  generatedString?: string;
+  ip?: string;
+  module?: string;
+  lastCheckinTime?: string;
+  deleteStatus?: string;
+  isDeletable?: string;
+  isEditable?: string;
+  time?: number;
+  cloudStatus?: number;
+  remotePosting?: string;
 };
 
 export type Tenant = {
   id: string;
   name: string;
-  currency: string;   // UGX
-  vatRate: number;    // 0.18
-  timezone: string;   // Africa/Kampala
+  currency: string;
+  vatRate: number;
+  timezone: string;
   address: string;
   phone: string;
   email: string;
   tin: string;
+  logo?: string;
+  defaultCurrency?: string;
+  bookingEngineUrl?: string;
+  terms?: string;
+  fax?: string;
+  streetAddr?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  zipcode?: string;
+  dateFormat?: string;
+  bookingExpTime?: string;
+  enabledDeposit?: string;
+  bookingTurnOff?: string;
+  minNightBooking?: string;
+  notificationEmail?: string;
+  priceWithTax?: string;
+  maximumGlobalYears?: string;
+  paymentCurrency?: string;
+  invoiceCurrency?: string;
+  currencyUpdateTime?: string;
 };
 
 export type AuditSeverity = "info" | "warn" | "critical";
 export type AuditEntry = {
   id: string;
-  ts: string;          // ISO
+  ts: string;
   actor: string;
   role: string;
-  module: string;      // "reservations" | "billing" | "rooms" | "housekeeping" | "identity" | "settings" | "auth" | "system"
+  module: string;
   action: string;
   entity: string;
   severity: AuditSeverity;
+  tableName?: string;
+  recordId?: string;
+  oldValue?: string;
+  newValue?: string;
+  ipAddress?: string;
+  auditSetting?: string;
 };
 
 export type HkTaskType = "turnover" | "deep_clean" | "room_service" | "linen_change" | "inspection";
@@ -214,10 +381,15 @@ export type HousekeepingTask = {
   priority: HkPriority;
   status: HkTaskStatus;
   assignedTo: string | null;
-  due: string;          // time e.g. "11:30"
+  due: string;
   notes: string;
-  createdAt: string;     // ISO
+  createdAt: string;
   completedAt?: string;
+  taskDescription?: string;
+  employeeId?: string;
+  date?: string;
+  cloudStatus?: number;
+  remotePosting?: string;
 };
 
 export type MaintSeverity = "low" | "medium" | "high" | "critical";
@@ -236,7 +408,7 @@ export type MaintenanceRequest = {
 export type DNDRecord = {
   id: string;
   roomId: string;
-  startTime: string;     // ISO
+  startTime: string; // ISO
   endTime?: string;
   reason: string;
 };
@@ -270,9 +442,57 @@ const addDays = (d: Date, n: number) => {
 };
 
 const ROOM_TYPES: RoomType[] = [
-  { id: "std", name: "Standard", baseRate: 220_000, capacity: 2 },
-  { id: "dlx", name: "Deluxe", baseRate: 380_000, capacity: 3 },
-  { id: "ste", name: "Suite", baseRate: 850_000, capacity: 4 },
+  {
+    id: "std",
+    typeName: "Standard",
+    baseRate: 220_000,
+    capacity: 2,
+    description: "Comfortable standard room with essential amenities",
+    amenities: ["TV", "WiFi", "Work Desk"],
+    status: "active",
+    rackRate: 250_000,
+    deft: "standard",
+    sittingCapacity: 2,
+    hasInventory: true,
+    available: true,
+    payType: "pay_at_hotel",
+    roomStayType: "standard",
+    deleteStatus: 0,
+  },
+  {
+    id: "dlx",
+    typeName: "Deluxe",
+    baseRate: 380_000,
+    capacity: 3,
+    description: "Spacious deluxe room with premium furnishings",
+    amenities: ["TV", "WiFi", "Mini Bar", "Safe", "Work Desk"],
+    status: "active",
+    rackRate: 420_000,
+    deft: "deluxe",
+    sittingCapacity: 3,
+    hasInventory: true,
+    available: true,
+    payType: "pay_at_hotel",
+    roomStayType: "standard",
+    deleteStatus: 0,
+  },
+  {
+    id: "ste",
+    typeName: "Suite",
+    baseRate: 850_000,
+    capacity: 4,
+    description: "Luxury suite with separate living area and premium amenities",
+    amenities: ["TV", "WiFi", "Mini Bar", "Safe", "Living Area", "Jacuzzi", "Work Desk"],
+    status: "active",
+    rackRate: 950_000,
+    deft: "luxury",
+    sittingCapacity: 4,
+    hasInventory: true,
+    available: true,
+    payType: "pay_at_hotel",
+    roomStayType: "standard",
+    deleteStatus: 0,
+  },
 ];
 
 const HOUSEKEEPERS = ["U003", "U008"]; // grace, mary
@@ -280,29 +500,87 @@ const HOUSEKEEPERS = ["U003", "U008"]; // grace, mary
 const ROOMS: Room[] = (() => {
   const list: Room[] = [];
   const layout: Array<[number, string]> = [
-    [1, "std"], [1, "std"], [1, "std"], [1, "dlx"],
-    [2, "std"], [2, "std"], [2, "dlx"], [2, "dlx"],
-    [3, "dlx"], [3, "dlx"], [3, "dlx"], [3, "ste"],
-    [4, "dlx"], [4, "ste"], [4, "ste"], [4, "ste"],
-    [5, "ste"], [5, "ste"],
+    [1, "std"],
+    [1, "std"],
+    [1, "std"],
+    [1, "dlx"],
+    [2, "std"],
+    [2, "std"],
+    [2, "dlx"],
+    [2, "dlx"],
+    [3, "dlx"],
+    [3, "dlx"],
+    [3, "dlx"],
+    [3, "ste"],
+    [4, "dlx"],
+    [4, "ste"],
+    [4, "ste"],
+    [4, "ste"],
+    [5, "ste"],
+    [5, "ste"],
   ];
+  const bedOptions = ["Queen", "Twin", "King", "Double", "Single"];
+  const smokeOptions = ["Non-smoking", "Smoking", "Non-smoking", "Non-smoking"];
+  const amenitySets: Record<string, string[]> = {
+    std: ["TV", "WiFi", "Work Desk", "Wardrobe"],
+    dlx: ["TV", "WiFi", "Mini Bar", "Safe", "Work Desk", "Wardrobe", "Tea/Coffee Maker"],
+    ste: [
+      "TV",
+      "WiFi",
+      "Mini Bar",
+      "Safe",
+      "Living Area",
+      "Jacuzzi",
+      "Work Desk",
+      "Wardrobe",
+      "Tea/Coffee Maker",
+      "Balcony",
+    ],
+  };
   layout.forEach(([floor, typeId], idx) => {
     const num = `${floor}${String((idx % 4) + 1).padStart(2, "0")}`;
     list.push({
       id: num,
       floor,
       typeId,
-      status: (["available", "occupied", "dirty", "available", "maintenance", "available", "available", "dirty"][idx % 8] as RoomStatus),
+      status: [
+        "available",
+        "occupied",
+        "dirty",
+        "available",
+        "maintenance",
+        "available",
+        "available",
+        "dirty",
+      ][idx % 8] as RoomStatus,
       assignedTo: HOUSEKEEPERS[idx % HOUSEKEEPERS.length],
+      building: "Main Building",
+      description: `Room ${num} — ${typeId === "std" ? "Standard" : typeId === "dlx" ? "Deluxe" : "Suite"} room on floor ${floor}`,
+      beds: bedOptions[idx % bedOptions.length],
+      maxAdults: typeId === "ste" ? 4 : typeId === "dlx" ? 3 : 2,
+      maxChildren: typeId === "ste" ? 2 : typeId === "dlx" ? 2 : 1,
+      smoking: smokeOptions[idx % smokeOptions.length],
+      amenities: amenitySets[typeId] ?? amenitySets.std,
+      maintenance: false,
+      laundry: idx % 5 === 0,
+      housekeeping: true,
+      blockStatus: false,
     });
   });
   return list;
 })();
 
 const RES_SEED_NAMES = [
-  "Sarah Mwangi", "James Okello", "Priya Sharma", "David Mensah",
-  "Aisha Wanjiku", "Mark Tindyebwa", "Linda Owino", "Tom Kabuye",
-  "Joan Nansubuga", "Daniel Etyang",
+  "Sarah Mwangi",
+  "James Okello",
+  "Priya Sharma",
+  "David Mensah",
+  "Aisha Wanjiku",
+  "Mark Tindyebwa",
+  "Linda Owino",
+  "Tom Kabuye",
+  "Joan Nansubuga",
+  "Daniel Etyang",
 ];
 
 const COUNTER_KEY = "jambo-pms-counters";
@@ -310,46 +588,111 @@ function loadCounters() {
   try {
     const raw = localStorage.getItem(COUNTER_KEY);
     if (raw) return JSON.parse(raw);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return {};
 }
 function saveCounters() {
   try {
-    localStorage.setItem(COUNTER_KEY, JSON.stringify({
-      resCounter, folioCounter, chargeCounter, payCounter, guestCounter, auditCounter,
-      hkTaskCounter, maintCounter, dndCounter, receiptCounter, invoiceCounter, creditNoteCounter,
-    }));
-  } catch { /* ignore */ }
+    localStorage.setItem(
+      COUNTER_KEY,
+      JSON.stringify({
+        resCounter,
+        folioCounter,
+        chargeCounter,
+        payCounter,
+        guestCounter,
+        auditCounter,
+        hkTaskCounter,
+        maintCounter,
+        dndCounter,
+        receiptCounter,
+        invoiceCounter,
+        creditNoteCounter,
+      }),
+    );
+  } catch {
+    /* ignore */
+  }
 }
 const savedCounters = loadCounters();
 let resCounter = savedCounters.resCounter ?? 1000;
-const nextResId = () => { const v = `RES-${++resCounter}`; saveCounters(); return v; };
+const nextResId = () => {
+  const v = `RES-${++resCounter}`;
+  saveCounters();
+  return v;
+};
 let folioCounter = savedCounters.folioCounter ?? 3000;
-const nextFolioId = () => { const v = `F-${++folioCounter}`; saveCounters(); return v; };
+const nextFolioId = () => {
+  const v = `F-${++folioCounter}`;
+  saveCounters();
+  return v;
+};
 let chargeCounter = savedCounters.chargeCounter ?? 7000;
-const nextChargeId = () => { const v = `C-${++chargeCounter}`; saveCounters(); return v; };
+const nextChargeId = () => {
+  const v = `C-${++chargeCounter}`;
+  saveCounters();
+  return v;
+};
 let payCounter = savedCounters.payCounter ?? 9000;
-const nextPayId = () => { const v = `PMT-${++payCounter}`; saveCounters(); return v; };
+const nextPayId = () => {
+  const v = `PMT-${++payCounter}`;
+  saveCounters();
+  return v;
+};
 let guestCounter = savedCounters.guestCounter ?? 500;
-const nextGuestId = () => { const v = `GST-${++guestCounter}`; saveCounters(); return v; };
+const nextGuestId = () => {
+  const v = `GST-${++guestCounter}`;
+  saveCounters();
+  return v;
+};
 let auditCounter = savedCounters.auditCounter ?? 2900;
-const nextAuditId = () => { const v = `EVT-${++auditCounter}`; saveCounters(); return v; };
+const nextAuditId = () => {
+  const v = `EVT-${++auditCounter}`;
+  saveCounters();
+  return v;
+};
 let hkTaskCounter = savedCounters.hkTaskCounter ?? 4000;
-const nextHkTaskId = () => { const v = `HK-${++hkTaskCounter}`; saveCounters(); return v; };
+const nextHkTaskId = () => {
+  const v = `HK-${++hkTaskCounter}`;
+  saveCounters();
+  return v;
+};
 let maintCounter = savedCounters.maintCounter ?? 100;
-const nextMaintId = () => { const v = `MNT-${++maintCounter}`; saveCounters(); return v; };
+const nextMaintId = () => {
+  const v = `MNT-${++maintCounter}`;
+  saveCounters();
+  return v;
+};
 let dndCounter = savedCounters.dndCounter ?? 50;
-const nextDndId = () => { const v = `DND-${++dndCounter}`; saveCounters(); return v; };
+const nextDndId = () => {
+  const v = `DND-${++dndCounter}`;
+  saveCounters();
+  return v;
+};
 let receiptCounter = savedCounters.receiptCounter ?? 100;
-const nextReceiptId = () => { const v = `RCT-${++receiptCounter}`; saveCounters(); return v; };
+const nextReceiptId = () => {
+  const v = `RCT-${++receiptCounter}`;
+  saveCounters();
+  return v;
+};
 let invoiceCounter = savedCounters.invoiceCounter ?? 200;
-const nextInvoiceNo = () => { const v = `JSL-${new Date().getFullYear()}-${String(++invoiceCounter).padStart(5, "0")}`; saveCounters(); return v; };
+const nextInvoiceNo = () => {
+  const v = `JSL-${new Date().getFullYear()}-${String(++invoiceCounter).padStart(5, "0")}`;
+  saveCounters();
+  return v;
+};
 let creditNoteCounter = savedCounters.creditNoteCounter ?? 100;
-const nextCreditNoteNo = () => { const v = `JSL-CN-${new Date().getFullYear()}-${String(++creditNoteCounter).padStart(5, "0")}`; saveCounters(); return v; };
+const nextCreditNoteNo = () => {
+  const v = `JSL-CN-${new Date().getFullYear()}-${String(++creditNoteCounter).padStart(5, "0")}`;
+  saveCounters();
+  return v;
+};
 
 const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
   // mix of arriving today, departing today, and future
-  const offsetIn = (i % 5) - 2;   // -2..2
+  const offsetIn = (i % 5) - 2; // -2..2
   const nights = 1 + (i % 4);
   const checkIn = addDays(TODAY, offsetIn);
   const checkOut = addDays(checkIn, nights);
@@ -378,9 +721,22 @@ const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
     children: i % 3 === 0 ? 1 : 0,
     ratePerNight: rt.baseRate,
     mealPlan: ["RO", "BB", "HB", "BB", "RO"][i % 5],
+    mealPlanAmount: 0,
     source: ["Direct", "Booking.com", "Expedia", "Corporate", "Direct"][i % 5],
     status,
     createdAt: addDays(TODAY, offsetIn - 7).toISOString(),
+    address: "Kampala, Uganda",
+    totalDays: 1 + (i % 4),
+    currency: "UGX",
+    payType: "pay_at_hotel",
+    occupancyType: "single",
+    destination: "Kampala",
+    blockStatus: false,
+    noOfDays: 1 + (i % 4),
+    resCode: id,
+    isMailSent: true,
+    cloudStatus: 0,
+    deleteStatus: 0,
   };
   return res;
 });
@@ -435,6 +791,19 @@ RESERVATIONS.forEach((r) => {
       phone: r.guestPhone,
       amount: r.ratePerNight,
       status: "confirmed",
+      paymentMode: "mobile_money",
+      paymentType: "deposit",
+      payMode: "mtn_momo",
+      totalAmount: r.ratePerNight,
+      balance: 0,
+      currency: "UGX",
+      exchangeRate: 1,
+      details: `Advance payment for ${r.id}`,
+      receiptedBy: "Amani Kato",
+      postingDate: iso(addDays(TODAY, -1)),
+      refNo: `REF-${r.id}`,
+      receiptNo: `RCT-${Date.now()}`,
+      cloudStatus: 0,
     });
   }
 });
@@ -442,15 +811,28 @@ RESERVATIONS.forEach((r) => {
 // Historical checked-out reservations spanning the past 10 days so the
 // 7-day occupancy chart on the dashboard shows a realistic, varied curve.
 const HISTORICAL_GUESTS = [
-  "Kwame Boateng", "Maria Lopez", "Aliya Hassan", "Brian Otim",
-  "Jane Wairimu", "Samuel Tenywa", "Grace Akello", "Paul Mugisha",
-  "Ruth Kemigisha", "Hassan Ssebunya", "Diana Nalwoga", "Isaac Kintu",
-  "Martha Kyomugisha", "Fred Muwonge", "Catherine Nakayima",
-  "Peter Wasswa", "Joyce Namutebi", "Robert Ssali",
+  "Kwame Boateng",
+  "Maria Lopez",
+  "Aliya Hassan",
+  "Brian Otim",
+  "Jane Wairimu",
+  "Samuel Tenywa",
+  "Grace Akello",
+  "Paul Mugisha",
+  "Ruth Kemigisha",
+  "Hassan Ssebunya",
+  "Diana Nalwoga",
+  "Isaac Kintu",
+  "Martha Kyomugisha",
+  "Fred Muwonge",
+  "Catherine Nakayima",
+  "Peter Wasswa",
+  "Joyce Namutebi",
+  "Robert Ssali",
 ];
 HISTORICAL_GUESTS.forEach((name, k) => {
-  const daysAgo = 1 + (k % 9);           // 1..9 days in the past
-  const nights = 1 + (k % 3);             // 1..3 night stays
+  const daysAgo = 1 + (k % 9); // 1..9 days in the past
+  const nights = 1 + (k % 3); // 1..3 night stays
   const checkIn = addDays(TODAY, -daysAgo - 1);
   const checkOut = addDays(TODAY, -daysAgo);
   const rt = ROOM_TYPES[k % ROOM_TYPES.length];
@@ -473,9 +855,22 @@ HISTORICAL_GUESTS.forEach((name, k) => {
     children: k % 5 === 0 ? 1 : 0,
     ratePerNight: rt.baseRate,
     mealPlan: ["RO", "BB", "HB"][k % 3],
+    mealPlanAmount: 0,
     source: ["Direct", "Booking.com", "Expedia", "Corporate"][k % 4],
     status: "checked_out",
     createdAt: addDays(TODAY, -30).toISOString(),
+    address: "Kampala, Uganda",
+    totalDays: 1 + (k % 3),
+    currency: "UGX",
+    payType: "pay_at_hotel",
+    occupancyType: "single",
+    destination: "Kampala",
+    blockStatus: false,
+    noOfDays: 1 + (k % 3),
+    resCode: id,
+    isMailSent: true,
+    cloudStatus: 0,
+    deleteStatus: 0,
   };
   RESERVATIONS.push(res);
   const folio: Folio = {
@@ -496,13 +891,27 @@ HISTORICAL_GUESTS.forEach((name, k) => {
     description: `Room ${res.roomId} — ${nights} nights`,
     amount: total,
   });
+  const histMethod = (["cash", "card", "mtn_momo", "airtel_money"] as PaymentMethod[])[k % 4];
   PAYMENTS.push({
     id: nextPayId(),
     folioId: folio.id,
     date: iso(checkOut),
-    method: (["cash", "card", "mtn_momo", "airtel_money"] as PaymentMethod[])[k % 4],
+    method: histMethod,
     amount: total,
     status: "confirmed",
+    paymentMode: histMethod === "mtn_momo" || histMethod === "airtel_money" ? "mobile_money" : histMethod === "card" ? "card" : "cash",
+    paymentType: "settlement",
+    payMode: histMethod,
+    totalAmount: total,
+    balance: 0,
+    currency: "UGX",
+    exchangeRate: 1,
+    details: `Payment for ${res.id}`,
+    receiptedBy: "Amani Kato",
+    postingDate: iso(checkOut),
+    refNo: `REF-${res.id}`,
+    receiptNo: `RCT-${Date.now()}`,
+    cloudStatus: 0,
   });
 });
 
@@ -516,11 +925,13 @@ FOLIOS.filter((f) => f.status === "settled").forEach((f) => {
   const folioPayments = PAYMENTS.filter((p) => p.folioId === f.id && p.status === "confirmed");
   const totalCharges = folioCharges.reduce((s, c) => s + c.amount, 0);
   const totalPaid = folioPayments.reduce((s, p) => s + p.amount, 0);
-  let totalTaxable = 0, totalVat = 0;
+  let totalTaxable = 0,
+    totalVat = 0;
   const lines: InvoiceLineItem[] = [];
   folioCharges.forEach((c) => {
     const vt = c.type === "tax" ? "exempt" : (res.vatTreatment ?? "inclusive");
-    const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(c.amount / (1 + 0.18)) : c.amount);
+    const taxable =
+      vt === "exempt" ? 0 : vt === "inclusive" ? Math.round(c.amount / (1 + 0.18)) : c.amount;
     const vat = vt === "exempt" ? 0 : Math.round(taxable * 0.18);
     totalTaxable += taxable;
     totalVat += vat;
@@ -565,15 +976,195 @@ FOLIOS.filter((f) => f.status === "settled").forEach((f) => {
 });
 
 const USERS: UserRecord[] = [
-  { id: "U001", name: "Sarah Nakato", email: "sarah@jambo.ug", role: "Owner / GM", active: true, lastLogin: "10 min ago" },
-  { id: "U002", name: "Amani Kato", email: "amani@jambo.ug", role: "Front Desk", active: true, lastLogin: "Just now" },
-  { id: "U003", name: "Grace Achieng", email: "grace@jambo.ug", role: "Housekeeping", active: true, lastLogin: "2h ago" },
-  { id: "U004", name: "John Mukasa", email: "john@jambo.ug", role: "POS / Cashier", active: true, lastLogin: "30 min ago" },
-  { id: "U005", name: "Esther Nambi", email: "esther@jambo.ug", role: "Reservations / Revenue", active: true, lastLogin: "1h ago" },
-  { id: "U006", name: "Peter Ssempijja", email: "peter@jambo.ug", role: "Accountant", active: true, lastLogin: "Yesterday" },
-  { id: "U007", name: "Robert Kizza", email: "robert@jambo.ug", role: "System Administrator", active: true, lastLogin: "5 min ago" },
-  { id: "U008", name: "Mary Nakibuuka", email: "mary@jambo.ug", role: "Housekeeping", active: true, lastLogin: "—" },
-  { id: "U009", name: "Faith Akello", email: "faith@jambo.ug", role: "Front Desk", active: false, lastLogin: "1 month ago" },
+  {
+    id: "U001",
+    name: "Sarah Nakato",
+    email: "sarah@jambo.ug",
+    role: "Owner / GM",
+    active: true,
+    lastLogin: "10 min ago",
+    username: "sarah.nakato",
+    createdAt: "2024-01-15",
+    firstName: "Sarah",
+    lastName: "Nakato",
+    gender: "Female",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "admin",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
+  {
+    id: "U002",
+    name: "Amani Kato",
+    email: "amani@jambo.ug",
+    role: "Front Desk",
+    active: true,
+    lastLogin: "Just now",
+    username: "amani.kato",
+    createdAt: "2024-02-20",
+    firstName: "Amani",
+    lastName: "Kato",
+    gender: "Male",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "front_desk",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
+  {
+    id: "U003",
+    name: "Grace Achieng",
+    email: "grace@jambo.ug",
+    role: "Housekeeping",
+    active: true,
+    lastLogin: "2h ago",
+    username: "grace.achieng",
+    createdAt: "2024-03-10",
+    firstName: "Grace",
+    lastName: "Achieng",
+    gender: "Female",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "housekeeping",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
+  {
+    id: "U004",
+    name: "John Mukasa",
+    email: "john@jambo.ug",
+    role: "POS / Cashier",
+    active: true,
+    lastLogin: "30 min ago",
+    username: "john.mukasa",
+    createdAt: "2024-04-05",
+    firstName: "John",
+    lastName: "Mukasa",
+    gender: "Male",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "pos",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
+  {
+    id: "U005",
+    name: "Esther Nambi",
+    email: "esther@jambo.ug",
+    role: "Reservations / Revenue",
+    active: true,
+    lastLogin: "1h ago",
+    username: "esther.nambi",
+    createdAt: "2024-05-12",
+    firstName: "Esther",
+    lastName: "Nambi",
+    gender: "Female",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "reservations",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
+  {
+    id: "U006",
+    name: "Peter Ssempijja",
+    email: "peter@jambo.ug",
+    role: "Accountant",
+    active: true,
+    lastLogin: "Yesterday",
+    username: "peter.ssempijja",
+    createdAt: "2024-06-01",
+    firstName: "Peter",
+    lastName: "Ssempijja",
+    gender: "Male",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "accounting",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
+  {
+    id: "U007",
+    name: "Robert Kizza",
+    email: "robert@jambo.ug",
+    role: "System Administrator",
+    active: true,
+    lastLogin: "5 min ago",
+    username: "robert.kizza",
+    createdAt: "2024-01-10",
+    firstName: "Robert",
+    lastName: "Kizza",
+    gender: "Male",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "admin",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
+  {
+    id: "U008",
+    name: "Mary Nakibuuka",
+    email: "mary@jambo.ug",
+    role: "Housekeeping",
+    active: true,
+    lastLogin: "—",
+    username: "mary.nakibuuka",
+    createdAt: "2024-07-22",
+    firstName: "Mary",
+    lastName: "Nakibuuka",
+    gender: "Female",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "housekeeping",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
+  {
+    id: "U009",
+    name: "Faith Akello",
+    email: "faith@jambo.ug",
+    role: "Front Desk",
+    active: false,
+    lastLogin: "1 month ago",
+    username: "faith.akello",
+    createdAt: "2024-08-15",
+    firstName: "Faith",
+    lastName: "Akello",
+    gender: "Female",
+    confirmed: true,
+    deleteStatus: false,
+    isDeletable: false,
+    isEditable: true,
+    module: "front_desk",
+    time: Date.now(),
+    cloudStatus: 0,
+    remotePosting: "2026-06-25",
+  },
 ];
 
 export const nightsBetween = (a: string, b: string) =>
@@ -584,13 +1175,16 @@ const GUESTS: Guest[] = (() => {
   const seen = new Map<string, Guest>();
   const allRsvps = [...RESERVATIONS];
 
-  allRsvps.forEach((r) => {
+  const genders = ["Male", "Female", "Other"];
+  const companies = ["Acme Corp", "Global Tech Ltd", "East African Traders", "", ""];
+  allRsvps.forEach((r, idx) => {
     const key = r.guestEmail + r.guestPhone;
     if (seen.has(key)) {
       const existing = seen.get(key)!;
       existing.totalVisits++;
       existing.totalRevenue += r.ratePerNight * nightsBetween(r.checkIn, r.checkOut);
     } else {
+      const birthDate = new Date(1980 + (idx % 25), idx % 12, (idx % 28) + 1);
       seen.set(key, {
         id: nextGuestId(),
         name: r.guestName,
@@ -603,6 +1197,25 @@ const GUESTS: Guest[] = (() => {
         totalVisits: 1,
         totalRevenue: r.ratePerNight * nightsBetween(r.checkIn, r.checkOut),
         tier: "Bronze",
+        dateOfBirth: birthDate.toISOString().slice(0, 10),
+        gender: genders[idx % genders.length],
+        company: companies[idx % companies.length] || undefined,
+        discountRate: idx % 5 === 0 ? 10 : undefined,
+        creditLimit: idx % 4 === 0 ? 5_000_000 : undefined,
+        notes: idx % 7 === 0 ? "Preferred guest" : undefined,
+        address: r.address ?? "Kampala, Uganda",
+        position: idx % 3 === 0 ? "Manager" : undefined,
+        location: "Kampala",
+        website: idx % 4 === 0 ? "https://example.com" : undefined,
+        tinNo: idx % 5 === 0 ? "TIN" + (100000 + idx * 7).toString() : undefined,
+        clientType: idx % 3 === 0 ? "corporate" : "individual",
+        blacklisted: false,
+        blockReason: undefined,
+        debtorClientId: undefined,
+        contactPerson: idx % 3 === 0 ? r.guestName : undefined,
+        blockStatus: 0,
+        cloudStatus: 0,
+        remotePosting: undefined,
       });
     }
   });
@@ -619,20 +1232,163 @@ const GUESTS: Guest[] = (() => {
 })();
 
 const AUDIT: AuditEntry[] = [
-  { id: nextAuditId(), ts: addDays(TODAY, -1).toISOString(), actor: "system", role: "System", module: "system", action: "Night audit completed", entity: "Day close " + iso(addDays(TODAY, -1)), severity: "info" },
-  { id: nextAuditId(), ts: addDays(TODAY, -1).toISOString(), actor: "Robert Kizza", role: "System Administrator", module: "identity", action: "Updated role permissions", entity: "Role: Front Desk", severity: "critical" },
-  { id: nextAuditId(), ts: addDays(TODAY, 0).toISOString(), actor: "Amani Kato", role: "Front Desk", module: "reservations", action: "Created reservation", entity: RESERVATIONS[0].id, severity: "info" },
+  {
+    id: nextAuditId(),
+    ts: addDays(TODAY, -1).toISOString(),
+    actor: "system",
+    role: "System",
+    module: "system",
+    action: "Night audit completed",
+    entity: "Day close " + iso(addDays(TODAY, -1)),
+    severity: "info",
+    tableName: "folios",
+    recordId: "F-3001",
+    oldValue: "status=active",
+    newValue: "status=settled",
+    ipAddress: "127.0.0.1",
+  },
+  {
+    id: nextAuditId(),
+    ts: addDays(TODAY, -1).toISOString(),
+    actor: "Robert Kizza",
+    role: "System Administrator",
+    module: "identity",
+    action: "Updated role permissions",
+    entity: "Role: Front Desk",
+    severity: "critical",
+    tableName: "roles",
+    recordId: "ROLE-002",
+    oldValue: "permissions=5",
+    newValue: "permissions=7",
+    ipAddress: "192.168.1.100",
+  },
+  {
+    id: nextAuditId(),
+    ts: addDays(TODAY, 0).toISOString(),
+    actor: "Amani Kato",
+    role: "Front Desk",
+    module: "reservations",
+    action: "Created reservation",
+    entity: RESERVATIONS[0].id,
+    severity: "info",
+    tableName: "reservations",
+    recordId: RESERVATIONS[0].id,
+    ipAddress: "192.168.1.101",
+  },
 ];
 
 const HK_TASKS: HousekeepingTask[] = [
-  { id: "HK-4001", roomId: "101", type: "turnover", priority: "high", status: "queued", assignedTo: "U003", due: "11:30", notes: "Guest reported a stain on bedding", createdAt: new Date().toISOString() },
-  { id: "HK-4002", roomId: "308", type: "deep_clean", priority: "standard", status: "queued", assignedTo: null, due: "12:00", notes: "", createdAt: new Date().toISOString() },
-  { id: "HK-4003", roomId: "412", type: "linen_change", priority: "standard", status: "queued", assignedTo: null, due: "13:15", notes: "", createdAt: new Date().toISOString() },
-  { id: "HK-4004", roomId: "117", type: "turnover", priority: "standard", status: "in_progress", assignedTo: "U008", due: "11:00", notes: "", createdAt: new Date().toISOString() },
-  { id: "HK-4005", roomId: "502", type: "deep_clean", priority: "vip", status: "in_progress", assignedTo: "U003", due: "12:30", notes: "VIP guest arriving 14:00", createdAt: new Date().toISOString() },
-  { id: "HK-4006", roomId: "203", type: "turnover", priority: "standard", status: "clean", assignedTo: "U003", due: "10:00", notes: "", createdAt: addDays(TODAY, 0).toISOString() },
-  { id: "HK-4007", roomId: "305", type: "deep_clean", priority: "standard", status: "clean", assignedTo: "U008", due: "09:30", notes: "", createdAt: addDays(TODAY, 0).toISOString() },
-  { id: "HK-4008", roomId: "410", type: "turnover", priority: "standard", status: "inspected", assignedTo: "U003", due: "09:00", notes: "", createdAt: addDays(TODAY, 0).toISOString(), completedAt: new Date().toISOString() },
+  {
+    id: "HK-4001",
+    roomId: "101",
+    type: "turnover",
+    priority: "high",
+    status: "queued",
+    assignedTo: "U003",
+    due: "11:30",
+    notes: "Guest reported a stain on bedding",
+    createdAt: new Date().toISOString(),
+    taskDescription: "Replace bedding and deep clean bathroom",
+    employeeId: "U003",
+    date: new Date().toISOString().slice(0, 10),
+  },
+  {
+    id: "HK-4002",
+    roomId: "308",
+    type: "deep_clean",
+    priority: "standard",
+    status: "queued",
+    assignedTo: null,
+    due: "12:00",
+    notes: "",
+    createdAt: new Date().toISOString(),
+    taskDescription: "Full room deep clean including carpets",
+    date: new Date().toISOString().slice(0, 10),
+  },
+  {
+    id: "HK-4003",
+    roomId: "412",
+    type: "linen_change",
+    priority: "standard",
+    status: "queued",
+    assignedTo: null,
+    due: "13:15",
+    notes: "",
+    createdAt: new Date().toISOString(),
+    taskDescription: "Change all linen and towels",
+    date: new Date().toISOString().slice(0, 10),
+  },
+  {
+    id: "HK-4004",
+    roomId: "117",
+    type: "turnover",
+    priority: "standard",
+    status: "in_progress",
+    assignedTo: "U008",
+    due: "11:00",
+    notes: "",
+    createdAt: new Date().toISOString(),
+    taskDescription: "Standard turnover cleaning after checkout",
+    employeeId: "U008",
+    date: new Date().toISOString().slice(0, 10),
+  },
+  {
+    id: "HK-4005",
+    roomId: "502",
+    type: "deep_clean",
+    priority: "vip",
+    status: "in_progress",
+    assignedTo: "U003",
+    due: "12:30",
+    notes: "VIP guest arriving 14:00",
+    createdAt: new Date().toISOString(),
+    taskDescription: "VIP deep clean with extra attention to detail",
+    employeeId: "U003",
+    date: new Date().toISOString().slice(0, 10),
+  },
+  {
+    id: "HK-4006",
+    roomId: "203",
+    type: "turnover",
+    priority: "standard",
+    status: "clean",
+    assignedTo: "U003",
+    due: "10:00",
+    notes: "",
+    createdAt: addDays(TODAY, 0).toISOString(),
+    taskDescription: "Standard turnover completed",
+    employeeId: "U003",
+    date: new Date().toISOString().slice(0, 10),
+  },
+  {
+    id: "HK-4007",
+    roomId: "305",
+    type: "deep_clean",
+    priority: "standard",
+    status: "clean",
+    assignedTo: "U008",
+    due: "09:30",
+    notes: "",
+    createdAt: addDays(TODAY, 0).toISOString(),
+    taskDescription: "Deep clean completed",
+    employeeId: "U008",
+    date: new Date().toISOString().slice(0, 10),
+  },
+  {
+    id: "HK-4008",
+    roomId: "410",
+    type: "turnover",
+    priority: "standard",
+    status: "inspected",
+    assignedTo: "U003",
+    due: "09:00",
+    notes: "",
+    createdAt: addDays(TODAY, 0).toISOString(),
+    completedAt: new Date().toISOString(),
+    taskDescription: "Turnover inspected and approved",
+    employeeId: "U003",
+    date: new Date().toISOString().slice(0, 10),
+  },
 ];
 
 const MAINT_REQUESTS: MaintenanceRequest[] = [];
@@ -649,6 +1405,27 @@ const TENANT: Tenant = {
   phone: "+256 700 000 000",
   email: "frontdesk@jambo.ug",
   tin: "1000123456",
+  logo: "/logo-jambo.png",
+  defaultCurrency: "UGX",
+  bookingEngineUrl: "https://book.jambosphere.com",
+  terms: "Check-in: 14:00, Check-out: 10:00. Cancellation policy: 24 hours.",
+  fax: "+256 700 000 001",
+  streetAddr: "Plot 24, Kampala Road",
+  city: "Kampala",
+  state: "Central",
+  country: "Uganda",
+  zipcode: "256",
+  dateFormat: "YYYY-MM-DD",
+  bookingExpTime: 30,
+  enabledDeposit: true,
+  bookingTurnOff: false,
+  minNightBooking: 1,
+  notificationEmail: "reservations@jambo.ug",
+  priceWithTax: true,
+  maximumGlobalYears: 5,
+  paymentCurrency: "UGX",
+  invoiceCurrency: "UGX",
+  currencyUpdateTime: "2026-01-01T00:00:00Z",
 };
 
 /* ============================== Store ============================== */
@@ -736,7 +1513,12 @@ const SYNC_KEY = "jambo-pms-outbox";
 export type OutboxEntry = {
   id: string;
   ts: string;
-  type: "create_reservation" | "cancel_reservation" | "update_reservation" | "check_in" | "check_out";
+  type:
+    | "create_reservation"
+    | "cancel_reservation"
+    | "update_reservation"
+    | "check_in"
+    | "check_out";
   payload: unknown;
 };
 
@@ -758,7 +1540,11 @@ function saveOutbox(entries: OutboxEntry[]) {
 }
 
 function genId(): string {
-  try { return crypto.randomUUID(); } catch { return Date.now().toString(36) + Math.random().toString(36).slice(2, 10); }
+  try {
+    return crypto.randomUUID();
+  } catch {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
 }
 
 function addToOutbox(entry: Omit<OutboxEntry, "id" | "ts">) {
@@ -793,14 +1579,10 @@ export function isOnline(): boolean {
 
 export const isoDate = iso;
 export const todayISO = () => iso(TODAY);
-export const fmtUGX = (n: number) =>
-  "UGX " + Math.round(n).toLocaleString();
+export const fmtUGX = (n: number) => "UGX " + Math.round(n).toLocaleString();
 
 export function logAudit(entry: Omit<AuditEntry, "id" | "ts">) {
-  state.audit = [
-    { id: nextAuditId(), ts: new Date().toISOString(), ...entry },
-    ...state.audit,
-  ];
+  state.audit = [{ id: nextAuditId(), ts: new Date().toISOString(), ...entry }, ...state.audit];
 }
 
 /* date ranges overlap, treating checkOut as exclusive */
@@ -826,14 +1608,33 @@ export function findAvailableRooms(roomTypeId: string, checkIn: string, checkOut
 
 /* ============================== Guests ============================== */
 
-export function upsertGuest(input: { name: string; email: string; phone: string; nationality: string; idType: string; idNumber: string }): string {
-  const existing = state.guests.find(
-    (g) => g.email === input.email || g.phone === input.phone,
-  );
+export function upsertGuest(input: {
+  name: string;
+  email: string;
+  phone: string;
+  nationality: string;
+  idType: string;
+  idNumber: string;
+  dateOfBirth?: string;
+  gender?: string;
+  company?: string;
+  discountRate?: number;
+  creditLimit?: number;
+  notes?: string;
+  address?: string;
+  idPhoto?: string;
+  position?: string;
+  location?: string;
+  website?: string;
+  tinNo?: string;
+  clientType?: string;
+  blacklisted?: boolean;
+  blockReason?: string;
+  debtorClientId?: number;
+}): string {
+  const existing = state.guests.find((g) => g.email === input.email || g.phone === input.phone);
   if (existing) {
-    state.guests = state.guests.map((g) =>
-      g.id === existing.id ? { ...g, name: input.name, email: input.email, phone: input.phone, nationality: input.nationality, idType: input.idType, idNumber: input.idNumber } : g,
-    );
+    state.guests = state.guests.map((g) => (g.id === existing.id ? { ...g, ...input } : g));
     emit();
     return existing.id;
   }
@@ -841,7 +1642,28 @@ export function upsertGuest(input: { name: string; email: string; phone: string;
   state.guests = [
     {
       id,
-      ...input,
+      name: input.name,
+      email: input.email,
+      phone: input.phone,
+      nationality: input.nationality,
+      idType: input.idType,
+      idNumber: input.idNumber,
+      dateOfBirth: input.dateOfBirth,
+      gender: input.gender,
+      company: input.company,
+      discountRate: input.discountRate,
+      creditLimit: input.creditLimit,
+      notes: input.notes,
+      address: input.address,
+      idPhoto: input.idPhoto,
+      position: input.position,
+      location: input.location,
+      website: input.website,
+      tinNo: input.tinNo,
+      clientType: input.clientType,
+      blacklisted: input.blacklisted,
+      blockReason: input.blockReason,
+      debtorClientId: input.debtorClientId,
       createdAt: new Date().toISOString(),
       totalVisits: 0,
       totalRevenue: 0,
@@ -855,7 +1677,9 @@ export function upsertGuest(input: { name: string; email: string; phone: string;
 
 export function findGuestByPhoneOrEmail(query: string): Guest | undefined {
   const q = query.toLowerCase();
-  return state.guests.find((g) => g.phone.toLowerCase().includes(q) || g.email.toLowerCase().includes(q));
+  return state.guests.find(
+    (g) => g.phone.toLowerCase().includes(q) || g.email.toLowerCase().includes(q),
+  );
 }
 
 export function findGuests(query: string): Guest[] {
@@ -880,7 +1704,9 @@ export function getGuestReservations(guestId: string): Reservation[] {
 function updateGuestStats(email: string, phone: string) {
   const guest = state.guests.find((g) => g.email === email && g.phone === phone);
   if (!guest) return;
-  const reservations = state.reservations.filter((r) => r.guestEmail === email && r.guestPhone === phone);
+  const reservations = state.reservations.filter(
+    (r) => r.guestEmail === email && r.guestPhone === phone,
+  );
   const totalVisits = reservations.length;
   const totalRevenue = reservations.reduce(
     (s, r) => s + r.ratePerNight * nightsBetween(r.checkIn, r.checkOut),
@@ -902,10 +1728,19 @@ export type NewReservationInput = Omit<
   "id" | "createdAt" | "status" | "folioId" | "roomId" | "vatRate" | "vatTreatment"
 > & {
   roomId?: string | null;
-  payment?: { method: PaymentMethod; amount: number; phone?: string; reference?: string; tendered?: number; change?: number };
+  payment?: {
+    method: PaymentMethod;
+    amount: number;
+    phone?: string;
+    reference?: string;
+    tendered?: number;
+    change?: number;
+  };
 };
 
-export function createReservation(input: NewReservationInput): { ok: true; id: string } | { ok: false; error: string } {
+export function createReservation(
+  input: NewReservationInput,
+): { ok: true; id: string } | { ok: false; error: string } {
   if (!input.checkIn || !input.checkOut || input.checkIn >= input.checkOut) {
     return { ok: false, error: "Check-out must be after check-in." };
   }
@@ -914,7 +1749,8 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
     const available = findAvailableRooms(input.roomTypeId, input.checkIn, input.checkOut).some(
       (r) => r.id === roomId,
     );
-    if (!available) return { ok: false, error: "Selected room is no longer available for these dates." };
+    if (!available)
+      return { ok: false, error: "Selected room is no longer available for these dates." };
   }
   const id = nextResId();
   const reservation: Reservation = {
@@ -953,7 +1789,11 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
 
   // if payment collected at booking, record it on the folio
   if (input.payment) {
-    const needsGateway = input.payment.method === "mtn_momo" || input.payment.method === "airtel_money" || input.payment.method === "card" || input.payment.method === "bank_transfer";
+    const needsGateway =
+      input.payment.method === "mtn_momo" ||
+      input.payment.method === "airtel_money" ||
+      input.payment.method === "card" ||
+      input.payment.method === "bank_transfer";
     state.payments = [
       ...state.payments,
       {
@@ -992,9 +1832,14 @@ export function createReservation(input: NewReservationInput): { ok: true; id: s
   return { ok: true, id };
 }
 
-export type UpdateReservationInput = Partial<Omit<Reservation, "id" | "createdAt" | "status" | "folioId">>;
+export type UpdateReservationInput = Partial<
+  Omit<Reservation, "id" | "createdAt" | "status" | "folioId">
+>;
 
-export function updateReservation(id: string, patch: UpdateReservationInput): { ok: true } | { ok: false; error: string } {
+export function updateReservation(
+  id: string,
+  patch: UpdateReservationInput,
+): { ok: true } | { ok: false; error: string } {
   const res = state.reservations.find((r) => r.id === id);
   if (!res) return { ok: false, error: "Reservation not found." };
   if (res.status !== "confirmed" && res.status !== "open") {
@@ -1029,7 +1874,15 @@ export function updateReservation(id: string, patch: UpdateReservationInput): { 
 
 export function cancelReservation(id: string, reason?: string) {
   state.reservations = state.reservations.map((r) =>
-    r.id === id ? { ...r, status: "cancelled", notes: reason ? `${r.notes ? r.notes + "\n" : ""}Cancellation reason: ${reason}` : r.notes } : r,
+    r.id === id
+      ? {
+          ...r,
+          status: "cancelled",
+          notes: reason
+            ? `${r.notes ? r.notes + "\n" : ""}Cancellation reason: ${reason}`
+            : r.notes,
+        }
+      : r,
   );
   logAudit({
     actor: "Front Desk",
@@ -1043,14 +1896,21 @@ export function cancelReservation(id: string, reason?: string) {
   emit();
 }
 
-export function checkIn(reservationId: string, opts: { roomId?: string } = {}): { ok: true } | { ok: false; error: string } {
+export function checkIn(
+  reservationId: string,
+  opts: { roomId?: string } = {},
+): { ok: true } | { ok: false; error: string } {
   const res = state.reservations.find((r) => r.id === reservationId);
   if (!res) return { ok: false, error: "Reservation not found." };
   if (res.status === "checked_in") return { ok: false, error: "Already checked in." };
-  if (res.status !== "confirmed" && res.status !== "open") return { ok: false, error: "Cannot check in from status: " + res.status };
+  if (res.status !== "confirmed" && res.status !== "open")
+    return { ok: false, error: "Cannot check in from status: " + res.status };
   const targetRoom = opts.roomId ?? res.roomId;
   if (!targetRoom) return { ok: false, error: "Assign a room before checking in." };
-  const roomOk = findAvailableRooms(res.roomTypeId, res.checkIn, res.checkOut).some((r) => r.id === targetRoom) || res.roomId === targetRoom;
+  const roomOk =
+    findAvailableRooms(res.roomTypeId, res.checkIn, res.checkOut).some(
+      (r) => r.id === targetRoom,
+    ) || res.roomId === targetRoom;
   if (!roomOk) return { ok: false, error: "Room conflict — pick another room." };
 
   // Use existing folio if deposit was collected at booking, else create one
@@ -1082,9 +1942,7 @@ export function checkIn(reservationId: string, opts: { roomId?: string } = {}): 
   state.reservations = state.reservations.map((r) =>
     r.id === res.id ? { ...r, status: "checked_in", roomId: targetRoom, folioId } : r,
   );
-  state.rooms = state.rooms.map((r) =>
-    r.id === targetRoom ? { ...r, status: "occupied" } : r,
-  );
+  state.rooms = state.rooms.map((r) => (r.id === targetRoom ? { ...r, status: "occupied" } : r));
 
   logAudit({
     actor: "Front Desk",
@@ -1102,7 +1960,8 @@ export function checkIn(reservationId: string, opts: { roomId?: string } = {}): 
 export function checkOut(reservationId: string): { ok: true } | { ok: false; error: string } {
   const res = state.reservations.find((r) => r.id === reservationId);
   if (!res) return { ok: false, error: "Reservation not found." };
-  if (res.status !== "checked_in") return { ok: false, error: "Guest is not currently checked in." };
+  if (res.status !== "checked_in")
+    return { ok: false, error: "Guest is not currently checked in." };
   const folio = state.folios.find((f) => f.id === res.folioId);
   if (!folio) return { ok: false, error: "No folio attached to reservation." };
   const balance = folioBalance(folio.id);
@@ -1121,9 +1980,7 @@ export function checkOut(reservationId: string): { ok: true } | { ok: false; err
   );
   if (res.roomId) {
     // room flips to dirty awaiting housekeeping + auto-create turnover task
-    state.rooms = state.rooms.map((r) =>
-      r.id === res.roomId ? { ...r, status: "dirty" } : r,
-    );
+    state.rooms = state.rooms.map((r) => (r.id === res.roomId ? { ...r, status: "dirty" } : r));
     const hkTask: HousekeepingTask = {
       id: nextHkTaskId(),
       roomId: res.roomId,
@@ -1153,12 +2010,19 @@ export function checkOut(reservationId: string): { ok: true } | { ok: false; err
 /* ============================== Folio ============================== */
 
 export function folioBalance(folioId: string): number {
-  const charges = state.charges.filter((c) => c.folioId === folioId).reduce((s, c) => s + c.amount, 0);
-  const payments = state.payments.filter((p) => p.folioId === folioId && p.status === "confirmed").reduce((s, p) => s + p.amount, 0);
+  const charges = state.charges
+    .filter((c) => c.folioId === folioId)
+    .reduce((s, c) => s + c.amount, 0);
+  const payments = state.payments
+    .filter((p) => p.folioId === folioId && p.status === "confirmed")
+    .reduce((s, p) => s + p.amount, 0);
   return charges - payments;
 }
 
-export function addCharge(folioId: string, input: Omit<FolioCharge, "id" | "folioId" | "date"> & { date?: string; postedBy?: string }) {
+export function addCharge(
+  folioId: string,
+  input: Omit<FolioCharge, "id" | "folioId" | "date"> & { date?: string; postedBy?: string },
+) {
   state.charges = [
     ...state.charges,
     {
@@ -1171,12 +2035,30 @@ export function addCharge(folioId: string, input: Omit<FolioCharge, "id" | "foli
       postedBy: input.postedBy,
     },
   ];
-  logAudit({ actor: input.postedBy ?? "Front Desk", role: "Front Desk", module: "billing", action: "Posted charge", entity: `${folioId} ${fmtUGX(input.amount)}`, severity: "info" });
+  logAudit({
+    actor: input.postedBy ?? "Front Desk",
+    role: "Front Desk",
+    module: "billing",
+    action: "Posted charge",
+    entity: `${folioId} ${fmtUGX(input.amount)}`,
+    severity: "info",
+  });
   emit();
 }
 
-export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId" | "date" | "status"> & { date?: string; receivedBy?: string; status?: PaymentStatus }) {
-  const needsGateway = input.method === "mtn_momo" || input.method === "airtel_money" || input.method === "card" || input.method === "bank_transfer";
+export function addPayment(
+  folioId: string,
+  input: Omit<Payment, "id" | "folioId" | "date" | "status"> & {
+    date?: string;
+    receivedBy?: string;
+    status?: PaymentStatus;
+  },
+) {
+  const needsGateway =
+    input.method === "mtn_momo" ||
+    input.method === "airtel_money" ||
+    input.method === "card" ||
+    input.method === "bank_transfer";
   const status = input.status ?? (needsGateway ? "pending" : "confirmed");
   state.payments = [
     ...state.payments,
@@ -1206,14 +2088,32 @@ export function addPayment(folioId: string, input: Omit<Payment, "id" | "folioId
       );
     }
   }
-  logAudit({ actor: input.receivedBy ?? "Cashier", role: "Accountant", module: "billing", action: `Posted ${status} payment`, entity: `${folioId} ${fmtUGX(input.amount)} via ${input.method}`, severity: "info" });
+  logAudit({
+    actor: input.receivedBy ?? "Cashier",
+    role: "Accountant",
+    module: "billing",
+    action: `Posted ${status} payment`,
+    entity: `${folioId} ${fmtUGX(input.amount)} via ${input.method}`,
+    severity: "info",
+  });
   emit();
 }
 
-export function confirmPayment(paymentId: string, actor: string, role: string, providerRef?: string) {
+export function confirmPayment(
+  paymentId: string,
+  actor: string,
+  role: string,
+  providerRef?: string,
+) {
   state.payments = state.payments.map((p) =>
     p.id === paymentId && p.status === "pending"
-      ? { ...p, status: "confirmed", providerRef: providerRef ?? p.providerRef, receiptGenerated: true, receiptId: nextReceiptId() }
+      ? {
+          ...p,
+          status: "confirmed",
+          providerRef: providerRef ?? p.providerRef,
+          receiptGenerated: true,
+          receiptId: nextReceiptId(),
+        }
       : p,
   );
   const payment = state.payments.find((p) => p.id === paymentId);
@@ -1221,10 +2121,19 @@ export function confirmPayment(paymentId: string, actor: string, role: string, p
     const bal = folioBalance(payment.folioId);
     if (bal <= 0.5) {
       state.folios = state.folios.map((f) =>
-        f.id === payment.folioId ? { ...f, status: "settled", closedAt: new Date().toISOString() } : f,
+        f.id === payment.folioId
+          ? { ...f, status: "settled", closedAt: new Date().toISOString() }
+          : f,
       );
     }
-    logAudit({ actor, role, module: "billing", action: "Confirmed payment", entity: `${payment.folioId} ${fmtUGX(payment.amount)} via ${payment.method} (${payment.id})`, severity: "info" });
+    logAudit({
+      actor,
+      role,
+      module: "billing",
+      action: "Confirmed payment",
+      entity: `${payment.folioId} ${fmtUGX(payment.amount)} via ${payment.method} (${payment.id})`,
+      severity: "info",
+    });
   }
   emit();
 }
@@ -1237,27 +2146,61 @@ export function failPayment(paymentId: string, reason: string, actor: string, ro
   );
   const payment = state.payments.find((p) => p.id === paymentId);
   if (payment && payment.status === "failed") {
-    logAudit({ actor, role, module: "billing", action: "Failed payment", entity: `${payment.folioId} ${fmtUGX(payment.amount)} via ${payment.method} — ${reason}`, severity: "warn" });
+    logAudit({
+      actor,
+      role,
+      module: "billing",
+      action: "Failed payment",
+      entity: `${payment.folioId} ${fmtUGX(payment.amount)} via ${payment.method} — ${reason}`,
+      severity: "warn",
+    });
   }
   emit();
 }
 
 const REFUND_ALLOWED_ROLES = ["Owner / GM", "Accountant", "System Administrator"];
 
-export function processRefund(paymentId: string, refundAmount: number, reason: string, actor: string, role: string) {
+export function processRefund(
+  paymentId: string,
+  refundAmount: number,
+  reason: string,
+  actor: string,
+  role: string,
+) {
   if (!REFUND_ALLOWED_ROLES.includes(role)) {
-    logAudit({ actor, role, module: "billing", action: "Refund rejected — unauthorised", entity: `${paymentId} attempted by ${role}`, severity: "critical" });
+    logAudit({
+      actor,
+      role,
+      module: "billing",
+      action: "Refund rejected — unauthorised",
+      entity: `${paymentId} attempted by ${role}`,
+      severity: "critical",
+    });
     emit();
     return;
   }
   const original = state.payments.find((p) => p.id === paymentId);
   if (!original || original.status !== "confirmed") {
-    logAudit({ actor, role, module: "billing", action: "Refund rejected — invalid payment", entity: `${paymentId} status=${original?.status}`, severity: "warn" });
+    logAudit({
+      actor,
+      role,
+      module: "billing",
+      action: "Refund rejected — invalid payment",
+      entity: `${paymentId} status=${original?.status}`,
+      severity: "warn",
+    });
     emit();
     return;
   }
   if (refundAmount <= 0 || refundAmount > original.amount) {
-    logAudit({ actor, role, module: "billing", action: "Refund rejected — invalid amount", entity: `${paymentId} requested=${fmtUGX(refundAmount)} max=${fmtUGX(original.amount)}`, severity: "warn" });
+    logAudit({
+      actor,
+      role,
+      module: "billing",
+      action: "Refund rejected — invalid amount",
+      entity: `${paymentId} requested=${fmtUGX(refundAmount)} max=${fmtUGX(original.amount)}`,
+      severity: "warn",
+    });
     emit();
     return;
   }
@@ -1277,13 +2220,22 @@ export function processRefund(paymentId: string, refundAmount: number, reason: s
     receiptId: nextReceiptId(),
   };
   state.payments = [...state.payments, refund];
-  logAudit({ actor, role, module: "billing", action: "Refund processed", entity: `${refund.folioId} ${fmtUGX(refundAmount)} via ${original.method} — ${reason}`, severity: "warn" });
+  logAudit({
+    actor,
+    role,
+    module: "billing",
+    action: "Refund processed",
+    entity: `${refund.folioId} ${fmtUGX(refundAmount)} via ${original.method} — ${reason}`,
+    severity: "warn",
+  });
   emit();
 }
 
 /* ============================ Simulated Gateway ============================ */
 
-type GatewayResult = { success: true; providerRef: string } | { success: false; failureReason: string };
+type GatewayResult =
+  | { success: true; providerRef: string }
+  | { success: false; failureReason: string };
 const gatewayResultCache = new Map<string, GatewayResult>();
 
 function simulateNetworkCall(): Promise<GatewayResult> {
@@ -1291,7 +2243,10 @@ function simulateNetworkCall(): Promise<GatewayResult> {
   return new Promise((resolve) => {
     setTimeout(() => {
       if (Math.random() < 0.8) {
-        resolve({ success: true, providerRef: `GATEWAY-${Math.random().toString(36).slice(2, 10).toUpperCase()}` });
+        resolve({
+          success: true,
+          providerRef: `GATEWAY-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
+        });
       } else {
         resolve({ success: false, failureReason: "Network error — payment authorisation failed" });
       }
@@ -1299,13 +2254,25 @@ function simulateNetworkCall(): Promise<GatewayResult> {
   });
 }
 
-export async function simulateGatewayConfirm(paymentId: string, actor: string, role: string, idempotencyKey?: string): Promise<{ ok: boolean; message: string }> {
+export async function simulateGatewayConfirm(
+  paymentId: string,
+  actor: string,
+  role: string,
+  idempotencyKey?: string,
+): Promise<{ ok: boolean; message: string }> {
   const key = idempotencyKey ?? paymentId;
   const cached = gatewayResultCache.get(key);
   if (cached) {
     if (cached.success) {
       confirmPayment(paymentId, actor, role, cached.providerRef);
-      logAudit({ actor, role, module: "billing", action: "Gateway retry — idempotent", entity: `${paymentId} cached result used (key=${key})`, severity: "info" });
+      logAudit({
+        actor,
+        role,
+        module: "billing",
+        action: "Gateway retry — idempotent",
+        entity: `${paymentId} cached result used (key=${key})`,
+        severity: "info",
+      });
       return { ok: true, message: "Confirmed (idempotent retry)" };
     }
     return { ok: false, message: cached.failureReason };
@@ -1320,7 +2287,9 @@ export async function simulateGatewayConfirm(paymentId: string, actor: string, r
   return { ok: false, message: result.failureReason };
 }
 
-export function clearGatewayCache() { gatewayResultCache.clear(); }
+export function clearGatewayCache() {
+  gatewayResultCache.clear();
+}
 
 /* ============================== Invoicing ============================== */
 
@@ -1331,21 +2300,27 @@ function currentVatRate(): number {
 export function generateInvoice(folioId: string): Invoice | null {
   const folio = state.folios.find((f) => f.id === folioId);
   if (!folio || (folio.status !== "settled" && folio.status !== "closed")) return null;
-  const existing = state.invoices.find((i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote);
+  const existing = state.invoices.find(
+    (i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote,
+  );
   if (existing) return existing;
   const res = state.reservations.find((r) => r.id === folio.reservationId);
   if (!res) return null;
   const folioCharges = state.charges.filter((c) => c.folioId === folioId && !c.voided);
-  const folioPayments = state.payments.filter((p) => p.folioId === folioId && p.status === "confirmed");
+  const folioPayments = state.payments.filter(
+    (p) => p.folioId === folioId && p.status === "confirmed",
+  );
   const totalCharges = folioCharges.reduce((s, c) => s + c.amount, 0);
   const totalPaid = folioPayments.reduce((s, p) => s + p.amount, 0);
   const vatRate = currentVatRate();
-  let totalTaxable = 0, totalVat = 0;
+  let totalTaxable = 0,
+    totalVat = 0;
   const lines: InvoiceLineItem[] = [];
   const invId = `INV-${folioId}`;
   folioCharges.forEach((c) => {
     const vt = c.vatTreatment ?? (c.type === "tax" ? "exempt" : (res.vatTreatment ?? "inclusive"));
-    const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(c.amount / (1 + vatRate)) : c.amount);
+    const taxable =
+      vt === "exempt" ? 0 : vt === "inclusive" ? Math.round(c.amount / (1 + vatRate)) : c.amount;
     const vat = vt === "exempt" ? 0 : Math.round(taxable * vatRate);
     totalTaxable += taxable;
     totalVat += vat;
@@ -1382,12 +2357,23 @@ export function generateInvoice(folioId: string): Invoice | null {
   };
   state.invoices = [...state.invoices, inv];
   state.invoiceLineItems = [...state.invoiceLineItems, ...lines];
-  logAudit({ actor: "System", role: "System", module: "billing", action: `Invoice generated ${inv.invoiceNo}`, entity: `${folioId} total=${fmtUGX(totalCharges)}`, severity: "info" });
+  logAudit({
+    actor: "System",
+    role: "System",
+    module: "billing",
+    action: `Invoice generated ${inv.invoiceNo}`,
+    entity: `${folioId} total=${fmtUGX(totalCharges)}`,
+    severity: "info",
+  });
   emit();
   return inv;
 }
 
-export async function submitToEFRIS(invoiceId: string, actor: string, role: string): Promise<boolean> {
+export async function submitToEFRIS(
+  invoiceId: string,
+  actor: string,
+  role: string,
+): Promise<boolean> {
   const inv = state.invoices.find((i) => i.id === invoiceId);
   if (!inv || inv.isProforma || inv.isCreditNote) return false;
   if (inv.eFRISStatus === "confirmed") return true;
@@ -1411,20 +2397,42 @@ export async function submitToEFRIS(invoiceId: string, actor: string, role: stri
     }
     return { ...i, eFRISStatus: "failed" as const };
   });
-  logAudit({ actor, role, module: "billing", action: success ? "EFRIS submission confirmed" : "EFRIS submission failed", entity: `${inv.invoiceNo}`, severity: success ? "info" : "warn" });
+  logAudit({
+    actor,
+    role,
+    module: "billing",
+    action: success ? "EFRIS submission confirmed" : "EFRIS submission failed",
+    entity: `${inv.invoiceNo}`,
+    severity: success ? "info" : "warn",
+  });
   emit();
   return success;
 }
 
-export function generateCreditNote(folioId: string, voidedChargeId: string, reason: string, actor: string, role: string): Invoice | null {
-  const existingInv = state.invoices.find((i) => i.folioId === folioId && i.isCreditNote && i.creditNoteFor === voidedChargeId);
+export function generateCreditNote(
+  folioId: string,
+  voidedChargeId: string,
+  reason: string,
+  actor: string,
+  role: string,
+): Invoice | null {
+  const existingInv = state.invoices.find(
+    (i) => i.folioId === folioId && i.isCreditNote && i.creditNoteFor === voidedChargeId,
+  );
   if (existingInv) return existingInv;
-  const originalInv = state.invoices.find((i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote);
+  const originalInv = state.invoices.find(
+    (i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote,
+  );
   const charge = state.charges.find((c) => c.id === voidedChargeId);
   if (!charge) return null;
   const vatRate = currentVatRate();
   const vt = charge.vatTreatment ?? "inclusive";
-  const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(charge.amount / (1 + vatRate)) : charge.amount);
+  const taxable =
+    vt === "exempt"
+      ? 0
+      : vt === "inclusive"
+        ? Math.round(charge.amount / (1 + vatRate))
+        : charge.amount;
   const vat = vt === "exempt" ? 0 : Math.round(taxable * vatRate);
   const cnId = `CN-${folioId}-${voidedChargeId}`;
   const cn: Invoice = {
@@ -1449,18 +2457,28 @@ export function generateCreditNote(folioId: string, voidedChargeId: string, reas
     creditNoteReason: reason,
   };
   state.invoices = [...state.invoices, cn];
-  state.invoiceLineItems = [...state.invoiceLineItems, {
-    id: `INVLI-${cnId}-0`,
-    invoiceId: cnId,
-    description: `Credit note: ${charge.description} — ${reason}`,
-    amount: -charge.amount,
-    vatTreatment: vt,
-    vatRate,
-    taxableAmount: -taxable,
-    vatAmount: -vat,
-    totalAmount: -charge.amount,
-  }];
-  logAudit({ actor, role, module: "billing", action: `Credit note ${cn.invoiceNo} generated`, entity: `${folioId} charge=${voidedChargeId} reason=${reason}`, severity: "warn" });
+  state.invoiceLineItems = [
+    ...state.invoiceLineItems,
+    {
+      id: `INVLI-${cnId}-0`,
+      invoiceId: cnId,
+      description: `Credit note: ${charge.description} — ${reason}`,
+      amount: -charge.amount,
+      vatTreatment: vt,
+      vatRate,
+      taxableAmount: -taxable,
+      vatAmount: -vat,
+      totalAmount: -charge.amount,
+    },
+  ];
+  logAudit({
+    actor,
+    role,
+    module: "billing",
+    action: `Credit note ${cn.invoiceNo} generated`,
+    entity: `${folioId} charge=${voidedChargeId} reason=${reason}`,
+    severity: "warn",
+  });
   emit();
   submitToEFRIS(cnId, actor, role);
   return cn;
@@ -1472,15 +2490,19 @@ export function generateProforma(folioId: string): Invoice | null {
   const res = state.reservations.find((r) => r.id === folio.reservationId);
   if (!res) return null;
   const folioCharges = state.charges.filter((c) => c.folioId === folioId && !c.voided);
-  const folioPayments = state.payments.filter((p) => p.folioId === folioId && p.status === "confirmed");
+  const folioPayments = state.payments.filter(
+    (p) => p.folioId === folioId && p.status === "confirmed",
+  );
   const totalCharges = folioCharges.reduce((s, c) => s + c.amount, 0);
   const totalPaid = folioPayments.reduce((s, p) => s + p.amount, 0);
   const vatRate = currentVatRate();
-  let totalTaxable = 0, totalVat = 0;
+  let totalTaxable = 0,
+    totalVat = 0;
   const invId = `PRO-${folioId}`;
   const lines: InvoiceLineItem[] = folioCharges.map((c, idx) => {
     const vt = c.vatTreatment ?? (c.type === "tax" ? "exempt" : (res.vatTreatment ?? "inclusive"));
-    const taxable = vt === "exempt" ? 0 : (vt === "inclusive" ? Math.round(c.amount / (1 + vatRate)) : c.amount);
+    const taxable =
+      vt === "exempt" ? 0 : vt === "inclusive" ? Math.round(c.amount / (1 + vatRate)) : c.amount;
     const vat = vt === "exempt" ? 0 : Math.round(taxable * vatRate);
     totalTaxable += taxable;
     totalVat += vat;
@@ -1532,10 +2554,13 @@ export function searchInvoices(query: {
     if (inv.isCreditNote) return false;
     if (query.q) {
       const lower = query.q.toLowerCase();
-      if (!inv.guestName.toLowerCase().includes(lower) &&
-          !inv.invoiceNo.toLowerCase().includes(lower) &&
-          !inv.reservationId.toLowerCase().includes(lower) &&
-          !(inv.eFRISFiscalNo ?? "").toLowerCase().includes(lower)) return false;
+      if (
+        !inv.guestName.toLowerCase().includes(lower) &&
+        !inv.invoiceNo.toLowerCase().includes(lower) &&
+        !inv.reservationId.toLowerCase().includes(lower) &&
+        !(inv.eFRISFiscalNo ?? "").toLowerCase().includes(lower)
+      )
+        return false;
     }
     if (query.dateFrom && inv.issuedAt.slice(0, 10) < query.dateFrom) return false;
     if (query.dateTo && inv.issuedAt.slice(0, 10) > query.dateTo) return false;
@@ -1553,15 +2578,36 @@ export function invoiceLineItemsFor(invoiceId: string): InvoiceLineItem[] {
   return state.invoiceLineItems.filter((li) => li.invoiceId === invoiceId);
 }
 
-export function voidCharge(folioId: string, chargeId: string, reason: string, actor: string, role: string) {
+export function voidCharge(
+  folioId: string,
+  chargeId: string,
+  reason: string,
+  actor: string,
+  role: string,
+) {
   state.charges = state.charges.map((c) =>
     c.id === chargeId && c.folioId === folioId && !c.voided
-      ? { ...c, voided: true, voidReason: reason, voidedBy: actor, voidedAt: new Date().toISOString() }
+      ? {
+          ...c,
+          voided: true,
+          voidReason: reason,
+          voidedBy: actor,
+          voidedAt: new Date().toISOString(),
+        }
       : c,
   );
-  logAudit({ actor, role, module: "billing", action: `Voided charge ${chargeId}`, entity: `${folioId} — ${reason}`, severity: "warn" });
+  logAudit({
+    actor,
+    role,
+    module: "billing",
+    action: `Voided charge ${chargeId}`,
+    entity: `${folioId} — ${reason}`,
+    severity: "warn",
+  });
   emit();
-  const hasInvoice = state.invoices.some((i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote);
+  const hasInvoice = state.invoices.some(
+    (i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote,
+  );
   if (hasInvoice) {
     generateCreditNote(folioId, chargeId, reason, actor, role);
   }
@@ -1573,11 +2619,25 @@ export function settleFolio(folioId: string, actor: string, role: string) {
       ? { ...f, status: "settled", closedAt: new Date().toISOString() }
       : f,
   );
-  logAudit({ actor, role, module: "billing", action: "Folio settled", entity: folioId, severity: "info" });
+  logAudit({
+    actor,
+    role,
+    module: "billing",
+    action: "Folio settled",
+    entity: folioId,
+    severity: "info",
+  });
   emit();
   const inv = generateInvoice(folioId);
   if (inv) {
-    logAudit({ actor, role, module: "billing", action: "Invoice auto-generated on settle", entity: `${inv.invoiceNo} for ${folioId}`, severity: "info" });
+    logAudit({
+      actor,
+      role,
+      module: "billing",
+      action: "Invoice auto-generated on settle",
+      entity: `${inv.invoiceNo} for ${folioId}`,
+      severity: "info",
+    });
     emit();
     submitToEFRIS(inv.id, actor, role);
   }
@@ -1590,18 +2650,26 @@ export function runNightAudit(actor: string, role: string) {
     if (f.status !== "open" && f.status !== "active") return;
     const res = state.reservations.find((r) => r.id === f.reservationId);
     if (!res || !res.roomId) return;
-    const alreadyPosted = state.charges.some((c) => c.folioId === f.id && c.date === today && c.type === "room");
+    const alreadyPosted = state.charges.some(
+      (c) => c.folioId === f.id && c.date === today && c.type === "room",
+    );
     if (alreadyPosted) return;
-    const nightsSoFar = Math.max(1, Math.ceil((new Date(today).getTime() - new Date(res.checkIn).getTime()) / 86_400_000));
-    state.charges = [...state.charges, {
-      id: nextChargeId(),
-      folioId: f.id,
-      date: today,
-      type: "room",
-      description: `Room ${res.roomId} — night ${nightsSoFar}`,
-      amount: res.ratePerNight,
-      postedBy: actor,
-    }];
+    const nightsSoFar = Math.max(
+      1,
+      Math.ceil((new Date(today).getTime() - new Date(res.checkIn).getTime()) / 86_400_000),
+    );
+    state.charges = [
+      ...state.charges,
+      {
+        id: nextChargeId(),
+        folioId: f.id,
+        date: today,
+        type: "room",
+        description: `Room ${res.roomId} — night ${nightsSoFar}`,
+        amount: res.ratePerNight,
+        postedBy: actor,
+      },
+    ];
     posted.push(f.id);
   });
   // advance folio lifecycle
@@ -1609,20 +2677,31 @@ export function runNightAudit(actor: string, role: string) {
     if (f.status === "open") return { ...f, status: "active" };
     return f;
   });
-  logAudit({ actor, role, module: "billing", action: "Night audit completed", entity: `${posted.length} folios charged for ${today}`, severity: "info" });
+  logAudit({
+    actor,
+    role,
+    module: "billing",
+    action: "Night audit completed",
+    entity: `${posted.length} folios charged for ${today}`,
+    severity: "info",
+  });
   emit();
   return posted;
 }
 
 export function totalOutstanding() {
   return state.folios
-    .filter((f) => f.status === "open" || f.status === "active" || f.status === "pending_settlement")
+    .filter(
+      (f) => f.status === "open" || f.status === "active" || f.status === "pending_settlement",
+    )
     .reduce((s, f) => s + folioBalance(f.id), 0);
 }
 
 export function paymentsToday() {
   const today = todayISO();
-  return state.payments.filter((p) => p.date === today && p.status === "confirmed").reduce((s, p) => s + p.amount, 0);
+  return state.payments
+    .filter((p) => p.date === today && p.status === "confirmed")
+    .reduce((s, p) => s + p.amount, 0);
 }
 
 export const FOLIO_STATUS_LABEL: Record<FolioStatus, string> = {
@@ -1637,17 +2716,20 @@ export const FOLIO_STATUS_LABEL: Record<FolioStatus, string> = {
 /* ============================== Rooms / Housekeeping ============================== */
 
 export function setRoomStatus(roomId: string, status: RoomStatus) {
-  state.rooms = state.rooms.map((r) =>
-    r.id === roomId ? { ...r, status } : r,
-  );
-  logAudit({ actor: "Housekeeping", role: "Housekeeping", module: "housekeeping", action: "Updated room status", entity: `Room ${roomId} → ${status}`, severity: "info" });
+  state.rooms = state.rooms.map((r) => (r.id === roomId ? { ...r, status } : r));
+  logAudit({
+    actor: "Housekeeping",
+    role: "Housekeeping",
+    module: "housekeeping",
+    action: "Updated room status",
+    entity: `Room ${roomId} → ${status}`,
+    severity: "info",
+  });
   emit();
 }
 
 export function assignRoomHousekeeper(roomId: string, userId: string | null) {
-  state.rooms = state.rooms.map((r) =>
-    r.id === roomId ? { ...r, assignedTo: userId } : r,
-  );
+  state.rooms = state.rooms.map((r) => (r.id === roomId ? { ...r, assignedTo: userId } : r));
   emit();
 }
 
@@ -1674,7 +2756,14 @@ export function createHousekeepingTask(input: {
   };
   state.housekeepingTasks = [...state.housekeepingTasks, task];
   setRoomStatus(input.roomId, "dirty");
-  logAudit({ actor: "Housekeeping", role: "Housekeeping", module: "housekeeping", action: "Task created", entity: `${task.id} — Room ${input.roomId} (${input.type})`, severity: "info" });
+  logAudit({
+    actor: "Housekeeping",
+    role: "Housekeeping",
+    module: "housekeeping",
+    action: "Task created",
+    entity: `${task.id} — Room ${input.roomId} (${input.type})`,
+    severity: "info",
+  });
   emit();
   return task;
 }
@@ -1704,7 +2793,14 @@ export function updateHkTaskStatus(taskId: string, status: HkTaskStatus) {
   state.housekeepingTasks = state.housekeepingTasks.map((t) =>
     t.id === taskId ? { ...t, ...patch } : t,
   );
-  logAudit({ actor: "Housekeeping", role: "Housekeeping", module: "housekeeping", action: `Task ${status}`, entity: `${task.id} — Room ${task.roomId}`, severity: "info" });
+  logAudit({
+    actor: "Housekeeping",
+    role: "Housekeeping",
+    module: "housekeeping",
+    action: `Task ${status}`,
+    entity: `${task.id} — Room ${task.roomId}`,
+    severity: "info",
+  });
   emit();
 }
 
@@ -1723,7 +2819,14 @@ export function flagHkIssue(taskId: string, description: string, severity: Maint
   };
   state.maintenanceRequests = [...state.maintenanceRequests, req];
   updateHkTaskStatus(taskId, "flagged");
-  logAudit({ actor: "Housekeeping", role: "Housekeeping", module: "housekeeping", action: "Issue flagged", entity: `Room ${task.roomId} — ${description}`, severity: severity === "critical" || severity === "high" ? "warn" : "info" });
+  logAudit({
+    actor: "Housekeeping",
+    role: "Housekeeping",
+    module: "housekeeping",
+    action: "Issue flagged",
+    entity: `Room ${task.roomId} — ${description}`,
+    severity: severity === "critical" || severity === "high" ? "warn" : "info",
+  });
   emit();
 }
 
@@ -1743,7 +2846,14 @@ export function setDND(roomId: string, reason: string, endTime?: string) {
     reason,
   };
   state.dndRecords = [...state.dndRecords, dnd];
-  logAudit({ actor: "Front Desk", role: "Front Desk", module: "housekeeping", action: "DND set", entity: `Room ${roomId} — ${reason}`, severity: "info" });
+  logAudit({
+    actor: "Front Desk",
+    role: "Front Desk",
+    module: "housekeeping",
+    action: "DND set",
+    entity: `Room ${roomId} — ${reason}`,
+    severity: "info",
+  });
   emit();
 }
 
@@ -1766,19 +2876,37 @@ export function getActiveDND(): DNDRecord[] {
 
 export function upsertRoom(room: Room) {
   const exists = state.rooms.some((r) => r.id === room.id);
-  state.rooms = exists ? state.rooms.map((r) => (r.id === room.id ? room : r)) : [...state.rooms, room];
-  logAudit({ actor: "Admin", role: "System Administrator", module: "settings", action: exists ? "Updated room" : "Added room", entity: `Room ${room.id}`, severity: "info" });
+  state.rooms = exists
+    ? state.rooms.map((r) => (r.id === room.id ? room : r))
+    : [...state.rooms, room];
+  logAudit({
+    actor: "Admin",
+    role: "System Administrator",
+    module: "settings",
+    action: exists ? "Updated room" : "Added room",
+    entity: `Room ${room.id}`,
+    severity: "info",
+  });
   emit();
 }
 export function deleteRoom(roomId: string) {
   state.rooms = state.rooms.filter((r) => r.id !== roomId);
-  logAudit({ actor: "Admin", role: "System Administrator", module: "settings", action: "Deleted room", entity: `Room ${roomId}`, severity: "warn" });
+  logAudit({
+    actor: "Admin",
+    role: "System Administrator",
+    module: "settings",
+    action: "Deleted room",
+    entity: `Room ${roomId}`,
+    severity: "warn",
+  });
   emit();
 }
 
 export function upsertRoomType(t: RoomType) {
   const exists = state.roomTypes.some((x) => x.id === t.id);
-  state.roomTypes = exists ? state.roomTypes.map((x) => (x.id === t.id ? t : x)) : [...state.roomTypes, t];
+  state.roomTypes = exists
+    ? state.roomTypes.map((x) => (x.id === t.id ? t : x))
+    : [...state.roomTypes, t];
   emit();
 }
 export function deleteRoomType(id: string) {
@@ -1791,7 +2919,14 @@ export function deleteRoomType(id: string) {
 export function upsertUser(u: UserRecord) {
   const exists = state.users.some((x) => x.id === u.id);
   state.users = exists ? state.users.map((x) => (x.id === u.id ? u : x)) : [...state.users, u];
-  logAudit({ actor: "Admin", role: "System Administrator", module: "identity", action: exists ? "Updated user" : "Created user", entity: `${u.email}`, severity: exists ? "info" : "warn" });
+  logAudit({
+    actor: "Admin",
+    role: "System Administrator",
+    module: "identity",
+    action: exists ? "Updated user" : "Created user",
+    entity: `${u.email}`,
+    severity: exists ? "info" : "warn",
+  });
   emit();
 }
 export function toggleUserActive(id: string) {
@@ -1803,7 +2938,14 @@ export function toggleUserActive(id: string) {
 
 export function updateTenant(patch: Partial<Tenant>) {
   state.tenant = { ...state.tenant, ...patch };
-  logAudit({ actor: "Admin", role: "System Administrator", module: "settings", action: "Updated tenant configuration", entity: state.tenant.name, severity: "warn" });
+  logAudit({
+    actor: "Admin",
+    role: "System Administrator",
+    module: "settings",
+    action: "Updated tenant configuration",
+    entity: state.tenant.name,
+    severity: "warn",
+  });
   emit();
 }
 
@@ -1840,9 +2982,7 @@ export function revparOnDate(dateISO: string) {
 }
 
 export function totalRevenueOnDate(dateISO: string) {
-  return state.charges
-    .filter((c) => c.date === dateISO)
-    .reduce((s, c) => s + c.amount, 0);
+  return state.charges.filter((c) => c.date === dateISO).reduce((s, c) => s + c.amount, 0);
 }
 
 export function dateRangeList(fromISO: string, toISO: string): string[] {

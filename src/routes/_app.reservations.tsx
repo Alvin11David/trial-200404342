@@ -297,7 +297,7 @@ function ReservationsPage() {
             >
               {roomType === "All"
                 ? "All room types"
-                : (roomTypes.find((t) => t.id === roomType)?.name ?? roomType)}
+                : (roomTypes.find((t) => t.id === roomType)?.typeName ?? roomType)}
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             {roomTypeOpen && (
@@ -328,7 +328,7 @@ function ReservationsPage() {
                         roomType === t.id && "bg-primary/10 font-medium text-primary",
                       )}
                     >
-                      {t.name}
+                      {t.typeName}
                     </button>
                   ))}
                 </div>
@@ -411,8 +411,8 @@ function ReservationsPage() {
                       className="sticky left-0 z-10 flex items-center gap-2 border-b border-r border-border bg-card px-3 py-2"
                     >
                       <span className="text-xs font-medium">{room.id}</span>
-                      <span className="text-[9px] text-muted-foreground">{rt?.name}</span>
-                    </div>
+                       <span className="text-[9px] text-muted-foreground">{rt?.typeName}</span>
+                     </div>
                     {cells.map((cell) => (
                       <div
                         key={cell.day}
@@ -494,7 +494,7 @@ function ReservationsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="font-medium">{r.roomId ? `Room ${r.roomId}` : "—"}</div>
-                        <div className="text-[11px] text-muted-foreground">{rt?.name}</div>
+                        <div className="text-[11px] text-muted-foreground">{rt?.typeName}</div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="font-medium">
@@ -515,7 +515,17 @@ function ReservationsPage() {
                           {r.status.replace("_", " ")}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-right font-semibold">{fmtUGX(total)}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="font-semibold">{fmtUGX(total)}</div>
+                        {r.deposit ? (
+                          <div className="text-[10px] text-green-500">Dep: {fmtUGX(r.deposit)}</div>
+                        ) : null}
+                        {r.discount ? (
+                          <div className="text-[10px] text-red-500">
+                            Disc: -{fmtUGX(r.discount)}
+                          </div>
+                        ) : null}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1 opacity-70 transition group-hover:opacity-100">
                           {r.folioId && (
@@ -759,6 +769,12 @@ function EditDialog({
   const [children, setChildren] = useState(res.children);
   const [ratePerNight, setRatePerNight] = useState(res.ratePerNight);
   const [mealPlan, setMealPlan] = useState(res.mealPlan);
+  const [deposit, setDeposit] = useState(res.deposit ?? 0);
+  const [discount, setDiscount] = useState(res.discount ?? 0);
+  const [arrivalTime, setArrivalTime] = useState(res.arrivalTime ?? "");
+  const [extraBeds, setExtraBeds] = useState(res.extraBeds ?? 0);
+  const [purpose, setPurpose] = useState(res.purpose ?? "");
+  const [carReg, setCarReg] = useState(res.carReg ?? "");
   const [notes, setNotes] = useState(res.notes ?? "");
 
   const submit = () => {
@@ -773,6 +789,12 @@ function EditDialog({
       children,
       ratePerNight,
       mealPlan,
+      deposit: deposit || undefined,
+      discount: discount || undefined,
+      arrivalTime: arrivalTime || undefined,
+      extraBeds: extraBeds || undefined,
+      purpose: purpose || undefined,
+      carReg: carReg || undefined,
       notes: notes || undefined,
     };
     const r = updateReservation(reservationId, patch);
@@ -838,7 +860,7 @@ function EditDialog({
               <SelectContent>
                 {roomTypes.map((rt) => (
                   <SelectItem key={rt.id} value={rt.id}>
-                    {rt.name}
+                    {rt.typeName}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -901,6 +923,68 @@ function EditDialog({
               onChange={(e) => setRatePerNight(Number(e.target.value))}
               className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
             />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground">Arrival time</label>
+            <input
+              type="time"
+              value={arrivalTime}
+              onChange={(e) => setArrivalTime(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground">Extra beds</label>
+            <input
+              type="number"
+              min={0}
+              max={5}
+              value={extraBeds}
+              onChange={(e) => setExtraBeds(Number(e.target.value))}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
+          </div>
+          <div className="col-span-2">
+            <label className="block text-xs font-medium text-muted-foreground">
+              Purpose of visit
+            </label>
+            <input
+              value={purpose}
+              onChange={(e) => setPurpose(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
+          </div>
+          <div className="col-span-2">
+            <label className="block text-xs font-medium text-muted-foreground">
+              Car registration
+            </label>
+            <input
+              value={carReg}
+              onChange={(e) => setCarReg(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60"
+            />
+          </div>
+          <div className="col-span-2 rounded-lg bg-muted/30 p-3 text-sm">
+            <div className="flex justify-between">
+              <span>Rate × nights</span>
+              <span>{fmtUGX(total)}</span>
+            </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-red-500">
+                <span>Discount</span>
+                <span>-{fmtUGX(discount)}</span>
+              </div>
+            )}
+            {deposit > 0 && (
+              <div className="flex justify-between text-green-500">
+                <span>Deposit</span>
+                <span>{fmtUGX(deposit)}</span>
+              </div>
+            )}
+            <div className="mt-1 flex justify-between border-t border-border pt-1 font-bold">
+              <span>Balance due</span>
+              <span>{fmtUGX(total - discount)}</span>
+            </div>
           </div>
           <div className="col-span-2">
             <label className="block text-xs font-medium text-muted-foreground">Notes</label>
