@@ -180,7 +180,7 @@ function RoomTypesPanel() {
                 <td className="px-4 py-3 text-right tabular-nums">
                   UGX {t.baseRate.toLocaleString()}
                 </td>
-                <td className="px-4 py-3 text-right">{t.capacity}</td>
+                <td className="px-4 py-3 text-right">{t.maxOccupancy}</td>
                 <td className="px-4 py-3 text-right">
                   <button
                     onClick={() => setEdit(t)}

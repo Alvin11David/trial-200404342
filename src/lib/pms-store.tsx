@@ -422,6 +422,8 @@ type State = {
   users: User[];
   roles: RoleRecord[];
   userRoles: UserRole[];
+  cancellationPolicies: CancellationPolicy[];
+  ratePlans: RatePlan[];
   audit: AuditEntry[];
   housekeepingTasks: HousekeepingTask[];
   maintenanceRequests: MaintenanceRequest[];
@@ -463,6 +465,21 @@ const RATE_PLANS: RatePlan[] = [
 
 const HOUSEKEEPERS = ["U003", "U008"]; // grace, mary
 const DEFAULT_VAT_RATE = 0.18;
+
+const CANCELLATION_POLICIES: CancellationPolicy[] = [
+  { id: "CP001", name: "Flexible", freeCancelHoursBefore: 48, partialRefundPct: 50, partialRefundHoursBefore: 24, noShowChargePct: 100 },
+  { id: "CP002", name: "Moderate", freeCancelHoursBefore: 72, partialRefundPct: 0, partialRefundHoursBefore: 0, noShowChargePct: 100 },
+  { id: "CP003", name: "Non-Refundable", freeCancelHoursBefore: 0, partialRefundPct: 0, partialRefundHoursBefore: 0, noShowChargePct: 100 },
+];
+
+const RATE_PLANS: RatePlan[] = [
+  { id: "RP001", roomTypeId: "std", cancellationPolicyId: "CP001", name: "Rack Rate", nightlyRate: 220_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true },
+  { id: "RP002", roomTypeId: "dlx", cancellationPolicyId: "CP001", name: "Rack Rate", nightlyRate: 380_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true },
+  { id: "RP003", roomTypeId: "ste", cancellationPolicyId: "CP001", name: "Rack Rate", nightlyRate: 850_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true },
+  { id: "RP004", roomTypeId: "std", cancellationPolicyId: "CP003", name: "Advance Purchase", nightlyRate: 198_000, vatTreatment: "inclusive", depositRequiredPct: 100, minLengthOfStay: 1, isActive: true },
+  { id: "RP005", roomTypeId: "dlx", cancellationPolicyId: "CP002", name: "Corporate", nightlyRate: 340_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true },
+  { id: "RP006", roomTypeId: "ste", cancellationPolicyId: "CP001", name: "Weekend Getaway", nightlyRate: 750_000, vatTreatment: "inclusive", depositRequiredPct: 50, minLengthOfStay: 2, isActive: true },
+];
 
 const ROOMS: Room[] = (() => {
   const list: Room[] = [];
@@ -1259,6 +1276,8 @@ const state: State = {
   roles: persisted?.roles ?? ROLES_DATA,
   userRoles: persisted?.userRoles ?? USER_ROLES_DATA,
   audit: persisted?.audit ?? AUDIT,
+  cancellationPolicies: persisted?.cancellationPolicies ?? CANCELLATION_POLICIES,
+  ratePlans: persisted?.ratePlans ?? RATE_PLANS,
   housekeepingTasks: persisted?.housekeepingTasks ?? HK_TASKS,
   maintenanceRequests: persisted?.maintenanceRequests ?? MAINT_REQUESTS,
   dndRecords: persisted?.dndRecords ?? DND_RECORDS,
