@@ -397,13 +397,16 @@ export type ServiceRequest = {
   updatedAt: string;
 };
 
-export type InvoiceStatus = "paid" | "partial" | "unpaid";
+export type InvoiceStatus = "draft" | "issued" | "paid" | "overdue" | "cancelled";
 export type EFRISStatus = "pending" | "submitted" | "failed" | "confirmed";
 export type Invoice = {
   id: string;
+  propertyId?: string;
   invoiceNo: string;
   folioId: string;
   reservationId: string;
+  cityLedgerEntryId?: string;
+  agentLedgerEntryId?: string;
   guestName: string;
   guestEmail: string;
   guestPhone: string;
@@ -411,6 +414,8 @@ export type Invoice = {
   companyTin?: string;
   companyAddress?: string;
   issuedAt: string;
+  issuedBy?: string;
+  dueDate?: string;
   status: InvoiceStatus;
   eFRISStatus: EFRISStatus;
   eFRISFiscalNo?: string;
@@ -419,13 +424,69 @@ export type Invoice = {
   totalTaxable: number;
   totalVat: number;
   totalAmount: number;
+  amountDue?: number;
   paidAmount: number;
+  amountPaid?: number;
   outstandingAmount: number;
+  overdueAlertedAt?: string;
   isProforma: boolean;
   isCreditNote: boolean;
   creditNoteFor?: string;
   creditNoteReason?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
+
+export type AgentLedgerEntryStatus = InvoiceStatus;
+export type AgentLedgerEntry = {
+  id: string;
+  propertyId?: string;
+  folioId: string;
+  travelAgentAccountId: string;
+  reservationId: string;
+  guestName: string;
+  stayFrom: string;
+  stayTo: string;
+  voucherNumber?: string;
+  grossAmount: number;
+  commissionRatePct: number;
+  commissionAmount: number;
+  netAmount: number;
+  vatTreatment?: VatTreatment;
+  status: AgentLedgerEntryStatus;
+  transferredAt?: string;
+  transferredBy?: string;
+  paidAt?: string;
+  paidAmount?: number;
+  paymentReference?: string;
+  invoiceId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type ReconciliationReport = {
+  id: string;
+  propertyId?: string;
+  reportDate: string;
+  totalRevenue: number;
+  totalVat: number;
+  totalCash: number;
+  totalMtnMomo: number;
+  totalAirtelMoney: number;
+  totalCard: number;
+  totalCityLedgerTransferred: number;
+  totalAgentLedgerTransferred: number;
+  totalAdjustments: number;
+  efrisSubmittedCount: number;
+  efrisPendingCount: number;
+  discrepancyAmount: number;
+  discrepancyNotes?: string;
+  signedOffBy?: string;
+  signedOffAt?: string;
+  isLocked: boolean;
+  generatedAt: string;
+};
+
 export type InvoiceLineItem = {
   id: string;
   invoiceId: string;
@@ -599,6 +660,197 @@ export type DNDRecord = {
   reason: string;
 };
 
+/* ==================== Domain 6 — Reporting ==================== */
+
+export type ReportAccessLog = {
+  id: string;
+  propertyId?: string;
+  userId: string;
+  reportType: string;
+  parameters?: Record<string, unknown>;
+  exported?: boolean;
+  exportFormat?: string;
+  exportRef?: string;
+  accessedAt: string;
+};
+
+export type ScheduledReportConfig = {
+  id: string;
+  propertyId?: string;
+  reportType: string;
+  scheduleCron: string;
+  parameters?: Record<string, unknown>;
+  recipientEmails: string[];
+  isActive: boolean;
+  lastRunAt?: string;
+  lastRunStatus?: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+/* ==================== Domain 7 — POS ==================== */
+
+export type PosOutlet = {
+  id: string;
+  propertyId?: string;
+  name: string;
+  departmentCode?: string;
+  serviceChargePct: number;
+  isActive: boolean;
+  legacyRef?: string;
+  createdAt?: string;
+};
+
+export type MenuCategory = {
+  id: string;
+  posOutletId: string;
+  name: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt?: string;
+};
+
+export type MenuItem = {
+  id: string;
+  posOutletId: string;
+  menuCategoryId: string;
+  stockItemId?: string;
+  name: string;
+  description?: string;
+  unitPrice: number;
+  vatTreatment: VatTreatment;
+  availabilityPeriods?: string[];
+  isActive: boolean;
+  legacyRef?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type MenuModifier = {
+  id: string;
+  menuItemId: string;
+  name: string;
+  options: string[];
+  isRequired: boolean;
+  createdAt?: string;
+};
+
+export type PosTable = {
+  id: string;
+  posOutletId: string;
+  tableName: string;
+  seatingCapacity: number;
+  isActive: boolean;
+  legacyRef?: string;
+  createdAt?: string;
+};
+
+export type PosTabStatus = "open" | "settled" | "room_charged" | "unrecovered" | "cancelled";
+export type PosSettlementMethod = "direct_payment" | "room_charge";
+
+export type PosTab = {
+  id: string;
+  propertyId?: string;
+  posOutletId: string;
+  posTableId?: string;
+  reservationId?: string;
+  guestProfileId?: string;
+  openedBy?: string;
+  coverCount: number;
+  status: PosTabStatus;
+  subtotal: number;
+  vatAmount: number;
+  serviceChargeAmount: number;
+  totalAmount: number;
+  openedAt: string;
+  settledAt?: string;
+  settledBy?: string;
+  settlementMethod?: PosSettlementMethod;
+  roomChargeFolioId?: string;
+  roomChargeSignedAt?: string;
+  roomChargeAuthRef?: string;
+  efrisReceiptId?: string;
+  unrecoveredReason?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type PosTabItem = {
+  id: string;
+  posTabId: string;
+  menuItemId: string;
+  quantity: number;
+  unitPrice: number;
+  modifierSelections?: Record<string, string>;
+  specialNotes?: string;
+  seatNumber?: number;
+  isComplimentary: boolean;
+  compAuthorisedBy?: string;
+  compReason?: string;
+  isVoided: boolean;
+  voidedBy?: string;
+  voidReason?: string;
+  voidAfterAck: boolean;
+  addedBy?: string;
+  addedAt: string;
+  createdAt?: string;
+};
+
+export type Kot = {
+  id: string;
+  posTabId: string;
+  posOutletId: string;
+  stationType: string;
+  status: string;
+  waiterId?: string;
+  createdAt: string;
+  acknowledgedAt?: string;
+  allReadyAt?: string;
+  takenAt?: string;
+};
+
+export type KotItemStatus = "pending" | "in_preparation" | "ready" | "voided";
+export type KotItem = {
+  id: string;
+  kotId: string;
+  posTabItemId: string;
+  menuItemId: string;
+  quantity: number;
+  modifierSelections?: Record<string, string>;
+  specialNotes?: string;
+  status: KotItemStatus;
+  inPreparationAt?: string;
+  readyAt?: string;
+  preparationSeconds?: number;
+  createdAt?: string;
+};
+
+export type PosServicePeriod = {
+  id: string;
+  propertyId?: string;
+  posOutletId: string;
+  periodName: string;
+  periodDate: string;
+  openedAt: string;
+  closedAt?: string;
+  closedBy?: string;
+  status: string;
+  totalCovers: number;
+  totalOrders: number;
+  totalFoodRevenue: number;
+  totalBeverageRevenue: number;
+  totalVat: number;
+  totalServiceCharge: number;
+  totalDirectPayments: number;
+  totalRoomCharges: number;
+  totalComps: number;
+  totalUnrecovered: number;
+  cashReconciledAmount: number;
+  cashVariance: number;
+  createdAt?: string;
+};
+
 type State = {
   tenant: Property;
   roomTypes: RoomType[];
@@ -628,6 +880,20 @@ type State = {
   roomInspections: RoomInspection[];
   maintenanceRequests: MaintenanceRequest[];
   dndRecords: DNDRecord[];
+  agentLedgerEntries: AgentLedgerEntry[];
+  reconciliationReports: ReconciliationReport[];
+  reportAccessLogs: ReportAccessLog[];
+  scheduledReportConfigs: ScheduledReportConfig[];
+  posOutlets: PosOutlet[];
+  menuCategories: MenuCategory[];
+  menuItems: MenuItem[];
+  menuModifiers: MenuModifier[];
+  posTables: PosTable[];
+  posTabs: PosTab[];
+  posTabItems: PosTabItem[];
+  kots: Kot[];
+  kotItems: KotItem[];
+  posServicePeriods: PosServicePeriod[];
 };
 
 /* ============================== Seed ============================== */
@@ -789,7 +1055,21 @@ function saveCounters() {
         serviceRequestCounter,
         receiptCounter,
         invoiceCounter,
+        agentLedgerEntryCounter,
+        reconciliationReportCounter,
         creditNoteCounter,
+        reportAccessLogCounter,
+        scheduledReportConfigCounter,
+        posOutletCounter,
+        menuCategoryCounter,
+        menuItemCounter,
+        menuModifierCounter,
+        posTableCounter,
+        posTabCounter,
+        posTabItemCounter,
+        kotCounter,
+        kotItemCounter,
+        posServicePeriodCounter,
       }),
     );
   } catch {
@@ -878,6 +1158,90 @@ const nextInvoiceNo = () => {
 let creditNoteCounter = savedCounters.creditNoteCounter ?? 100;
 const nextCreditNoteNo = () => {
   const v = `JSL-CN-${new Date().getFullYear()}-${String(++creditNoteCounter).padStart(5, "0")}`;
+  saveCounters();
+  return v;
+};
+let agentLedgerEntryCounter = savedCounters.agentLedgerEntryCounter ?? 0;
+const nextAgentLedgerId = () => {
+  const v = `ALE-${++agentLedgerEntryCounter}`;
+  saveCounters();
+  return v;
+};
+let reconciliationReportCounter = savedCounters.reconciliationReportCounter ?? 0;
+const nextReconReportId = () => {
+  const v = `RR-${++reconciliationReportCounter}`;
+  saveCounters();
+  return v;
+};
+let reportAccessLogCounter = savedCounters.reportAccessLogCounter ?? 0;
+const nextReportAccessLogId = () => {
+  const v = `RAL-${++reportAccessLogCounter}`;
+  saveCounters();
+  return v;
+};
+let scheduledReportConfigCounter = savedCounters.scheduledReportConfigCounter ?? 0;
+const nextScheduledReportConfigId = () => {
+  const v = `SRC-${++scheduledReportConfigCounter}`;
+  saveCounters();
+  return v;
+};
+let posOutletCounter = savedCounters.posOutletCounter ?? 3;
+const nextPosOutletId = () => {
+  const v = `PO${String(++posOutletCounter).padStart(3, "0")}`;
+  saveCounters();
+  return v;
+};
+let menuCategoryCounter = savedCounters.menuCategoryCounter ?? 5;
+const nextMenuCategoryId = () => {
+  const v = `MC${String(++menuCategoryCounter).padStart(3, "0")}`;
+  saveCounters();
+  return v;
+};
+let menuItemCounter = savedCounters.menuItemCounter ?? 5;
+const nextMenuItemId = () => {
+  const v = `MI${String(++menuItemCounter).padStart(3, "0")}`;
+  saveCounters();
+  return v;
+};
+let menuModifierCounter = savedCounters.menuModifierCounter ?? 2;
+const nextMenuModifierId = () => {
+  const v = `MM${String(++menuModifierCounter).padStart(3, "0")}`;
+  saveCounters();
+  return v;
+};
+let posTableCounter = savedCounters.posTableCounter ?? 5;
+const nextPosTableId = () => {
+  const v = `PT${String(++posTableCounter).padStart(3, "0")}`;
+  saveCounters();
+  return v;
+};
+let posTabCounter = savedCounters.posTabCounter ?? 0;
+const nextPosTabId = () => {
+  const v = `TAB-${++posTabCounter}`;
+  saveCounters();
+  return v;
+};
+let posTabItemCounter = savedCounters.posTabItemCounter ?? 0;
+const nextPosTabItemId = () => {
+  const v = `TABI-${++posTabItemCounter}`;
+  saveCounters();
+  return v;
+};
+let kotCounter = savedCounters.kotCounter ?? 0;
+const nextKotId = () => {
+  const v = `KOT-${++kotCounter}`;
+  saveCounters();
+  return v;
+};
+let kotItemCounter = savedCounters.kotItemCounter ?? 0;
+const nextKotItemId = () => {
+  const v = `KOTI-${++kotItemCounter}`;
+  saveCounters();
+  return v;
+};
+let posServicePeriodCounter = savedCounters.posServicePeriodCounter ?? 0;
+const nextPosServicePeriodId = () => {
+  const v = `PSP-${++posServicePeriodCounter}`;
   saveCounters();
   return v;
 };
@@ -1168,7 +1532,7 @@ FOLIOS.filter((f) => f.status === "settled").forEach((f) => {
     guestEmail: res.guestEmail,
     guestPhone: res.guestPhone,
     issuedAt: f.closedAt ?? f.openedAt,
-    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "partial" : "unpaid",
+    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "issued" : "overdue",
     eFRISStatus: "confirmed",
     eFRISFiscalNo: `EFRIS-${Math.random().toString(36).slice(2, 10).toUpperCase()}`,
     eFRISQRCode: "https://ura.go.ug/efris/qr?placeholder",
@@ -1176,7 +1540,9 @@ FOLIOS.filter((f) => f.status === "settled").forEach((f) => {
     totalTaxable,
     totalVat,
     totalAmount: totalCharges,
+    amountDue: Math.max(0, totalCharges - totalPaid),
     paidAmount: totalPaid,
+    amountPaid: totalPaid,
     outstandingAmount: Math.max(0, totalCharges - totalPaid),
     isProforma: false,
     isCreditNote: false,
@@ -1437,6 +1803,50 @@ const MAINT_REQUESTS: MaintenanceRequest[] = [];
 
 const DND_RECORDS: DNDRecord[] = [];
 
+const AGENT_LEDGER_ENTRIES: AgentLedgerEntry[] = [];
+
+const RECONCILIATION_REPORTS: ReconciliationReport[] = [];
+
+const REPORT_ACCESS_LOGS: ReportAccessLog[] = [];
+
+const SCHEDULED_REPORT_CONFIGS: ScheduledReportConfig[] = [];
+
+const POS_OUTLETS: PosOutlet[] = [
+  { id: "PO001", propertyId: "T001", name: "Main Restaurant", departmentCode: "REST", serviceChargePct: 10, isActive: true, createdAt: new Date().toISOString() },
+  { id: "PO002", propertyId: "T001", name: "Rooftop Bar", departmentCode: "BAR", serviceChargePct: 5, isActive: true, createdAt: new Date().toISOString() },
+  { id: "PO003", propertyId: "T001", name: "Health Club", departmentCode: "HC", serviceChargePct: 0, isActive: false, createdAt: new Date().toISOString() },
+];
+const MENU_CATEGORIES: MenuCategory[] = [
+  { id: "MC001", posOutletId: "PO001", name: "Starters", displayOrder: 1, isActive: true, createdAt: new Date().toISOString() },
+  { id: "MC002", posOutletId: "PO001", name: "Mains", displayOrder: 2, isActive: true, createdAt: new Date().toISOString() },
+  { id: "MC003", posOutletId: "PO001", name: "Beverages", displayOrder: 3, isActive: true, createdAt: new Date().toISOString() },
+  { id: "MC004", posOutletId: "PO002", name: "Cocktails", displayOrder: 1, isActive: true, createdAt: new Date().toISOString() },
+  { id: "MC005", posOutletId: "PO002", name: "Bar Snacks", displayOrder: 2, isActive: true, createdAt: new Date().toISOString() },
+];
+const MENU_ITEMS: MenuItem[] = [
+  { id: "MI001", posOutletId: "PO001", menuCategoryId: "MC002", name: "Ugali & Fish", description: "Grilled tilapia with ugali and sautéed greens", unitPrice: 45_000, vatTreatment: "inclusive", availabilityPeriods: ["lunch", "dinner"], isActive: true, createdAt: new Date().toISOString() },
+  { id: "MI002", posOutletId: "PO001", menuCategoryId: "MC002", name: "Beef Stew & Rice", unitPrice: 38_000, vatTreatment: "inclusive", availabilityPeriods: ["lunch", "dinner"], isActive: true, createdAt: new Date().toISOString() },
+  { id: "MI003", posOutletId: "PO001", menuCategoryId: "MC003", name: "Mountain Dew", unitPrice: 5_000, vatTreatment: "exclusive", availabilityPeriods: ["all_day"], isActive: true, createdAt: new Date().toISOString() },
+  { id: "MI004", posOutletId: "PO002", menuCategoryId: "MC004", name: "Sunset Mojito", unitPrice: 25_000, vatTreatment: "inclusive", availabilityPeriods: ["bar_only"], isActive: true, createdAt: new Date().toISOString() },
+  { id: "MI005", posOutletId: "PO001", menuCategoryId: "MC001", name: "Chicken Samosas (4 pcs)", unitPrice: 18_000, vatTreatment: "inclusive", availabilityPeriods: ["lunch", "dinner"], isActive: true, createdAt: new Date().toISOString() },
+];
+const MENU_MODIFIERS: MenuModifier[] = [
+  { id: "MM001", menuItemId: "MI001", name: "Doneness", options: ["Whole", "Portion"], isRequired: false, createdAt: new Date().toISOString() },
+  { id: "MM002", menuItemId: "MI002", name: "Portion Size", options: ["Regular", "Large"], isRequired: false, createdAt: new Date().toISOString() },
+];
+const POS_TABLES: PosTable[] = [
+  { id: "PT001", posOutletId: "PO001", tableName: "Table 1", seatingCapacity: 4, isActive: true, createdAt: new Date().toISOString() },
+  { id: "PT002", posOutletId: "PO001", tableName: "Table 2", seatingCapacity: 4, isActive: true, createdAt: new Date().toISOString() },
+  { id: "PT003", posOutletId: "PO001", tableName: "Table 3", seatingCapacity: 6, isActive: true, createdAt: new Date().toISOString() },
+  { id: "PT004", posOutletId: "PO002", tableName: "Bar Stool A", seatingCapacity: 1, isActive: true, createdAt: new Date().toISOString() },
+  { id: "PT005", posOutletId: "PO002", tableName: "Terrace 1", seatingCapacity: 4, isActive: true, createdAt: new Date().toISOString() },
+];
+const POS_TABS: PosTab[] = [];
+const POS_TAB_ITEMS: PosTabItem[] = [];
+const KOTS: Kot[] = [];
+const KOT_ITEMS: KotItem[] = [];
+const POS_SERVICE_PERIODS: PosServicePeriod[] = [];
+
 const TENANT: Property = {
   id: "T001",
   name: "Jambo Sphere Hotel",
@@ -1495,6 +1905,20 @@ function persistState() {
       checkInEvents: state.checkInEvents,
       keyCards: state.keyCards,
       serviceRequests: state.serviceRequests,
+      agentLedgerEntries: state.agentLedgerEntries,
+      reconciliationReports: state.reconciliationReports,
+      reportAccessLogs: state.reportAccessLogs,
+      scheduledReportConfigs: state.scheduledReportConfigs,
+      posOutlets: state.posOutlets,
+      menuCategories: state.menuCategories,
+      menuItems: state.menuItems,
+      menuModifiers: state.menuModifiers,
+      posTables: state.posTables,
+      posTabs: state.posTabs,
+      posTabItems: state.posTabItems,
+      kots: state.kots,
+      kotItems: state.kotItems,
+      posServicePeriods: state.posServicePeriods,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
   } catch {
@@ -1543,6 +1967,20 @@ const state: State = {
   roomInspections: persisted?.roomInspections ?? ROOM_INSPECTIONS,
   maintenanceRequests: persisted?.maintenanceRequests ?? MAINT_REQUESTS,
   dndRecords: persisted?.dndRecords ?? DND_RECORDS,
+  agentLedgerEntries: persisted?.agentLedgerEntries ?? AGENT_LEDGER_ENTRIES,
+  reconciliationReports: persisted?.reconciliationReports ?? RECONCILIATION_REPORTS,
+  reportAccessLogs: persisted?.reportAccessLogs ?? REPORT_ACCESS_LOGS,
+  scheduledReportConfigs: persisted?.scheduledReportConfigs ?? SCHEDULED_REPORT_CONFIGS,
+  posOutlets: persisted?.posOutlets ?? POS_OUTLETS,
+  menuCategories: persisted?.menuCategories ?? MENU_CATEGORIES,
+  menuItems: persisted?.menuItems ?? MENU_ITEMS,
+  menuModifiers: persisted?.menuModifiers ?? MENU_MODIFIERS,
+  posTables: persisted?.posTables ?? POS_TABLES,
+  posTabs: persisted?.posTabs ?? POS_TABS,
+  posTabItems: persisted?.posTabItems ?? POS_TAB_ITEMS,
+  kots: persisted?.kots ?? KOTS,
+  kotItems: persisted?.kotItems ?? KOT_ITEMS,
+  posServicePeriods: persisted?.posServicePeriods ?? POS_SERVICE_PERIODS,
 };
 
 const listeners = new Set<() => void>();
@@ -2453,12 +2891,14 @@ export function generateInvoice(folioId: string): Invoice | null {
     guestEmail: res.guestEmail,
     guestPhone: res.guestPhone,
     issuedAt: new Date().toISOString(),
-    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "partial" : "unpaid",
+    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "issued" : "overdue",
     eFRISStatus: "pending",
     totalTaxable,
     totalVat,
     totalAmount: totalCharges,
+    amountDue: Math.max(0, totalCharges - totalPaid),
     paidAmount: totalPaid,
+    amountPaid: totalPaid,
     outstandingAmount: Math.max(0, totalCharges - totalPaid),
     isProforma: false,
     isCreditNote: false,
@@ -2557,7 +2997,9 @@ export function generateCreditNote(
     totalTaxable: taxable,
     totalVat: vat,
     totalAmount: -charge.amount,
+    amountDue: 0,
     paidAmount: 0,
+    amountPaid: 0,
     outstandingAmount: 0,
     isProforma: false,
     isCreditNote: true,
@@ -2635,12 +3077,14 @@ export function generateProforma(folioId: string): Invoice | null {
     guestEmail: res.guestEmail,
     guestPhone: res.guestPhone,
     issuedAt: new Date().toISOString(),
-    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "partial" : "unpaid",
+    status: totalPaid >= totalCharges ? "paid" : totalPaid > 0 ? "issued" : "overdue",
     eFRISStatus: "confirmed",
     totalTaxable,
     totalVat,
     totalAmount: totalCharges,
+    amountDue: Math.max(0, totalCharges - totalPaid),
     paidAmount: totalPaid,
+    amountPaid: totalPaid,
     outstandingAmount: Math.max(0, totalCharges - totalPaid),
     isProforma: true,
     isCreditNote: false,
@@ -3021,6 +3465,65 @@ export function roomInspectionsByRoom(roomId: string) {
 export function latestRoomInspectionByTask(housekeepingTaskId: string) {
   const inspections = state.roomInspections.filter((i) => i.housekeepingTaskId === housekeepingTaskId);
   return inspections.sort((a, b) => b.inspectedAt.localeCompare(a.inspectedAt))[0];
+}
+
+/* ==================== Agent Ledger Entries (32) ==================== */
+
+export function upsertAgentLedgerEntry(input: AgentLedgerEntry) {
+  const exists = state.agentLedgerEntries.some((e) => e.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.agentLedgerEntries = state.agentLedgerEntries.map((e) => (e.id === input.id ? { ...input, updatedAt: now } : e));
+  } else {
+    state.agentLedgerEntries = [{ ...input, createdAt: now, updatedAt: now }, ...state.agentLedgerEntries];
+  }
+  emit();
+}
+
+export function deleteAgentLedgerEntry(id: string) {
+  state.agentLedgerEntries = state.agentLedgerEntries.filter((e) => e.id !== id);
+  emit();
+}
+
+export function agentLedgerEntryById(id: string | undefined | null) {
+  return id ? state.agentLedgerEntries.find((e) => e.id === id) : undefined;
+}
+
+export function agentLedgerEntriesByFolio(folioId: string) {
+  return state.agentLedgerEntries.filter((e) => e.folioId === folioId);
+}
+
+export function agentLedgerEntriesByAgent(travelAgentAccountId: string) {
+  return state.agentLedgerEntries.filter((e) => e.travelAgentAccountId === travelAgentAccountId);
+}
+
+/* ==================== Reconciliation Reports (34) ==================== */
+
+export function upsertReconciliationReport(input: ReconciliationReport) {
+  const exists = state.reconciliationReports.some((r) => r.id === input.id);
+  if (exists) {
+    state.reconciliationReports = state.reconciliationReports.map((r) => (r.id === input.id ? input : r));
+  } else {
+    state.reconciliationReports = [{ ...input, generatedAt: new Date().toISOString() }, ...state.reconciliationReports];
+  }
+  emit();
+}
+
+export function deleteReconciliationReport(id: string) {
+  state.reconciliationReports = state.reconciliationReports.filter((r) => r.id !== id);
+  emit();
+}
+
+export function reconciliationReportById(id: string | undefined | null) {
+  return id ? state.reconciliationReports.find((r) => r.id === id) : undefined;
+}
+
+export function reconciliationReportByDate(propertyId: string, reportDate: string) {
+  return state.reconciliationReports.find((r) => r.propertyId === propertyId && r.reportDate === reportDate);
+}
+
+export function reconciliationReportsForProperty(propertyId: string) {
+  return state.reconciliationReports.filter((r) => r.propertyId === propertyId);
 }
 
 export function upsertRoom(room: Room) {
@@ -3404,6 +3907,305 @@ export function updateTenant(patch: Partial<Property>) {
     severity: "warn",
   });
   emit();
+}
+
+/* ==================== Report Access Logs (44) ==================== */
+
+export function upsertReportAccessLog(input: ReportAccessLog) {
+  const exists = state.reportAccessLogs.some((l) => l.id === input.id);
+  if (exists) {
+    state.reportAccessLogs = state.reportAccessLogs.map((l) => (l.id === input.id ? input : l));
+  } else {
+    state.reportAccessLogs = [{ ...input, accessedAt: new Date().toISOString() }, ...state.reportAccessLogs];
+  }
+  emit();
+}
+
+export function deleteReportAccessLog(id: string) {
+  state.reportAccessLogs = state.reportAccessLogs.filter((l) => l.id !== id);
+  emit();
+}
+
+export function reportAccessLogById(id: string | undefined | null) {
+  return id ? state.reportAccessLogs.find((l) => l.id === id) : undefined;
+}
+
+export function reportAccessLogsByUser(userId: string) {
+  return state.reportAccessLogs.filter((l) => l.userId === userId);
+}
+
+/* ==================== Scheduled Report Configs (45) ==================== */
+
+export function upsertScheduledReportConfig(input: ScheduledReportConfig) {
+  const exists = state.scheduledReportConfigs.some((c) => c.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.scheduledReportConfigs = state.scheduledReportConfigs.map((c) =>
+      c.id === input.id ? { ...c, ...input, updatedAt: now } : c,
+    );
+  } else {
+    state.scheduledReportConfigs = [{ ...input, createdAt: now, updatedAt: now }, ...state.scheduledReportConfigs];
+  }
+  emit();
+}
+
+export function deleteScheduledReportConfig(id: string) {
+  state.scheduledReportConfigs = state.scheduledReportConfigs.filter((c) => c.id !== id);
+  emit();
+}
+
+export function scheduledReportConfigById(id: string | undefined | null) {
+  return id ? state.scheduledReportConfigs.find((c) => c.id === id) : undefined;
+}
+
+/* ==================== POS Outlets (46) ==================== */
+
+export function upsertPosOutlet(input: PosOutlet) {
+  const exists = state.posOutlets.some((o) => o.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.posOutlets = state.posOutlets.map((o) => (o.id === input.id ? { ...o, ...input } : o));
+  } else {
+    state.posOutlets = [{ ...input, createdAt: now }, ...state.posOutlets];
+  }
+  emit();
+}
+
+export function deletePosOutlet(id: string) {
+  state.posOutlets = state.posOutlets.filter((o) => o.id !== id);
+  emit();
+}
+
+export function posOutletById(id: string | undefined | null) {
+  return id ? state.posOutlets.find((o) => o.id === id) : undefined;
+}
+
+/* ==================== Menu Categories (47) ==================== */
+
+export function upsertMenuCategory(input: MenuCategory) {
+  const exists = state.menuCategories.some((c) => c.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.menuCategories = state.menuCategories.map((c) => (c.id === input.id ? { ...c, ...input } : c));
+  } else {
+    state.menuCategories = [{ ...input, createdAt: now }, ...state.menuCategories];
+  }
+  emit();
+}
+
+export function deleteMenuCategory(id: string) {
+  state.menuCategories = state.menuCategories.filter((c) => c.id !== id);
+  emit();
+}
+
+export function menuCategoryById(id: string | undefined | null) {
+  return id ? state.menuCategories.find((c) => c.id === id) : undefined;
+}
+
+export function menuCategoriesByOutlet(posOutletId: string) {
+  return state.menuCategories.filter((c) => c.posOutletId === posOutletId);
+}
+
+/* ==================== Menu Items (48) ==================== */
+
+export function upsertMenuItem(input: MenuItem) {
+  const exists = state.menuItems.some((i) => i.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.menuItems = state.menuItems.map((i) => (i.id === input.id ? { ...i, ...input, updatedAt: now } : i));
+  } else {
+    state.menuItems = [{ ...input, createdAt: now, updatedAt: now }, ...state.menuItems];
+  }
+  emit();
+}
+
+export function deleteMenuItem(id: string) {
+  state.menuItems = state.menuItems.filter((i) => i.id !== id);
+  emit();
+}
+
+export function menuItemById(id: string | undefined | null) {
+  return id ? state.menuItems.find((i) => i.id === id) : undefined;
+}
+
+export function menuItemsByCategory(menuCategoryId: string) {
+  return state.menuItems.filter((i) => i.menuCategoryId === menuCategoryId);
+}
+
+export function menuItemsByOutlet(posOutletId: string) {
+  return state.menuItems.filter((i) => i.posOutletId === posOutletId);
+}
+
+/* ==================== Menu Modifiers (49) ==================== */
+
+export function upsertMenuModifier(input: MenuModifier) {
+  const exists = state.menuModifiers.some((m) => m.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.menuModifiers = state.menuModifiers.map((m) => (m.id === input.id ? { ...m, ...input } : m));
+  } else {
+    state.menuModifiers = [{ ...input, createdAt: now }, ...state.menuModifiers];
+  }
+  emit();
+}
+
+export function deleteMenuModifier(id: string) {
+  state.menuModifiers = state.menuModifiers.filter((m) => m.id !== id);
+  emit();
+}
+
+export function menuModifiersByItem(menuItemId: string) {
+  return state.menuModifiers.filter((m) => m.menuItemId === menuItemId);
+}
+
+/* ==================== POS Tables (50) ==================== */
+
+export function upsertPosTable(input: PosTable) {
+  const exists = state.posTables.some((t) => t.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.posTables = state.posTables.map((t) => (t.id === input.id ? { ...t, ...input } : t));
+  } else {
+    state.posTables = [{ ...input, createdAt: now }, ...state.posTables];
+  }
+  emit();
+}
+
+export function deletePosTable(id: string) {
+  state.posTables = state.posTables.filter((t) => t.id !== id);
+  emit();
+}
+
+export function posTableById(id: string | undefined | null) {
+  return id ? state.posTables.find((t) => t.id === id) : undefined;
+}
+
+export function posTablesByOutlet(posOutletId: string) {
+  return state.posTables.filter((t) => t.posOutletId === posOutletId);
+}
+
+/* ==================== POS Tabs (51) ==================== */
+
+export function upsertPosTab(input: PosTab) {
+  const exists = state.posTabs.some((t) => t.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.posTabs = state.posTabs.map((t) => (t.id === input.id ? { ...t, ...input, updatedAt: now } : t));
+  } else {
+    state.posTabs = [{ ...input, createdAt: now, updatedAt: now }, ...state.posTabs];
+  }
+  emit();
+}
+
+export function deletePosTab(id: string) {
+  state.posTabs = state.posTabs.filter((t) => t.id !== id);
+  emit();
+}
+
+export function posTabById(id: string | undefined | null) {
+  return id ? state.posTabs.find((t) => t.id === id) : undefined;
+}
+
+export function openPosTabsByOutlet(posOutletId: string) {
+  return state.posTabs.filter((t) => t.posOutletId === posOutletId && t.status === "open");
+}
+
+export function posTabsByTable(posTableId: string) {
+  return state.posTabs.filter((t) => t.posTableId === posTableId);
+}
+
+/* ==================== POS Tab Items (52) ==================== */
+
+export function upsertPosTabItem(input: PosTabItem) {
+  const exists = state.posTabItems.some((i) => i.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.posTabItems = state.posTabItems.map((i) => (i.id === input.id ? { ...i, ...input } : i));
+  } else {
+    state.posTabItems = [{ ...input, createdAt: now }, ...state.posTabItems];
+  }
+  emit();
+}
+
+export function deletePosTabItem(id: string) {
+  state.posTabItems = state.posTabItems.filter((i) => i.id !== id);
+  emit();
+}
+
+export function posTabItemsByTab(posTabId: string) {
+  return state.posTabItems.filter((i) => i.posTabId === posTabId);
+}
+
+/* ==================== KOTs (53) ==================== */
+
+export function upsertKot(input: Kot) {
+  const exists = state.kots.some((k) => k.id === input.id);
+  if (exists) {
+    state.kots = state.kots.map((k) => (k.id === input.id ? input : k));
+  } else {
+    state.kots = [{ ...input, createdAt: new Date().toISOString() }, ...state.kots];
+  }
+  emit();
+}
+
+export function deleteKot(id: string) {
+  state.kots = state.kots.filter((k) => k.id !== id);
+  emit();
+}
+
+export function kotById(id: string | undefined | null) {
+  return id ? state.kots.find((k) => k.id === id) : undefined;
+}
+
+export function kotsByTab(posTabId: string) {
+  return state.kots.filter((k) => k.posTabId === posTabId);
+}
+
+/* ==================== KOT Items (54) ==================== */
+
+export function upsertKotItem(input: KotItem) {
+  const exists = state.kotItems.some((i) => i.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.kotItems = state.kotItems.map((i) => (i.id === input.id ? { ...i, ...input } : i));
+  } else {
+    state.kotItems = [{ ...input, createdAt: now }, ...state.kotItems];
+  }
+  emit();
+}
+
+export function deleteKotItem(id: string) {
+  state.kotItems = state.kotItems.filter((i) => i.id !== id);
+  emit();
+}
+
+export function kotItemsByKot(kotId: string) {
+  return state.kotItems.filter((i) => i.kotId === kotId);
+}
+
+/* ==================== POS Service Periods (55) ==================== */
+
+export function upsertPosServicePeriod(input: PosServicePeriod) {
+  const exists = state.posServicePeriods.some((p) => p.id === input.id);
+  if (exists) {
+    state.posServicePeriods = state.posServicePeriods.map((p) => (p.id === input.id ? input : p));
+  } else {
+    state.posServicePeriods = [{ ...input, createdAt: new Date().toISOString() }, ...state.posServicePeriods];
+  }
+  emit();
+}
+
+export function deletePosServicePeriod(id: string) {
+  state.posServicePeriods = state.posServicePeriods.filter((p) => p.id !== id);
+  emit();
+}
+
+export function posServicePeriodById(id: string | undefined | null) {
+  return id ? state.posServicePeriods.find((p) => p.id === id) : undefined;
+}
+
+export function openPosServicePeriodByOutlet(posOutletId: string) {
+  return state.posServicePeriods.find((p) => p.posOutletId === posOutletId && p.status === "open");
 }
 
 /* ============================== Computed / Reports ============================== */

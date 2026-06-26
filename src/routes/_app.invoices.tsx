@@ -71,9 +71,11 @@ const EFRIS_BADGE: Record<
 };
 
 const STATUS_BADGE: Record<InvoiceStatus, { label: string; class: string }> = {
+  draft: { label: "Draft", class: "bg-muted/50 text-muted-foreground border-muted-foreground/30" },
+  issued: { label: "Issued", class: "bg-warning/15 text-warning border-warning/30" },
   paid: { label: "Paid in Full", class: "bg-success/15 text-success border-success/30" },
-  partial: { label: "Partially Settled", class: "bg-warning/15 text-warning border-warning/30" },
-  unpaid: { label: "Unpaid", class: "bg-destructive/15 text-destructive border-destructive/30" },
+  overdue: { label: "Overdue", class: "bg-destructive/15 text-destructive border-destructive/30" },
+  cancelled: { label: "Cancelled", class: "bg-muted/50 text-muted-foreground border-muted-foreground/30" },
 };
 
 function InvoicesPage() {
@@ -423,9 +425,11 @@ function InvoicesPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="issued">Issued</SelectItem>
                 <SelectItem value="paid">Paid in Full</SelectItem>
-                <SelectItem value="partial">Partially Settled</SelectItem>
-                <SelectItem value="unpaid">Unpaid</SelectItem>
+                <SelectItem value="overdue">Overdue</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
