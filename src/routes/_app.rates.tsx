@@ -849,7 +849,7 @@ function AvailabilityTab() {
     return d.toISOString().slice(0, 10);
   });
 
-  const filteredRooms = rooms.filter((r) => typeFilter === "all" || r.typeId === typeFilter);
+  const filteredRooms = rooms.filter((r) => typeFilter === "all" || r.roomTypeId === typeFilter);
 
   const cellFor = (room: Room, date: string) => {
     if (room.status === "maintenance" || room.status === "blocked") {
@@ -912,11 +912,11 @@ function AvailabilityTab() {
           </thead>
           <tbody className="divide-y divide-border">
             {filteredRooms.map((room) => {
-              const rt = roomTypes.find((r) => r.id === room.typeId);
+              const rt = roomTypes.find((r) => r.id === room.roomTypeId);
               return (
                 <tr key={room.id}>
                   <td className="sticky left-0 z-10 bg-card px-3 py-2">
-                    <div className="font-semibold">{room.id}</div>
+                    <div className="font-semibold">{room.roomNumber}</div>
                     <div className="text-[10px] text-muted-foreground">
                       Floor {room.floor} · {rt?.name}
                     </div>

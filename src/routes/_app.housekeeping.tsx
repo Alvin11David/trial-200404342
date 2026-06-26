@@ -305,9 +305,9 @@ function RoomStatusBoard() {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="font-display text-xl font-bold">{room.id}</span>
+                  <span className="font-display text-xl font-bold">{room.roomNumber}</span>
                   <span className="ml-2 text-xs text-muted-foreground">
-                    Floor {room.floor} · {roomTypeMap[room.typeId] ?? room.typeId}
+                    Floor {room.floor} · {roomTypeMap[room.roomTypeId] ?? room.roomTypeId}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">
@@ -642,7 +642,7 @@ function CreateTaskDialog({ onClose }: { onClose: () => void }) {
             <SelectContent>
               {rooms.map((r) => (
                 <SelectItem key={r.id} value={r.id}>
-                  Room {r.id} (F{r.floor})
+                  Room {r.roomNumber} (F{r.floor})
                 </SelectItem>
               ))}
             </SelectContent>

@@ -69,8 +69,8 @@ function RoomsBoard() {
     () =>
       rooms.filter((r) => {
         if (floor !== "All" && r.floor !== Number(floor)) return false;
-        if (type !== "All" && roomTypeMap[r.typeId] !== type) return false;
-        if (search && !r.id.toLowerCase().includes(search.toLowerCase())) return false;
+        if (type !== "All" && roomTypeMap[r.roomTypeId] !== type) return false;
+        if (search && !r.roomNumber.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
       }),
     [rooms, floor, type, roomTypeMap, search],
@@ -244,7 +244,7 @@ function RoomsBoard() {
                     <RoomCard
                       key={r.id}
                       room={r}
-                      roomType={roomTypeMap[r.typeId] ?? r.typeId}
+                      roomType={roomTypeMap[r.roomTypeId] ?? r.roomTypeId}
                       guest={guest}
                       accent={col.color}
                       onDragStart={() => setDragId(r.id)}
@@ -309,7 +309,7 @@ function RoomCard({
       <div className="flex items-start justify-between pl-1">
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-display text-lg font-bold tracking-tight">{room.id}</span>
+            <span className="font-display text-lg font-bold tracking-tight">{room.roomNumber}</span>
             <span className="rounded-md border border-border/60 bg-muted/30 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
               {roomType}
             </span>

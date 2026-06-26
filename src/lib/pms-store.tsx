@@ -637,7 +637,7 @@ const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
   const checkOut = addDays(checkIn, nights);
   const typeIdx = i % 3;
   const rt = ROOM_TYPES[typeIdx];
-  const sameTypeRooms = ROOMS.filter((r) => r.typeId === rt.id);
+  const sameTypeRooms = ROOMS.filter((r) => r.roomTypeId === rt.id);
   const room = sameTypeRooms[i % sameTypeRooms.length];
   // status logic: those with offsetIn < 0 are checked_in (in-house), == 0 arriving, > 0 confirmed.
   let status: ReservationStatus = "confirmed";
@@ -775,7 +775,7 @@ HISTORICAL_GUESTS.forEach((name, k) => {
   const checkIn = addDays(TODAY, -daysAgo - 1);
   const checkOut = addDays(TODAY, -daysAgo);
   const rt = ROOM_TYPES[k % ROOM_TYPES.length];
-  const sameTypeRooms = ROOMS.filter((r) => r.typeId === rt.id);
+  const sameTypeRooms = ROOMS.filter((r) => r.roomTypeId === rt.id);
   const room = sameTypeRooms[k % sameTypeRooms.length];
   const id = nextResId();
   const res: Reservation = {
@@ -1372,7 +1372,7 @@ function rangesOverlap(aIn: string, aOut: string, bIn: string, bOut: string) {
 /** Rooms that are bookable for a given room type and date range, ignoring soft statuses. */
 export function findAvailableRooms(roomTypeId: string, checkIn: string, checkOut: string) {
   return state.rooms.filter((r) => {
-    if (r.typeId !== roomTypeId) return false;
+    if (r.roomTypeId !== roomTypeId) return false;
     if (r.status !== "available") return false;
     // any active reservation already on this room in the same range?
     const conflict = state.reservations.some(

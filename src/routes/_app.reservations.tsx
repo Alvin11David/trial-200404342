@@ -159,8 +159,8 @@ function ReservationsPage() {
       return d;
     });
     const sortedRooms = [...rooms].sort((a, b) => {
-      const ta = roomTypeOrder.indexOf(a.typeId);
-      const tb = roomTypeOrder.indexOf(b.typeId);
+      const ta = roomTypeOrder.indexOf(a.roomTypeId);
+      const tb = roomTypeOrder.indexOf(b.roomTypeId);
       if (ta !== tb) return ta - tb;
       return a.id.localeCompare(b.id, undefined, { numeric: true });
     });
@@ -403,14 +403,14 @@ function ReservationsPage() {
               })}
               {/* Room rows */}
               {calendarCells.rows.map(({ room, cells }) => {
-                const rt = roomTypeById(room.typeId);
+                const rt = roomTypeById(room.roomTypeId);
                 return (
                   <>
                     <div
                       key={room.id}
                       className="sticky left-0 z-10 flex items-center gap-2 border-b border-r border-border bg-card px-3 py-2"
                     >
-                      <span className="text-xs font-medium">{room.id}</span>
+                      <span className="text-xs font-medium">{room.roomNumber}</span>
                        <span className="text-[9px] text-muted-foreground">{rt?.name}</span>
                      </div>
                     {cells.map((cell) => (

@@ -150,14 +150,14 @@ function useRoomOptions(checkIn: string, checkOut: string): RoomOption[] {
   const roomTypes = useStore((s) => s.roomTypes);
   const haveDates = !!(checkIn && checkOut && checkIn < checkOut);
   return rooms.map((r) => {
-    const rt = roomTypes.find((t) => t.id === r.typeId);
+    const rt = roomTypes.find((t) => t.id === r.roomTypeId);
     const available = haveDates
-      ? findAvailableRooms(r.typeId, checkIn, checkOut).some((a) => a.id === r.id)
+      ? findAvailableRooms(r.roomTypeId, checkIn, checkOut).some((a) => a.id === r.id)
       : r.status === "available";
     return {
       id: r.id,
-      type: rt?.name ?? r.typeId,
-      typeId: r.typeId,
+      type: rt?.name ?? r.roomTypeId,
+      typeId: r.roomTypeId,
       rate: rt?.baseRate ?? 0,
       beds: rt?.name === "Suite" ? "1 King + Sofa" : rt?.name === "Deluxe" ? "1 King" : "1 Queen",
       available,
@@ -253,7 +253,7 @@ function NewReservation() {
       nationality: form.nationality,
       idType: form.idType,
       idNumber: form.idNumber,
-      roomTypeId: room.typeId,
+      roomTypeId: room.roomTypeId,
       roomId: room.id,
       checkIn: form.checkIn,
       checkOut: form.checkOut,
@@ -604,7 +604,7 @@ function StepRoomSelection({
                   {r.available ? "● Available" : "● Booked"}
                 </span>
               </div>
-              <div className="mt-3 font-display text-2xl font-bold tracking-tight">Room {r.id}</div>
+              <div className="mt-3 font-display text-2xl font-bold tracking-tight">Room {r.roomNumber}</div>
               <div className="text-xs text-muted-foreground">
                 {r.type} · {r.beds}
               </div>
@@ -808,7 +808,7 @@ function StepReview({
             Stay
           </h4>
           <div className="mt-3 grid gap-3 sm:grid-cols-3">
-            <ReviewItem label="Room" value={room ? `${room.id} · ${room.type}` : "—"} />
+            <ReviewItem label="Room" value={room ? `${room.roomNumber} · ${room.type}` : "—"} />
             <ReviewItem label="Check in" value={form.checkIn || "—"} />
             <ReviewItem label="Check out" value={form.checkOut || "—"} />
             <ReviewItem label="Nights" value={String(nights)} />

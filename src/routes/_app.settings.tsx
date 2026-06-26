@@ -285,10 +285,10 @@ function RoomsPanel() {
           <tbody className="divide-y divide-border">
             {rooms.map((r) => (
               <tr key={r.id} className="hover:bg-muted/30">
-                <td className="px-4 py-3 font-mono text-xs">{r.id}</td>
+                <td className="px-4 py-3 font-mono text-xs">{r.roomNumber}</td>
                 <td className="px-4 py-3">{r.floor}</td>
                 <td className="px-4 py-3">
-                  {types.find((t) => t.id === r.typeId)?.name ?? r.typeId}
+                  {types.find((t) => t.id === r.roomTypeId)?.name ?? r.roomTypeId}
                 </td>
                 <td className="px-4 py-3 capitalize">{r.status}</td>
                 <td className="px-4 py-3 text-right">
@@ -334,16 +334,17 @@ function RoomEditor({
 }) {
   const [id, setId] = useState(initial?.id ?? "");
   const [floor, setFloor] = useState<number | "">(initial?.floor ?? 1);
-  const [typeId, setTypeId] = useState(initial?.typeId ?? types[0]?.id ?? "");
+  const [roomTypeId, setRoomTypeId] = useState(initial?.roomTypeId ?? types[0]?.id ?? "");
   const [status, setStatus] = useState<RoomStatus>(initial?.status ?? "available");
+  const [roomNumber, setRoomNumber] = useState(initial?.roomNumber ?? initial?.id ?? "");
+  const [legacyRef, setLegacyRef] = useState(initial?.legacyRef ?? "");
   return (
     <Modal title={initial ? "Edit room" : "New room"} onClose={onClose}>
       <div className="space-y-3">
         <Labeled label="Room number">
           <input
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            disabled={!!initial}
+            value={roomNumber}
+            onChange={(e) => setRoomNumber(e.target.value)}
             className="input"
           />
         </Labeled>
@@ -355,8 +356,8 @@ function RoomEditor({
             className="input"
           />
         </Labeled>
-        <Labeled label="Type">
-          <Select value={typeId} onValueChange={setTypeId}>
+        <Labeled label="Room type">
+          <Select value={roomTypeId} onValueChange={setRoomTypeId}>
             <SelectTrigger className="input focus:ring-0 shadow-none">
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
@@ -368,6 +369,14 @@ function RoomEditor({
                 ))}
             </SelectContent>
           </Select>
+        </Labeled>
+        <Labeled label="Legacy ref">
+          <input
+            value={legacyRef}
+            onChange={(e) => setLegacyRef(e.target.value)}
+            className="input"
+            placeholder="Optional"
+          />
         </Labeled>
         <Labeled label="Status">
           <Select value={status} onValueChange={(v) => setStatus(v as RoomStatus)}>
@@ -386,13 +395,16 @@ function RoomEditor({
       </div>
       <Footer
         onClose={onClose}
-        disabled={!id || !typeId}
+        disabled={!roomNumber || !roomTypeId}
         onSave={() => {
           upsertRoom({
-            id,
+            id: roomNumber,
+            propertyId: "T001",
+            roomTypeId,
+            roomNumber,
             floor: Number(floor),
-            typeId,
             status,
+            legacyRef: legacyRef || undefined,
           });
           onClose();
         }}
