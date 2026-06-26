@@ -320,6 +320,66 @@ export type Deposit = {
   createdAt: string;
 };
 
+export type CheckInEvent = {
+  id: string;
+  propertyId: string;
+  reservationId: string;
+  roomAssignmentId: string;
+  agentId: string;
+  actualCheckinTime: string;
+  idTypeVerified: string;
+  idNumberVerified: string;
+  idVerifiedAt: string;
+  managerOverride: boolean;
+  overrideReason?: string;
+  overrideBy?: string;
+  createdAt: string;
+};
+
+export type KeyCard = {
+  id: string;
+  propertyId: string;
+  reservationId: string;
+  roomId: string;
+  cardReference: string;
+  cardType: "physical" | "rfid";
+  issueNumber: number;
+  issuedAt: string;
+  issuedBy: string;
+  expiresAt: string;
+  deactivatedAt?: string;
+  deactivationReason?: "checkout" | "loss_report" | "room_change" | "late_checkout_extension";
+  deactivatedBy?: string;
+  createdAt: string;
+};
+
+export type ServiceRequestType = "housekeeping" | "maintenance" | "fb_delivery" | "complaint" | "other";
+export type ServiceRequestUrgency = "normal" | "urgent";
+export type ServiceRequestStatus = "open" | "in_progress" | "completed" | "escalated";
+
+export type ServiceRequest = {
+  id: string;
+  propertyId: string;
+  reservationId: string;
+  roomId: string;
+  requestType: ServiceRequestType;
+  description: string;
+  urgency: ServiceRequestUrgency;
+  status: ServiceRequestStatus;
+  requestedAt: string;
+  requestedBy?: string;
+  assignedToDepartment?: string;
+  slaDeadline?: string;
+  slaBreached: boolean;
+  fulfilledAt?: string;
+  fulfilledBy?: string;
+  isChargeable: boolean;
+  chargeAmount?: number;
+  folioChargeId?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type InvoiceStatus = "paid" | "partial" | "unpaid";
 export type EFRISStatus = "pending" | "submitted" | "failed" | "confirmed";
 export type Invoice = {
@@ -447,20 +507,41 @@ export type HkPriority = "standard" | "high" | "vip";
 export type HkTaskStatus = "queued" | "in_progress" | "clean" | "flagged" | "inspected";
 export type HousekeepingTask = {
   id: string;
+  propertyId?: string;
   roomId: string;
   type: HkTaskType;
   priority: HkPriority;
   status: HkTaskStatus;
   assignedTo: string | null;
+  assignedBy?: string;
   due: string;
+  expectedCompletionTime?: string;
+  startedAt?: string;
   notes: string;
   createdAt: string;
   completedAt?: string;
   taskDescription?: string;
   employeeId?: string;
   date?: string;
+  shiftDate?: string;
+  dndFlaggedAt?: string;
+  welfareCheckTriggered?: boolean;
   cloudStatus?: number;
   remotePosting?: string;
+  updatedAt?: string;
+};
+
+export type InspectionResult = "pass" | "fail";
+export type RoomInspection = {
+  id: string;
+  propertyId: string;
+  housekeepingTaskId: string;
+  roomId: string;
+  inspectorId: string;
+  result: InspectionResult;
+  defectNotes?: string;
+  inspectedAt: string;
+  createdAt: string;
 };
 
 export type MaintSeverity = "low" | "medium" | "high" | "critical";
@@ -503,8 +584,14 @@ type State = {
   corporateAccounts: CorporateAccount[];
   travelAgentAccounts: TravelAgentAccount[];
   groupBlocks: GroupBlock[];
+  roomAssignments: RoomAssignment[];
+  deposits: Deposit[];
+  checkInEvents: CheckInEvent[];
+  keyCards: KeyCard[];
+  serviceRequests: ServiceRequest[];
   audit: AuditEntry[];
   housekeepingTasks: HousekeepingTask[];
+  roomInspections: RoomInspection[];
   maintenanceRequests: MaintenanceRequest[];
   dndRecords: DNDRecord[];
 };
@@ -561,6 +648,20 @@ const GROUP_BLOCKS: GroupBlock[] = [
   { id: "GB004", propertyId: "T001", groupName: "Closed — Staff Retreat", organiserName: "Admin", startDate: "2026-03-10", endDate: "2026-03-12", totalRoomsBlocked: 8, groupRate: 0, status: "closed", createdBy: "U001", approvedBy: "U002", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
   { id: "GB005", propertyId: "T001", groupName: "Cancelled Conference Q1", organiserName: "Peter Wasswa", startDate: "2026-01-20", endDate: "2026-01-22", totalRoomsBlocked: 5, groupRate: 190_000, status: "cancelled", createdBy: "U001", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
+
+const ROOM_ASSIGNMENTS: RoomAssignment[] = [];
+
+const MEAL_PLANS: MealPlan[] = ["ro", "bb", "hb", "fb", "ai"];
+const DEPOSITS: Deposit[] = [];
+
+const CHECK_IN_EVENTS: CheckInEvent[] = [];
+
+const KEY_CARDS: KeyCard[] = [];
+
+const SERVICE_REQUESTS: ServiceRequest[] = [];
+
+const ROOM_INSPECTIONS: RoomInspection[] = [];
+
 const HOUSEKEEPERS = ["U003", "U008"]; // grace, mary
 const DEFAULT_VAT_RATE = 0.18;
 
@@ -644,8 +745,14 @@ function saveCounters() {
         guestCounter,
         auditCounter,
         hkTaskCounter,
+        roomInspectionCounter,
         maintCounter,
         dndCounter,
+        roomAssignmentCounter,
+        depositCounter,
+        checkInEventCounter,
+        keyCardCounter,
+        serviceRequestCounter,
         receiptCounter,
         invoiceCounter,
         creditNoteCounter,
@@ -707,6 +814,18 @@ const nextMaintId = () => {
 let dndCounter = savedCounters.dndCounter ?? 50;
 const nextDndId = () => {
   const v = `DND-${++dndCounter}`;
+  saveCounters();
+  return v;
+};
+let roomAssignmentCounter = savedCounters.roomAssignmentCounter ?? 0;
+const nextRoomAssignmentId = () => {
+  const v = `RA-${++roomAssignmentCounter}`;
+  saveCounters();
+  return v;
+};
+let depositCounter = savedCounters.depositCounter ?? 0;
+const nextDepositId = () => {
+  const v = `DEP-${++depositCounter}`;
   saveCounters();
   return v;
 };
@@ -1305,6 +1424,7 @@ function persistState() {
       userRoles: state.userRoles,
       audit: state.audit,
       housekeepingTasks: state.housekeepingTasks,
+      roomInspections: state.roomInspections,
       maintenanceRequests: state.maintenanceRequests,
       dndRecords: state.dndRecords,
       cancellationPolicies: state.cancellationPolicies,
@@ -1312,6 +1432,11 @@ function persistState() {
       corporateAccounts: state.corporateAccounts,
       travelAgentAccounts: state.travelAgentAccounts,
       groupBlocks: state.groupBlocks,
+      roomAssignments: state.roomAssignments,
+      deposits: state.deposits,
+      checkInEvents: state.checkInEvents,
+      keyCards: state.keyCards,
+      serviceRequests: state.serviceRequests,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
   } catch {
@@ -1351,7 +1476,13 @@ const state: State = {
   corporateAccounts: persisted?.corporateAccounts ?? CORP_ACCOUNTS,
   travelAgentAccounts: persisted?.travelAgentAccounts ?? TRAVEL_AGENTS,
   groupBlocks: persisted?.groupBlocks ?? GROUP_BLOCKS,
+  roomAssignments: persisted?.roomAssignments ?? ROOM_ASSIGNMENTS,
+  deposits: persisted?.deposits ?? DEPOSITS,
+  checkInEvents: persisted?.checkInEvents ?? CHECK_IN_EVENTS,
+  keyCards: persisted?.keyCards ?? KEY_CARDS,
+  serviceRequests: persisted?.serviceRequests ?? SERVICE_REQUESTS,
   housekeepingTasks: persisted?.housekeepingTasks ?? HK_TASKS,
+  roomInspections: persisted?.roomInspections ?? ROOM_INSPECTIONS,
   maintenanceRequests: persisted?.maintenanceRequests ?? MAINT_REQUESTS,
   dndRecords: persisted?.dndRecords ?? DND_RECORDS,
 };
@@ -2768,6 +2899,47 @@ export function getActiveDND(): DNDRecord[] {
   return cachedActiveDND;
 }
 
+/* ==================== Room Inspections ==================== */
+
+let roomInspectionCounter = savedCounters.roomInspectionCounter ?? 0;
+const nextRoomInspectionId = () => {
+  const v = `RI-${++roomInspectionCounter}`;
+  saveCounters();
+  return v;
+};
+
+export function upsertRoomInspection(input: RoomInspection) {
+  const exists = state.roomInspections.some((i) => i.id === input.id);
+  if (exists) {
+    state.roomInspections = state.roomInspections.map((i) => (i.id === input.id ? input : i));
+  } else {
+    state.roomInspections = [{ ...input, createdAt: new Date().toISOString() }, ...state.roomInspections];
+  }
+  emit();
+}
+
+export function deleteRoomInspection(id: string) {
+  state.roomInspections = state.roomInspections.filter((i) => i.id !== id);
+  emit();
+}
+
+export function roomInspectionById(id: string | undefined | null) {
+  return id ? state.roomInspections.find((i) => i.id === id) : undefined;
+}
+
+export function roomInspectionsByTask(housekeepingTaskId: string) {
+  return state.roomInspections.filter((i) => i.housekeepingTaskId === housekeepingTaskId);
+}
+
+export function roomInspectionsByRoom(roomId: string) {
+  return state.roomInspections.filter((i) => i.roomId === roomId);
+}
+
+export function latestRoomInspectionByTask(housekeepingTaskId: string) {
+  const inspections = state.roomInspections.filter((i) => i.housekeepingTaskId === housekeepingTaskId);
+  return inspections.sort((a, b) => b.inspectedAt.localeCompare(a.inspectedAt))[0];
+}
+
 export function upsertRoom(room: Room) {
   const exists = state.rooms.some((r) => r.id === room.id);
   state.rooms = exists
@@ -2904,6 +3076,182 @@ export function deleteGroupBlock(id: string) {
 
 export function groupBlockById(id: string | undefined | null) {
   return id ? state.groupBlocks.find((g) => g.id === id) : undefined;
+}
+
+/* ==================== Room Assignments ==================== */
+
+export function upsertRoomAssignment(input: RoomAssignment) {
+  const exists = state.roomAssignments.some((a) => a.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.roomAssignments = state.roomAssignments.map((a) =>
+      a.id === input.id ? { ...a, ...input, updatedAt: now } : a,
+    );
+  } else {
+    state.roomAssignments = [{ ...input, createdAt: now, updatedAt: now }, ...state.roomAssignments];
+  }
+  emit();
+}
+
+export function deleteRoomAssignment(id: string) {
+  state.roomAssignments = state.roomAssignments.filter((a) => a.id !== id);
+  emit();
+}
+
+export function roomAssignmentById(id: string | undefined | null) {
+  return id ? state.roomAssignments.find((a) => a.id === id) : undefined;
+}
+
+export function roomAssignmentsByReservation(reservationId: string) {
+  return state.roomAssignments.filter((a) => a.reservationId === reservationId);
+}
+
+export function activeRoomAssignmentForRoom(roomId: string) {
+  return state.roomAssignments.find(
+    (a) => a.roomId === roomId && (a.status === "assigned" || a.status === "checked_in"),
+  );
+}
+
+/* ==================== Deposits ==================== */
+
+export function upsertDeposit(input: Deposit) {
+  const exists = state.deposits.some((d) => d.id === input.id);
+  if (exists) {
+    state.deposits = state.deposits.map((d) => (d.id === input.id ? input : d));
+  } else {
+    state.deposits = [{ ...input, createdAt: new Date().toISOString() }, ...state.deposits];
+  }
+  emit();
+}
+
+export function deleteDeposit(id: string) {
+  state.deposits = state.deposits.filter((d) => d.id !== id);
+  emit();
+}
+
+export function depositById(id: string | undefined | null) {
+  return id ? state.deposits.find((d) => d.id === id) : undefined;
+}
+
+export function depositsByReservation(reservationId: string) {
+  return state.deposits.filter((d) => d.reservationId === reservationId);
+}
+
+export function totalDepositsByReservation(reservationId: string) {
+  return state.deposits
+    .filter((d) => d.reservationId === reservationId && !d.refundedAt)
+    .reduce((sum, d) => sum + d.amount, 0);
+}
+
+/* ==================== Check-In Events ==================== */
+
+let checkInEventCounter = savedCounters.checkInEventCounter ?? 0;
+const nextCheckInEventId = () => {
+  const v = `CIE-${++checkInEventCounter}`;
+  saveCounters();
+  return v;
+};
+
+export function upsertCheckInEvent(input: CheckInEvent) {
+  const exists = state.checkInEvents.some((e) => e.id === input.id);
+  if (exists) {
+    state.checkInEvents = state.checkInEvents.map((e) => (e.id === input.id ? input : e));
+  } else {
+    state.checkInEvents = [{ ...input, createdAt: new Date().toISOString() }, ...state.checkInEvents];
+  }
+  emit();
+}
+
+export function deleteCheckInEvent(id: string) {
+  state.checkInEvents = state.checkInEvents.filter((e) => e.id !== id);
+  emit();
+}
+
+export function checkInEventById(id: string | undefined | null) {
+  return id ? state.checkInEvents.find((e) => e.id === id) : undefined;
+}
+
+export function checkInEventsByReservation(reservationId: string) {
+  return state.checkInEvents.filter((e) => e.reservationId === reservationId);
+}
+
+/* ==================== Key Cards ==================== */
+
+let keyCardCounter = savedCounters.keyCardCounter ?? 0;
+const nextKeyCardId = () => {
+  const v = `KC-${++keyCardCounter}`;
+  saveCounters();
+  return v;
+};
+
+export function upsertKeyCard(input: KeyCard) {
+  const exists = state.keyCards.some((k) => k.id === input.id);
+  if (exists) {
+    state.keyCards = state.keyCards.map((k) => (k.id === input.id ? input : k));
+  } else {
+    state.keyCards = [{ ...input, createdAt: new Date().toISOString() }, ...state.keyCards];
+  }
+  emit();
+}
+
+export function deleteKeyCard(id: string) {
+  state.keyCards = state.keyCards.filter((k) => k.id !== id);
+  emit();
+}
+
+export function keyCardById(id: string | undefined | null) {
+  return id ? state.keyCards.find((k) => k.id === id) : undefined;
+}
+
+export function keyCardsByReservation(reservationId: string) {
+  return state.keyCards.filter((k) => k.reservationId === reservationId);
+}
+
+export function activeKeyCardsByReservation(reservationId: string) {
+  return state.keyCards.filter((k) => k.reservationId === reservationId && !k.deactivatedAt);
+}
+
+/* ==================== Service Requests ==================== */
+
+let serviceRequestCounter = savedCounters.serviceRequestCounter ?? 0;
+const nextServiceRequestId = () => {
+  const v = `SR-${++serviceRequestCounter}`;
+  saveCounters();
+  return v;
+};
+
+export function upsertServiceRequest(input: ServiceRequest) {
+  const exists = state.serviceRequests.some((s) => s.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.serviceRequests = state.serviceRequests.map((s) =>
+      s.id === input.id ? { ...s, ...input, updatedAt: now } : s,
+    );
+  } else {
+    state.serviceRequests = [{ ...input, createdAt: now, updatedAt: now }, ...state.serviceRequests];
+  }
+  emit();
+}
+
+export function deleteServiceRequest(id: string) {
+  state.serviceRequests = state.serviceRequests.filter((s) => s.id !== id);
+  emit();
+}
+
+export function serviceRequestById(id: string | undefined | null) {
+  return id ? state.serviceRequests.find((s) => s.id === id) : undefined;
+}
+
+export function serviceRequestsByReservation(reservationId: string) {
+  return state.serviceRequests.filter((s) => s.reservationId === reservationId);
+}
+
+export function serviceRequestsByRoom(roomId: string) {
+  return state.serviceRequests.filter((s) => s.roomId === roomId);
+}
+
+export function pendingServiceRequests() {
+  return state.serviceRequests.filter((s) => s.status === "open" || s.status === "in_progress");
 }
 
 /* ============================== Users ============================== */
