@@ -74,99 +74,74 @@ function TenantPanel() {
   const save = () => updateTenant(t);
   return (
     <div className="rounded-xl border border-border bg-card p-6">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="mb-4 flex items-center gap-2">
+        <h2 className="font-display text-lg font-semibold">Property Details</h2>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Labeled label="Property name">
-          <input
-            value={t.name}
-            onChange={(e) => setT({ ...t, name: e.target.value })}
-            className="input"
-          />
+          <input value={t.name} onChange={(e) => setT({ ...t, name: e.target.value })} className="input" />
         </Labeled>
         <Labeled label="Email">
-          <input
-            value={t.email}
-            onChange={(e) => setT({ ...t, email: e.target.value })}
-            className="input"
-          />
+          <input value={t.email ?? ""} onChange={(e) => setT({ ...t, email: e.target.value })} className="input" />
         </Labeled>
         <Labeled label="Phone">
-          <input
-            value={t.phone}
-            onChange={(e) => setT({ ...t, phone: e.target.value })}
-            className="input"
-          />
+          <input value={t.phone ?? ""} onChange={(e) => setT({ ...t, phone: e.target.value })} className="input" />
         </Labeled>
         <Labeled label="TIN">
-          <input
-            value={t.tin}
-            onChange={(e) => setT({ ...t, tin: e.target.value })}
-            className="input"
-          />
+          <input value={t.tin ?? ""} onChange={(e) => setT({ ...t, tin: e.target.value })} className="input" />
         </Labeled>
-        <Labeled label="Currency">
-          <input
-            value={t.currency}
-            onChange={(e) => setT({ ...t, currency: e.target.value })}
-            className="input"
-          />
-        </Labeled>
-        <Labeled label={`VAT rate (${(t.vatRate * 100).toFixed(0)}%)`}>
-          <input
-            type="number"
-            step="0.01"
-            value={t.vatRate}
-            onChange={(e) => setT({ ...t, vatRate: Number(e.target.value) })}
-            className="input"
-          />
-        </Labeled>
-        <Labeled label="Timezone">
-          <input
-            value={t.timezone}
-            onChange={(e) => setT({ ...t, timezone: e.target.value })}
-            className="input"
-          />
-        </Labeled>
-        <Labeled label="Address" className="sm:col-span-2">
-          <textarea
-            value={t.address}
-            onChange={(e) => setT({ ...t, address: e.target.value })}
-            className="input min-h-[72px]"
-          />
-        </Labeled>
-        <Labeled label="Logo URL">
-          <input
-            value={t.logo ?? ""}
-            onChange={(e) => setT({ ...t, logo: e.target.value || undefined })}
-            className="input"
-          />
+        <Labeled label="EFRIS Device No">
+          <input value={t.efrisDeviceNo ?? ""} onChange={(e) => setT({ ...t, efrisDeviceNo: e.target.value })} className="input" />
         </Labeled>
         <Labeled label="Default Currency">
-          <input
-            value={t.defaultCurrency ?? t.currency}
-            onChange={(e) => setT({ ...t, defaultCurrency: e.target.value })}
-            className="input"
-          />
+          <input value={t.defaultCurrency} onChange={(e) => setT({ ...t, defaultCurrency: e.target.value })} className="input" />
         </Labeled>
-        <Labeled label="Booking Engine URL" className="sm:col-span-2">
-          <input
-            value={t.bookingEngineUrl ?? ""}
-            onChange={(e) => setT({ ...t, bookingEngineUrl: e.target.value || undefined })}
-            className="input"
-          />
+        <Labeled label="Timezone">
+          <input value={t.timezone} onChange={(e) => setT({ ...t, timezone: e.target.value })} className="input" />
         </Labeled>
-        <Labeled label="Terms & Conditions" className="sm:col-span-2">
-          <textarea
-            value={t.terms ?? ""}
-            onChange={(e) => setT({ ...t, terms: e.target.value || undefined })}
-            className="input min-h-[72px]"
-          />
+        <Labeled label="City">
+          <input value={t.city} onChange={(e) => setT({ ...t, city: e.target.value })} className="input" />
+        </Labeled>
+        <Labeled label="Country">
+          <input value={t.country} onChange={(e) => setT({ ...t, country: e.target.value })} className="input" />
+        </Labeled>
+        <Labeled label="Address" className="sm:col-span-2 lg:col-span-2">
+          <textarea value={t.address ?? ""} onChange={(e) => setT({ ...t, address: e.target.value })} className="input min-h-[60px]" />
         </Labeled>
       </div>
-      <div className="mt-5 flex justify-end">
-        <button
-          onClick={save}
-          className="rounded-md bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-        >
+
+      <div className="mb-4 mt-6 flex items-center gap-2">
+        <h2 className="font-display text-lg font-semibold">Operational Settings</h2>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Labeled label="Standard Check-in Time">
+          <input value={t.standardCheckinTime} onChange={(e) => setT({ ...t, standardCheckinTime: e.target.value })} className="input" />
+        </Labeled>
+        <Labeled label="Standard Check-out Time">
+          <input value={t.standardCheckoutTime} onChange={(e) => setT({ ...t, standardCheckoutTime: e.target.value })} className="input" />
+        </Labeled>
+        <Labeled label="Late Checkout Half Cutoff">
+          <input value={t.lateCheckoutHalfCutoff} onChange={(e) => setT({ ...t, lateCheckoutHalfCutoff: e.target.value })} className="input" />
+        </Labeled>
+        <Labeled label="Folio Adj Agent Threshold (UGX)">
+          <input type="number" value={t.folioAdjAgentThreshold} onChange={(e) => setT({ ...t, folioAdjAgentThreshold: Number(e.target.value) })} className="input" />
+        </Labeled>
+        <Labeled label="Folio Adj PM Threshold (UGX)">
+          <input type="number" value={t.folioAdjPmThreshold} onChange={(e) => setT({ ...t, folioAdjPmThreshold: Number(e.target.value) })} className="input" />
+        </Labeled>
+        <Labeled label="Requisition Approval Threshold (UGX)">
+          <input type="number" value={t.requisitionApprovalThreshold} onChange={(e) => setT({ ...t, requisitionApprovalThreshold: Number(e.target.value) })} className="input" />
+        </Labeled>
+        <Labeled label="Credit Grace Period (days)">
+          <input type="number" value={t.creditGracePeriodDays} onChange={(e) => setT({ ...t, creditGracePeriodDays: Number(e.target.value) })} className="input" />
+        </Labeled>
+      </div>
+
+      <div className="mt-6 flex items-center justify-between border-t border-border pt-4">
+        <div className="text-[11px] text-muted-foreground">
+          Created: {t.createdAt} · Updated: {t.updatedAt}
+        </div>
+        <button onClick={save} className="rounded-md bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90">
           Save changes
         </button>
       </div>
@@ -201,7 +176,7 @@ function RoomTypesPanel() {
           <tbody className="divide-y divide-border">
             {types.map((t) => (
               <tr key={t.id} className="hover:bg-muted/30">
-                <td className="px-4 py-3 font-medium">{t.typeName}</td>
+                <td className="px-4 py-3 font-medium">{t.name}</td>
                 <td className="px-4 py-3 text-right tabular-nums">
                   UGX {t.baseRate.toLocaleString()}
                 </td>
@@ -236,9 +211,9 @@ function RoomTypesPanel() {
 
 function RoomTypeEditor({ initial, onClose }: { initial: RoomType | null; onClose: () => void }) {
   const [id, setId] = useState(initial?.id ?? "");
-  const [name, setName] = useState(initial?.name ?? "");
+  const [typeName, setTypeName] = useState(initial?.name ?? "");
   const [rate, setRate] = useState<number | "">(initial?.baseRate ?? "");
-  const [capacity, setCapacity] = useState<number | "">(initial?.capacity ?? 2);
+  const [capacity, setCapacity] = useState<number | "">(initial?.maxOccupancy ?? 2);
   return (
     <Modal title={initial ? "Edit room type" : "New room type"} onClose={onClose}>
       <div className="space-y-3">
@@ -251,7 +226,7 @@ function RoomTypeEditor({ initial, onClose }: { initial: RoomType | null; onClos
           />
         </Labeled>
         <Labeled label="Name">
-          <input value={name} onChange={(e) => setName(e.target.value)} className="input" />
+          <input value={typeName} onChange={(e) => setTypeName(e.target.value)} className="input" />
         </Labeled>
         <Labeled label="Base rate (UGX)">
           <input
@@ -272,9 +247,9 @@ function RoomTypeEditor({ initial, onClose }: { initial: RoomType | null; onClos
       </div>
       <Footer
         onClose={onClose}
-        disabled={!id || !name || !rate}
+        disabled={!id || !typeName || !rate}
         onSave={() => {
-          upsertRoomType({ id, name, baseRate: Number(rate), capacity: Number(capacity) });
+          upsertRoomType({ id, name: typeName, baseRate: Number(rate), maxOccupancy: Number(capacity) });
           onClose();
         }}
       />
@@ -388,7 +363,7 @@ function RoomEditor({
             <SelectContent>
                 {types.map((t) => (
                   <SelectItem key={t.id} value={t.id}>
-                    {t.typeName}
+                    {t.name}
                   </SelectItem>
                 ))}
             </SelectContent>
@@ -418,7 +393,6 @@ function RoomEditor({
             floor: Number(floor),
             typeId,
             status,
-            assignedTo: initial?.assignedTo ?? null,
           });
           onClose();
         }}

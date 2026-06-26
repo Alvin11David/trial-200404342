@@ -41,7 +41,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
-import { useStore } from "@/lib/pms-store";
+import { getUserRoleNames, useStore } from "@/lib/pms-store";
 import { printReceipt, type ReceiptData } from "@/lib/print-receipt";
 
 export const Route = createFileRoute("/_app/pos")({
@@ -156,7 +156,7 @@ function POSPage() {
   );
 
   const subtotal = useMemo(() => cart.reduce((sum, e) => sum + e.item.price * e.qty, 0), [cart]);
-  const taxRate = useStore((s) => s.tenant.vatRate);
+  const taxRate = 0.18;
   const tax = Math.round(subtotal * taxRate);
   const total = subtotal + tax;
 
@@ -188,7 +188,7 @@ function POSPage() {
 
   const tenant = useStore((s) => s.tenant);
   const cashierName =
-    useStore((s) => s.users.find((u) => u.role === "POS / Cashier" && u.active)?.name) ??
+    useStore((s) => s.users.find((u) => u.isActive && getUserRoleNames(u.id).includes("POS / Cashier"))?.fullName) ??
     "Cashier";
 
   const receiptCounter = useRef(1000);

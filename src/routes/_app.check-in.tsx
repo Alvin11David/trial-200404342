@@ -199,7 +199,7 @@ function CheckInPage() {
                       <span className="font-medium text-muted-foreground/70">#{res.id}</span>
                       <span className="flex items-center gap-1">
                         <BedDouble className="h-3 w-3" />
-                        {rt?.typeName ?? res.roomTypeId}
+                        {rt?.name ?? res.roomTypeId}
                       </span>
                       <span>{fmtUGX(res.ratePerNight)} / night</span>
                     </div>

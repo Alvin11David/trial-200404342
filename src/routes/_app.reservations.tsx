@@ -297,7 +297,7 @@ function ReservationsPage() {
             >
               {roomType === "All"
                 ? "All room types"
-                : (roomTypes.find((t) => t.id === roomType)?.typeName ?? roomType)}
+                : (roomTypes.find((t) => t.id === roomType)?.name ?? roomType)}
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             {roomTypeOpen && (
@@ -328,7 +328,7 @@ function ReservationsPage() {
                         roomType === t.id && "bg-primary/10 font-medium text-primary",
                       )}
                     >
-                      {t.typeName}
+                      {t.name}
                     </button>
                   ))}
                 </div>
@@ -411,7 +411,7 @@ function ReservationsPage() {
                       className="sticky left-0 z-10 flex items-center gap-2 border-b border-r border-border bg-card px-3 py-2"
                     >
                       <span className="text-xs font-medium">{room.id}</span>
-                       <span className="text-[9px] text-muted-foreground">{rt?.typeName}</span>
+                       <span className="text-[9px] text-muted-foreground">{rt?.name}</span>
                      </div>
                     {cells.map((cell) => (
                       <div
@@ -494,7 +494,7 @@ function ReservationsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="font-medium">{r.roomId ? `Room ${r.roomId}` : "—"}</div>
-                        <div className="text-[11px] text-muted-foreground">{rt?.typeName}</div>
+                        <div className="text-[11px] text-muted-foreground">{rt?.name}</div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="font-medium">
@@ -826,7 +826,8 @@ function EditDialog({
             <X className="h-4 w-4" />
           </button>
         </div>
-        <div className="mt-5 grid grid-cols-2 gap-4">
+        <div className="mt-5 max-h-[60vh] overflow-y-auto space-y-4 pr-1">
+          <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className="block text-xs font-medium text-muted-foreground">Guest name</label>
             <input
@@ -860,7 +861,7 @@ function EditDialog({
               <SelectContent>
                 {roomTypes.map((rt) => (
                   <SelectItem key={rt.id} value={rt.id}>
-                    {rt.typeName}
+                    {rt.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -1002,7 +1003,8 @@ function EditDialog({
             <span className="font-bold text-foreground">{fmtUGX(total)}</span>
           </div>
         </div>
-        <div className="mt-6 flex items-center justify-end gap-2">
+        </div>
+        <div className="flex items-center justify-end gap-2">
           <button
             onClick={() => onClose()}
             className="rounded-md border border-border px-3 py-2 text-xs hover:bg-muted"

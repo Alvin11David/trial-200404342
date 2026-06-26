@@ -438,7 +438,7 @@ function FolioDetail({ folioId }: { folioId: string }) {
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Home className="h-3.5 w-3.5" />
-                  Room {room?.id ?? "—"} ({rt?.typeName ?? "—"})
+                  Room {room?.id ?? "—"} ({rt?.name ?? "—"})
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <FileText className="h-3.5 w-3.5" />
@@ -1241,7 +1241,7 @@ function ReceiptDialog({
 }: {
   payment: Payment;
   folio: { id: string; reservationId: string; status: FolioStatus };
-  tenant: { name: string; address: string; phone: string; email: string; tin: string };
+  tenant: { name: string; address?: string; phone?: string; email?: string; tin?: string };
   onClose: () => void;
   onSms?: () => void;
 }) {
@@ -1545,7 +1545,7 @@ function InvoiceView({ folioId }: { folioId: string }) {
   const folioPayments = payments.filter((p) => p.folioId === folioId);
 
   const subtotal = folioCharges.reduce((s, c) => s + c.amount, 0);
-  const effectiveVatRate = res?.vatRate ?? tenant.vatRate;
+  const effectiveVatRate = res?.vatRate ?? 0.18;
   const isInclusive = res?.vatTreatment !== "exclusive";
   const vat = isInclusive
     ? subtotal - subtotal / (1 + effectiveVatRate)

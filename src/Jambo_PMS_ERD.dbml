@@ -1,0 +1,1283 @@
+// ============================================================
+// JAMBO ERP PLATFORM — ENTITY RELATIONSHIP DIAGRAM
+// Document Reference: ERD-001-v1.0
+// Date: 26 June 2026
+// Prepared by: Fidel Otieno Jones & Alvin (WIL Placement, Macquarie University)
+// Client: Jambo Sphere Ltd, Kampala Uganda
+//
+// APPROACH: Canonical Core ERD with Migration Adapter pattern
+// Migration source: hotelsys_paradise_lite (MySQL / PHPMyAdmin)
+//   Key mapping: legacy "front_event" = new "reservations"
+//
+// PASTE THIS INTO: https://dbdiagram.io  (free, no login needed)
+// Click "Import DBML" or paste into the left code panel
+// ============================================================
+
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+Enum room_status {
+  dirty            [note: "Default after guest checkout"]
+  cleaning         [note: "Housekeeper started — WF-HK-02"]
+  ready_for_inspection [note: "Housekeeper done — WF-HK-02"]
+  inspected        [note: "Supervisor passed — WF-HK-03"]
+  in_use           [note: "Guest checked in — WF-FD-01"]
+  out_of_order     [note: "Declared by Property Manager"]
+  maintenance      [note: "Under active maintenance — WF-HK-04"]
+}
+
+Enum reservation_status {
+  pending          [note: "Awaiting group/manager confirmation"]
+  confirmed        [note: "Standard confirmed booking"]
+  checked_in       [note: "Guest on property — WF-FD-01"]
+  checked_out      [note: "Departed — WF-FD-06/07/08"]
+  cancelled        [note: "WF-RES-03"]
+  no_show          [note: "WF-RES-04"]
+}
+
+Enum billing_arrangement {
+  pay_at_checkout  [note: "Individual guest — WF-FD-06"]
+  city_ledger      [note: "Corporate account — WF-FD-07"]
+  agent_ledger     [note: "Travel agent — WF-FD-08"]
+}
+
+Enum vat_treatment {
+  inclusive        [note: "VAT extracted: gross x 18/118 | IMMUTABLE after folio open"]
+  exclusive        [note: "VAT added: net x 1.18 | IMMUTABLE after folio open"]
+  not_applicable   [note: "Exempt account with exemption ref | IMMUTABLE"]
+}
+
+Enum meal_plan {
+  ro [note: "Room only"]
+  bb [note: "Bed and breakfast"]
+  hb [note: "Half board — breakfast and dinner"]
+  fb [note: "Full board — all meals"]
+  ai [note: "All inclusive"]
+}
+
+Enum payment_method {
+  cash
+  mtn_momo        [note: "C2B API — WF-BP-04"]
+  airtel_money    [note: "C2B API — WF-BP-04"]
+  card            [note: "POS terminal — WF-BP-06"]
+  bank_transfer
+  city_ledger_transfer
+  agent_ledger_transfer
+}
+
+Enum payment_status {
+  pending
+  confirmed
+  failed
+  cancelled
+  pending_manual_review [note: "Mobile money timeout — Finance Officer notified"]
+  reversed
+}
+
+Enum efris_status {
+  submitted       [note: "FDN received from URA"]
+  provisional     [note: "EFRIS unavailable — queued for retry"]
+  retry_queued    [note: "Retrying at 15-min intervals"]
+  failed          [note: "All retries exhausted"]
+}
+
+Enum folio_status {
+  open
+  settled              [note: "Individual — paid at desk"]
+  transferred_to_ledger [note: "Corporate — city ledger"]
+  transferred_to_agent  [note: "Travel agent — agent ledger"]
+  void
+}
+
+Enum folio_charge_source {
+  room_auto        [note: "Nightly auto-post at 23:59"]
+  pos_charge       [note: "POS room charge — WF-POS-05"]
+  minibar_auto     [note: "Housekeeping minibar log — WF-HK-05"]
+  service_request  [note: "In-stay service fulfilment — WF-FD-04"]
+  manual           [note: "Agent manual entry"]
+  adjustment       [note: "Folio adjustment — WF-BP-02"]
+}
+
+Enum folio_charge_status {
+  posted
+  disputed   [note: "Blocks folio settlement — BR-FD-03"]
+  voided
+  adjusted
+}
+
+Enum hk_task_priority {
+  priority_1 [note: "Checkout room — must be ready for same-day arrival"]
+  priority_2 [note: "Stay-over room"]
+  priority_3 [note: "Vacant room — periodic refresh"]
+  priority_4 [note: "Deep clean — scheduled or long-stay exit"]
+}
+
+Enum hk_task_status {
+  assigned
+  in_progress
+  ready_for_inspection
+  completed
+  skipped_dnd [note: "DND flag active — supervisor notified"]
+}
+
+Enum inspection_result {
+  pass [note: "Room set to INSPECTED — Front Desk notified"]
+  fail [note: "Room returned to CLEANING with defect notes"]
+}
+
+Enum maintenance_urgency {
+  low
+  normal
+  urgent [note: "SMS to Maintenance Supervisor within 60 seconds"]
+}
+
+Enum maintenance_status {
+  open
+  acknowledged
+  in_progress
+  resolved
+  cancelled
+}
+
+Enum stock_movement_type {
+  goods_receipt
+  department_issue
+  minibar_restock
+  minibar_consumption
+  reconciliation_adjustment
+  transfer
+  opening_balance
+}
+
+Enum requisition_status {
+  pending_approval
+  approved
+  partially_fulfilled
+  fulfilled
+  rejected
+  cancelled
+}
+
+Enum pos_tab_status {
+  open
+  settled        [note: "Direct payment — WF-POS-04"]
+  room_charged   [note: "Posted to hotel folio — WF-POS-05"]
+  unrecovered    [note: "Guest left — documented by manager"]
+  cancelled
+}
+
+Enum kot_item_status {
+  pending
+  in_preparation
+  ready
+  voided
+}
+
+Enum invoice_status {
+  pending
+  invoiced
+  overdue
+  paid
+  written_off
+}
+
+Enum service_request_type {
+  housekeeping
+  maintenance
+  fb_delivery
+  extra_linen
+  amenity
+  information
+  complaint
+}
+
+Enum service_request_urgency {
+  normal
+  urgent
+}
+
+Enum service_request_status {
+  open
+  in_progress
+  completed
+  escalated
+}
+
+
+// ============================================================
+// CROSS-CUTTING ENTITIES
+// ============================================================
+
+Table properties {
+  id                          int        [pk, increment]
+  name                        varchar    [not null]
+  address                     varchar
+  city                        varchar    [not null]
+  country                     varchar    [not null, default: 'Uganda']
+  phone                       varchar
+  email                       varchar
+  tin                         varchar    [note: "Uganda Revenue Authority TIN — required for EFRIS"]
+  efris_device_no             varchar    [note: "EFRIS fiscal device number from URA"]
+  default_currency            varchar    [default: 'UGX']
+  standard_checkin_time       time       [default: '14:00:00']
+  standard_checkout_time      time       [default: '11:00:00']
+  timezone                    varchar    [default: 'Africa/Kampala']
+  late_checkout_half_cutoff   time       [default: '15:00:00']
+  folio_adj_agent_threshold   bigint     [note: "UGX — below this agents adjust freely. Default 10000"]
+  folio_adj_pm_threshold      bigint     [note: "UGX — below this PM approves. Default 50000"]
+  requisition_approval_threshold bigint  [note: "UGX — above this PM must approve requisition"]
+  credit_grace_period_days    int        [default: 14, note: "Days past invoice due before check-in warning fires"]
+  created_at                  timestamp  [default: `now()`]
+  updated_at                  timestamp
+
+  note: "One row per hotel property. property_id on every operational table = RLS multi-tenancy anchor."
+}
+
+Table users {
+  id                  int       [pk, increment]
+  property_id         int       [ref: > properties.id]
+  full_name           varchar   [not null]
+  email               varchar   [not null, unique]
+  password_hash       varchar   [not null, note: "bcrypt minimum work factor 12 — NFR-SEC-004"]
+  is_active           boolean   [default: true]
+  last_login_at       timestamp
+  password_changed_at timestamp
+  legacy_ref          varchar   [note: "MIGRATION: users.id from hotelsys_paradise_lite"]
+  created_at          timestamp [default: `now()`]
+  updated_at          timestamp
+}
+
+Table roles {
+  id          int     [pk, increment]
+  role_code   varchar [not null, unique, note: "FD-AGENT, HK-SUP, FINANCE, etc. — see URP-001"]
+  role_name   varchar [not null]
+  description text
+  created_at  timestamp [default: `now()`]
+}
+
+Table user_roles {
+  id             int       [pk, increment]
+  user_id        int       [ref: > users.id, not null]
+  role_id        int       [ref: > roles.id, not null]
+  assigned_by    int       [ref: > users.id]
+  assigned_at    timestamp [default: `now()`]
+  revoked_at     timestamp
+  revocation_reason text
+
+  note: "Unique constraint: (user_id, role_id) where revoked_at IS NULL. All changes logged in audit_logs."
+}
+
+Table audit_logs {
+  id             bigint    [pk, increment]
+  property_id    int       [ref: > properties.id]
+  event_type     varchar   [not null, note: "e.g. FOLIO.CHARGE_POSTED, RESERVATION.MODIFIED"]
+  entity_type    varchar   [not null, note: "Table name: reservations, folios, rooms, etc."]
+  entity_id      varchar   [not null, note: "Primary key of the affected record"]
+  previous_state jsonb     [note: "Full record snapshot before change"]
+  new_state      jsonb     [note: "Full record snapshot after change"]
+  actor_id       int       [ref: > users.id, note: "NULL for SYSTEM-generated events"]
+  actor_role     varchar   [note: "Role code at time of action"]
+  reason         text      [note: "MANDATORY for ADJUSTMENT, OVERRIDE, EXCEPTION events"]
+  ip_address     varchar
+  created_at     timestamp [default: `now()`]
+
+  note: "APPEND-ONLY — FR-AUD-001. No DELETE or UPDATE permitted. Retained 7 years minimum — NFR-CMP-004."
+}
+
+Table notifications {
+  id                    bigint   [pk, increment]
+  property_id           int      [ref: > properties.id]
+  recipient_user_id     int      [ref: > users.id]
+  recipient_phone       varchar
+  recipient_email       varchar
+  channel               varchar  [note: "sms, email, in_app"]
+  subject               varchar
+  body                  text
+  status                varchar  [note: "queued, sent, failed"]
+  retry_count           int      [default: 0]
+  sent_at               timestamp
+  related_entity_type   varchar
+  related_entity_id     varchar
+  created_at            timestamp [default: `now()`]
+}
+
+
+// ============================================================
+// DOMAIN 1 — RESERVATIONS
+// ============================================================
+
+Table room_types {
+  id              int      [pk, increment]
+  property_id     int      [ref: > properties.id, not null]
+  name            varchar  [not null, note: "Standard Double, Deluxe Suite, etc."]
+  description     text
+  max_occupancy   int      [not null, default: 2]
+  base_rate       bigint   [note: "UGX — default nightly rate if no rate plan matches"]
+  created_at      timestamp [default: `now()`]
+  updated_at      timestamp
+
+  note: "MIGRATION: front_venue (legacy) — venue_name → name, sitting_capacity → max_occupancy, venue_rate → base_rate"
+}
+
+Table cancellation_policies {
+  id                          int    [pk, increment]
+  property_id                 int    [ref: > properties.id, not null]
+  name                        varchar [not null]
+  free_cancel_hours_before    int    [note: "Hours before arrival within which cancellation is free"]
+  partial_refund_pct          int    [note: "% refund in the partial window"]
+  partial_refund_hours_before int
+  no_show_charge_pct          int    [note: "% of total charged on confirmed no-show"]
+  created_at                  timestamp [default: `now()`]
+}
+
+Table rate_plans {
+  id                        int            [pk, increment]
+  property_id               int            [ref: > properties.id, not null]
+  room_type_id              int            [ref: > room_types.id, not null]
+  cancellation_policy_id    int            [ref: > cancellation_policies.id]
+  name                      varchar        [not null, note: "Rack Rate, Corporate, OTA, Advance Purchase"]
+  nightly_rate              bigint         [not null, note: "UGX integer — locked at reservation confirmation"]
+  vat_treatment             vat_treatment  [not null, default: 'inclusive']
+  deposit_required_pct      int            [default: 0, note: "% of estimated total required as deposit"]
+  min_length_of_stay        int            [default: 1]
+  is_active                 boolean        [default: true]
+  created_at                timestamp      [default: `now()`]
+  updated_at                timestamp
+
+  note: "MIGRATION: front_client_rates + front_static_data.defaultvaluex (Inclusive/Exclusive/Not Applicable) → vat_treatment"
+}
+
+Table rooms {
+  id            int          [pk, increment]
+  property_id   int          [ref: > properties.id, not null]
+  room_type_id  int          [ref: > room_types.id, not null]
+  room_number   varchar      [not null]
+  floor         int
+  status        room_status  [not null, default: 'dirty']
+  block_status  boolean      [default: false]
+  notes         text
+  legacy_ref    varchar      [note: "MIGRATION: room.room_no — DX1, DX7, STR1, etc."]
+  created_at    timestamp    [default: `now()`]
+  updated_at    timestamp
+
+  note: "MIGRATION: room table (13 rooms in legacy). room_status enum enforced server-side — BR-HK-07."
+}
+
+Table guest_profiles {
+  id                int       [pk, increment]
+  property_id       int       [ref: > properties.id, not null]
+  full_name         varchar   [not null]
+  phone             varchar
+  email             varchar
+  nationality       varchar
+  id_type           varchar   [note: "National ID, Passport, Driving Licence"]
+  id_number         varchar
+  address           varchar
+  vip_flag          boolean   [default: false]
+  notes             text
+  source_system_ref varchar   [note: "MIGRATION: reservation_rooms row identifier — guest data was embedded per booking in legacy, not centralised. Deduplicate on name+phone+id_no."]
+  created_at        timestamp [default: `now()`]
+  updated_at        timestamp
+
+  note: "MIGRATION CHALLENGE: legacy embeds guest data inside reservation_rooms (guest_name, guest_phone, guest_id_type, guest_id_no). Migration adapter deduplicates and centralises guest profiles. front_clients table (corporate/org) also maps here with client_type flag."
+}
+
+Table corporate_accounts {
+  id                       int            [pk, increment]
+  property_id              int            [ref: > properties.id, not null]
+  company_name             varchar        [not null]
+  billing_contact_name     varchar
+  billing_contact_email    varchar
+  billing_contact_phone    varchar
+  address                  varchar
+  tin                      varchar        [note: "Company TIN for EFRIS VAT invoices"]
+  credit_limit             bigint         [note: "UGX — 0 means no limit"]
+  credit_terms_days        int            [default: 30]
+  vat_treatment            vat_treatment  [not null, default: 'exclusive']
+  credit_grace_period_days int            [default: 14]
+  is_active                boolean        [default: true]
+  outstanding_balance      bigint         [default: 0, note: "UGX — updated on each ledger event"]
+  legacy_ref               varchar        [note: "MIGRATION: debtors.debtors_id OR front_clients.id where client_type=corporate"]
+  created_at               timestamp      [default: `now()`]
+  updated_at               timestamp
+
+  note: "MIGRATION: debtors + debtors_clients tables in legacy. debtors_name → company_name, tin → tin, debtors_credit_limit → credit_limit."
+}
+
+Table travel_agent_accounts {
+  id                      int            [pk, increment]
+  property_id             int            [ref: > properties.id, not null]
+  agency_name             varchar        [not null]
+  contact_name            varchar
+  contact_email           varchar
+  contact_phone           varchar
+  address                 varchar
+  commission_rate_pct     int            [not null, note: "e.g. 15 = 15%. Immutable on ledger entries once set."]
+  vat_treatment           vat_treatment  [not null, default: 'exclusive']
+  is_active               boolean        [default: true]
+  legacy_ref              varchar        [note: "MIGRATION: front_event.travel_agent_id"]
+  created_at              timestamp      [default: `now()`]
+  updated_at              timestamp
+}
+
+Table group_blocks {
+  id              int       [pk, increment]
+  property_id     int       [ref: > properties.id, not null]
+  group_name      varchar   [not null]
+  organiser_name  varchar
+  organiser_email varchar
+  start_date      date      [not null]
+  end_date        date      [not null]
+  total_rooms_blocked int   [not null]
+  group_rate      bigint    [note: "UGX — negotiated group rate"]
+  cutoff_date     date      [note: "Unclaimed rooms released to general inventory after this date"]
+  status          varchar   [note: "active, confirmed, closed, cancelled"]
+  created_by      int       [ref: > users.id]
+  approved_by     int       [ref: > users.id]
+  created_at      timestamp [default: `now()`]
+  updated_at      timestamp
+
+  note: "MIGRATION: front_event.is_bulk=1 rows in legacy. Group block concept exists implicitly in legacy."
+}
+
+Table reservations {
+  id                        int                  [pk, increment]
+  property_id               int                  [ref: > properties.id, not null]
+  confirmation_number       varchar              [not null, unique]
+  guest_profile_id          int                  [ref: > guest_profiles.id, not null]
+  corporate_account_id      int                  [ref: > corporate_accounts.id, note: "NULL for Individual"]
+  travel_agent_account_id   int                  [ref: > travel_agent_accounts.id, note: "NULL unless agent booking"]
+  group_block_id            int                  [ref: > group_blocks.id, note: "NULL for individual bookings"]
+  billing_arrangement       billing_arrangement  [not null, default: 'pay_at_checkout']
+  status                    reservation_status   [not null, default: 'confirmed']
+  check_in_date             date                 [not null]
+  check_out_date            date                 [not null]
+  booking_source            varchar              [note: "walk_in, phone, email, ota, direct_web — MIGRATION: front_event.source"]
+  ota_name                  varchar              [note: "MIGRATION: front_event.otaname"]
+  agent_voucher_number      varchar
+  special_requests          text
+  vip_flag                  boolean              [default: false, note: "MIGRATION: front_event.vip"]
+  created_by                int                  [ref: > users.id]
+  cancelled_by              int                  [ref: > users.id]
+  cancellation_reason       text
+  cancelled_at              timestamp
+  no_show_declared_at       timestamp
+  no_show_declared_by       int                  [ref: > users.id]
+  source_system_ref         varchar              [note: "MIGRATION: front_event.event_no — the primary legacy identifier"]
+  res_code                  varchar              [note: "MIGRATION: front_event.res_code e.g. NM-813"]
+  created_at                timestamp            [default: `now()`]
+  updated_at                timestamp
+
+  note: "MIGRATION: front_event table. CRITICAL MAPPING — legacy calls reservations 'events'. event_no → source_system_ref. client_id → guest_profile_id. event_start/event_end → check_in/out_date. polifolio=Open → folio status OPEN. travel_agent_id → travel_agent_account_id. vip → vip_flag."
+}
+
+Table room_assignments {
+  id              int           [pk, increment]
+  reservation_id  int           [ref: > reservations.id, not null]
+  room_id         int           [ref: > rooms.id, not null]
+  rate_plan_id    int           [ref: > rate_plans.id, not null]
+  meal_plan       meal_plan     [default: 'ro', note: "Simple enum per Fidel — WIL decision 26 Jun 2026"]
+  adult_count     int           [default: 1]
+  child_count     int           [default: 0]
+  nightly_rate    bigint        [not null, note: "UGX — locked at assignment, not re-read from rate_plan"]
+  number_of_nights int          [not null]
+  status          varchar       [note: "assigned, checked_in, checked_out, cancelled"]
+  pre_assigned    boolean       [default: false]
+  coming_from     varchar       [note: "MIGRATION: reservation_rooms.coming_from"]
+  destination     varchar       [note: "MIGRATION: reservation_rooms.destination"]
+  purpose_of_visit varchar
+  created_at      timestamp     [default: `now()`]
+  updated_at      timestamp
+
+  note: "MIGRATION: reservation_rooms table. One row per room per reservation. res_no → reservation_id, room_no → room_id, meal_plan → meal_plan enum, check_in_date/check_out_date on reservation, occupancy_type → rate_plan_id."
+}
+
+Table deposits {
+  id                  int             [pk, increment]
+  reservation_id      int             [ref: > reservations.id, not null]
+  property_id         int             [ref: > properties.id, not null]
+  amount              bigint          [not null, note: "UGX"]
+  payment_method      payment_method  [not null]
+  provider_reference  varchar
+  collected_by        int             [ref: > users.id]
+  collected_at        timestamp       [not null]
+  applied_at          timestamp       [note: "When deducted from checkout folio total"]
+  refunded_at         timestamp
+  refund_amount       bigint
+  refund_reason       text
+  created_at          timestamp       [default: `now()`]
+}
+
+
+// ============================================================
+// DOMAIN 2 — FRONT DESK
+// ============================================================
+
+Table check_in_events {
+  id                    int       [pk, increment]
+  property_id           int       [ref: > properties.id, not null]
+  reservation_id        int       [ref: > reservations.id, not null]
+  room_assignment_id    int       [ref: > room_assignments.id, not null]
+  agent_id              int       [ref: > users.id, not null]
+  actual_checkin_time   timestamp [not null]
+  id_type_verified      varchar   [not null, note: "National ID, Passport, Driving Licence — MANDATORY BR-FD-01"]
+  id_number_verified    varchar   [not null]
+  id_verified_at        timestamp [not null]
+  manager_override      boolean   [default: false]
+  override_reason       text
+  override_by           int       [ref: > users.id]
+  created_at            timestamp [default: `now()`]
+
+  note: "MIGRATION: reservation_rooms (check_in_time, checkin_by, guest_id_type, guest_id_no, room_status='checkin')"
+}
+
+Table key_cards {
+  id                  int       [pk, increment]
+  property_id         int       [ref: > properties.id, not null]
+  reservation_id      int       [ref: > reservations.id, not null]
+  room_id             int       [ref: > rooms.id, not null]
+  card_reference      varchar   [note: "Physical key number or RFID card ID from door lock controller"]
+  card_type           varchar   [note: "physical, rfid"]
+  issue_number        int       [not null, note: "Sequential per reservation: 1, 2, 3. Max 3 default — BR-FD-04"]
+  issued_at           timestamp [not null]
+  issued_by           int       [ref: > users.id, not null]
+  expires_at          timestamp [not null, note: "Set to checkout date + checkout time — BR-FD-05"]
+  deactivated_at      timestamp
+  deactivation_reason varchar   [note: "checkout, loss_report, room_change, late_checkout_extension"]
+  deactivated_by      int       [ref: > users.id]
+  created_at          timestamp [default: `now()`]
+}
+
+Table service_requests {
+  id                      int                      [pk, increment]
+  property_id             int                      [ref: > properties.id, not null]
+  reservation_id          int                      [ref: > reservations.id]
+  room_id                 int                      [ref: > rooms.id, not null]
+  request_type            service_request_type     [not null]
+  description             text
+  urgency                 service_request_urgency  [default: 'normal']
+  status                  service_request_status   [default: 'open']
+  requested_at            timestamp                [not null]
+  requested_by            int                      [ref: > users.id, not null]
+  assigned_to_department  varchar
+  sla_deadline            timestamp
+  sla_breached            boolean                  [default: false]
+  fulfilled_at            timestamp
+  fulfilled_by            int                      [ref: > users.id]
+  is_chargeable           boolean                  [default: false]
+  charge_amount           bigint                   [note: "UGX — if chargeable"]
+  folio_charge_id         int                      [note: "Set after auto-post to folio_charges"]
+  created_at              timestamp                [default: `now()`]
+  updated_at              timestamp
+}
+
+
+// ============================================================
+// DOMAIN 3 — HOUSEKEEPING
+// ============================================================
+
+Table housekeeping_tasks {
+  id                        int             [pk, increment]
+  property_id               int             [ref: > properties.id, not null]
+  room_id                   int             [ref: > rooms.id, not null]
+  assigned_to               int             [ref: > users.id]
+  assigned_by               int             [ref: > users.id]
+  priority                  hk_task_priority [not null]
+  task_type                 varchar         [note: "checkout_clean, stay_over, deep_clean, vacant_refresh"]
+  status                    hk_task_status  [default: 'assigned']
+  shift_date                date            [not null]
+  expected_completion_time  timestamp
+  started_at                timestamp
+  completed_at              timestamp
+  dnd_flagged_at            timestamp
+  welfare_check_triggered   boolean         [default: false, note: "Fires at 16:00 if DND since before 08:00 — BR-HK-04"]
+  created_at                timestamp       [default: `now()`]
+  updated_at                timestamp
+}
+
+Table room_inspections {
+  id                    int               [pk, increment]
+  property_id           int               [ref: > properties.id, not null]
+  housekeeping_task_id  int               [ref: > housekeeping_tasks.id, not null]
+  room_id               int               [ref: > rooms.id, not null]
+  inspector_id          int               [ref: > users.id, not null]
+  result                inspection_result [not null]
+  defect_notes          text              [note: "Required on FAIL — sent to housekeeper for correction"]
+  inspected_at          timestamp         [not null]
+  created_at            timestamp         [default: `now()`]
+}
+
+Table maintenance_requests {
+  id                    int                  [pk, increment]
+  property_id           int                  [ref: > properties.id, not null]
+  room_id               int                  [ref: > rooms.id]
+  housekeeping_task_id  int                  [ref: > housekeeping_tasks.id, note: "NULL if reported by guest or FD agent"]
+  reported_by           int                  [ref: > users.id, not null]
+  issue_type            varchar              [not null, note: "plumbing, electrical, hvac, furniture, door_lock, pest, structural"]
+  description           text                 [not null]
+  urgency               maintenance_urgency  [default: 'normal']
+  status                maintenance_status   [default: 'open']
+  photo_url             varchar
+  assigned_to           int                  [ref: > users.id]
+  acknowledged_at       timestamp
+  resolved_at           timestamp
+  resolved_by           int                  [ref: > users.id]
+  resolution_notes      text
+  room_set_ooo          boolean              [default: false, note: "TRUE triggers room status → out_of_order"]
+  created_at            timestamp            [default: `now()`]
+  updated_at            timestamp
+
+  note: "MIGRATION: maintenance table. type → issue_type, location → room_id (after room lookup), priority → urgency, complete=1 → status=resolved, completed_by → resolved_by."
+}
+
+Table minibar_items {
+  id                int           [pk, increment]
+  property_id       int           [ref: > properties.id, not null]
+  room_type_id      int           [ref: > room_types.id, note: "NULL = applies to all room types"]
+  stock_item_id     int           [ref: > stock_items.id, not null]
+  par_quantity      int           [not null, note: "Standard quantity to stock in this room type"]
+  unit_selling_price bigint       [not null, note: "UGX — price posted to guest folio on consumption"]
+  vat_treatment     vat_treatment [default: 'inclusive']
+  is_active         boolean       [default: true]
+  created_at        timestamp     [default: `now()`]
+  updated_at        timestamp
+}
+
+Table minibar_logs {
+  id                          int       [pk, increment]
+  property_id                 int       [ref: > properties.id, not null]
+  room_id                     int       [ref: > rooms.id, not null]
+  reservation_id              int       [ref: > reservations.id]
+  housekeeping_task_id        int       [ref: > housekeeping_tasks.id]
+  minibar_item_id             int       [ref: > minibar_items.id, not null]
+  consumed_quantity           int       [not null, default: 0]
+  restocked_quantity          int       [not null, default: 0]
+  logged_by                   int       [ref: > users.id, not null]
+  logged_at                   timestamp [not null]
+  folio_charge_id             int       [note: "Set after auto-post — atomic with stock decrement BR-IS-06"]
+  supervisor_review_required  boolean   [default: false, note: "TRUE if consumption > 150% of par — BR-HK-05"]
+  supervisor_reviewed_by      int       [ref: > users.id]
+  supervisor_reviewed_at      timestamp
+  created_at                  timestamp [default: `now()`]
+}
+
+Table lost_and_found {
+  id                      int       [pk, increment]
+  property_id             int       [ref: > properties.id, not null]
+  room_id                 int       [ref: > rooms.id, not null]
+  reservation_id          int       [ref: > reservations.id]
+  item_description        varchar   [not null]
+  item_condition          varchar
+  is_high_value           boolean   [default: false, note: "Stored in safe immediately — BR-HK-06"]
+  storage_location        varchar   [note: "safe, front_desk_storage, housekeeping_store"]
+  found_by                int       [ref: > users.id, not null]
+  found_at                timestamp [not null]
+  claimed_by              varchar
+  claimed_at              timestamp
+  claim_notes             text
+  retention_expires_at    date      [note: "found_at + 90 days — BR-HK-06"]
+  disposed_at             timestamp
+  disposed_by             int       [ref: > users.id]
+  disposal_authorised_by  int       [ref: > users.id]
+  disposal_reason         text
+  created_at              timestamp [default: `now()`]
+}
+
+
+// ============================================================
+// DOMAIN 4 — BILLING AND PAYMENTS
+// ============================================================
+
+Table folios {
+  id                        int                  [pk, increment]
+  property_id               int                  [ref: > properties.id, not null]
+  reservation_id            int                  [ref: > reservations.id, not null, unique]
+  guest_profile_id          int                  [ref: > guest_profiles.id, not null]
+  corporate_account_id      int                  [ref: > corporate_accounts.id, note: "NULL for Individual"]
+  travel_agent_account_id   int                  [ref: > travel_agent_accounts.id, note: "NULL unless agent"]
+  billing_arrangement       billing_arrangement  [not null]
+  vat_treatment             vat_treatment        [not null, note: "IMMUTABLE after opening — BR-BP-02"]
+  status                    folio_status         [default: 'open']
+  deposit_amount            bigint               [default: 0, note: "UGX — carried from deposits table"]
+  total_charges             bigint               [default: 0, note: "UGX — sum of all folio_charges"]
+  total_vat                 bigint               [default: 0, note: "UGX"]
+  total_paid                bigint               [default: 0, note: "UGX — sum of confirmed payments"]
+  balance_due               bigint               [default: 0, note: "UGX = total_charges - deposit - total_paid"]
+  opened_at                 timestamp            [not null]
+  opened_by                 int                  [ref: > users.id, not null]
+  settled_at                timestamp
+  settled_by                int                  [ref: > users.id]
+  source_system_ref         varchar              [note: "MIGRATION: front_event.event_no — reconstructed folio"]
+  created_at                timestamp            [default: `now()`]
+  updated_at                timestamp
+
+  note: "MIGRATION: Reconstructed from 4 legacy tables — front_event (header + totals), front_charge_to_event (charges), front_additional_service (extra services), front_payment (payments). No single 'folio' table exists in legacy."
+}
+
+Table folio_charges {
+  id                      int                   [pk, increment]
+  property_id             int                   [ref: > properties.id, not null]
+  folio_id                int                   [ref: > folios.id, not null]
+  charge_source           folio_charge_source   [not null]
+  status                  folio_charge_status   [default: 'posted']
+  description             varchar               [not null]
+  quantity                int                   [default: 1]
+  unit_amount             bigint                [not null, note: "UGX"]
+  gross_amount            bigint                [not null, note: "UGX"]
+  vat_amount              bigint                [default: 0, note: "UGX"]
+  net_amount              bigint                [not null, note: "UGX"]
+  vat_treatment           vat_treatment         [not null, note: "Inherited from folio at posting time"]
+  charge_date             date                  [not null]
+  posted_at               timestamp             [not null]
+  posted_by               int                   [ref: > users.id, note: "NULL for SYSTEM auto-posts"]
+  voided_at               timestamp
+  voided_by               int                   [ref: > users.id]
+  void_reason             text
+  void_authorised_by      int                   [ref: > users.id]
+  adjusted_from_charge_id int                   [note: "Self-ref if this row is an adjustment of another charge"]
+  source_ref_id           int                   [note: "ID in source module: minibar_logs.id, pos_tabs.id, service_requests.id"]
+  source_ref_type         varchar               [note: "Table name of the source module record"]
+  created_at              timestamp             [default: `now()`]
+
+  note: "MIGRATION: front_charge_to_event (service_type=Sale → charge_source=pos_charge, service_type=Room → room_auto) + front_additional_service (direct_input=1 → manual)."
+}
+
+Table payments {
+  id                  int             [pk, increment]
+  property_id         int             [ref: > properties.id, not null]
+  folio_id            int             [ref: > folios.id, not null]
+  method              payment_method  [not null]
+  status              payment_status  [default: 'pending']
+  amount              bigint          [not null, note: "UGX"]
+  currency            varchar         [default: 'UGX', note: "Original currency if non-UGX"]
+  exchange_rate       int             [default: 1, note: "MIGRATION: front_payment.exchange_rate"]
+  provider_reference  varchar         [note: "Mobile money transaction ID or card approval code"]
+  idempotency_key     varchar         [unique, note: "Prevents double-charging — FR-BP-003"]
+  card_last_four      varchar         [note: "ONLY last 4 digits — never full card — NFR-SEC-006"]
+  card_approval_code  varchar
+  mobile_number       varchar
+  provider_name       varchar         [note: "mtn, airtel"]
+  polling_attempts    int             [default: 0, note: "Max 10 before PENDING_MANUAL_REVIEW — BR-BP-04"]
+  confirmed_at        timestamp
+  failed_reason       varchar
+  collected_by        int             [ref: > users.id, not null]
+  collected_at        timestamp       [not null]
+  efris_receipt_id    int             [note: "Set after EFRIS submission — FK to efris_receipts"]
+  source_system_ref   varchar         [note: "MIGRATION: front_payment.id"]
+  created_at          timestamp       [default: `now()`]
+  updated_at          timestamp
+
+  note: "MIGRATION: front_payment table. payment_type (Cash/Momo/Card) → method. EFRIS fields (efris_invoice_no, efris_qr_code etc.) → efris_receipts table."
+}
+
+Table efris_receipts {
+  id                          int          [pk, increment]
+  property_id                 int          [ref: > properties.id, not null]
+  folio_id                    int          [ref: > folios.id, not null]
+  payment_id                  int          [ref: > payments.id]
+  receipt_type                varchar      [not null, note: "standard, vat_invoice (corporate), exempt"]
+  status                      efris_status [default: 'provisional']
+  gross_amount                bigint       [not null, note: "UGX"]
+  vat_amount                  bigint       [not null, note: "UGX"]
+  net_amount                  bigint       [not null, note: "UGX"]
+  fiscal_document_number      varchar      [unique, note: "FDN from URA EFRIS API — required for compliance"]
+  qr_code_data                text
+  submitted_at                timestamp
+  fdn_received_at             timestamp
+  provisional_sent_at         timestamp
+  final_receipt_sent_at       timestamp
+  retry_count                 int          [default: 0, note: "Retry every 15 min for 24hr max — FR-BP-008"]
+  next_retry_at               timestamp
+  last_error                  varchar
+  customer_tin                varchar      [note: "Required for vat_invoice type — corporate TIN"]
+  created_at                  timestamp    [default: `now()`]
+  updated_at                  timestamp
+
+  note: "MIGRATION: front_payment EFRIS fields (efris_invoice_no, efris_qr_code, efris_reference_number, efris_verification_code) → efris_receipts. FDNs carry across — DO NOT re-submit migrated EFRIS records."
+}
+
+Table city_ledger_entries {
+  id                      int            [pk, increment]
+  property_id             int            [ref: > properties.id, not null]
+  folio_id                int            [ref: > folios.id, not null]
+  corporate_account_id    int            [ref: > corporate_accounts.id, not null]
+  reservation_id          int            [ref: > reservations.id, not null]
+  guest_name              varchar        [not null]
+  stay_from               date           [not null]
+  stay_to                 date           [not null]
+  gross_amount            bigint         [not null, note: "UGX"]
+  vat_amount              bigint         [not null, note: "UGX"]
+  net_amount              bigint         [not null, note: "UGX"]
+  vat_treatment           vat_treatment  [not null]
+  status                  invoice_status [default: 'pending']
+  transferred_at          timestamp      [not null]
+  transferred_by          int            [ref: > users.id, not null]
+  due_date                date           [note: "transferred_at + credit_terms_days from corporate_accounts"]
+  paid_at                 timestamp
+  paid_amount             bigint
+  payment_reference       varchar
+  invoice_id              int            [ref: > invoices.id]
+  notes                   text
+  created_at              timestamp      [default: `now()`]
+  updated_at              timestamp
+
+  note: "MIGRATION: debtors_clients_transactions (type=1, naration contains 'Invoice'). res_no → reservation_id. debtor_id → corporate_account_id."
+}
+
+Table agent_ledger_entries {
+  id                          int            [pk, increment]
+  property_id                 int            [ref: > properties.id, not null]
+  folio_id                    int            [ref: > folios.id, not null]
+  travel_agent_account_id     int            [ref: > travel_agent_accounts.id, not null]
+  reservation_id              int            [ref: > reservations.id, not null]
+  guest_name                  varchar        [not null]
+  stay_from                   date           [not null]
+  stay_to                     date           [not null]
+  voucher_number              varchar
+  gross_amount                bigint         [not null, note: "UGX"]
+  commission_rate_pct         int            [not null, note: "Rate AT TIME OF TRANSFER — immutable BR-BP-06"]
+  commission_amount           bigint         [not null, note: "UGX = gross x commission_rate_pct / 100"]
+  net_amount                  bigint         [not null, note: "UGX = gross - commission"]
+  vat_treatment               vat_treatment  [not null]
+  status                      invoice_status [default: 'pending']
+  transferred_at              timestamp      [not null]
+  transferred_by              int            [ref: > users.id, not null]
+  paid_at                     timestamp
+  paid_amount                 bigint
+  payment_reference           varchar
+  invoice_id                  int            [ref: > invoices.id]
+  created_at                  timestamp      [default: `now()`]
+  updated_at                  timestamp
+}
+
+Table invoices {
+  id                      int            [pk, increment]
+  property_id             int            [ref: > properties.id, not null]
+  invoice_number          varchar        [not null, unique]
+  city_ledger_entry_id    int            [ref: > city_ledger_entries.id, note: "NULL for agent invoices"]
+  agent_ledger_entry_id   int            [ref: > agent_ledger_entries.id, note: "NULL for city ledger invoices"]
+  issued_at               timestamp      [not null]
+  issued_by               int            [ref: > users.id, not null]
+  due_date                date           [not null]
+  status                  invoice_status [default: 'invoiced']
+  amount_due              bigint         [not null, note: "UGX"]
+  amount_paid             bigint         [default: 0]
+  overdue_alerted_at      timestamp
+  created_at              timestamp      [default: `now()`]
+  updated_at              timestamp
+}
+
+Table reconciliation_reports {
+  id                                int       [pk, increment]
+  property_id                       int       [ref: > properties.id, not null]
+  report_date                       date      [not null]
+  total_revenue                     bigint    [not null, note: "UGX"]
+  total_vat                         bigint    [not null, note: "UGX"]
+  total_cash                        bigint    [default: 0]
+  total_mtn_momo                    bigint    [default: 0]
+  total_airtel_money                bigint    [default: 0]
+  total_card                        bigint    [default: 0]
+  total_city_ledger_transferred     bigint    [default: 0]
+  total_agent_ledger_transferred    bigint    [default: 0]
+  total_adjustments                 bigint    [default: 0]
+  efris_submitted_count             int       [default: 0]
+  efris_pending_count               int       [default: 0]
+  discrepancy_amount                bigint    [default: 0]
+  discrepancy_notes                 text
+  signed_off_by                     int       [ref: > users.id]
+  signed_off_at                     timestamp
+  is_locked                         boolean   [default: false, note: "TRUE after sign-off — immutable BR-BP-07"]
+  generated_at                      timestamp [default: `now()`]
+
+  note: "Once is_locked = TRUE no field may be updated. Discrepancies become investigation records. Retained 7 years."
+}
+
+
+// ============================================================
+// DOMAIN 5 — INVENTORY AND STOCK
+// ============================================================
+
+Table stock_categories {
+  id            int       [pk, increment]
+  property_id   int       [ref: > properties.id, not null]
+  name          varchar   [not null, note: "F&B, Beverage, Minibar, Housekeeping"]
+  description   text
+  created_at    timestamp [default: `now()`]
+
+  note: "MIGRATION: inv_category + inv_sub_category tables in legacy."
+}
+
+Table stock_items {
+  id                int       [pk, increment]
+  property_id       int       [ref: > properties.id, not null]
+  category_id       int       [ref: > stock_categories.id, not null]
+  item_code         varchar
+  item_name         varchar   [not null]
+  unit_of_measure   varchar   [not null, note: "kg, litre, unit, box, dozen"]
+  current_quantity  int       [default: 0, note: "Maintained by system — updated on every stock_movement"]
+  reorder_point     int       [not null, default: 0, note: "Alert fires when current_quantity falls below — BR-IS-05"]
+  reorder_quantity  int       [not null, default: 0]
+  cost_price        bigint    [note: "UGX — for stock valuation reports"]
+  selling_price     bigint    [note: "UGX — for minibar items and POS items linked via menu_items"]
+  is_active         boolean   [default: true]
+  efris_category    varchar   [note: "MIGRATION: inv_item.efris_category"]
+  efris_measure_unit varchar  [note: "MIGRATION: inv_item.efris_measure_unit"]
+  legacy_ref        varchar   [note: "MIGRATION: inv_item.item_no"]
+  created_at        timestamp [default: `now()`]
+  updated_at        timestamp
+
+  note: "MIGRATION: inv_item table. item_no → legacy_ref. item_name. unit_cost → cost_price. preorder_qty → reorder_quantity. efris_category and efris_measure_unit carry across directly."
+}
+
+Table goods_receipts {
+  id                  int       [pk, increment]
+  property_id         int       [ref: > properties.id, not null]
+  delivery_note_number varchar
+  supplier_name       varchar
+  received_by         int       [ref: > users.id, not null]
+  received_at         timestamp [not null]
+  has_discrepancy     boolean   [default: false]
+  discrepancy_notes   text
+  created_at          timestamp [default: `now()`]
+}
+
+Table goods_receipt_lines {
+  id                      int       [pk, increment]
+  goods_receipt_id        int       [ref: > goods_receipts.id, not null]
+  stock_item_id           int       [ref: > stock_items.id, not null]
+  quantity_ordered        int
+  quantity_received       int       [not null]
+  quantity_discrepancy    int       [default: 0]
+  discrepancy_reason      varchar
+  unit_cost               bigint    [note: "UGX at time of receipt"]
+  created_at              timestamp [default: `now()`]
+}
+
+Table department_requisitions {
+  id                  int                 [pk, increment]
+  property_id         int                 [ref: > properties.id, not null]
+  department_name     varchar             [not null, note: "Kitchen, Bar, Housekeeping"]
+  requested_by        int                 [ref: > users.id, not null]
+  urgency             varchar             [default: 'normal']
+  status              requisition_status  [default: 'pending_approval']
+  estimated_value     bigint              [note: "UGX — sum of item costs. Triggers approval if above threshold."]
+  requires_approval   boolean             [default: false]
+  approved_by         int                 [ref: > users.id]
+  approved_at         timestamp
+  rejection_reason    text
+  fulfilled_by        int                 [ref: > users.id]
+  fulfilled_at        timestamp
+  created_at          timestamp           [default: `now()`]
+  updated_at          timestamp
+
+  note: "MIGRATION: inv_requisition table. pos_no → department lookup. req_status → status. approvals field → approved_by."
+}
+
+Table requisition_lines {
+  id                  int       [pk, increment]
+  requisition_id      int       [ref: > department_requisitions.id, not null]
+  stock_item_id       int       [ref: > stock_items.id, not null]
+  quantity_requested  int       [not null]
+  quantity_issued     int       [default: 0]
+  unit_cost           bigint    [note: "UGX at time of issue"]
+  signed_off_by       int       [ref: > users.id, note: "Department head sign-off — BR-IS-04"]
+  signed_off_at       timestamp
+  created_at          timestamp [default: `now()`]
+
+  note: "MIGRATION: inv_requisition_item table."
+}
+
+Table stock_movements {
+  id                int                  [pk, increment]
+  property_id       int                  [ref: > properties.id, not null]
+  stock_item_id     int                  [ref: > stock_items.id, not null]
+  movement_type     stock_movement_type  [not null]
+  quantity_change   int                  [not null, note: "Positive = stock in. Negative = stock out."]
+  balance_after     int                  [not null, note: "current_quantity after this movement"]
+  unit_cost         bigint               [note: "UGX at time of movement"]
+  source_ref_id     int                  [note: "ID in source table — goods_receipt_lines, requisition_lines, minibar_logs, etc."]
+  source_ref_type   varchar              [note: "Table name of the originating record"]
+  performed_by      int                  [ref: > users.id, not null]
+  performed_at      timestamp            [not null]
+  notes             text
+  created_at        timestamp            [default: `now()`]
+
+  note: "MIGRATION: inv_stockflow + inv_stocklog tables. Every movement is reconstructed here. balance field in legacy → balance_after. transfer_qty → quantity_change."
+}
+
+Table stock_reconciliation_sessions {
+  id                  int       [pk, increment]
+  property_id         int       [ref: > properties.id, not null]
+  department_name     varchar   [not null]
+  session_date        date      [not null]
+  performed_by        int       [ref: > users.id, not null]
+  total_items_counted int       [not null]
+  variances_found     int       [default: 0]
+  variances_above_tolerance int [default: 0]
+  is_complete         boolean   [default: false]
+  completed_at        timestamp
+  notes               text
+  created_at          timestamp [default: `now()`]
+
+  note: "MIGRATION: daily_stock_taking + monthly_stock_taking tables in legacy."
+}
+
+Table stock_reconciliation_lines {
+  id                      int       [pk, increment]
+  reconciliation_session_id int     [ref: > stock_reconciliation_sessions.id, not null]
+  stock_item_id           int       [ref: > stock_items.id, not null]
+  system_quantity         int       [not null, note: "Theoretical quantity from stock_movements"]
+  physical_quantity       int       [not null, note: "What was actually counted"]
+  variance               int        [not null, note: "physical - system. Negative = shrinkage."]
+  variance_value          bigint    [note: "UGX = variance x cost_price"]
+  is_above_tolerance      boolean   [default: false]
+  reason_code             varchar   [note: "WASTAGE, SPOILAGE, UNRECORDED_CONSUMPTION, COUNT_ERROR, THEFT, WRITE_OFF"]
+  reason_notes            text
+  adjustment_authorised_by int      [ref: > users.id, note: "Required for THEFT or WRITE_OFF reason codes"]
+  adjustment_posted_at    timestamp
+  created_at              timestamp [default: `now()`]
+}
+
+
+// ============================================================
+// DOMAIN 6 — REPORTING
+// ============================================================
+
+Table report_access_logs {
+  id              bigint    [pk, increment]
+  property_id     int       [ref: > properties.id, not null]
+  user_id         int       [ref: > users.id, not null]
+  report_type     varchar   [not null, note: "arrivals, departures, daily_revenue, vat_summary, efris_recon, etc."]
+  parameters      jsonb     [note: "Date range and filters applied at generation time"]
+  exported        boolean   [default: false]
+  export_format   varchar   [note: "pdf, excel, csv"]
+  export_ref      varchar   [note: "Sequential export reference number — BR-RPT-06"]
+  accessed_at     timestamp [default: `now()`]
+
+  note: "APPEND-ONLY — FR-AUD-003. Feeds into audit_logs as REPORT.GENERATED event. Never deleted."
+}
+
+Table scheduled_report_configs {
+  id                  int       [pk, increment]
+  property_id         int       [ref: > properties.id, not null]
+  report_type         varchar   [not null]
+  schedule_cron       varchar   [not null, note: "Cron expression — e.g. 0 7 * * * for 07:00 daily"]
+  parameters          jsonb     [note: "Default parameters: date_range_style, filter presets"]
+  recipient_emails    jsonb     [not null, note: "Array of role-based email addresses only — BR-RPT-07"]
+  is_active           boolean   [default: true]
+  last_run_at         timestamp
+  last_run_status     varchar   [note: "success, failed, retrying"]
+  created_by          int       [ref: > users.id]
+  created_at          timestamp [default: `now()`]
+  updated_at          timestamp
+}
+
+
+// ============================================================
+// DOMAIN 7 — POS RESTAURANT AND BAR
+// ============================================================
+
+Table pos_outlets {
+  id                  int       [pk, increment]
+  property_id         int       [ref: > properties.id, not null]
+  name                varchar   [not null, note: "Main Restaurant, Rooftop Bar, Health Club, etc."]
+  department_code     varchar
+  service_charge_pct  int       [default: 0]
+  is_active           boolean   [default: true]
+  legacy_ref          varchar   [note: "MIGRATION: pos.pos_no — 10 outlets in legacy (pos_no 1, 503, 506, etc.)"]
+  created_at          timestamp [default: `now()`]
+
+  note: "MIGRATION: pos table. 10 outlets in legacy data including Main Bar (503), Health Club (506). description → name. pos_no → legacy_ref."
+}
+
+Table menu_categories {
+  id              int       [pk, increment]
+  pos_outlet_id   int       [ref: > pos_outlets.id, not null]
+  name            varchar   [not null, note: "Starters, Mains, Desserts, Beverages, Cocktails, etc."]
+  display_order   int       [default: 0]
+  is_active       boolean   [default: true]
+  created_at      timestamp [default: `now()`]
+
+  note: "MIGRATION: res_category table in legacy."
+}
+
+Table menu_items {
+  id                  int           [pk, increment]
+  pos_outlet_id       int           [ref: > pos_outlets.id, not null]
+  menu_category_id    int           [ref: > menu_categories.id, not null]
+  stock_item_id       int           [ref: > stock_items.id, note: "Links POS sale to inventory decrement — BR-POS-05"]
+  name                varchar       [not null]
+  description         text
+  unit_price          bigint        [not null, note: "UGX — price at time of order entry"]
+  vat_treatment       vat_treatment [default: 'inclusive', note: "Overridden by folio vat_treatment on room charge — BR-POS-03"]
+  availability_periods jsonb        [note: "e.g. ['breakfast','lunch','all_day','bar_only']"]
+  is_active           boolean       [default: true]
+  legacy_ref          varchar       [note: "MIGRATION: res_item.id"]
+  created_at          timestamp     [default: `now()`]
+  updated_at          timestamp
+
+  note: "MIGRATION: res_item + res_menu tables. Item price → unit_price. Menu changes take effect immediately on all waiter devices."
+}
+
+Table menu_modifiers {
+  id              int       [pk, increment]
+  menu_item_id    int       [ref: > menu_items.id, not null]
+  name            varchar   [not null, note: "e.g. Doneness, Sauce Choice, Size"]
+  options         jsonb     [not null, note: "Array: ['rare','medium','well done']"]
+  is_required     boolean   [default: false]
+  created_at      timestamp [default: `now()`]
+}
+
+Table pos_tables {
+  id                  int       [pk, increment]
+  pos_outlet_id       int       [ref: > pos_outlets.id, not null]
+  table_name          varchar   [not null, note: "Table 1, Terrace 3, Bar Stool A, etc."]
+  seating_capacity    int
+  is_active           boolean   [default: true]
+  legacy_ref          varchar   [note: "MIGRATION: res_table.id — 28 tables in legacy data"]
+  created_at          timestamp [default: `now()`]
+
+  note: "MIGRATION: res_table table. table_no → table_name. pos_no → pos_outlet_id."
+}
+
+Table pos_tabs {
+  id                          int            [pk, increment]
+  property_id                 int            [ref: > properties.id, not null]
+  pos_outlet_id               int            [ref: > pos_outlets.id, not null]
+  pos_table_id                int            [ref: > pos_tables.id, note: "NULL for walk-in bar tabs with no table"]
+  reservation_id              int            [ref: > reservations.id, note: "Set if tab linked to in-house guest room"]
+  guest_profile_id            int            [ref: > guest_profiles.id, note: "Set for in-house or walk-in profile guests"]
+  opened_by                   int            [ref: > users.id, not null]
+  cover_count                 int            [not null, note: "MANDATORY before order entry — BR-POS-08"]
+  status                      pos_tab_status [default: 'open']
+  subtotal                    bigint         [default: 0, note: "UGX — sum of pos_tab_items"]
+  vat_amount                  bigint         [default: 0, note: "UGX"]
+  service_charge_amount       bigint         [default: 0, note: "UGX"]
+  total_amount                bigint         [default: 0, note: "UGX"]
+  opened_at                   timestamp      [not null]
+  settled_at                  timestamp
+  settled_by                  int            [ref: > users.id]
+  settlement_method           varchar        [note: "direct_payment, room_charge"]
+  room_charge_folio_id        int            [ref: > folios.id, note: "Set on room_charge settlement"]
+  room_charge_signed_at       timestamp      [note: "When guest signed the room charge authorisation"]
+  room_charge_auth_ref        varchar        [note: "Reference number of the signed authorisation slip"]
+  efris_receipt_id            int            [ref: > efris_receipts.id, note: "Set on direct payment EFRIS submission"]
+  unrecovered_reason          text
+  created_at                  timestamp      [default: `now()`]
+  updated_at                  timestamp
+
+  note: "MIGRATION: res_order table. order_no → legacy_ref. pos_no → pos_outlet_id. charge_to_room (not null) → room_charge settlement path. cash_sale → direct_payment path. 51-column table in legacy reconstructed here."
+}
+
+Table pos_tab_items {
+  id                      int       [pk, increment]
+  pos_tab_id              int       [ref: > pos_tabs.id, not null]
+  menu_item_id            int       [ref: > menu_items.id, not null]
+  quantity                int       [not null, default: 1]
+  unit_price              bigint    [not null, note: "UGX — locked at time of order, not re-read from menu_items"]
+  modifier_selections     jsonb     [note: "Selected option per modifier: {'Doneness':'medium'}"]
+  special_notes           text
+  seat_number             int       [note: "Optional seat-based ordering"]
+  is_complimentary        boolean   [default: false]
+  comp_authorised_by      int       [ref: > users.id, note: "Required for comp — BR-POS-06"]
+  comp_reason             varchar
+  is_voided               boolean   [default: false]
+  voided_by               int       [ref: > users.id]
+  void_reason             text
+  void_after_ack          boolean   [default: false, note: "TRUE if kitchen had already acknowledged — requires manager"]
+  added_by                int       [ref: > users.id, not null]
+  added_at                timestamp [not null]
+  created_at              timestamp [default: `now()`]
+
+  note: "MIGRATION: res_order_item table. order_no → pos_tab_id via res_order. item_no → menu_item_id. complementary → is_complimentary."
+}
+
+Table kots {
+  id                int        [pk, increment]
+  pos_tab_id        int        [ref: > pos_tabs.id, not null]
+  pos_outlet_id     int        [ref: > pos_outlets.id, not null]
+  station_type      varchar    [not null, note: "kitchen, bar — split automatically on order confirmation"]
+  status            varchar    [note: "new, acknowledged, all_ready, taken, voided"]
+  waiter_id         int        [ref: > users.id]
+  created_at        timestamp  [not null, note: "KOT receipt time — start of preparation timer"]
+  acknowledged_at   timestamp
+  all_ready_at      timestamp  [note: "When last item on this KOT is marked ready"]
+  taken_at          timestamp  [note: "When waiter collects and delivers"]
+
+  note: "MIGRATION: kot table. order_no → pos_tab_id via res_order. pos_no → pos_outlet_id. seen/processing/ready/taken boolean flags → single status enum."
+}
+
+Table kot_items {
+  id                      int              [pk, increment]
+  kot_id                  int              [ref: > kots.id, not null]
+  pos_tab_item_id         int              [ref: > pos_tab_items.id, not null]
+  menu_item_id            int              [ref: > menu_items.id, not null]
+  quantity                int              [not null]
+  modifier_selections     jsonb
+  special_notes           text
+  status                  kot_item_status  [default: 'pending']
+  in_preparation_at       timestamp
+  ready_at                timestamp
+  preparation_seconds     int              [note: "ready_at - in_preparation_at — feeds HK performance equivalent for kitchen"]
+  created_at              timestamp        [default: `now()`]
+}
+
+Table pos_service_periods {
+  id                          int       [pk, increment]
+  property_id                 int       [ref: > properties.id, not null]
+  pos_outlet_id               int       [ref: > pos_outlets.id, not null]
+  period_name                 varchar   [note: "Breakfast, Lunch, Dinner, Bar Service"]
+  period_date                 date      [not null]
+  opened_at                   timestamp [not null]
+  closed_at                   timestamp
+  closed_by                   int       [ref: > users.id]
+  status                      varchar   [note: "open, closed — BR-POS-07: cannot close while tabs OPEN"]
+  total_covers                int       [default: 0]
+  total_orders                int       [default: 0]
+  total_food_revenue          bigint    [default: 0, note: "UGX"]
+  total_beverage_revenue      bigint    [default: 0, note: "UGX"]
+  total_vat                   bigint    [default: 0, note: "UGX"]
+  total_service_charge        bigint    [default: 0, note: "UGX"]
+  total_direct_payments       bigint    [default: 0, note: "UGX"]
+  total_room_charges          bigint    [default: 0, note: "UGX"]
+  total_comps                 bigint    [default: 0, note: "UGX"]
+  total_unrecovered           bigint    [default: 0, note: "UGX"]
+  cash_reconciled_amount      bigint    [default: 0]
+  cash_variance               bigint    [default: 0]
+  created_at                  timestamp [default: `now()`]
+
+  note: "MIGRATION: pos_close_dates table in legacy. Tracks each meal service close for end-of-service reconciliation."
+}
+
+
+// ============================================================
+// MIGRATION REFERENCE: LEGACY → NEW SCHEMA
+// ============================================================
+// front_event           → reservations (event_no → source_system_ref)
+// reservation_rooms     → room_assignments + check_in_events + guest_profiles
+// front_clients         → guest_profiles (individual) + corporate_accounts (corporate)
+// debtors / debtors_clients → corporate_accounts
+// front_payment         → payments + efris_receipts
+// front_charge_to_event → folio_charges (charge_source = pos_charge or room_auto)
+// front_additional_service → folio_charges (charge_source = manual)
+// front_client_tax      → folios.vat_treatment (defaultvaluex → vat_treatment enum)
+// debtors_clients_transactions → city_ledger_entries
+// room                  → rooms (room_no → room_number + legacy_ref)
+// front_venue           → room_types
+// inv_item              → stock_items
+// inv_stock             → stock_items.current_quantity
+// inv_stockflow         → stock_movements
+// inv_requisition       → department_requisitions
+// inv_requisition_item  → requisition_lines
+// pos                   → pos_outlets
+// res_table             → pos_tables
+// res_order             → pos_tabs
+// res_order_item        → pos_tab_items
+// kot                   → kots
+// maintenance           → maintenance_requests
+// housekeeping_keys     → room_status enum values
+// meal_plan             → room_assignments.meal_plan enum
+// pos_close_dates       → pos_service_periods
+// daily_stock_taking    → stock_reconciliation_sessions

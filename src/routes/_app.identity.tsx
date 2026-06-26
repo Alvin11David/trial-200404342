@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Plus, Search, ShieldCheck, KeyRound, Check, X, Power } from "lucide-react";
 import { ROLES, type Role } from "@/lib/role";
-import { toggleUserActive, upsertUser, useStore, type UserRecord } from "@/lib/pms-store";
+import { assignUserRole, getUserPrimaryRole, toggleUserActive, upsertUser, useStore, type User } from "@/lib/pms-store";
 import {
   Select,
   SelectContent,
@@ -53,12 +53,12 @@ function IdentityPage() {
   const [tab, setTab] = useState<"users" | "roles">("users");
   const [search, setSearch] = useState("");
   const [selectedRole, setSelectedRole] = useState<Role>("Owner / GM");
-  const [edit, setEdit] = useState<UserRecord | "new" | null>(null);
+  const [edit, setEdit] = useState<User | "new" | null>(null);
 
   const filtered = users.filter(
     (u) =>
       !search ||
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.fullName.toLowerCase().includes(search.toLowerCase()) ||
       u.email.toLowerCase().includes(search.toLowerCase()),
   );
 
@@ -123,39 +123,39 @@ function IdentityPage() {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <span className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
-                          {u.name
+                          {u.fullName
                             .split(" ")
                             .map((s) => s[0])
                             .join("")
                             .slice(0, 2)}
                         </span>
                         <div>
-                          <div className="font-semibold">{u.name}</div>
+                          <div className="font-semibold">{u.fullName}</div>
                           <div className="text-[11px] text-muted-foreground">{u.email}</div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm">{u.role}</td>
+                    <td className="px-4 py-3 text-sm">{getUserPrimaryRole(u.id)}</td>
                     <td className="px-4 py-3">
                       <span
                         className={
                           "inline-flex rounded-md border px-2 py-0.5 text-[10px] font-semibold " +
-                          (u.active
+                          (u.isActive
                             ? "border-success/20 bg-success/10 text-success"
                             : "border-border bg-muted text-muted-foreground")
                         }
                       >
-                        {u.active ? "Active" : "Disabled"}
+                        {u.isActive ? "Active" : "Disabled"}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-xs text-muted-foreground">
-                      {u.lastLogin ?? "—"}
+                      {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString() : "—"}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="inline-flex gap-1">
                         <button
                           onClick={() => toggleUserActive(u.id)}
-                          title={u.active ? "Disable" : "Activate"}
+                          title={u.isActive ? "Disable" : "Activate"}
                           className="rounded-md border border-border p-1.5 hover:border-primary/40"
                         >
                           <Power className="h-3.5 w-3.5" />
@@ -238,16 +238,27 @@ function IdentityPage() {
   );
 }
 
-function UserEditor({ initial, onClose }: { initial: UserRecord | null; onClose: () => void }) {
-  const [name, setName] = useState(initial?.name ?? "");
+function UserEditor({ initial, onClose }: { initial: User | null; onClose: () => void }) {
+  const roles = useStore((s) => s.roles);
+  const [name, setName] = useState(initial?.fullName ?? "");
   const [email, setEmail] = useState(initial?.email ?? "");
-  const [role, setRole] = useState<string>(initial?.role ?? "Front Desk");
-  const [active, setActive] = useState(initial?.active ?? true);
+  const [roleId, setRoleId] = useState<string>(initial ? roles.find((r) => r.roleName === getUserPrimaryRole(initial.id))?.id ?? "R002" : "R002");
+  const [active, setActive] = useState(initial?.isActive ?? true);
 
   const submit = () => {
     if (!name || !email) return;
     const id = initial?.id ?? "U" + Math.floor(100 + Math.random() * 900);
-    upsertUser({ id, name, email, role, active, lastLogin: initial?.lastLogin ?? "—" });
+    const now = new Date().toISOString();
+    upsertUser({
+      id,
+      fullName: name,
+      email,
+      isActive: active,
+      lastLoginAt: initial?.lastLoginAt,
+      createdAt: initial?.createdAt ?? now,
+      updatedAt: now,
+    });
+    assignUserRole(id, roleId, "U007");
     onClose();
   };
 
@@ -282,14 +293,14 @@ function UserEditor({ initial, onClose }: { initial: UserRecord | null; onClose:
             />
           </Labeled>
           <Labeled label="Role">
-            <Select value={role} onValueChange={setRole}>
+            <Select value={roleId} onValueChange={setRoleId}>
               <SelectTrigger className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
                 <SelectValue placeholder="Select role" />
               </SelectTrigger>
               <SelectContent>
-                {ROLES.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r}
+                {roles.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.roleName}
                   </SelectItem>
                 ))}
               </SelectContent>

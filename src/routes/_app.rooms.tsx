@@ -50,7 +50,7 @@ function RoomsBoard() {
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
     roomTypes.forEach((rt) => {
-      m[rt.id] = rt.typeName;
+      m[rt.id] = rt.name;
     });
     return m;
   }, [roomTypes]);
@@ -323,45 +323,6 @@ function RoomCard({
             <div className="mt-1 text-xs italic text-muted-foreground">{room.notes}</div>
           ) : (
             <div className="mt-1 text-xs text-muted-foreground">Floor {room.floor}</div>
-          )}
-          <div className="mt-1 flex flex-wrap gap-1.5">
-            {room.building && (
-              <span className="rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                {room.building}
-              </span>
-            )}
-            {room.beds && (
-              <span className="rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                {room.beds}
-              </span>
-            )}
-            {room.maxAdults && (
-              <span className="rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                Max {room.maxAdults}A/{room.maxChildren ?? 0}C
-              </span>
-            )}
-            {room.smoking && (
-              <span className="rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[9px] text-muted-foreground">
-                {room.smoking}
-              </span>
-            )}
-          </div>
-          {room.amenities && room.amenities.length > 0 && (
-            <div className="mt-1 flex flex-wrap gap-1">
-              {room.amenities.slice(0, 3).map((a) => (
-                <span
-                  key={a}
-                  className="rounded-full bg-primary/5 px-1.5 py-0.5 text-[8px] text-primary"
-                >
-                  {a}
-                </span>
-              ))}
-              {room.amenities.length > 3 && (
-                <span className="text-[8px] text-muted-foreground">
-                  +{room.amenities.length - 3}
-                </span>
-              )}
-            </div>
           )}
         </div>
         <GripVertical className="h-4 w-4 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100" />

@@ -6,7 +6,7 @@ import {
   Clock,
   AlertTriangle,
   Search,
-  User,
+  User as UserIcon,
   PlayCircle,
   Ban,
   Flag,
@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import {
   useStore,
   fmtUGX,
+  getUserRoleNames,
   assignHkTask,
   updateHkTaskStatus,
   flagHkIssue,
@@ -213,7 +214,7 @@ function RoomStatusBoard() {
 
   const roomTypeMap = useMemo(() => {
     const m: Record<string, string> = {};
-    for (const rt of roomTypes) m[rt.id] = rt.typeName;
+    for (const rt of roomTypes) m[rt.id] = rt.name;
     return m;
   }, [roomTypes]);
 
@@ -322,12 +323,6 @@ function RoomStatusBoard() {
                 >
                   {meta.label}
                 </span>
-                {room.assignedTo && (
-                  <span className="text-[10px] text-muted-foreground">
-                    <User className="mr-0.5 inline h-3 w-3" />
-                    {room.assignedTo}
-                  </span>
-                )}
               </div>
             </div>
           );
@@ -370,7 +365,7 @@ function TaskQueue() {
   const [showCreate, setShowCreate] = useState(false);
   const [showFlag, setShowFlag] = useState<string | null>(null);
 
-  const hkUsers = useMemo(() => users.filter((u) => u.role === "Housekeeping"), [users]);
+  const hkUsers = useMemo(() => users.filter((u) => getUserRoleNames(u.id).includes("Housekeeping")), [users]);
   const roomMap = useMemo(() => {
     const m: Record<string, Room> = {};
     for (const r of rooms) m[r.id] = r;
@@ -378,7 +373,7 @@ function TaskQueue() {
   }, [rooms]);
   const userMap = useMemo(() => {
     const m: Record<string, string> = {};
-    for (const u of users) m[u.id] = u.name;
+    for (const u of users) m[u.id] = u.fullName;
     return m;
   }, [users]);
 
@@ -535,7 +530,7 @@ function AssigneeSelect({
   userMap,
 }: {
   task: HousekeepingTask;
-  hkUsers: { id: string; name: string }[];
+  hkUsers: { id: string; fullName: string }[];
   userMap: Record<string, string>;
 }) {
   return (
@@ -547,7 +542,7 @@ function AssigneeSelect({
       <option value="">Unassigned</option>
       {hkUsers.map((u) => (
         <option key={u.id} value={u.id}>
-          {u.name}
+          {u.fullName}
         </option>
       ))}
     </select>
@@ -607,7 +602,7 @@ function TaskActions({ task, onFlag }: { task: HousekeepingTask; onFlag: () => v
 function CreateTaskDialog({ onClose }: { onClose: () => void }) {
   const rooms = useStore((s) => s.rooms);
   const users = useStore((s) => s.users);
-  const hkUsers = users.filter((u) => u.role === "Housekeeping");
+  const hkUsers = users.filter((u) => getUserRoleNames(u.id).includes("Housekeeping"));
 
   const [roomId, setRoomId] = useState("");
   const [type, setType] = useState<HkTaskType>("turnover");
@@ -696,7 +691,7 @@ function CreateTaskDialog({ onClose }: { onClose: () => void }) {
               <SelectItem value="">Unassigned</SelectItem>
               {hkUsers.map((u) => (
                 <SelectItem key={u.id} value={u.id}>
-                  {u.name}
+                  {u.fullName}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -816,7 +811,7 @@ function InspectionsTab() {
   const users = useStore((s) => s.users);
   const userMap = useMemo(() => {
     const m: Record<string, string> = {};
-    for (const u of users) m[u.id] = u.name;
+    for (const u of users) m[u.id] = u.fullName;
     return m;
   }, [users]);
   const roomMap = useMemo(() => {
@@ -900,7 +895,7 @@ function ScheduleTab() {
   const tasks = useStore((s) => s.housekeepingTasks);
   const users = useStore((s) => s.users);
 
-  const hkUsers = useMemo(() => users.filter((u) => u.role === "Housekeeping"), [users]);
+  const hkUsers = useMemo(() => users.filter((u) => getUserRoleNames(u.id).includes("Housekeeping")), [users]);
 
   const schedule = useMemo(() => {
     return hkUsers.map((u) => {
@@ -925,14 +920,14 @@ function ScheduleTab() {
           <div key={s.user.id} className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center gap-3">
               <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-primary/40 to-success/40 text-sm font-bold text-foreground">
-                {s.user.name
+                {s.user.fullName
                   .split(" ")
                   .map((p) => p[0])
                   .join("")
                   .slice(0, 2)}
               </span>
               <div>
-                <div className="font-semibold">{s.user.name}</div>
+                <div className="font-semibold">{s.user.fullName}</div>
                 <div className="text-xs text-muted-foreground">{s.total} tasks today</div>
               </div>
             </div>
@@ -996,7 +991,7 @@ function IssuesTab() {
 
   const userMap = useMemo(() => {
     const m: Record<string, string> = {};
-    for (const u of users) m[u.id] = u.name;
+    for (const u of users) m[u.id] = u.fullName;
     return m;
   }, [users]);
 

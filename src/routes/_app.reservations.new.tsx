@@ -156,10 +156,10 @@ function useRoomOptions(checkIn: string, checkOut: string): RoomOption[] {
       : r.status === "available";
     return {
       id: r.id,
-      type: rt?.typeName ?? r.typeId,
+      type: rt?.name ?? r.typeId,
       typeId: r.typeId,
       rate: rt?.baseRate ?? 0,
-      beds: rt?.typeName === "Suite" ? "1 King + Sofa" : rt?.typeName === "Deluxe" ? "1 King" : "1 Queen",
+      beds: rt?.name === "Suite" ? "1 King + Sofa" : rt?.name === "Deluxe" ? "1 King" : "1 Queen",
       available,
     };
   });

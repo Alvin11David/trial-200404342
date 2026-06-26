@@ -18,25 +18,12 @@ import { useSyncExternalStore } from "react";
 
 export type RoomType = {
   id: string;
-  typeName: string;
-  baseRate: number;
-  capacity: number;
+  name: string;
   description?: string;
-  status?: string;
-  cloudStatus?: number;
-  remotePosting?: string;
-  reselivaRoomTypeId?: string | null;
-  sittingCapacity?: number;
-  breakfast?: string;
-  rackRate?: string;
-  deft?: string;
-  currency?: string;
-  hasInventory?: string;
-  available?: number;
-  payType?: string;
-  roomStayType?: string;
-  deleteStatus?: number;
-  amenities?: string[];
+  maxOccupancy: number;
+  baseRate: number;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Guest = {
@@ -87,26 +74,39 @@ export type Room = {
   floor: number;
   typeId: string;
   status: RoomStatus;
-  assignedTo?: string | null;
+  blockStatus?: boolean;
   notes?: string;
-  building?: string;
-  description?: string;
-  beds?: string;
-  maxAdults?: number;
-  maxChildren?: number;
-  price?: number;
-  smoking?: string;
-  amenities?: string[];
-  images?: string[];
-  maintenance?: string;
-  laundry?: string;
-  housekeeping?: string;
-  blockStatus?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type ReservationStatus = "open" | "confirmed" | "checked_in" | "checked_out" | "cancelled";
 
 export type VatTreatment = "inclusive" | "exclusive" | "exempt";
+
+export type CancellationPolicy = {
+  id: string;
+  name: string;
+  freeCancelHoursBefore: number;
+  partialRefundPct: number;
+  partialRefundHoursBefore: number;
+  noShowChargePct: number;
+  createdAt?: string;
+};
+
+export type RatePlan = {
+  id: string;
+  roomTypeId: string;
+  cancellationPolicyId?: string;
+  name: string;
+  nightlyRate: number;
+  vatTreatment: VatTreatment;
+  depositRequiredPct: number;
+  minLengthOfStay: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
 
 export type Reservation = {
   id: string;
@@ -291,66 +291,57 @@ export type Folio = {
   notes?: string;
 };
 
-export type UserRecord = {
+export type User = {
   id: string;
-  name: string;
+  fullName: string;
   email: string;
-  role: string;
-  active: boolean;
-  username?: string;
   passwordHash?: string;
-  createdAt?: string;
-  lastLogin?: string;
-  firstName?: string;
-  lastName?: string;
-  gender?: string;
-  bio?: string;
-  imageLocation?: string;
-  emailCode?: string;
-  confirmed?: number;
-  generatedString?: string;
-  ip?: string;
-  module?: string;
-  lastCheckinTime?: string;
-  deleteStatus?: string;
-  isDeletable?: string;
-  isEditable?: string;
-  time?: number;
-  cloudStatus?: number;
-  remotePosting?: string;
+  isActive: boolean;
+  lastLoginAt?: string;
+  passwordChangedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export type Tenant = {
+export type RoleRecord = {
+  id: string;
+  roleCode: string;
+  roleName: string;
+  description?: string;
+  createdAt: string;
+};
+
+export type UserRole = {
+  id: string;
+  userId: string;
+  roleId: string;
+  assignedBy?: string;
+  assignedAt: string;
+  revokedAt?: string;
+  revocationReason?: string;
+};
+
+export type Property = {
   id: string;
   name: string;
-  currency: string;
-  vatRate: number;
+  address?: string;
+  city: string;
+  country: string;
+  phone?: string;
+  email?: string;
+  tin?: string;
+  efrisDeviceNo?: string;
+  defaultCurrency: string;
+  standardCheckinTime: string;
+  standardCheckoutTime: string;
   timezone: string;
-  address: string;
-  phone: string;
-  email: string;
-  tin: string;
-  logo?: string;
-  defaultCurrency?: string;
-  bookingEngineUrl?: string;
-  terms?: string;
-  fax?: string;
-  streetAddr?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-  zipcode?: string;
-  dateFormat?: string;
-  bookingExpTime?: string;
-  enabledDeposit?: string;
-  bookingTurnOff?: string;
-  minNightBooking?: string;
-  notificationEmail?: string;
-  priceWithTax?: string;
-  maximumGlobalYears?: string;
-  paymentCurrency?: string;
-  invoiceCurrency?: string;
-  currencyUpdateTime?: string;
+  lateCheckoutHalfCutoff: string;
+  folioAdjAgentThreshold: number;
+  folioAdjPmThreshold: number;
+  requisitionApprovalThreshold: number;
+  creditGracePeriodDays: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type AuditSeverity = "info" | "warn" | "critical";
@@ -414,7 +405,7 @@ export type DNDRecord = {
 };
 
 type State = {
-  tenant: Tenant;
+  tenant: Property;
   roomTypes: RoomType[];
   rooms: Room[];
   reservations: Reservation[];
@@ -424,7 +415,9 @@ type State = {
   payments: Payment[];
   invoices: Invoice[];
   invoiceLineItems: InvoiceLineItem[];
-  users: UserRecord[];
+  users: User[];
+  roles: RoleRecord[];
+  userRoles: UserRole[];
   audit: AuditEntry[];
   housekeepingTasks: HousekeepingTask[];
   maintenanceRequests: MaintenanceRequest[];
@@ -442,60 +435,13 @@ const addDays = (d: Date, n: number) => {
 };
 
 const ROOM_TYPES: RoomType[] = [
-  {
-    id: "std",
-    typeName: "Standard",
-    baseRate: 220_000,
-    capacity: 2,
-    description: "Comfortable standard room with essential amenities",
-    amenities: ["TV", "WiFi", "Work Desk"],
-    status: "active",
-    rackRate: 250_000,
-    deft: "standard",
-    sittingCapacity: 2,
-    hasInventory: true,
-    available: true,
-    payType: "pay_at_hotel",
-    roomStayType: "standard",
-    deleteStatus: 0,
-  },
-  {
-    id: "dlx",
-    typeName: "Deluxe",
-    baseRate: 380_000,
-    capacity: 3,
-    description: "Spacious deluxe room with premium furnishings",
-    amenities: ["TV", "WiFi", "Mini Bar", "Safe", "Work Desk"],
-    status: "active",
-    rackRate: 420_000,
-    deft: "deluxe",
-    sittingCapacity: 3,
-    hasInventory: true,
-    available: true,
-    payType: "pay_at_hotel",
-    roomStayType: "standard",
-    deleteStatus: 0,
-  },
-  {
-    id: "ste",
-    typeName: "Suite",
-    baseRate: 850_000,
-    capacity: 4,
-    description: "Luxury suite with separate living area and premium amenities",
-    amenities: ["TV", "WiFi", "Mini Bar", "Safe", "Living Area", "Jacuzzi", "Work Desk"],
-    status: "active",
-    rackRate: 950_000,
-    deft: "luxury",
-    sittingCapacity: 4,
-    hasInventory: true,
-    available: true,
-    payType: "pay_at_hotel",
-    roomStayType: "standard",
-    deleteStatus: 0,
-  },
+  { id: "std", name: "Standard", description: "Comfortable standard room with essential amenities", maxOccupancy: 2, baseRate: 220_000 },
+  { id: "dlx", name: "Deluxe", description: "Spacious deluxe room with premium furnishings", maxOccupancy: 3, baseRate: 380_000 },
+  { id: "ste", name: "Suite", description: "Luxury suite with separate living area and premium amenities", maxOccupancy: 4, baseRate: 850_000 },
 ];
 
 const HOUSEKEEPERS = ["U003", "U008"]; // grace, mary
+const DEFAULT_VAT_RATE = 0.18;
 
 const ROOMS: Room[] = (() => {
   const list: Room[] = [];
@@ -519,24 +465,6 @@ const ROOMS: Room[] = (() => {
     [5, "ste"],
     [5, "ste"],
   ];
-  const bedOptions = ["Queen", "Twin", "King", "Double", "Single"];
-  const smokeOptions = ["Non-smoking", "Smoking", "Non-smoking", "Non-smoking"];
-  const amenitySets: Record<string, string[]> = {
-    std: ["TV", "WiFi", "Work Desk", "Wardrobe"],
-    dlx: ["TV", "WiFi", "Mini Bar", "Safe", "Work Desk", "Wardrobe", "Tea/Coffee Maker"],
-    ste: [
-      "TV",
-      "WiFi",
-      "Mini Bar",
-      "Safe",
-      "Living Area",
-      "Jacuzzi",
-      "Work Desk",
-      "Wardrobe",
-      "Tea/Coffee Maker",
-      "Balcony",
-    ],
-  };
   layout.forEach(([floor, typeId], idx) => {
     const num = `${floor}${String((idx % 4) + 1).padStart(2, "0")}`;
     list.push({
@@ -553,18 +481,6 @@ const ROOMS: Room[] = (() => {
         "available",
         "dirty",
       ][idx % 8] as RoomStatus,
-      assignedTo: HOUSEKEEPERS[idx % HOUSEKEEPERS.length],
-      building: "Main Building",
-      description: `Room ${num} — ${typeId === "std" ? "Standard" : typeId === "dlx" ? "Deluxe" : "Suite"} room on floor ${floor}`,
-      beds: bedOptions[idx % bedOptions.length],
-      maxAdults: typeId === "ste" ? 4 : typeId === "dlx" ? 3 : 2,
-      maxChildren: typeId === "ste" ? 2 : typeId === "dlx" ? 2 : 1,
-      smoking: smokeOptions[idx % smokeOptions.length],
-      amenities: amenitySets[typeId] ?? amenitySets.std,
-      maintenance: false,
-      laundry: idx % 5 === 0,
-      housekeeping: true,
-      blockStatus: false,
     });
   });
   return list;
@@ -975,196 +891,38 @@ FOLIOS.filter((f) => f.status === "settled").forEach((f) => {
   INVOICE_LINE_ITEMS.push(...lines);
 });
 
-const USERS: UserRecord[] = [
-  {
-    id: "U001",
-    name: "Sarah Nakato",
-    email: "sarah@jambo.ug",
-    role: "Owner / GM",
-    active: true,
-    lastLogin: "10 min ago",
-    username: "sarah.nakato",
-    createdAt: "2024-01-15",
-    firstName: "Sarah",
-    lastName: "Nakato",
-    gender: "Female",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "admin",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
-  {
-    id: "U002",
-    name: "Amani Kato",
-    email: "amani@jambo.ug",
-    role: "Front Desk",
-    active: true,
-    lastLogin: "Just now",
-    username: "amani.kato",
-    createdAt: "2024-02-20",
-    firstName: "Amani",
-    lastName: "Kato",
-    gender: "Male",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "front_desk",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
-  {
-    id: "U003",
-    name: "Grace Achieng",
-    email: "grace@jambo.ug",
-    role: "Housekeeping",
-    active: true,
-    lastLogin: "2h ago",
-    username: "grace.achieng",
-    createdAt: "2024-03-10",
-    firstName: "Grace",
-    lastName: "Achieng",
-    gender: "Female",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "housekeeping",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
-  {
-    id: "U004",
-    name: "John Mukasa",
-    email: "john@jambo.ug",
-    role: "POS / Cashier",
-    active: true,
-    lastLogin: "30 min ago",
-    username: "john.mukasa",
-    createdAt: "2024-04-05",
-    firstName: "John",
-    lastName: "Mukasa",
-    gender: "Male",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "pos",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
-  {
-    id: "U005",
-    name: "Esther Nambi",
-    email: "esther@jambo.ug",
-    role: "Reservations / Revenue",
-    active: true,
-    lastLogin: "1h ago",
-    username: "esther.nambi",
-    createdAt: "2024-05-12",
-    firstName: "Esther",
-    lastName: "Nambi",
-    gender: "Female",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "reservations",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
-  {
-    id: "U006",
-    name: "Peter Ssempijja",
-    email: "peter@jambo.ug",
-    role: "Accountant",
-    active: true,
-    lastLogin: "Yesterday",
-    username: "peter.ssempijja",
-    createdAt: "2024-06-01",
-    firstName: "Peter",
-    lastName: "Ssempijja",
-    gender: "Male",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "accounting",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
-  {
-    id: "U007",
-    name: "Robert Kizza",
-    email: "robert@jambo.ug",
-    role: "System Administrator",
-    active: true,
-    lastLogin: "5 min ago",
-    username: "robert.kizza",
-    createdAt: "2024-01-10",
-    firstName: "Robert",
-    lastName: "Kizza",
-    gender: "Male",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "admin",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
-  {
-    id: "U008",
-    name: "Mary Nakibuuka",
-    email: "mary@jambo.ug",
-    role: "Housekeeping",
-    active: true,
-    lastLogin: "—",
-    username: "mary.nakibuuka",
-    createdAt: "2024-07-22",
-    firstName: "Mary",
-    lastName: "Nakibuuka",
-    gender: "Female",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "housekeeping",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
-  {
-    id: "U009",
-    name: "Faith Akello",
-    email: "faith@jambo.ug",
-    role: "Front Desk",
-    active: false,
-    lastLogin: "1 month ago",
-    username: "faith.akello",
-    createdAt: "2024-08-15",
-    firstName: "Faith",
-    lastName: "Akello",
-    gender: "Female",
-    confirmed: true,
-    deleteStatus: false,
-    isDeletable: false,
-    isEditable: true,
-    module: "front_desk",
-    time: Date.now(),
-    cloudStatus: 0,
-    remotePosting: "2026-06-25",
-  },
+const USERS: User[] = [
+  { id: "U001", fullName: "Sarah Nakato", email: "sarah@jambo.ug", isActive: true, lastLoginAt: "2026-06-25T10:00:00Z", createdAt: "2024-01-15T00:00:00Z", updatedAt: "2026-06-25T10:00:00Z" },
+  { id: "U002", fullName: "Amani Kato", email: "amani@jambo.ug", isActive: true, lastLoginAt: "2026-06-26T08:30:00Z", createdAt: "2024-02-20T00:00:00Z", updatedAt: "2026-06-26T08:30:00Z" },
+  { id: "U003", fullName: "Grace Achieng", email: "grace@jambo.ug", isActive: true, lastLoginAt: "2026-06-26T06:00:00Z", createdAt: "2024-03-10T00:00:00Z", updatedAt: "2026-06-26T06:00:00Z" },
+  { id: "U004", fullName: "John Mukasa", email: "john@jambo.ug", isActive: true, lastLoginAt: "2026-06-26T09:30:00Z", createdAt: "2024-04-05T00:00:00Z", updatedAt: "2026-06-26T09:30:00Z" },
+  { id: "U005", fullName: "Esther Nambi", email: "esther@jambo.ug", isActive: true, lastLoginAt: "2026-06-26T07:00:00Z", createdAt: "2024-05-12T00:00:00Z", updatedAt: "2026-06-26T07:00:00Z" },
+  { id: "U006", fullName: "Peter Ssempijja", email: "peter@jambo.ug", isActive: true, lastLoginAt: "2026-06-25T16:00:00Z", createdAt: "2024-06-01T00:00:00Z", updatedAt: "2026-06-25T16:00:00Z" },
+  { id: "U007", fullName: "Robert Kizza", email: "robert@jambo.ug", isActive: true, lastLoginAt: "2026-06-26T09:55:00Z", createdAt: "2024-01-10T00:00:00Z", updatedAt: "2026-06-26T09:55:00Z" },
+  { id: "U008", fullName: "Mary Nakibuuka", email: "mary@jambo.ug", isActive: true, lastLoginAt: "2026-06-25T06:00:00Z", createdAt: "2024-07-22T00:00:00Z", updatedAt: "2026-06-25T06:00:00Z" },
+  { id: "U009", fullName: "Faith Akello", email: "faith@jambo.ug", isActive: false, lastLoginAt: "2026-05-25T10:00:00Z", createdAt: "2024-08-15T00:00:00Z", updatedAt: "2024-08-15T00:00:00Z" },
+];
+
+const ROLES_DATA: RoleRecord[] = [
+  { id: "R001", roleCode: "OWNER_GM", roleName: "Owner / GM", description: "Full property access & executive reporting", createdAt: "2024-01-01T00:00:00Z" },
+  { id: "R002", roleCode: "FD_AGENT", roleName: "Front Desk", description: "Front desk check-in/out & reservations", createdAt: "2024-01-01T00:00:00Z" },
+  { id: "R003", roleCode: "HK_STAFF", roleName: "Housekeeping", description: "Housekeeping task management", createdAt: "2024-01-01T00:00:00Z" },
+  { id: "R004", roleCode: "POS_CASHIER", roleName: "POS / Cashier", description: "Point of sale & cash handling", createdAt: "2024-01-01T00:00:00Z" },
+  { id: "R005", roleCode: "RES_REVENUE", roleName: "Reservations / Revenue", description: "Reservations & revenue management", createdAt: "2024-01-01T00:00:00Z" },
+  { id: "R006", roleCode: "ACCOUNTANT", roleName: "Accountant", description: "Accounting, billing & financial reports", createdAt: "2024-01-01T00:00:00Z" },
+  { id: "R007", roleCode: "SYS_ADMIN", roleName: "System Administrator", description: "System configuration & access control", createdAt: "2024-01-01T00:00:00Z" },
+];
+
+const USER_ROLES_DATA: UserRole[] = [
+  { id: "UR001", userId: "U001", roleId: "R001", assignedBy: "U007", assignedAt: "2024-01-15T00:00:00Z" },
+  { id: "UR002", userId: "U002", roleId: "R002", assignedBy: "U007", assignedAt: "2024-02-20T00:00:00Z" },
+  { id: "UR003", userId: "U003", roleId: "R003", assignedBy: "U007", assignedAt: "2024-03-10T00:00:00Z" },
+  { id: "UR004", userId: "U004", roleId: "R004", assignedBy: "U007", assignedAt: "2024-04-05T00:00:00Z" },
+  { id: "UR005", userId: "U005", roleId: "R005", assignedBy: "U007", assignedAt: "2024-05-12T00:00:00Z" },
+  { id: "UR006", userId: "U006", roleId: "R006", assignedBy: "U007", assignedAt: "2024-06-01T00:00:00Z" },
+  { id: "UR007", userId: "U007", roleId: "R007", assignedBy: "U007", assignedAt: "2024-01-10T00:00:00Z" },
+  { id: "UR008", userId: "U008", roleId: "R003", assignedBy: "U007", assignedAt: "2024-07-22T00:00:00Z" },
+  { id: "UR009", userId: "U009", roleId: "R002", assignedBy: "U007", assignedAt: "2024-08-15T00:00:00Z" },
 ];
 
 export const nightsBetween = (a: string, b: string) =>
@@ -1395,37 +1153,27 @@ const MAINT_REQUESTS: MaintenanceRequest[] = [];
 
 const DND_RECORDS: DNDRecord[] = [];
 
-const TENANT: Tenant = {
+const TENANT: Property = {
   id: "T001",
   name: "Jambo Sphere Hotel",
-  currency: "UGX",
-  vatRate: 0.18,
-  timezone: "Africa/Kampala",
   address: "Plot 24, Kampala Road, Kampala, Uganda",
+  city: "Kampala",
+  country: "Uganda",
   phone: "+256 700 000 000",
   email: "frontdesk@jambo.ug",
   tin: "1000123456",
-  logo: "/logo-jambo.png",
+  efrisDeviceNo: "TCSe3bc4b1488854572",
   defaultCurrency: "UGX",
-  bookingEngineUrl: "https://book.jambosphere.com",
-  terms: "Check-in: 14:00, Check-out: 10:00. Cancellation policy: 24 hours.",
-  fax: "+256 700 000 001",
-  streetAddr: "Plot 24, Kampala Road",
-  city: "Kampala",
-  state: "Central",
-  country: "Uganda",
-  zipcode: "256",
-  dateFormat: "YYYY-MM-DD",
-  bookingExpTime: 30,
-  enabledDeposit: true,
-  bookingTurnOff: false,
-  minNightBooking: 1,
-  notificationEmail: "reservations@jambo.ug",
-  priceWithTax: true,
-  maximumGlobalYears: 5,
-  paymentCurrency: "UGX",
-  invoiceCurrency: "UGX",
-  currencyUpdateTime: "2026-01-01T00:00:00Z",
+  standardCheckinTime: "14:00:00",
+  standardCheckoutTime: "11:00:00",
+  timezone: "Africa/Kampala",
+  lateCheckoutHalfCutoff: "15:00:00",
+  folioAdjAgentThreshold: 10_000,
+  folioAdjPmThreshold: 50_000,
+  requisitionApprovalThreshold: 500_000,
+  creditGracePeriodDays: 14,
+  createdAt: "2024-01-01T00:00:00Z",
+  updatedAt: "2026-06-26T00:00:00Z",
 };
 
 /* ============================== Store ============================== */
@@ -1446,6 +1194,8 @@ function persistState() {
       invoices: state.invoices,
       invoiceLineItems: state.invoiceLineItems,
       users: state.users,
+      roles: state.roles,
+      userRoles: state.userRoles,
       audit: state.audit,
       housekeepingTasks: state.housekeepingTasks,
       maintenanceRequests: state.maintenanceRequests,
@@ -1481,6 +1231,8 @@ const state: State = {
   invoices: persisted?.invoices ?? INVOICES,
   invoiceLineItems: persisted?.invoiceLineItems ?? INVOICE_LINE_ITEMS,
   users: persisted?.users ?? USERS,
+  roles: persisted?.roles ?? ROLES_DATA,
+  userRoles: persisted?.userRoles ?? USER_ROLES_DATA,
   audit: persisted?.audit ?? AUDIT,
   housekeepingTasks: persisted?.housekeepingTasks ?? HK_TASKS,
   maintenanceRequests: persisted?.maintenanceRequests ?? MAINT_REQUESTS,
@@ -1759,7 +1511,7 @@ export function createReservation(
     roomId,
     status: "confirmed",
     createdAt: new Date().toISOString(),
-    vatRate: state.tenant.vatRate,
+    vatRate: DEFAULT_VAT_RATE,
     vatTreatment: "inclusive",
   };
   state.reservations = [reservation, ...state.reservations];
@@ -2294,7 +2046,7 @@ export function clearGatewayCache() {
 /* ============================== Invoicing ============================== */
 
 function currentVatRate(): number {
-  return state.tenant.vatRate;
+  return DEFAULT_VAT_RATE;
 }
 
 export function generateInvoice(folioId: string): Invoice | null {
@@ -2916,7 +2668,7 @@ export function deleteRoomType(id: string) {
 
 /* ============================== Users ============================== */
 
-export function upsertUser(u: UserRecord) {
+export function upsertUser(u: User) {
   const exists = state.users.some((x) => x.id === u.id);
   state.users = exists ? state.users.map((x) => (x.id === u.id ? u : x)) : [...state.users, u];
   logAudit({
@@ -2930,13 +2682,47 @@ export function upsertUser(u: UserRecord) {
   emit();
 }
 export function toggleUserActive(id: string) {
-  state.users = state.users.map((u) => (u.id === id ? { ...u, active: !u.active } : u));
+  state.users = state.users.map((u) => (u.id === id ? { ...u, isActive: !u.isActive } : u));
   emit();
+}
+export function assignUserRole(userId: string, roleId: string, assignedBy?: string) {
+  const existing = state.userRoles.find(
+    (ur) => ur.userId === userId && ur.roleId === roleId && !ur.revokedAt,
+  );
+  if (existing) return;
+  const active = state.userRoles.find((ur) => ur.userId === userId && !ur.revokedAt);
+  if (active) {
+    state.userRoles = state.userRoles.map((ur) =>
+      ur.id === active.id ? { ...ur, revokedAt: new Date().toISOString() } : ur,
+    );
+  }
+  const ur: UserRole = {
+    id: "UR" + Date.now().toString(36),
+    userId,
+    roleId,
+    assignedBy,
+    assignedAt: new Date().toISOString(),
+  };
+  state.userRoles = [...state.userRoles, ur];
+  emit();
+}
+
+export function getUserRoleNames(userId: string): string[] {
+  const activeRoleIds = state.userRoles
+    .filter((ur) => ur.userId === userId && !ur.revokedAt)
+    .map((ur) => ur.roleId);
+  return state.roles
+    .filter((r) => activeRoleIds.includes(r.id))
+    .map((r) => r.roleName);
+}
+
+export function getUserPrimaryRole(userId: string): string {
+  return getUserRoleNames(userId)[0] ?? "—";
 }
 
 /* ============================== Tenant ============================== */
 
-export function updateTenant(patch: Partial<Tenant>) {
+export function updateTenant(patch: Partial<Property>) {
   state.tenant = { ...state.tenant, ...patch };
   logAudit({
     actor: "Admin",

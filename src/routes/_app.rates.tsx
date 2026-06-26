@@ -386,7 +386,7 @@ function Overview({
               Rates by room type
             </h2>
             <span className="text-[11px] text-muted-foreground">
-              Currency: {tenant.currency} · VAT {(tenant.vatRate * 100).toFixed(0)}%
+              Currency: {tenant.defaultCurrency} · VAT 18%
             </span>
           </div>
           <div className="overflow-x-auto">
@@ -405,9 +405,9 @@ function Overview({
                 {roomTypes.map((rt) => (
                   <tr key={rt.id}>
                     <td className="py-2.5 pr-4">
-                      <div className="font-medium">{rt.typeName}</div>
+                      <div className="font-medium">{rt.name}</div>
                       <div className="text-[11px] text-muted-foreground">
-                        capacity {rt.capacity}
+                        capacity {rt.maxOccupancy}
                       </div>
                     </td>
                     {activePlans.map((p) => (
@@ -666,7 +666,7 @@ function PlansTab({
                     key={id}
                     className="rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-foreground"
                   >
-                    {rt?.typeName ?? id}
+                    {rt?.name ?? id}
                   </span>
                 );
               })}
@@ -864,7 +864,7 @@ function RatePlanForm({
                           : "border-border bg-background text-muted-foreground hover:text-foreground",
                       )}
                     >
-                      {rt.typeName}
+                      {rt.name}
                     </button>
                   );
                 })}
@@ -1096,7 +1096,7 @@ function AvailabilityTab() {
             <SelectItem value="all">All room types</SelectItem>
             {roomTypes.map((rt) => (
               <SelectItem key={rt.id} value={rt.id}>
-                {rt.typeName}
+                {rt.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -1136,7 +1136,7 @@ function AvailabilityTab() {
                   <td className="sticky left-0 z-10 bg-card px-3 py-2">
                     <div className="font-semibold">{room.id}</div>
                     <div className="text-[10px] text-muted-foreground">
-                      Floor {room.floor} · {rt?.typeName}
+                      Floor {room.floor} · {rt?.name}
                     </div>
                   </td>
                   {days.map((d) => {
@@ -1333,7 +1333,7 @@ function RestrictionsTab({
               return (
                 <tr key={r.id}>
                   <td className="px-5 py-2.5">{r.date}</td>
-                  <td className="px-3 py-2.5">{rt?.typeName ?? r.roomTypeId}</td>
+                  <td className="px-3 py-2.5">{rt?.name ?? r.roomTypeId}</td>
                   <td className="px-3 py-2.5 text-right font-mono">{r.minStay}</td>
                   <td className="px-3 py-2.5">
                     {r.closedToArrival ? (
@@ -1472,7 +1472,7 @@ function PromotionsTab({
                     key={id}
                     className="rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-foreground"
                   >
-                    {rt?.typeName ?? id}
+                    {rt?.name ?? id}
                   </span>
                 );
               })}

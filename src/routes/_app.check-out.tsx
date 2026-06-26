@@ -148,7 +148,7 @@ function CheckOutPage() {
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
                       <span>#{res.id}</span>
-                      <span>{rt?.typeName ?? res.roomTypeId}</span>
+                      <span>{rt?.name ?? res.roomTypeId}</span>
                       {room && <span>Room {room.id} · Floor {room.floor}</span>}
                     </div>
                   </div>
