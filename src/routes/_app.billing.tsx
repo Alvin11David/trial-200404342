@@ -120,13 +120,13 @@ function FolioList() {
 
   const totals = useMemo(() => {
     const open = folios.filter(
-      (f) => f.status === "open" || f.status === "active" || f.status === "pending_settlement",
+      (f) => f.status === "open",
     );
     const totalOpen = open.reduce((s, f) => s + folioBalance(f.id), 0);
     return {
       open: totalOpen,
       count: open.length,
-      settled: folios.filter((f) => f.status === "settled" || f.status === "closed").length,
+      settled: folios.filter((f) => f.status === "settled").length,
       collectedToday: paymentsToday(),
       totalOutstanding: totalOutstanding(),
     };
@@ -135,12 +135,12 @@ function FolioList() {
   const rows = useMemo(() => {
     const filterStatuses: FolioStatus[] =
       tab === "active"
-        ? ["open", "active", "pending_settlement"]
+        ? ["open"]
         : tab === "pending"
-          ? ["pending_settlement"]
+          ? ["transferred_to_ledger", "transferred_to_agent"]
           : tab === "settled"
-            ? ["settled", "closed", "void"]
-            : ["open", "active", "pending_settlement", "settled", "closed", "void"];
+            ? ["settled", "void"]
+            : ["open", "settled", "transferred_to_ledger", "transferred_to_agent", "void"];
     return folios
       .filter((f) => filterStatuses.includes(f.status))
       .map((f) => {
@@ -210,7 +210,7 @@ function FolioList() {
                     : "text-muted-foreground/70 hover:text-foreground hover:bg-background/50",
                 )}
               >
-                {t === "active" ? "Active" : t === "pending" ? "Pending" : t === "settled" ? "Settled" : "All"}
+                {t === "active" ? "Open" : t === "pending" ? "Transferred" : t === "settled" ? "Settled" : "All"}
               </button>
             ))}
           </div>
@@ -293,19 +293,17 @@ function FolioList() {
 
 const statusDot: Record<FolioStatus, string> = {
   open: "bg-blue-500",
-  active: "bg-blue-500",
-  pending_settlement: "bg-amber-500",
   settled: "bg-emerald-500",
-  closed: "bg-emerald-500",
+  transferred_to_ledger: "bg-purple-500",
+  transferred_to_agent: "bg-purple-500",
   void: "bg-destructive",
 };
 
 const statusBadge: Record<FolioStatus, string> = {
   open: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800",
-  active: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800",
-  pending_settlement: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",
   settled: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800",
-  closed: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-800",
+  transferred_to_ledger: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-400 dark:border-purple-800",
+  transferred_to_agent: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/30 dark:text-purple-400 dark:border-purple-800",
   void: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-800",
 };
 
@@ -375,8 +373,7 @@ function FolioDetail({ folioId }: { folioId: string }) {
   const totalPayments = confirmedPayments;
   const balance = totalCharges - totalPayments;
 
-  const isOpen =
-    folio.status === "open" || folio.status === "active" || folio.status === "pending_settlement";
+  const isOpen = folio.status === "open";
 
   const balanceColor =
     balance <= 0
@@ -453,9 +450,9 @@ function FolioDetail({ folioId }: { folioId: string }) {
                   {res?.checkIn} → {res?.checkOut}
                 </span>
               </div>
-              {folio.closedAt && (
+              {(folio.settledAt ?? folio.closedAt) && (
                 <span className="text-[10px] text-muted-foreground/50">
-                  Closed {new Date(folio.closedAt).toLocaleDateString()}
+                  Settled {new Date(folio.settledAt ?? folio.closedAt!).toLocaleDateString()}
                 </span>
               )}
               {res?.vatTreatment && (
@@ -832,10 +829,9 @@ function FolioDetail({ folioId }: { folioId: string }) {
 function FolioStatusBadgeMini({ status }: { status: FolioStatus }) {
   const dotColor: Record<FolioStatus, string> = {
     open: "bg-blue-500",
-    active: "bg-blue-500",
-    pending_settlement: "bg-amber-500",
     settled: "bg-emerald-500",
-    closed: "bg-emerald-500",
+    transferred_to_ledger: "bg-purple-500",
+    transferred_to_agent: "bg-purple-500",
     void: "bg-destructive",
   };
   return (
@@ -1438,7 +1434,7 @@ function NightAuditDialog({
   const charges = useStore((s) => s.charges);
   const today = new Date().toISOString().slice(0, 10);
 
-  const activeFolios = folios.filter((f) => f.status === "open" || f.status === "active");
+  const activeFolios = folios.filter((f) => f.status === "open");
   const toCharge = activeFolios.filter((f) => {
     const res = reservations.find((r) => r.id === f.reservationId);
     if (!res || !res.roomId) return false;

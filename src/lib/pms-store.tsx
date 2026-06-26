@@ -214,19 +214,36 @@ export type Reservation = {
 };
 
 export type FolioChargeType = "room" | "fnb" | "tax" | "misc";
+export type FolioChargeSource = "room_auto" | "pos_charge" | "minibar_auto" | "service_request" | "manual" | "adjustment";
+export type FolioChargeStatus = "posted" | "disputed" | "voided" | "adjusted";
 export type FolioCharge = {
   id: string;
+  propertyId?: string;
   folioId: string;
-  date: string; // YYYY-MM-DD
+  chargeDate?: string; // YYYY-MM-DD
+  date: string; // convenience — YYYY-MM-DD
+  chargeSource?: FolioChargeSource;
+  status?: FolioChargeStatus;
   type: FolioChargeType;
   description: string;
-  amount: number; // UGX (positive)
+  quantity?: number;
+  unitAmount?: number;
+  grossAmount?: number;
+  vatAmount?: number;
+  netAmount?: number;
+  amount: number; // convenience — UGX (positive)
   vatTreatment?: VatTreatment;
-  voided?: boolean;
+  voided?: boolean; // convenience — derived from status
   voidReason?: string;
-  voidedBy?: string;
   voidedAt?: string;
+  voidedBy?: string;
+  voidAuthorisedBy?: string;
   postedBy?: string;
+  postedAt?: string;
+  adjustedFromChargeId?: string;
+  sourceRefId?: number;
+  sourceRefType?: string;
+  createdAt?: string;
 };
 
 export type PaymentMethod = "cash" | "card" | "mtn_momo" | "airtel_money" | "bank_transfer";
@@ -421,14 +438,31 @@ export type InvoiceLineItem = {
   totalAmount: number;
 };
 
-export type FolioStatus = "open" | "active" | "pending_settlement" | "settled" | "closed" | "void";
+export type FolioStatus = "open" | "settled" | "transferred_to_ledger" | "transferred_to_agent" | "void";
 export type Folio = {
   id: string;
+  propertyId?: string;
   reservationId: string;
-  openedAt: string;
-  closedAt?: string;
+  guestProfileId?: string;
+  corporateAccountId?: string;
+  travelAgentAccountId?: string;
+  billingArrangement?: BillingArrangement;
+  vatTreatment?: VatTreatment;
   status: FolioStatus;
-  notes?: string;
+  depositAmount?: number;
+  totalCharges?: number;
+  totalVat?: number;
+  totalPaid?: number;
+  balanceDue?: number;
+  openedAt: string;
+  openedBy?: string;
+  settledAt?: string;
+  closedAt?: string; // convenience — alias for settledAt
+  settledBy?: string;
+  sourceSystemRef?: string;
+  notes?: string; // kept for backward compat
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type User = {
@@ -903,9 +937,13 @@ RESERVATIONS.forEach((r) => {
   if (r.status !== "checked_in") return;
   const folio: Folio = {
     id: nextFolioId(),
+    propertyId: r.propertyId ?? "T001",
     reservationId: r.id,
-    openedAt: r.createdAt,
+    billingArrangement: r.billingArrangement,
     status: "open",
+    openedAt: r.createdAt,
+    createdAt: r.createdAt,
+    updatedAt: r.createdAt,
   };
   r.folioId = folio.id;
   FOLIOS.push(folio);
@@ -914,24 +952,34 @@ RESERVATIONS.forEach((r) => {
   const start = new Date(r.checkIn);
   const nightsSoFar = Math.max(1, Math.ceil((TODAY.getTime() - start.getTime()) / 86_400_000));
   for (let n = 0; n < nightsSoFar; n++) {
+    const d = iso(addDays(start, n));
     CHARGES.push({
       id: nextChargeId(),
       folioId: folio.id,
-      date: iso(addDays(start, n)),
+      date: d,
+      chargeDate: d,
       type: "room",
+      chargeSource: "room_auto",
       description: `Room ${r.roomId} — night ${n + 1}`,
       amount: r.ratePerNight,
+      grossAmount: r.ratePerNight,
+      status: "posted",
     });
   }
   // A small F&B charge for some
   if (r.id.endsWith("2") || r.id.endsWith("4")) {
+    const d = iso(TODAY);
     CHARGES.push({
       id: nextChargeId(),
       folioId: folio.id,
-      date: iso(TODAY),
+      date: d,
+      chargeDate: d,
       type: "fnb",
+      chargeSource: "pos_charge",
       description: "Restaurant",
       amount: 65_000,
+      grossAmount: 65_000,
+      status: "posted",
     });
   }
   // Partial advance payment for some
@@ -1026,23 +1074,33 @@ HISTORICAL_GUESTS.forEach((name, k) => {
     deleteStatus: 0,
   };
   RESERVATIONS.push(res);
+  const settledAt = iso(checkOut);
   const folio: Folio = {
     id: nextFolioId(),
+    propertyId: "T001",
     reservationId: id,
     openedAt: iso(checkIn),
-    closedAt: iso(checkOut),
+    closedAt: settledAt,
+    settledAt,
     status: "settled",
+    createdAt: iso(checkIn),
+    updatedAt: settledAt,
   };
   res.folioId = folio.id;
   FOLIOS.push(folio);
   const total = res.ratePerNight * nights;
+  const d = iso(checkIn);
   CHARGES.push({
     id: nextChargeId(),
     folioId: folio.id,
-    date: iso(checkIn),
+    date: d,
+    chargeDate: d,
     type: "room",
+    chargeSource: "room_auto",
     description: `Room ${res.roomId} — ${nights} nights`,
     amount: total,
+    grossAmount: total,
+    status: "posted",
   });
   const histMethod = (["cash", "card", "mtn_momo", "airtel_money"] as PaymentMethod[])[k % 4];
   PAYMENTS.push({
@@ -1803,9 +1861,15 @@ export function createReservation(
   // always open a folio when a reservation is created
   const folio: Folio = {
     id: nextFolioId(),
+    propertyId: input.propertyId ?? "T001",
     reservationId: id,
-    openedAt: new Date().toISOString(),
+    guestProfileId: createdGuest?.id,
+    billingArrangement: input.billingArrangement ?? "pay_at_checkout",
     status: "open",
+    openedAt: now,
+    openedBy: input.createdBy,
+    createdAt: now,
+    updatedAt: now,
   };
   state.folios = [...state.folios, folio];
   state.reservations = state.reservations.map((r) =>
@@ -1941,26 +2005,37 @@ export function checkIn(
   // Use existing folio if deposit was collected at booking, else create one
   let folioId = res.folioId;
   if (!folioId) {
+    const now = new Date().toISOString();
     const newFolio: Folio = {
       id: nextFolioId(),
+      propertyId: res.propertyId,
       reservationId: res.id,
-      openedAt: new Date().toISOString(),
+      billingArrangement: res.billingArrangement,
       status: "open",
+      openedAt: now,
+      createdAt: now,
+      updatedAt: now,
     };
     state.folios = [...state.folios, newFolio];
     folioId = newFolio.id;
   }
 
   // First night room charge posted on check-in
+  const chargeDate = todayISO();
   state.charges = [
     ...state.charges,
     {
       id: nextChargeId(),
       folioId: folioId,
-      date: todayISO(),
+      date: chargeDate,
+      chargeDate,
       type: "room",
+      chargeSource: "room_auto",
       description: `Room ${targetRoom} — night 1`,
       amount: res.ratePerNight,
+      grossAmount: res.ratePerNight,
+      postedAt: new Date().toISOString(),
+      status: "posted",
     },
   ];
 
@@ -1997,8 +2072,9 @@ export function checkOut(reservationId: string): { ok: true } | { ok: false; err
     };
   }
 
+  const now = new Date().toISOString();
   state.folios = state.folios.map((f) =>
-    f.id === folio.id ? { ...f, status: "settled", closedAt: new Date().toISOString() } : f,
+    f.id === folio.id ? { ...f, status: "settled", settledAt: now, closedAt: now, updatedAt: now } : f,
   );
   state.reservations = state.reservations.map((r) =>
     r.id === res.id ? { ...r, status: "checked_out" } : r,
@@ -2048,16 +2124,23 @@ export function addCharge(
   folioId: string,
   input: Omit<FolioCharge, "id" | "folioId" | "date"> & { date?: string; postedBy?: string },
 ) {
+  const now = new Date().toISOString();
+  const chargeDate = input.date ?? todayISO();
   state.charges = [
     ...state.charges,
     {
       id: nextChargeId(),
       folioId,
-      date: input.date ?? todayISO(),
+      date: chargeDate,
+      chargeDate,
       type: input.type,
+      chargeSource: input.chargeSource ?? ("manual" as FolioChargeSource),
       description: input.description,
       amount: input.amount,
+      grossAmount: input.amount,
       postedBy: input.postedBy,
+      postedAt: now,
+      status: "posted",
     },
   ];
   logAudit({
@@ -2324,7 +2407,7 @@ function currentVatRate(): number {
 
 export function generateInvoice(folioId: string): Invoice | null {
   const folio = state.folios.find((f) => f.id === folioId);
-  if (!folio || (folio.status !== "settled" && folio.status !== "closed")) return null;
+  if (!folio || folio.status !== "settled") return null;
   const existing = state.invoices.find(
     (i) => i.folioId === folioId && !i.isProforma && !i.isCreditNote,
   );
@@ -2610,14 +2693,16 @@ export function voidCharge(
   actor: string,
   role: string,
 ) {
+  const now = new Date().toISOString();
   state.charges = state.charges.map((c) =>
     c.id === chargeId && c.folioId === folioId && !c.voided
       ? {
           ...c,
           voided: true,
+          status: "voided",
           voidReason: reason,
           voidedBy: actor,
-          voidedAt: new Date().toISOString(),
+          voidedAt: now,
         }
       : c,
   );
@@ -2639,9 +2724,10 @@ export function voidCharge(
 }
 
 export function settleFolio(folioId: string, actor: string, role: string) {
+  const now = new Date().toISOString();
   state.folios = state.folios.map((f) =>
-    f.id === folioId && f.status !== "settled" && f.status !== "closed" && f.status !== "void"
-      ? { ...f, status: "settled", closedAt: new Date().toISOString() }
+    f.id === folioId && f.status !== "settled" && f.status !== "transferred_to_ledger" && f.status !== "transferred_to_agent" && f.status !== "void"
+      ? { ...f, status: "settled", settledAt: now, closedAt: now, settledBy: actor, updatedAt: now }
       : f,
   );
   logAudit({
@@ -2672,7 +2758,7 @@ export function runNightAudit(actor: string, role: string) {
   const today = todayISO();
   const posted: string[] = [];
   state.folios.forEach((f) => {
-    if (f.status !== "open" && f.status !== "active") return;
+    if (f.status !== "open") return;
     const res = state.reservations.find((r) => r.id === f.reservationId);
     if (!res || !res.roomId) return;
     const alreadyPosted = state.charges.some(
@@ -2689,18 +2775,18 @@ export function runNightAudit(actor: string, role: string) {
         id: nextChargeId(),
         folioId: f.id,
         date: today,
+        chargeDate: today,
         type: "room",
+        chargeSource: "room_auto",
         description: `Room ${res.roomId} — night ${nightsSoFar}`,
         amount: res.ratePerNight,
+        grossAmount: res.ratePerNight,
         postedBy: actor,
+        postedAt: new Date().toISOString(),
+        status: "posted",
       },
     ];
     posted.push(f.id);
-  });
-  // advance folio lifecycle
-  state.folios = state.folios.map((f) => {
-    if (f.status === "open") return { ...f, status: "active" };
-    return f;
   });
   logAudit({
     actor,
@@ -2716,9 +2802,7 @@ export function runNightAudit(actor: string, role: string) {
 
 export function totalOutstanding() {
   return state.folios
-    .filter(
-      (f) => f.status === "open" || f.status === "active" || f.status === "pending_settlement",
-    )
+    .filter((f) => f.status === "open")
     .reduce((s, f) => s + folioBalance(f.id), 0);
 }
 
@@ -2731,10 +2815,9 @@ export function paymentsToday() {
 
 export const FOLIO_STATUS_LABEL: Record<FolioStatus, string> = {
   open: "Open",
-  active: "Active",
-  pending_settlement: "Pending Settlement",
   settled: "Settled",
-  closed: "Closed",
+  transferred_to_ledger: "Transferred to Ledger",
+  transferred_to_agent: "Transferred to Agent",
   void: "Void",
 };
 
