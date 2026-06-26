@@ -71,18 +71,21 @@ export type RoomStatus =
   | "blocked";
 export type Room = {
   id: string;
+  propertyId: string;
+  roomTypeId: string;
+  roomNumber: string;
   floor: number;
-  typeId: string;
   status: RoomStatus;
   blockStatus?: boolean;
   notes?: string;
+  legacyRef?: string;
   createdAt?: string;
   updatedAt?: string;
 };
 
 export type ReservationStatus = "open" | "confirmed" | "checked_in" | "checked_out" | "cancelled";
 
-export type VatTreatment = "inclusive" | "exclusive" | "exempt";
+export type VatTreatment = "inclusive" | "exclusive" | "exempt" | "not_applicable";
 
 export type CancellationPolicy = {
   id: string;
@@ -96,6 +99,7 @@ export type CancellationPolicy = {
 
 export type RatePlan = {
   id: string;
+  propertyId: string;
   roomTypeId: string;
   cancellationPolicyId?: string;
   name: string;
@@ -422,6 +426,8 @@ type State = {
   housekeepingTasks: HousekeepingTask[];
   maintenanceRequests: MaintenanceRequest[];
   dndRecords: DNDRecord[];
+  cancellationPolicies: CancellationPolicy[];
+  ratePlans: RatePlan[];
 };
 
 /* ============================== Seed ============================== */
@@ -438,6 +444,21 @@ const ROOM_TYPES: RoomType[] = [
   { id: "std", name: "Standard", description: "Comfortable standard room with essential amenities", maxOccupancy: 2, baseRate: 220_000 },
   { id: "dlx", name: "Deluxe", description: "Spacious deluxe room with premium furnishings", maxOccupancy: 3, baseRate: 380_000 },
   { id: "ste", name: "Suite", description: "Luxury suite with separate living area and premium amenities", maxOccupancy: 4, baseRate: 850_000 },
+];
+
+const CANCELLATION_POLICIES: CancellationPolicy[] = [
+  { id: "cp_flexible", name: "Flexible", freeCancelHoursBefore: 24, partialRefundPct: 0, partialRefundHoursBefore: 0, noShowChargePct: 100, createdAt: new Date().toISOString() },
+  { id: "cp_moderate", name: "Moderate", freeCancelHoursBefore: 48, partialRefundPct: 50, partialRefundHoursBefore: 24, noShowChargePct: 100, createdAt: new Date().toISOString() },
+  { id: "cp_strict", name: "Strict", freeCancelHoursBefore: 72, partialRefundPct: 0, partialRefundHoursBefore: 0, noShowChargePct: 100, createdAt: new Date().toISOString() },
+  { id: "cp_nonrefundable", name: "Non-Refundable", freeCancelHoursBefore: 0, partialRefundPct: 0, partialRefundHoursBefore: 0, noShowChargePct: 100, createdAt: new Date().toISOString() },
+];
+
+const RATE_PLANS: RatePlan[] = [
+  { id: "rp_rack", propertyId: "T001", roomTypeId: "std", cancellationPolicyId: "cp_flexible", name: "Rack Rate", nightlyRate: 220_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "rp_corporate", propertyId: "T001", roomTypeId: "dlx", cancellationPolicyId: "cp_moderate", name: "Corporate Rate", nightlyRate: 195_000, vatTreatment: "exclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "rp_bb", propertyId: "T001", roomTypeId: "std", cancellationPolicyId: "cp_flexible", name: "Bed & Breakfast", nightlyRate: 265_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "rp_weekend", propertyId: "T001", roomTypeId: "ste", cancellationPolicyId: "cp_strict", name: "Weekend Special", nightlyRate: 310_000, vatTreatment: "inclusive", depositRequiredPct: 20, minLengthOfStay: 2, isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "rp_nightly", propertyId: "T001", roomTypeId: "dlx", cancellationPolicyId: "cp_flexible", name: "Nightly Saver", nightlyRate: 175_000, vatTreatment: "not_applicable", depositRequiredPct: 50, minLengthOfStay: 1, isActive: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
 
 const HOUSEKEEPERS = ["U003", "U008"]; // grace, mary
@@ -465,12 +486,14 @@ const ROOMS: Room[] = (() => {
     [5, "ste"],
     [5, "ste"],
   ];
-  layout.forEach(([floor, typeId], idx) => {
+  layout.forEach(([floor, roomTypeId], idx) => {
     const num = `${floor}${String((idx % 4) + 1).padStart(2, "0")}`;
     list.push({
       id: num,
+      propertyId: "T001",
+      roomTypeId,
+      roomNumber: num,
       floor,
-      typeId,
       status: [
         "available",
         "occupied",
@@ -1200,6 +1223,8 @@ function persistState() {
       housekeepingTasks: state.housekeepingTasks,
       maintenanceRequests: state.maintenanceRequests,
       dndRecords: state.dndRecords,
+      cancellationPolicies: state.cancellationPolicies,
+      ratePlans: state.ratePlans,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
   } catch {
@@ -1237,6 +1262,8 @@ const state: State = {
   housekeepingTasks: persisted?.housekeepingTasks ?? HK_TASKS,
   maintenanceRequests: persisted?.maintenanceRequests ?? MAINT_REQUESTS,
   dndRecords: persisted?.dndRecords ?? DND_RECORDS,
+  cancellationPolicies: persisted?.cancellationPolicies ?? CANCELLATION_POLICIES,
+  ratePlans: persisted?.ratePlans ?? RATE_PLANS,
 };
 
 const listeners = new Set<() => void>();
@@ -2666,6 +2693,25 @@ export function deleteRoomType(id: string) {
   emit();
 }
 
+/* ============================== Rate Plans ============================== */
+
+export function upsertRatePlan(rp: RatePlan) {
+  const exists = state.ratePlans.some((x) => x.id === rp.id);
+  state.ratePlans = exists
+    ? state.ratePlans.map((x) => (x.id === rp.id ? { ...rp, updatedAt: new Date().toISOString() } : x))
+    : [...state.ratePlans, { ...rp, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() }];
+  emit();
+}
+
+export function deleteRatePlan(id: string) {
+  state.ratePlans = state.ratePlans.filter((x) => x.id !== id);
+  emit();
+}
+
+export function cancellationPolicyById(id: string | undefined | null) {
+  return id ? state.cancellationPolicies.find((cp) => cp.id === id) : undefined;
+}
+
 /* ============================== Users ============================== */
 
 export function upsertUser(u: User) {
@@ -2795,6 +2841,9 @@ export function reservationById(id: string) {
 }
 export function folioById(id: string) {
   return state.folios.find((f) => f.id === id);
+}
+export function ratePlanById(id: string) {
+  return state.ratePlans.find((rp) => rp.id === id);
 }
 
 export const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {

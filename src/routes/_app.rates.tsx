@@ -14,9 +14,17 @@ import {
   TrendingUp,
   Lock,
   Info,
-  Check,
 } from "lucide-react";
-import { useStore, type RoomType, type Room } from "@/lib/pms-store";
+import {
+  useStore,
+  upsertRatePlan,
+  deleteRatePlan,
+  type RoomType,
+  type Room,
+  type RatePlan,
+  type CancellationPolicy,
+  type VatTreatment,
+} from "@/lib/pms-store";
 import { useRole } from "@/lib/role";
 import { cn } from "@/lib/utils";
 import {
@@ -32,24 +40,6 @@ export const Route = createFileRoute("/_app/rates")({
   head: () => ({ meta: [{ title: "Rates & Availability — Jambo PMS" }] }),
   component: RatesPage,
 });
-
-/* ------------------------------- Types ------------------------------- */
-
-type VatTreatment = "inclusive" | "exclusive";
-type RatePlan = {
-  id: string;
-  name: string;
-  code: string;
-  description: string;
-  roomTypeIds: string[];
-  pricePerNight: number; // base UGX
-  includes: string[]; // bf, dinner...
-  vatTreatment: VatTreatment;
-  validFrom: string;
-  validTo: string;
-  active: boolean;
-  minStay: number;
-};
 
 type SeasonalRate = {
   id: string;
@@ -83,8 +73,6 @@ type Promotion = {
   requiresApproval: boolean;
 };
 
-/* ----------------------------- Helpers ------------------------------ */
-
 const fmtUGX = (n: number) => "UGX " + Math.round(n).toLocaleString();
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
@@ -93,131 +81,6 @@ const addDaysISO = (n: number) => {
   d.setDate(d.getDate() + n);
   return d.toISOString().slice(0, 10);
 };
-
-/* ----------------------------- Seed data ----------------------------- */
-
-const SEED_PLANS: RatePlan[] = [
-  {
-    id: "rp_std",
-    name: "Standard Rate",
-    code: "BAR",
-    description: "Best available rate. Room only.",
-    roomTypeIds: ["std", "dlx", "ste"],
-    pricePerNight: 220_000,
-    includes: ["Wi-Fi"],
-    vatTreatment: "inclusive",
-    validFrom: todayISO(),
-    validTo: addDaysISO(180),
-    active: true,
-    minStay: 1,
-  },
-  {
-    id: "rp_bb",
-    name: "Bed & Breakfast",
-    code: "BB",
-    description: "Standard rate plus full breakfast for all guests.",
-    roomTypeIds: ["std", "dlx", "ste"],
-    pricePerNight: 265_000,
-    includes: ["Wi-Fi", "Breakfast"],
-    vatTreatment: "inclusive",
-    validFrom: todayISO(),
-    validTo: addDaysISO(180),
-    active: true,
-    minStay: 1,
-  },
-  {
-    id: "rp_corp",
-    name: "Corporate Rate",
-    code: "CORP",
-    description: "Negotiated corporate rate. VAT exclusive for EFRIS invoicing.",
-    roomTypeIds: ["std", "dlx"],
-    pricePerNight: 195_000,
-    includes: ["Wi-Fi", "Breakfast", "Laundry"],
-    vatTreatment: "exclusive",
-    validFrom: todayISO(),
-    validTo: addDaysISO(365),
-    active: true,
-    minStay: 1,
-  },
-  {
-    id: "rp_wknd",
-    name: "Weekend Special",
-    code: "WKND",
-    description: "Friday–Sunday only. Includes breakfast and late checkout.",
-    roomTypeIds: ["dlx", "ste"],
-    pricePerNight: 310_000,
-    includes: ["Wi-Fi", "Breakfast", "Late checkout"],
-    vatTreatment: "inclusive",
-    validFrom: todayISO(),
-    validTo: addDaysISO(120),
-    active: true,
-    minStay: 2,
-  },
-];
-
-const SEED_SEASONS: SeasonalRate[] = [
-  {
-    id: "ss_peak",
-    ratePlanId: "rp_std",
-    label: "Peak Safari Season",
-    from: addDaysISO(20),
-    to: addDaysISO(60),
-    multiplier: 1.35,
-  },
-  {
-    id: "ss_holiday",
-    ratePlanId: "rp_bb",
-    label: "Christmas & New Year",
-    from: "2026-12-20",
-    to: "2027-01-05",
-    multiplier: 1.5,
-  },
-  {
-    id: "ss_low",
-    ratePlanId: "rp_std",
-    label: "Low Season",
-    from: addDaysISO(80),
-    to: addDaysISO(140),
-    multiplier: 0.85,
-  },
-];
-
-const SEED_RESTRICTIONS: DateRestriction[] = [
-  {
-    id: "res_w1",
-    date: addDaysISO(5),
-    roomTypeId: "ste",
-    minStay: 2,
-    closedToArrival: false,
-    closedToDeparture: false,
-    note: "Weekend minimum stay",
-  },
-];
-
-const SEED_PROMOS: Promotion[] = [
-  {
-    id: "pr_early",
-    code: "EARLY20",
-    type: "percent",
-    value: 20,
-    roomTypeIds: ["std", "dlx", "ste"],
-    validFrom: todayISO(),
-    validTo: addDaysISO(90),
-    active: true,
-    requiresApproval: false,
-  },
-  {
-    id: "pr_loyal",
-    code: "LOYAL50K",
-    type: "flat",
-    value: 50_000,
-    roomTypeIds: ["dlx", "ste"],
-    validFrom: todayISO(),
-    validTo: addDaysISO(365),
-    active: true,
-    requiresApproval: true,
-  },
-];
 
 /* ============================== Page ============================== */
 
@@ -230,10 +93,11 @@ function RatesPage() {
     "overview" | "plans" | "calendar" | "availability" | "promotions" | "restrictions"
   >("overview");
 
-  const [plans, setPlans] = useState<RatePlan[]>(SEED_PLANS);
-  const [seasons, setSeasons] = useState<SeasonalRate[]>(SEED_SEASONS);
-  const [restrictions, setRestrictions] = useState<DateRestriction[]>(SEED_RESTRICTIONS);
-  const [promos, setPromos] = useState<Promotion[]>(SEED_PROMOS);
+  const plans = useStore((s) => s.ratePlans);
+  const cancellationPolicies = useStore((s) => s.cancellationPolicies);
+  const [seasons, setSeasons] = useState<SeasonalRate[]>([]);
+  const [restrictions, setRestrictions] = useState<DateRestriction[]>([]);
+  const [promos, setPromos] = useState<Promotion[]>([]);
 
   const tabs = [
     { id: "overview", label: "Overview", icon: TrendingUp },
@@ -290,7 +154,7 @@ function RatesPage() {
       </div>
 
       {tab === "overview" && <Overview plans={plans} seasons={seasons} promos={promos} />}
-      {tab === "plans" && <PlansTab canWrite={canWrite} plans={plans} setPlans={setPlans} />}
+      {tab === "plans" && <PlansTab canWrite={canWrite} plans={plans} />}
       {tab === "calendar" && <CalendarTab plans={plans} seasons={seasons} />}
       {tab === "availability" && <AvailabilityTab />}
       {tab === "restrictions" && (
@@ -346,9 +210,9 @@ function Overview({
   const sellable = totalRooms - blockedToday;
   const occupancyPct = sellable ? Math.round((occupiedToday / sellable) * 100) : 0;
 
-  const activePlans = plans.filter((p) => p.active);
+  const activePlans = plans.filter((p) => p.isActive);
   const cheapest = activePlans.reduce(
-    (min, p) => (p.pricePerNight < min ? p.pricePerNight : min),
+    (min, p) => (p.nightlyRate < min ? p.nightlyRate : min),
     Infinity,
   );
 
@@ -396,7 +260,7 @@ function Overview({
                   <th className="py-2 pr-4">Room type</th>
                   {activePlans.map((p) => (
                     <th key={p.id} className="py-2 pr-4 text-right">
-                      {p.code}
+                      {p.name}
                     </th>
                   ))}
                 </tr>
@@ -412,8 +276,8 @@ function Overview({
                     </td>
                     {activePlans.map((p) => (
                       <td key={p.id} className="py-2.5 pr-4 text-right">
-                        {p.roomTypeIds.includes(rt.id) ? (
-                          <span className="font-mono text-sm">{fmtUGX(p.pricePerNight)}</span>
+                        {p.roomTypeId === rt.id ? (
+                          <span className="font-mono text-sm">{fmtUGX(p.nightlyRate)}</span>
                         ) : (
                           <span className="text-muted-foreground/60">—</span>
                         )}
@@ -536,11 +400,9 @@ function Overview({
 function PlansTab({
   canWrite,
   plans,
-  setPlans,
 }: {
   canWrite: boolean;
   plans: RatePlan[];
-  setPlans: React.Dispatch<React.SetStateAction<RatePlan[]>>;
 }) {
   const roomTypes = useStore((s) => s.roomTypes);
   const [editing, setEditing] = useState<RatePlan | null>(null);
@@ -550,15 +412,11 @@ function PlansTab({
   const filtered = plans.filter(
     (p) =>
       !q ||
-      p.name.toLowerCase().includes(q.toLowerCase()) ||
-      p.code.toLowerCase().includes(q.toLowerCase()),
+      p.name.toLowerCase().includes(q.toLowerCase()),
   );
 
-  const onSave = (p: RatePlan) => {
-    setPlans((prev) => {
-      const exists = prev.some((x) => x.id === p.id);
-      return exists ? prev.map((x) => (x.id === p.id ? p : x)) : [...prev, p];
-    });
+  const onSave = (rp: RatePlan) => {
+    upsertRatePlan(rp);
     setShowForm(false);
     setEditing(null);
   };
@@ -594,24 +452,23 @@ function PlansTab({
             key={p.id}
             className={cn(
               "group relative overflow-hidden rounded-xl border border-border bg-card p-4 transition hover:border-primary/40 hover:shadow-md",
-              !p.active && "opacity-60",
+              !p.isActive && "opacity-60",
             )}
           >
             <div className="flex items-start justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-primary">
-                    {p.code}
-                  </span>
                   <span
                     className={cn(
                       "h-1.5 w-1.5 rounded-full",
-                      p.active ? "bg-success" : "bg-muted-foreground",
+                      p.isActive ? "bg-success" : "bg-muted-foreground",
                     )}
                   />
+                  <span className="text-[10px] font-medium text-muted-foreground">
+                    {p.isActive ? "Active" : "Inactive"}
+                  </span>
                 </div>
                 <h3 className="mt-2 font-display text-lg font-semibold tracking-tight">{p.name}</h3>
-                <p className="mt-0.5 text-[12px] text-muted-foreground">{p.description}</p>
               </div>
               {canWrite && (
                 <div className="flex items-center gap-1 opacity-0 transition group-hover:opacity-100">
@@ -625,7 +482,7 @@ function PlansTab({
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    onClick={() => setPlans((prev) => prev.filter((x) => x.id !== p.id))}
+                    onClick={() => deleteRatePlan(p.id)}
                     className="rounded-md border border-border bg-background p-1.5 text-muted-foreground hover:text-destructive"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -636,7 +493,7 @@ function PlansTab({
 
             <div className="mt-3 flex items-baseline gap-1">
               <span className="font-display text-2xl font-bold tracking-tight">
-                {fmtUGX(p.pricePerNight)}
+                {fmtUGX(p.nightlyRate)}
               </span>
               <span className="text-[11px] text-muted-foreground">/ night</span>
             </div>
@@ -646,50 +503,37 @@ function PlansTab({
                   "rounded-md px-1.5 py-0.5 font-semibold",
                   p.vatTreatment === "inclusive"
                     ? "bg-success/10 text-success"
-                    : "bg-warning/10 text-warning",
+                    : p.vatTreatment === "exclusive"
+                      ? "bg-warning/10 text-warning"
+                      : "bg-muted text-muted-foreground",
                 )}
               >
-                VAT {p.vatTreatment}
+                VAT {p.vatTreatment === "not_applicable" ? "N/A" : p.vatTreatment}
               </span>
-              {p.minStay > 1 && (
+              {p.minLengthOfStay > 1 && (
                 <span className="rounded-md bg-muted px-1.5 py-0.5 text-muted-foreground">
-                  min {p.minStay} nights
+                  min {p.minLengthOfStay} nights
+                </span>
+              )}
+              {p.depositRequiredPct > 0 && (
+                <span className="rounded-md bg-info/10 text-info px-1.5 py-0.5 font-semibold">
+                  {p.depositRequiredPct}% deposit
                 </span>
               )}
             </div>
 
             <div className="mt-3 flex flex-wrap gap-1">
-              {p.roomTypeIds.map((id) => {
-                const rt = roomTypes.find((r) => r.id === id);
+              {(() => {
+                const rt = roomTypes.find((r) => r.id === p.roomTypeId);
                 return (
                   <span
-                    key={id}
                     className="rounded-md border border-border bg-background px-1.5 py-0.5 text-[10px] text-foreground"
                   >
-                    {rt?.name ?? id}
+                    {rt?.name ?? p.roomTypeId}
                   </span>
                 );
-              })}
+              })()}
             </div>
-
-            {p.includes.length > 0 && (
-              <div className="mt-3 border-t border-border pt-3">
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Includes
-                </p>
-                <ul className="mt-1 space-y-0.5">
-                  {p.includes.map((inc) => (
-                    <li key={inc} className="flex items-center gap-1.5 text-[12px] text-foreground">
-                      <Check className="h-3 w-3 text-success" /> {inc}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <p className="mt-3 text-[10px] text-muted-foreground">
-              Valid {p.validFrom} → {p.validTo}
-            </p>
           </div>
         ))}
       </div>
@@ -720,27 +564,26 @@ function RatePlanForm({
   onSave: (p: RatePlan) => void;
   onClose: () => void;
 }) {
+  const cancellationPolicies = useStore((s) => s.cancellationPolicies);
+  const tenant = useStore((s) => s.tenant);
   const [form, setForm] = useState<RatePlan>(
     editing ?? {
       id: "rp_" + Math.random().toString(36).slice(2, 8),
+      propertyId: tenant.id,
+      roomTypeId: roomTypes[0]?.id ?? "",
+      cancellationPolicyId: cancellationPolicies[0]?.id,
       name: "",
-      code: "",
-      description: "",
-      roomTypeIds: roomTypes.map((r) => r.id),
-      pricePerNight: 200_000,
-      includes: [],
+      nightlyRate: 200_000,
       vatTreatment: "inclusive",
-      validFrom: todayISO(),
-      validTo: addDaysISO(180),
-      active: true,
-      minStay: 1,
+      depositRequiredPct: 0,
+      minLengthOfStay: 1,
+      isActive: true,
     },
   );
-  const [includeInput, setIncludeInput] = useState("");
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
+      <div className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-card shadow-2xl">
         <div className="flex items-center justify-between border-b border-border px-5 py-3.5">
           <div>
             <h3 className="font-display text-lg font-semibold tracking-tight">
@@ -766,37 +609,35 @@ function RatePlanForm({
               className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
             />
           </Field>
-          <Field label="Code">
-            <input
-              value={form.code}
-              onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-              className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm uppercase outline-none focus:border-primary/60"
-            />
+          <Field label="Room type">
+            <Select
+              value={form.roomTypeId}
+              onValueChange={(v) => setForm({ ...form, roomTypeId: v })}
+            >
+              <SelectTrigger className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                <SelectValue placeholder="Select room type" />
+              </SelectTrigger>
+              <SelectContent>
+                {roomTypes.map((rt) => (
+                  <SelectItem key={rt.id} value={rt.id}>{rt.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
-          <div className="md:col-span-2">
-            <Field label="Description">
-              <textarea
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={2}
-                className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
-              />
-            </Field>
-          </div>
-          <Field label="Price / night (UGX)">
+          <Field label="Nightly rate (UGX)">
             <input
               type="number"
-              value={form.pricePerNight}
-              onChange={(e) => setForm({ ...form, pricePerNight: Number(e.target.value) })}
+              value={form.nightlyRate}
+              onChange={(e) => setForm({ ...form, nightlyRate: Number(e.target.value) })}
               className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
             />
           </Field>
-          <Field label="Minimum stay (nights)">
+          <Field label="Min length of stay">
             <input
               type="number"
               min={1}
-              value={form.minStay}
-              onChange={(e) => setForm({ ...form, minStay: Math.max(1, Number(e.target.value)) })}
+              value={form.minLengthOfStay}
+              onChange={(e) => setForm({ ...form, minLengthOfStay: Math.max(1, Number(e.target.value)) })}
               className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
             />
           </Field>
@@ -811,108 +652,49 @@ function RatePlanForm({
               <SelectContent>
                 <SelectItem value="inclusive">VAT inclusive</SelectItem>
                 <SelectItem value="exclusive">VAT exclusive</SelectItem>
+                <SelectItem value="not_applicable">Not applicable</SelectItem>
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Deposit required (%)">
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={form.depositRequiredPct}
+              onChange={(e) => setForm({ ...form, depositRequiredPct: Math.max(0, Math.min(100, Number(e.target.value))) })}
+              className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60"
+            />
+          </Field>
+          <Field label="Cancellation policy">
+            <Select
+              value={form.cancellationPolicyId ?? ""}
+              onValueChange={(v) => setForm({ ...form, cancellationPolicyId: v || undefined })}
+            >
+              <SelectTrigger className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
+                <SelectValue placeholder="Select policy" />
+              </SelectTrigger>
+              <SelectContent>
+                {cancellationPolicies.map((cp) => (
+                  <SelectItem key={cp.id} value={cp.id}>{cp.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </Field>
           <Field label="Status">
             <Select
-              value={form.active ? "1" : "0"}
-              onValueChange={(v) => setForm({ ...form, active: v === "1" })}
+              value={form.isActive ? "1" : "0"}
+              onValueChange={(v) => setForm({ ...form, isActive: v === "1" })}
             >
               <SelectTrigger className="w-full rounded-lg border border-border bg-background px-2.5 py-1.5 text-sm outline-none focus:border-primary/60 focus:ring-0 shadow-none">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="1">Active</SelectItem>
-                <SelectItem value="0">Archived</SelectItem>
+                <SelectItem value="0">Inactive</SelectItem>
               </SelectContent>
             </Select>
           </Field>
-          <Field label="Valid from">
-            <DatePicker
-              value={form.validFrom}
-              onChange={(v) => setForm({ ...form, validFrom: v })}
-            />
-          </Field>
-          <Field label="Valid to">
-            <DatePicker
-              value={form.validTo}
-              onChange={(v) => setForm({ ...form, validTo: v })}
-            />
-          </Field>
-          <div className="md:col-span-2">
-            <Field label="Applies to room types">
-              <div className="flex flex-wrap gap-2">
-                {roomTypes.map((rt) => {
-                  const on = form.roomTypeIds.includes(rt.id);
-                  return (
-                    <button
-                      type="button"
-                      key={rt.id}
-                      onClick={() =>
-                        setForm({
-                          ...form,
-                          roomTypeIds: on
-                            ? form.roomTypeIds.filter((id) => id !== rt.id)
-                            : [...form.roomTypeIds, rt.id],
-                        })
-                      }
-                      className={cn(
-                        "rounded-md border px-2.5 py-1.5 text-xs transition",
-                        on
-                          ? "border-primary/60 bg-primary/10 text-primary"
-                          : "border-border bg-background text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      {rt.name}
-                    </button>
-                  );
-                })}
-              </div>
-            </Field>
-          </div>
-          <div className="md:col-span-2">
-            <Field label="Inclusions">
-              <div className="flex flex-wrap items-center gap-2">
-                {form.includes.map((inc) => (
-                  <span
-                    key={inc}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1 text-xs"
-                  >
-                    {inc}
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setForm({
-                          ...form,
-                          includes: form.includes.filter((i) => i !== inc),
-                        })
-                      }
-                      className="text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-                <input
-                  value={includeInput}
-                  onChange={(e) => setIncludeInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && includeInput.trim()) {
-                      e.preventDefault();
-                      setForm({
-                        ...form,
-                        includes: [...form.includes, includeInput.trim()],
-                      });
-                      setIncludeInput("");
-                    }
-                  }}
-                  placeholder="Type and Enter…"
-                  className="flex-1 min-w-[140px] rounded-md border border-border bg-background px-2.5 py-1.5 text-xs outline-none focus:border-primary/60"
-                />
-              </div>
-            </Field>
-          </div>
         </div>
 
         <div className="flex items-center justify-end gap-2 border-t border-border bg-muted/30 px-5 py-3">
@@ -924,7 +706,7 @@ function RatePlanForm({
           </button>
           <button
             onClick={() => onSave(form)}
-            disabled={!form.name || !form.code}
+            disabled={!form.name}
             className="rounded-md bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
           >
             Save rate plan
@@ -949,7 +731,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 /* ============================ Calendar tab ============================ */
 
 function CalendarTab({ plans, seasons }: { plans: RatePlan[]; seasons: SeasonalRate[] }) {
-  const activePlans = plans.filter((p) => p.active);
+  const activePlans = plans.filter((p) => p.isActive);
   const [planId, setPlanId] = useState(activePlans[0]?.id ?? "");
   const [start, setStart] = useState(todayISO());
   const plan = plans.find((p) => p.id === planId);
@@ -961,7 +743,7 @@ function CalendarTab({ plans, seasons }: { plans: RatePlan[]; seasons: SeasonalR
       const d = new Date(startDate);
       d.setDate(d.getDate() + i);
       const date = d.toISOString().slice(0, 10);
-      let price = plan?.pricePerNight ?? 0;
+      let price = plan?.nightlyRate ?? 0;
       let season: SeasonalRate | undefined;
       for (const s of seasons) {
         if (s.ratePlanId === planId && date >= s.from && date <= s.to) {
@@ -985,7 +767,7 @@ function CalendarTab({ plans, seasons }: { plans: RatePlan[]; seasons: SeasonalR
           <SelectContent>
             {activePlans.map((p) => (
               <SelectItem key={p.id} value={p.id}>
-                {p.code} — {p.name}
+                {p.name}
               </SelectItem>
             ))}
           </SelectContent>
