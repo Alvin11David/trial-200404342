@@ -125,7 +125,7 @@ function ReservationsPage() {
         const q = query.toLowerCase();
         const matchGuest = guests.some(
           (g) =>
-            (g.name.toLowerCase().includes(q) ||
+            (g.fullName.toLowerCase().includes(q) ||
               g.email.toLowerCase().includes(q) ||
               g.phone.includes(q)) &&
             g.email === r.guestEmail,
@@ -504,7 +504,7 @@ function ReservationsPage() {
                           {nights} night{nights !== 1 && "s"}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{r.source}</td>
+                      <td className="px-4 py-3 text-muted-foreground">{r.bookingSource}</td>
                       <td className="px-4 py-3">
                         <span
                           className={cn(
@@ -795,7 +795,7 @@ function EditDialog({
       extraBeds: extraBeds || undefined,
       purpose: purpose || undefined,
       carReg: carReg || undefined,
-      notes: notes || undefined,
+      specialRequests: notes || undefined,
     };
     const r = updateReservation(reservationId, patch);
     onClose(

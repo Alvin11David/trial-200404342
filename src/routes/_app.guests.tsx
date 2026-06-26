@@ -76,7 +76,7 @@ function GuestsPage() {
       if (!query) return true;
       const q = query.toLowerCase();
       return (
-        g.name.toLowerCase().includes(q) ||
+        g.fullName.toLowerCase().includes(q) ||
         g.email.toLowerCase().includes(q) ||
         g.phone.includes(q) ||
         g.idNumber.toLowerCase().includes(q)
@@ -157,14 +157,14 @@ function GuestsPage() {
                         guestAccents[idx % guestAccents.length],
                       )}
                     >
-                      {guest.name
+                      {guest.fullName
                         .split(" ")
                         .map((p) => p[0])
                         .join("")
                         .slice(0, 2)}
                     </span>
                     <div>
-                      <h3 className="font-semibold text-foreground">{guest.name}</h3>
+                      <h3 className="font-semibold text-foreground">{guest.fullName}</h3>
                       <span
                         className={cn(
                           "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold",
@@ -285,14 +285,14 @@ function GuestDetail({ guest, onBack }: { guest: Guest; onBack: () => void }) {
                 guestAccents[parseInt(guest.id.replace("GST-", ""), 10) % guestAccents.length],
               )}
             >
-              {guest.name
+              {guest.fullName
                 .split(" ")
                 .map((n) => n[0])
                 .join("")
                 .slice(0, 2)}
             </span>
             <div>
-              <h2 className="font-display text-xl font-bold">{guest.name}</h2>
+              <h2 className="font-display text-xl font-bold">{guest.fullName}</h2>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1">
                   <Mail className="h-3 w-3" /> {guest.email}

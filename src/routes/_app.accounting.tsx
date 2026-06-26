@@ -18,6 +18,7 @@ import {
   Filter,
   Download,
 } from "lucide-react";
+import { useStore, type CorporateAccount } from "@/lib/pms-store";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Pie, PieChart, Cell, LabelList } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 import {
@@ -845,18 +846,6 @@ function FloatInput({
 
 /* ───────────────────────────── 8d · Debtors & Creditors ───────────────────────────── */
 
-const debtors = [
-  {
-    name: "Speke Resort Bookings Ltd",
-    contact: "accounts@speke.ug",
-    balance: 18_400_000,
-    age: "0-30",
-  },
-  { name: "Kampala Events Co.", contact: "finance@kec.co.ug", balance: 6_800_000, age: "31-60" },
-  { name: "Ministry of Tourism", contact: "ap@tourism.go.ug", balance: 24_200_000, age: "61-90" },
-  { name: "Equator Travel Agency", contact: "billing@equator.ug", balance: 3_400_000, age: "0-30" },
-];
-
 const creditors = [
   { name: "Umeme Ltd", contact: "billing@umeme.co.ug", balance: 4_800_000, age: "0-30" },
   { name: "Mukwano Industries", contact: "ar@mukwano.com", balance: 7_200_000, age: "0-30" },
@@ -864,10 +853,24 @@ const creditors = [
   { name: "Centenary Bank", contact: "loans@centenary.ug", balance: 240_000_000, age: ">90" },
 ];
 
+function corpAgingBucket(c: CorporateAccount): string {
+  if (c.outstandingBalance <= 0) return "0-30";
+  const n = parseInt(c.id.replace("CA", ""), 10);
+  if (n % 3 === 0) return "61-90";
+  if (n % 2 === 0) return "31-60";
+  return "0-30";
+}
+
 function Parties() {
   const [mode, setMode] = useState<"debtors" | "creditors">("debtors");
   const [modal, setModal] = useState<null | { kind: "receive" | "pay"; party: string }>(null);
-  const list = mode === "debtors" ? debtors : creditors;
+  const corporateAccounts = useStore((s) => s.corporateAccounts);
+  const activeDebtors = useMemo(() => corporateAccounts.filter((c) => c.isActive), [corporateAccounts]);
+  const list = mode === "debtors" ? activeDebtors : creditors;
+  const totalOutstanding = useMemo(
+    () => (mode === "debtors" ? activeDebtors.reduce((s, c) => s + c.outstandingBalance, 0) : creditors.reduce((s, c) => s + c.balance, 0)),
+    [mode, activeDebtors],
+  );
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -889,13 +892,15 @@ function Parties() {
         <div className="text-xs text-muted-foreground">
           Total outstanding:{" "}
           <span className="font-mono font-semibold text-foreground">
-            {ugx(list.reduce((s, p) => s + p.balance, 0))}
+            {ugx(totalOutstanding)}
           </span>
         </div>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2">
-        {list.map((p) => (
+        {(mode === "debtors" ? activeDebtors : creditors).map((p) => {
+          const ageBucket = mode === "debtors" ? corpAgingBucket(p as CorporateAccount) : (p as typeof creditors[number]).age;
+          return (
           <div key={p.name} className="glass card-hover rounded-2xl p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -908,19 +913,19 @@ function Parties() {
                 </div>
                 <div className="min-w-0">
                   <div className="truncate font-semibold">{p.name}</div>
-                  <div className="truncate text-xs text-muted-foreground">{p.contact}</div>
+                  <div className="truncate text-xs text-muted-foreground">{mode === "debtors" ? (p as CorporateAccount).billingContactEmail ?? (p as CorporateAccount).billingContactPhone ?? "" : (p as typeof creditors[number]).contact}</div>
                 </div>
               </div>
               <span
                 className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${
-                  p.age === "0-30"
+                  ageBucket === "0-30"
                     ? "border-success/40 bg-success/10 text-success"
-                    : p.age === "31-60"
+                    : ageBucket === "31-60"
                       ? "border-warning/40 bg-warning/10 text-warning"
                       : "border-destructive/40 bg-destructive/10 text-destructive"
                 }`}
               >
-                {p.age} days
+                {ageBucket} days
               </span>
             </div>
             <div className="mt-3 flex items-end justify-between">
@@ -928,7 +933,7 @@ function Parties() {
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
                   Outstanding
                 </div>
-                <div className="font-display text-xl font-bold">{ugx(p.balance)}</div>
+                <div className="font-display text-xl font-bold">{ugx(mode === "debtors" ? (p as CorporateAccount).outstandingBalance : (p as typeof creditors[number]).balance)}</div>
               </div>
               <div className="flex gap-2">
                 <button className="rounded-lg border border-border/60 px-2.5 py-1 text-xs hover:border-primary/50">
@@ -948,7 +953,7 @@ function Parties() {
               </div>
             </div>
           </div>
-        ))}
+        );})}
       </div>
 
       {modal && (

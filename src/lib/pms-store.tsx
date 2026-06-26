@@ -28,13 +28,19 @@ export type RoomType = {
 
 export type Guest = {
   id: string;
-  name: string;
+  propertyId: string;
+  fullName: string;
   email: string;
   phone: string;
   nationality: string;
   idType: string;
   idNumber: string;
+  address?: string;
+  vipFlag: boolean;
+  notes?: string;
+  sourceSystemRef?: string;
   createdAt: string;
+  updatedAt: string;
   totalVisits: number;
   totalRevenue: number;
   tier: "Bronze" | "Silver" | "Gold" | "Platinum";
@@ -43,21 +49,6 @@ export type Guest = {
   company?: string;
   discountRate?: number;
   creditLimit?: number;
-  blacklisted?: boolean;
-  notes?: string;
-  address?: string;
-  idPhoto?: string;
-  position?: string;
-  location?: string;
-  website?: string;
-  tinNo?: string;
-  clientType?: string;
-  blockReason?: string;
-  debtorClientId?: number;
-  contactPerson?: string;
-  blockStatus?: number;
-  cloudStatus?: number;
-  remotePosting?: string;
 };
 
 export type RoomStatus =
@@ -112,16 +103,80 @@ export type RatePlan = {
   updatedAt?: string;
 };
 
+export type CorporateAccount = {
+  id: string;
+  propertyId: string;
+  companyName: string;
+  billingContactName?: string;
+  billingContactEmail?: string;
+  billingContactPhone?: string;
+  address?: string;
+  tin?: string;
+  creditLimit: number;
+  creditTermsDays: number;
+  vatTreatment: VatTreatment;
+  creditGracePeriodDays: number;
+  isActive: boolean;
+  outstandingBalance: number;
+  legacyRef?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TravelAgentAccount = {
+  id: string;
+  propertyId: string;
+  agencyName: string;
+  contactName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  address?: string;
+  commissionRatePct: number;
+  vatTreatment: VatTreatment;
+  isActive: boolean;
+  legacyRef?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type GroupBlockStatus = "active" | "confirmed" | "closed" | "cancelled";
+
+export type GroupBlock = {
+  id: string;
+  propertyId: string;
+  groupName: string;
+  organiserName?: string;
+  organiserEmail?: string;
+  startDate: string;
+  endDate: string;
+  totalRoomsBlocked: number;
+  groupRate: number;
+  cutoffDate?: string;
+  status: GroupBlockStatus;
+  createdBy?: string;
+  approvedBy?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type BillingArrangement = "pay_at_checkout" | "city_ledger" | "agent_ledger";
+
 export type Reservation = {
   id: string;
+  propertyId: string;
+  confirmationNumber: string;
   resNo?: number;
   guestName: string;
   guestEmail: string;
   guestPhone: string;
-  nationality: string;
-  idType: string;
-  idNumber: string;
-  idPhoto?: string;
+  guestProfileId?: string;
+  corporateAccountId?: string;
+  travelAgentAccountId?: string;
+  groupBlockId?: string;
+  billingArrangement: BillingArrangement;
+  bookingSource: string;
+  otaName?: string;
+  agentVoucherNumber?: string;
   roomTypeId: string;
   roomId: string | null;
   checkIn: string;
@@ -130,50 +185,32 @@ export type Reservation = {
   children: number;
   ratePerNight: number;
   mealPlan: string;
-  mealPlanAmount?: number;
-  mealPlanAmount2?: number;
-  source: string;
   status: ReservationStatus;
+  specialRequests?: string;
+  vipFlag: boolean;
+  createdBy?: string;
   createdAt: string;
+  updatedAt: string;
   folioId?: string;
   vatRate?: number;
   vatTreatment?: VatTreatment;
-  notes?: string;
   deposit?: number;
   discount?: number;
   arrivalTime?: string;
   extraBeds?: number;
-  nightlyRate?: number;
-  checkInTime?: string;
-  checkOutTime?: string;
   checkinBy?: string;
   checkoutBy?: string;
   purpose?: string;
-  comingFrom?: string;
   carReg?: string;
-  bookingEngineUrl?: string;
-  exclude?: string;
-  govtTax?: number;
-  occupancyType?: string;
-  noOfDays?: number;
-  blockStatus?: string;
   cancelledBy?: string;
-  reason?: string;
-  cancelDate?: string;
-  totalDays?: number;
+  cancellationReason?: string;
+  cancelledAt?: string;
+  noShowDeclaredAt?: string;
+  noShowDeclaredBy?: string;
+  sourceSystemRef?: string;
+  resCode?: string;
   currency?: string;
   address?: string;
-  destination?: string;
-  departureTime?: string;
-  shortStay?: string;
-  resCode?: string;
-  isMailSent?: number;
-  payType?: string;
-  guestSpecialRequirements?: string;
-  cloudStatus?: number;
-  remotePosting?: string;
-  deleteStatus?: number;
-  channelManager?: string;
 };
 
 export type FolioChargeType = "room" | "fnb" | "tax" | "misc";
@@ -242,6 +279,45 @@ export type Payment = {
   receiptNo?: string;
   cloudStatus?: number;
   remotePosting?: string;
+};
+
+export type MealPlan = "ro" | "bb" | "hb" | "fb" | "ai";
+
+export type RoomAssignmentStatus = "assigned" | "checked_in" | "checked_out" | "cancelled";
+
+export type RoomAssignment = {
+  id: string;
+  reservationId: string;
+  roomId: string;
+  ratePlanId?: string;
+  mealPlan: MealPlan;
+  adultCount: number;
+  childCount: number;
+  nightlyRate: number;
+  numberOfNights: number;
+  status: RoomAssignmentStatus;
+  preAssigned: boolean;
+  comingFrom?: string;
+  destination?: string;
+  purposeOfVisit?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Deposit = {
+  id: string;
+  reservationId: string;
+  propertyId: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  providerReference?: string;
+  collectedBy?: string;
+  collectedAt: string;
+  appliedAt?: string;
+  refundedAt?: string;
+  refundAmount?: number;
+  refundReason?: string;
+  createdAt: string;
 };
 
 export type InvoiceStatus = "paid" | "partial" | "unpaid";
@@ -424,12 +500,13 @@ type State = {
   userRoles: UserRole[];
   cancellationPolicies: CancellationPolicy[];
   ratePlans: RatePlan[];
+  corporateAccounts: CorporateAccount[];
+  travelAgentAccounts: TravelAgentAccount[];
+  groupBlocks: GroupBlock[];
   audit: AuditEntry[];
   housekeepingTasks: HousekeepingTask[];
   maintenanceRequests: MaintenanceRequest[];
   dndRecords: DNDRecord[];
-  cancellationPolicies: CancellationPolicy[];
-  ratePlans: RatePlan[];
 };
 
 /* ============================== Seed ============================== */
@@ -463,23 +540,29 @@ const RATE_PLANS: RatePlan[] = [
   { id: "rp_nightly", propertyId: "T001", roomTypeId: "dlx", cancellationPolicyId: "cp_flexible", name: "Nightly Saver", nightlyRate: 175_000, vatTreatment: "not_applicable", depositRequiredPct: 50, minLengthOfStay: 1, isActive: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
 
+const CORP_ACCOUNTS: CorporateAccount[] = [
+  { id: "CA001", propertyId: "T001", companyName: "Speke Resort Bookings Ltd", billingContactName: "Sarah Nambi", billingContactEmail: "accounts@speke.ug", billingContactPhone: "+256-772-100200", address: "Speke Resort, Munyonyo", tin: "UG-1234567890", creditLimit: 50_000_000, creditTermsDays: 30, vatTreatment: "exclusive", creditGracePeriodDays: 14, isActive: true, outstandingBalance: 18_400_000, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "CA002", propertyId: "T001", companyName: "Kampala Events Co.", billingContactName: "David Muwonge", billingContactEmail: "finance@kec.co.ug", billingContactPhone: "+256-700-300400", address: "Kololo, Kampala", tin: "UG-0987654321", creditLimit: 20_000_000, creditTermsDays: 30, vatTreatment: "exclusive", creditGracePeriodDays: 14, isActive: true, outstandingBalance: 6_800_000, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "CA003", propertyId: "T001", companyName: "Ministry of Tourism", billingContactName: "Alice Kyomugisha", billingContactEmail: "ap@tourism.go.ug", billingContactPhone: "+256-414-555000", address: "Plot 2/4 Jinja Rd, Kampala", tin: "UG-GOVT-001", creditLimit: 100_000_000, creditTermsDays: 60, vatTreatment: "exclusive", creditGracePeriodDays: 30, isActive: true, outstandingBalance: 24_200_000, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "CA004", propertyId: "T001", companyName: "Equator Travel Agency", billingContactName: "John Mugisha", billingContactEmail: "billing@equator.ug", billingContactPhone: "+256-701-800900", address: "Entebbe Rd, Kampala", creditLimit: 10_000_000, creditTermsDays: 15, vatTreatment: "exclusive", creditGracePeriodDays: 7, isActive: true, outstandingBalance: 3_400_000, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "CA005", propertyId: "T001", companyName: "Acme Corp", billingContactName: "Peter Wasswa", billingContactEmail: "ap@acmecorp.ug", billingContactPhone: "+256-772-111222", tin: "UG-5566778899", creditLimit: 0, creditTermsDays: 30, vatTreatment: "inclusive", creditGracePeriodDays: 14, isActive: true, outstandingBalance: 0, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "CA006", propertyId: "T001", companyName: "Global Tech Ltd", billingContactEmail: "finance@globaltech.co.ug", creditLimit: 30_000_000, creditTermsDays: 30, vatTreatment: "exclusive", creditGracePeriodDays: 14, isActive: false, outstandingBalance: 12_500_000, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
+const TRAVEL_AGENTS: TravelAgentAccount[] = [
+  { id: "TA001", propertyId: "T001", agencyName: "Equator Travel Agency", contactName: "John Mugisha", contactEmail: "billing@equator.ug", contactPhone: "+256-701-800900", address: "Entebbe Rd, Kampala", commissionRatePct: 15, vatTreatment: "exclusive", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "TA002", propertyId: "T001", agencyName: "Safari Giants Ltd", contactName: "Grace Akello", contactEmail: "res@safarigiants.ug", contactPhone: "+256-772-500600", address: "Plot 15, Kololo", commissionRatePct: 10, vatTreatment: "exclusive", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "TA003", propertyId: "T001", agencyName: "Pearl Africa Tours", contactName: "Robert Ssempijja", contactEmail: "bookings@pearlafrica.com", contactPhone: "+256-414-233000", commissionRatePct: 12, vatTreatment: "inclusive", isActive: true, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "TA004", propertyId: "T001", agencyName: "Uganda Wildlife Safaris", contactEmail: "ops@ugandawildlife.ug", commissionRatePct: 20, vatTreatment: "exclusive", isActive: false, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
+const GROUP_BLOCKS: GroupBlock[] = [
+  { id: "GB001", propertyId: "T001", groupName: "Kampala Business Summit 2026", organiserName: "Sarah Mukasa", organiserEmail: "sarah@kbsummit.ug", startDate: "2026-07-15", endDate: "2026-07-18", totalRoomsBlocked: 10, groupRate: 180_000, cutoffDate: "2026-07-01", status: "confirmed", createdBy: "U001", approvedBy: "U002", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "GB002", propertyId: "T001", groupName: "Wedding Block — Nambi & Kato", organiserName: "Grace Nambi", organiserEmail: "grace.nambi@email.com", startDate: "2026-08-20", endDate: "2026-08-22", totalRoomsBlocked: 15, groupRate: 200_000, cutoffDate: "2026-08-10", status: "active", createdBy: "U001", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "GB003", propertyId: "T001", groupName: "East African Tourism Expo", organiserName: "John Okello", organiserEmail: "john@eate.ug", startDate: "2026-09-05", endDate: "2026-09-08", totalRoomsBlocked: 20, groupRate: 165_000, cutoffDate: "2026-08-25", status: "active", createdBy: "U002", approvedBy: "U002", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "GB004", propertyId: "T001", groupName: "Closed — Staff Retreat", organiserName: "Admin", startDate: "2026-03-10", endDate: "2026-03-12", totalRoomsBlocked: 8, groupRate: 0, status: "closed", createdBy: "U001", approvedBy: "U002", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: "GB005", propertyId: "T001", groupName: "Cancelled Conference Q1", organiserName: "Peter Wasswa", startDate: "2026-01-20", endDate: "2026-01-22", totalRoomsBlocked: 5, groupRate: 190_000, status: "cancelled", createdBy: "U001", createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
 const HOUSEKEEPERS = ["U003", "U008"]; // grace, mary
 const DEFAULT_VAT_RATE = 0.18;
-
-const CANCELLATION_POLICIES: CancellationPolicy[] = [
-  { id: "CP001", name: "Flexible", freeCancelHoursBefore: 48, partialRefundPct: 50, partialRefundHoursBefore: 24, noShowChargePct: 100 },
-  { id: "CP002", name: "Moderate", freeCancelHoursBefore: 72, partialRefundPct: 0, partialRefundHoursBefore: 0, noShowChargePct: 100 },
-  { id: "CP003", name: "Non-Refundable", freeCancelHoursBefore: 0, partialRefundPct: 0, partialRefundHoursBefore: 0, noShowChargePct: 100 },
-];
-
-const RATE_PLANS: RatePlan[] = [
-  { id: "RP001", roomTypeId: "std", cancellationPolicyId: "CP001", name: "Rack Rate", nightlyRate: 220_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true },
-  { id: "RP002", roomTypeId: "dlx", cancellationPolicyId: "CP001", name: "Rack Rate", nightlyRate: 380_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true },
-  { id: "RP003", roomTypeId: "ste", cancellationPolicyId: "CP001", name: "Rack Rate", nightlyRate: 850_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true },
-  { id: "RP004", roomTypeId: "std", cancellationPolicyId: "CP003", name: "Advance Purchase", nightlyRate: 198_000, vatTreatment: "inclusive", depositRequiredPct: 100, minLengthOfStay: 1, isActive: true },
-  { id: "RP005", roomTypeId: "dlx", cancellationPolicyId: "CP002", name: "Corporate", nightlyRate: 340_000, vatTreatment: "inclusive", depositRequiredPct: 0, minLengthOfStay: 1, isActive: true },
-  { id: "RP006", roomTypeId: "ste", cancellationPolicyId: "CP001", name: "Weekend Getaway", nightlyRate: 750_000, vatTreatment: "inclusive", depositRequiredPct: 50, minLengthOfStay: 2, isActive: true },
-];
 
 const ROOMS: Room[] = (() => {
   const list: Room[] = [];
@@ -661,14 +744,15 @@ const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
   if (offsetIn < 0) status = "checked_in";
   else if (offsetIn === 0) status = i % 2 === 0 ? "confirmed" : "checked_in";
   const id = nextResId();
+  const sources = ["direct_web", "ota", "ota", "direct_web", "direct_web"] as const;
+  const otaNames: (string | undefined)[] = [undefined, "Booking.com", "Expedia", undefined, undefined];
   const res: Reservation = {
     id,
+    propertyId: "T001",
+    confirmationNumber: `CNF-${id}`,
     guestName: name,
     guestEmail: name.toLowerCase().replace(" ", ".") + "@example.com",
     guestPhone: "+256 7" + (10000000 + i * 13).toString().slice(0, 8),
-    nationality: ["Uganda", "Kenya", "India", "Ghana", "Kenya"][i % 5],
-    idType: i % 2 ? "Passport" : "National ID",
-    idNumber: "ID" + (1000000 + i * 7).toString(),
     roomTypeId: rt.id,
     roomId: status === "checked_in" || status === "confirmed" ? room.id : null,
     checkIn: iso(checkIn),
@@ -677,22 +761,16 @@ const RESERVATIONS: Reservation[] = RES_SEED_NAMES.map((name, i) => {
     children: i % 3 === 0 ? 1 : 0,
     ratePerNight: rt.baseRate,
     mealPlan: ["RO", "BB", "HB", "BB", "RO"][i % 5],
-    mealPlanAmount: 0,
-    source: ["Direct", "Booking.com", "Expedia", "Corporate", "Direct"][i % 5],
+    billingArrangement: "pay_at_checkout",
+    bookingSource: sources[i % 5],
+    otaName: otaNames[i % 5],
     status,
+    vipFlag: false,
     createdAt: addDays(TODAY, offsetIn - 7).toISOString(),
+    updatedAt: addDays(TODAY, offsetIn - 7).toISOString(),
     address: "Kampala, Uganda",
-    totalDays: 1 + (i % 4),
     currency: "UGX",
-    payType: "pay_at_hotel",
-    occupancyType: "single",
-    destination: "Kampala",
-    blockStatus: false,
-    noOfDays: 1 + (i % 4),
     resCode: id,
-    isMailSent: true,
-    cloudStatus: 0,
-    deleteStatus: 0,
   };
   return res;
 });
@@ -985,13 +1063,16 @@ const GUESTS: Guest[] = (() => {
       const birthDate = new Date(1980 + (idx % 25), idx % 12, (idx % 28) + 1);
       seen.set(key, {
         id: nextGuestId(),
-        name: r.guestName,
+        propertyId: "T001",
+        fullName: r.guestName,
         email: r.guestEmail,
         phone: r.guestPhone,
-        nationality: r.nationality,
-        idType: r.idType,
-        idNumber: r.idNumber,
+        address: r.address ?? "Kampala, Uganda",
+        vipFlag: idx % 8 === 0,
+        notes: idx % 7 === 0 ? "Preferred guest" : undefined,
+        sourceSystemRef: idx < 3 ? "legacy-" + nextGuestId() : undefined,
         createdAt: r.createdAt,
+        updatedAt: r.createdAt,
         totalVisits: 1,
         totalRevenue: r.ratePerNight * nightsBetween(r.checkIn, r.checkOut),
         tier: "Bronze",
@@ -1000,20 +1081,6 @@ const GUESTS: Guest[] = (() => {
         company: companies[idx % companies.length] || undefined,
         discountRate: idx % 5 === 0 ? 10 : undefined,
         creditLimit: idx % 4 === 0 ? 5_000_000 : undefined,
-        notes: idx % 7 === 0 ? "Preferred guest" : undefined,
-        address: r.address ?? "Kampala, Uganda",
-        position: idx % 3 === 0 ? "Manager" : undefined,
-        location: "Kampala",
-        website: idx % 4 === 0 ? "https://example.com" : undefined,
-        tinNo: idx % 5 === 0 ? "TIN" + (100000 + idx * 7).toString() : undefined,
-        clientType: idx % 3 === 0 ? "corporate" : "individual",
-        blacklisted: false,
-        blockReason: undefined,
-        debtorClientId: undefined,
-        contactPerson: idx % 3 === 0 ? r.guestName : undefined,
-        blockStatus: 0,
-        cloudStatus: 0,
-        remotePosting: undefined,
       });
     }
   });
@@ -1242,6 +1309,9 @@ function persistState() {
       dndRecords: state.dndRecords,
       cancellationPolicies: state.cancellationPolicies,
       ratePlans: state.ratePlans,
+      corporateAccounts: state.corporateAccounts,
+      travelAgentAccounts: state.travelAgentAccounts,
+      groupBlocks: state.groupBlocks,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
   } catch {
@@ -1278,11 +1348,12 @@ const state: State = {
   audit: persisted?.audit ?? AUDIT,
   cancellationPolicies: persisted?.cancellationPolicies ?? CANCELLATION_POLICIES,
   ratePlans: persisted?.ratePlans ?? RATE_PLANS,
+  corporateAccounts: persisted?.corporateAccounts ?? CORP_ACCOUNTS,
+  travelAgentAccounts: persisted?.travelAgentAccounts ?? TRAVEL_AGENTS,
+  groupBlocks: persisted?.groupBlocks ?? GROUP_BLOCKS,
   housekeepingTasks: persisted?.housekeepingTasks ?? HK_TASKS,
   maintenanceRequests: persisted?.maintenanceRequests ?? MAINT_REQUESTS,
   dndRecords: persisted?.dndRecords ?? DND_RECORDS,
-  cancellationPolicies: persisted?.cancellationPolicies ?? CANCELLATION_POLICIES,
-  ratePlans: persisted?.ratePlans ?? RATE_PLANS,
 };
 
 const listeners = new Set<() => void>();
@@ -1407,7 +1478,7 @@ export function findAvailableRooms(roomTypeId: string, checkIn: string, checkOut
 /* ============================== Guests ============================== */
 
 export function upsertGuest(input: {
-  name: string;
+  fullName: string;
   email: string;
   phone: string;
   nationality: string;
@@ -1420,15 +1491,6 @@ export function upsertGuest(input: {
   creditLimit?: number;
   notes?: string;
   address?: string;
-  idPhoto?: string;
-  position?: string;
-  location?: string;
-  website?: string;
-  tinNo?: string;
-  clientType?: string;
-  blacklisted?: boolean;
-  blockReason?: string;
-  debtorClientId?: number;
 }): string {
   const existing = state.guests.find((g) => g.email === input.email || g.phone === input.phone);
   if (existing) {
@@ -1436,36 +1498,32 @@ export function upsertGuest(input: {
     emit();
     return existing.id;
   }
+  const now = new Date().toISOString();
   const id = nextGuestId();
   state.guests = [
     {
       id,
-      name: input.name,
+      propertyId: "T001",
+      fullName: input.fullName,
       email: input.email,
       phone: input.phone,
       nationality: input.nationality,
       idType: input.idType,
       idNumber: input.idNumber,
+      address: input.address,
+      vipFlag: false,
+      notes: input.notes,
+      sourceSystemRef: undefined,
+      createdAt: now,
+      updatedAt: now,
+      totalVisits: 0,
+      totalRevenue: 0,
+      tier: "Bronze",
       dateOfBirth: input.dateOfBirth,
       gender: input.gender,
       company: input.company,
       discountRate: input.discountRate,
       creditLimit: input.creditLimit,
-      notes: input.notes,
-      address: input.address,
-      idPhoto: input.idPhoto,
-      position: input.position,
-      location: input.location,
-      website: input.website,
-      tinNo: input.tinNo,
-      clientType: input.clientType,
-      blacklisted: input.blacklisted,
-      blockReason: input.blockReason,
-      debtorClientId: input.debtorClientId,
-      createdAt: new Date().toISOString(),
-      totalVisits: 0,
-      totalRevenue: 0,
-      tier: "Bronze",
     },
     ...state.guests,
   ];
@@ -1484,7 +1542,7 @@ export function findGuests(query: string): Guest[] {
   const q = query.toLowerCase();
   return state.guests.filter(
     (g) =>
-      g.name.toLowerCase().includes(q) ||
+      g.fullName.toLowerCase().includes(q) ||
       g.email.toLowerCase().includes(q) ||
       g.phone.includes(q) ||
       g.idNumber.toLowerCase().includes(q),
@@ -1526,6 +1584,9 @@ export type NewReservationInput = Omit<
   "id" | "createdAt" | "status" | "folioId" | "roomId" | "vatRate" | "vatTreatment"
 > & {
   roomId?: string | null;
+  nationality?: string;
+  idType?: string;
+  idNumber?: string;
   payment?: {
     method: PaymentMethod;
     amount: number;
@@ -1550,21 +1611,56 @@ export function createReservation(
     if (!available)
       return { ok: false, error: "Selected room is no longer available for these dates." };
   }
-  const id = nextResId();
+  const now = new Date().toISOString();
   const reservation: Reservation = {
-    ...input,
     id,
+    propertyId: input.propertyId ?? "T001",
+    confirmationNumber: input.confirmationNumber ?? `CNF-${id}`,
+    guestName: input.guestName,
+    guestEmail: input.guestEmail,
+    guestPhone: input.guestPhone,
+    guestProfileId: input.guestProfileId,
+    corporateAccountId: input.corporateAccountId,
+    travelAgentAccountId: input.travelAgentAccountId,
+    groupBlockId: input.groupBlockId,
+    billingArrangement: input.billingArrangement ?? "pay_at_checkout",
+    bookingSource: input.bookingSource ?? "direct_web",
+    otaName: input.otaName,
+    agentVoucherNumber: input.agentVoucherNumber,
+    roomTypeId: input.roomTypeId,
     roomId,
+    checkIn: input.checkIn,
+    checkOut: input.checkOut,
+    adults: input.adults,
+    children: input.children,
+    ratePerNight: input.ratePerNight,
+    mealPlan: input.mealPlan,
     status: "confirmed",
-    createdAt: new Date().toISOString(),
+    specialRequests: input.specialRequests,
+    vipFlag: input.vipFlag ?? false,
+    createdBy: input.createdBy,
+    createdAt: now,
+    updatedAt: now,
     vatRate: DEFAULT_VAT_RATE,
     vatTreatment: "inclusive",
+    deposit: input.deposit,
+    discount: input.discount,
+    arrivalTime: input.arrivalTime,
+    extraBeds: input.extraBeds,
+    checkinBy: input.checkinBy,
+    checkoutBy: input.checkoutBy,
+    purpose: input.purpose,
+    carReg: input.carReg,
+    sourceSystemRef: input.sourceSystemRef,
+    resCode: input.resCode,
+    currency: input.currency,
+    address: input.address,
   };
   state.reservations = [reservation, ...state.reservations];
 
   // link/update guest profile
   upsertGuest({
-    name: input.guestName,
+    fullName: input.guestName,
     email: input.guestEmail,
     phone: input.guestPhone,
     nationality: input.nationality,
@@ -2729,6 +2825,85 @@ export function deleteRatePlan(id: string) {
 
 export function cancellationPolicyById(id: string | undefined | null) {
   return id ? state.cancellationPolicies.find((cp) => cp.id === id) : undefined;
+}
+
+/* ==================== Corporate Accounts ==================== */
+
+export function upsertCorporateAccount(input: CorporateAccount) {
+  const exists = state.corporateAccounts.some((c) => c.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.corporateAccounts = state.corporateAccounts.map((c) =>
+      c.id === input.id ? { ...c, ...input, updatedAt: now } : c,
+    );
+  } else {
+    state.corporateAccounts = [{ ...input, createdAt: now, updatedAt: now }, ...state.corporateAccounts];
+  }
+  emit();
+}
+
+export function deleteCorporateAccount(id: string) {
+  state.corporateAccounts = state.corporateAccounts.filter((c) => c.id !== id);
+  emit();
+}
+
+export function corporateAccountById(id: string | undefined | null) {
+  return id ? state.corporateAccounts.find((c) => c.id === id) : undefined;
+}
+
+export function updateCorpAccountBalance(id: string, delta: number) {
+  state.corporateAccounts = state.corporateAccounts.map((c) =>
+    c.id === id ? { ...c, outstandingBalance: c.outstandingBalance + delta, updatedAt: new Date().toISOString() } : c,
+  );
+  emit();
+}
+
+/* ==================== Travel Agent Accounts ==================== */
+
+export function upsertTravelAgent(input: TravelAgentAccount) {
+  const exists = state.travelAgentAccounts.some((a) => a.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.travelAgentAccounts = state.travelAgentAccounts.map((a) =>
+      a.id === input.id ? { ...a, ...input, updatedAt: now } : a,
+    );
+  } else {
+    state.travelAgentAccounts = [{ ...input, createdAt: now, updatedAt: now }, ...state.travelAgentAccounts];
+  }
+  emit();
+}
+
+export function deleteTravelAgent(id: string) {
+  state.travelAgentAccounts = state.travelAgentAccounts.filter((a) => a.id !== id);
+  emit();
+}
+
+export function travelAgentById(id: string | undefined | null) {
+  return id ? state.travelAgentAccounts.find((a) => a.id === id) : undefined;
+}
+
+/* ==================== Group Blocks ==================== */
+
+export function upsertGroupBlock(input: GroupBlock) {
+  const exists = state.groupBlocks.some((g) => g.id === input.id);
+  const now = new Date().toISOString();
+  if (exists) {
+    state.groupBlocks = state.groupBlocks.map((g) =>
+      g.id === input.id ? { ...g, ...input, updatedAt: now } : g,
+    );
+  } else {
+    state.groupBlocks = [{ ...input, createdAt: now, updatedAt: now }, ...state.groupBlocks];
+  }
+  emit();
+}
+
+export function deleteGroupBlock(id: string) {
+  state.groupBlocks = state.groupBlocks.filter((g) => g.id !== id);
+  emit();
+}
+
+export function groupBlockById(id: string | undefined | null) {
+  return id ? state.groupBlocks.find((g) => g.id === id) : undefined;
 }
 
 /* ============================== Users ============================== */

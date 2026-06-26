@@ -261,12 +261,12 @@ function NewReservation() {
       children: form.children,
       ratePerNight: room.rate,
       mealPlan: form.mealPlan,
-      source: "Direct",
+      bookingSource: "direct_web",
       arrivalTime: form.arrivalTime || undefined,
       extraBeds: form.extraBeds || undefined,
       purpose: form.purpose || undefined,
       carReg: form.carReg || undefined,
-      notes: form.notes,
+      specialRequests: form.notes,
       ...(paymentAmount > 0 && form.paymentMethod
         ? {
             payment: {
