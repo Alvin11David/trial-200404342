@@ -24,6 +24,20 @@ import {
   Clock,
   CalendarDays,
   ClipboardCheck,
+  MessageSquare,
+  AlarmClock,
+  Building2,
+  Truck,
+  ArrowLeftRight,
+  PackageX,
+  ClipboardList,
+  Gauge,
+  Martini,
+  FileText,
+  PackageCheck,
+  ChartPie,
+  ChefHat,
+  Landmark,
 } from "lucide-react";
 
 /* eslint-disable react-refresh/only-export-components */
@@ -33,18 +47,20 @@ export type Role =
   | "Front Desk"
   | "Housekeeping"
   | "POS / Cashier"
-  | "Reservations / Revenue"
   | "Accountant"
-  | "System Administrator";
+  | "System Administrator"
+  | "Inventory Manager"
+  | "Store Keeper";
 
 export const ROLES: Role[] = [
   "Owner / GM",
   "Front Desk",
   "Housekeeping",
   "POS / Cashier",
-  "Reservations / Revenue",
   "Accountant",
   "System Administrator",
+  "Inventory Manager",
+  "Store Keeper",
 ];
 
 export const ROLE_META: Record<
@@ -75,12 +91,6 @@ export const ROLE_META: Record<
     accent: "from-amber-500 to-orange-500",
     tagline: "Orders, tabs & cash drawer",
   },
-  "Reservations / Revenue": {
-    initials: "EN",
-    person: "Esther Nambi",
-    accent: "from-violet-600 to-fuchsia-500",
-    tagline: "Bookings, rates & forecast",
-  },
   Accountant: {
     initials: "PS",
     person: "Peter Ssempijja",
@@ -92,6 +102,18 @@ export const ROLE_META: Record<
     person: "Robert Kizza",
     accent: "from-rose-600 to-pink-500",
     tagline: "Users, roles & audit",
+  },
+  "Inventory Manager": {
+    initials: "JM",
+    person: "James Mugisha",
+    accent: "from-teal-600 to-emerald-500",
+    tagline: "Stock control & purchasing",
+  },
+  "Store Keeper": {
+    initials: "DO",
+    person: "David Okello",
+    accent: "from-orange-500 to-amber-500",
+    tagline: "Approve & issue stock from store",
   },
 };
 
@@ -107,12 +129,15 @@ export type NavGroup = { section: string; items: NavItem[] };
 const COMMON: { [k: string]: NavItem } = {
   dashboard: { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   checkIn: { label: "Check-In", to: "/check-in", icon: LogIn },
-  checkOut: { label: "Check-Out", to: "/check-out", icon: LogOut },
-  reservations: { label: "Reservations", to: "/reservations", icon: CalendarCheck2 },
+  groups: { label: "Groups & Blocks", to: "/groups", icon: Users },
+  guestServices: { label: "Guest Services", to: "/guest-services", icon: ClipboardCheck },
+
+  reservations: { label: "Reservation/Check In", to: "/reservations", icon: CalendarCheck2 },
   rooms: { label: "Rooms", to: "/rooms", icon: BedDouble },
   guests: { label: "Guests", to: "/guests", icon: Users },
   housekeeping: { label: "Housekeeping", to: "/housekeeping", icon: Sparkles },
   billing: { label: "Billing & Folio", to: "/billing", icon: Receipt },
+  masterBilling: { label: "Master Billing", to: "/billing/master", icon: Landmark },
   payments: { label: "Payments", to: "/billing", icon: CreditCard },
   pos: { label: "POS", to: "/pos", icon: ShoppingCart },
   reports: { label: "Reports", to: "/reports", icon: BarChart3 },
@@ -122,6 +147,8 @@ const COMMON: { [k: string]: NavItem } = {
   audit: { label: "Audit Trail", to: "/audit", icon: FileSearch },
   identity: { label: "Identity & Access", to: "/identity", icon: ShieldCheck },
   settings: { label: "Settings", to: "/settings", icon: Settings },
+  roomsConfig: { label: "Room & Property Config", to: "/settings/rooms", icon: BedDouble },
+  properties: { label: "Properties", to: "/admin/properties", icon: Building2 },
   notifications: { label: "Notifications", to: "/notifications", icon: Bell },
   events: { label: "Events", to: "/events", icon: Calendar },
   invoices: { label: "Invoices", to: "/invoices", icon: Receipt },
@@ -130,10 +157,23 @@ const COMMON: { [k: string]: NavItem } = {
   inventoryDashboard: { label: "Dashboard", to: "/inventory", icon: Package },
   inventoryList: { label: "Inventory List", to: "/inventory/list", icon: Package },
   purchaseOrders: { label: "Purchase Orders", to: "/inventory/purchase-orders", icon: FileSearch },
+  suppliers: { label: "Suppliers", to: "/inventory/suppliers", icon: Truck },
+  transfers: { label: "Transfers", to: "/inventory/transfers", icon: ArrowLeftRight },
+  adjustments: { label: "Adjustments", to: "/inventory/adjustments", icon: PackageX },
+  stocktaking: { label: "Stocktaking", to: "/inventory/stocktaking", icon: ClipboardList },
+  parLevels: { label: "Reorder / Par Levels", to: "/inventory/par-levels", icon: Gauge },
   requisitions: { label: "Requisitions", to: "/inventory/requisitions", icon: ClipboardCheck },
+  consumption: { label: "Department Consumption", to: "/inventory/consumption", icon: ChartPie },
+  foodCost: { label: "Food Cost", to: "/inventory/food-cost", icon: ChefHat },
   posOrders: { label: "Orders", to: "/pos/orders", icon: ShoppingCart },
   posMenu: { label: "Menu", to: "/pos/menu", icon: Utensils },
+  posSettings: { label: "POS Settings", to: "/settings/pos", icon: ShoppingCart },
+  miscChargesSettings: { label: "Service Price List", to: "/settings/misc-charges", icon: Package },
+  rateCard: { label: "Service Prices", to: "/services", icon: Tag },
   schedule: { label: "Schedule", to: "/hr/schedule", icon: Clock },
+  minibar: { label: "Minibar", to: "/housekeeping/minibar", icon: Martini },
+  receiving: { label: "Goods Receipts / Receiving", to: "/inventory/receiving", icon: PackageCheck },
+  supplierInvoices: { label: "Supplier Invoices", to: "/inventory/supplier-invoices", icon: FileText },
 };
 
 export const ROLE_NAV: Record<Role, NavGroup[]> = {
@@ -142,23 +182,31 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
     {
       section: "Operations",
       items: [
-        COMMON.checkIn,
-        COMMON.checkOut,
         COMMON.reservations,
+        COMMON.groups,
+        COMMON.guestServices,
         COMMON.rooms,
-        COMMON.housekeeping,
-        COMMON.events,
+        COMMON.rateCard,
+        COMMON.minibar,
       ],
     },
-    { section: "Revenue", items: [COMMON.rates] },
-    { section: "Finance", items: [COMMON.billing, COMMON.invoices, COMMON.reports] },
+    { section: "Finance", items: [COMMON.billing, COMMON.masterBilling, COMMON.invoices, COMMON.reports] },
     {
       section: "Inventory",
       items: [
         COMMON.inventoryDashboard,
         COMMON.inventoryList,
         COMMON.requisitions,
+        COMMON.consumption,
+        COMMON.foodCost,
         COMMON.purchaseOrders,
+        COMMON.receiving,
+        COMMON.supplierInvoices,
+        COMMON.suppliers,
+        COMMON.transfers,
+        COMMON.adjustments,
+        COMMON.stocktaking,
+        COMMON.parLevels,
       ],
     },
     { section: "HR", items: [COMMON.hr, COMMON.leaveManagement, COMMON.schedule] },
@@ -169,16 +217,17 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
     {
       section: "Front Office",
       items: [
-        COMMON.checkIn,
-        COMMON.checkOut,
-        COMMON.reservations,
-        COMMON.rooms,
         COMMON.guests,
+        COMMON.reservations,
+        COMMON.groups,
+        COMMON.guestServices,
+        COMMON.rooms,
         COMMON.billing,
-        COMMON.events,
+        COMMON.masterBilling,
       ],
     },
-    { section: "Reference", items: [COMMON.rates, COMMON.notifications] },
+    { section: "Reports", items: [COMMON.reports] },
+    { section: "Reference", items: [COMMON.notifications, COMMON.rateCard] },
   ],
   Housekeeping: [
     { section: "Today", items: [COMMON.dashboard] },
@@ -188,31 +237,39 @@ export const ROLE_NAV: Record<Role, NavGroup[]> = {
     { section: "Today", items: [COMMON.dashboard] },
     {
       section: "Point of Sale",
-      items: [COMMON.pos, COMMON.posOrders, COMMON.posMenu, COMMON.billing],
+      items: [COMMON.pos, COMMON.posOrders, COMMON.posMenu, COMMON.billing, COMMON.masterBilling, COMMON.rateCard],
     },
-  ],
-  "Reservations / Revenue": [
-    { section: "Today", items: [COMMON.dashboard] },
-    {
-      section: "Bookings",
-      items: [COMMON.checkIn, COMMON.checkOut, COMMON.reservations, COMMON.rooms, COMMON.guests],
-    },
-    { section: "Revenue", items: [COMMON.rates, COMMON.revenue] },
   ],
   Accountant: [
     { section: "Today", items: [COMMON.dashboard] },
     {
       section: "Finance",
-      items: [COMMON.billing, COMMON.invoices, COMMON.accounting, COMMON.reports],
+      items: [COMMON.billing, COMMON.masterBilling, COMMON.invoices, COMMON.accounting, COMMON.supplierInvoices, COMMON.reports, COMMON.rateCard],
     },
-    { section: "Reference", items: [COMMON.rates] },
   ],
   "System Administrator": [
     { section: "Today", items: [COMMON.dashboard] },
     {
       section: "Administration",
-      items: [COMMON.identity, COMMON.audit, COMMON.settings, COMMON.notifications],
+      items: [COMMON.identity, COMMON.audit, COMMON.settings, COMMON.roomsConfig, COMMON.posSettings, COMMON.miscChargesSettings, COMMON.properties, COMMON.notifications],
     },
+  ],
+  "Inventory Manager": [
+    { section: "Today", items: [COMMON.dashboard] },
+    {
+      section: "Inventory",
+      items: [COMMON.inventoryDashboard, COMMON.inventoryList, COMMON.purchaseOrders, COMMON.requisitions, COMMON.consumption, COMMON.foodCost, COMMON.receiving, COMMON.supplierInvoices, COMMON.suppliers, COMMON.transfers, COMMON.adjustments, COMMON.stocktaking, COMMON.parLevels],
+    },
+    { section: "Reports", items: [COMMON.reports] },
+    { section: "Notifications", items: [COMMON.notifications] },
+  ],
+  "Store Keeper": [
+    { section: "Today", items: [COMMON.dashboard] },
+    {
+      section: "Inventory",
+      items: [COMMON.inventoryDashboard, COMMON.inventoryList, COMMON.requisitions, COMMON.consumption, COMMON.foodCost, COMMON.purchaseOrders, COMMON.receiving, COMMON.suppliers, COMMON.transfers, COMMON.adjustments, COMMON.stocktaking, COMMON.parLevels],
+    },
+    { section: "Notifications", items: [COMMON.notifications] },
   ],
 };
 

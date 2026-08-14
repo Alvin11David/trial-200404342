@@ -1,13 +1,14 @@
 import { cn } from "@/lib/utils";
-import jamboLogo from "../../../assets/images/Jambo-logo.webp";
+import jamboLogo from "@/assets/Jambo-logo.webp";
 
 type LogoProps = {
   className?: string;
   showText?: boolean;
   size?: "sm" | "md" | "lg";
+  src?: string;
 };
 
-export function Logo({ className, showText = true, size = "md" }: LogoProps) {
+export function Logo({ className, showText = true, size = "md", src }: LogoProps) {
   const dim = size === "sm" ? 24 : size === "lg" ? 48 : 34;
   return (
     <div className={cn("flex items-center gap-3", className)}>
@@ -18,7 +19,7 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
           height: dim,
         }}
       >
-        <img src={jamboLogo} alt="Jambo ERP Logo" className="h-full w-full rounded-lg object-contain" />
+        <img src={src ?? jamboLogo} alt="Jambo PMS Logo" className="h-full w-full rounded-lg object-contain" />
       </div>
       {showText && (
         <div className="flex flex-col leading-tight">
@@ -28,10 +29,10 @@ export function Logo({ className, showText = true, size = "md" }: LogoProps) {
               size === "sm" ? "text-sm" : size === "lg" ? "text-2xl" : "text-lg",
             )}
           >
-            Jambo<span className="text-gradient-primary"> ERP</span>
+            Jambo<span className="text-gradient-primary"> PMS</span>
           </span>
           <span className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-            Hospitality Suite
+            Property Management
           </span>
         </div>
       )}

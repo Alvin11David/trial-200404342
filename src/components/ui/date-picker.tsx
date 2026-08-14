@@ -29,7 +29,7 @@ export function DatePicker({
           ref={btnRef}
           variant="outline"
           className={cn(
-            "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm font-normal outline-none hover:bg-background focus:border-primary/60 focus:ring-0",
+            "w-full rounded-xl border border-border bg-background px-3 py-2 text-sm font-normal outline-none hover:bg-background focus:border-primary/60 focus:ring-0",
             !value && "text-muted-foreground",
             className,
           )}
@@ -38,7 +38,7 @@ export function DatePicker({
           {value ? format(parse(value, "yyyy-MM-dd", new Date()), "PP") : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent className="w-auto p-0 rounded-xl" align="start">
         <Calendar
           mode="single"
           selected={selected}

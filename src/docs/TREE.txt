@@ -1,0 +1,70 @@
+jambo-pms/
+└── frontend/
+    ├── index.html
+    ├── package.json
+    ├── vite.config.ts
+    ├── tsconfig.json
+    ├── node_modules/                    # generated deps - ignore
+    └── src/
+        ├── main.tsx                     # bootstrap & mount
+        ├── App.tsx                      # router component / routes
+        ├── app/                         # global providers & store
+        ├── assets/                      # images, icons, fonts
+        │   └── Jambo-logo.webp
+        ├── auth/                        # login & route guards
+        │   └── Login.tsx
+        ├── components/                  # reusable UI
+        │   ├── ui/                      # shadcn primitives
+        │   │   ├── button.tsx
+        │   │   ├── dialog.tsx
+        │   │   ├── card.tsx
+        │   │   ├── table.tsx
+        │   │   ├── select.tsx
+        │   │   └── tabs.tsx
+        │   └── jambo/                   # brand components
+        │       ├── AppShell.tsx
+        │       ├── Logo.tsx
+        │       └── NotificationBell.tsx
+        ├── docs/                        # documentation
+        │   └── FOLDER-STRUCTURE.md
+        ├── features/                    # domain modules
+        │   ├── accounting/        # ledgers & journals
+        │   ├── admin/                  # roles, security, settings
+        │   ├── billing/                # charges & settlement
+        │   ├── dashboard/              # KPIs & analytics
+        │   ├── events/                # conferences & banqueting
+        │   ├── frontdesk/              # check-in / check-out
+        │   ├── groups/                 # group blocks
+        │   ├── guest-services/         # guest requests
+        │   ├── guests/                 # guest profiles
+        │   ├── housekeeping/           # status board & tasks
+        │   ├── hr/                     # staff profiles
+        │   ├── inventory/              # stock & purchasing
+        │   ├── invoices/               # accounts payable
+        │   ├── lost-found/             # lost item tracking
+        │   ├── notifications/          # notification center
+        │   ├── pos/                    # point of sale
+        │   ├── rates/                  # rate cards & pricing
+        │   ├── reporting/               # report engine
+        │   ├── reports/                 # rendered reports
+        │   ├── reservations/            # booking flow
+        │   └── rooms/                   # room inventory
+        ├── hooks/                       # shared custom hooks
+        │   ├── use-mobile.tsx
+        │   ├── use-theme.tsx
+        │   └── use-online-status.tsx
+        ├── lib/                         # framework utilities
+        │   ├── utils.ts
+        │   ├── pms-store.tsx
+        │   └── print-receipt.ts
+        ├── shared/                      # cross-feature code
+        │   ├── components/
+        │   │   ├── GuestAutocomplete.tsx
+        │   │   ├── CountrySelect.tsx
+        │   │   └── TimePicker.tsx
+        │   ├── hooks/
+        │   ├── store/
+        │   └── utils/
+        └── _unscoped/                   # temp holding code
+            ├── hr/
+            └── events/

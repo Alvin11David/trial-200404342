@@ -19,6 +19,7 @@ export type ReceiptData = {
   businessPhone: string;
   businessEmail: string;
   businessTin: string;
+  customerName?: string;
 };
 
 export function printReceipt(r: ReceiptData) {
@@ -153,6 +154,26 @@ export function printReceipt(r: ReceiptData) {
     letter-spacing: 1px;
     margin-bottom: 8px;
   }
+  .signatures { margin-top: 24px; }
+  .sig-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .sig-line {
+    display: block;
+    width: 70%;
+    border-bottom: 1.5px solid #1a1a2e;
+    height: 36px;
+  }
+  .sig-label {
+    font-size: 10px;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
   @media print {
     body { background: #fff; padding: 0; }
     .receipt { box-shadow: none; border-radius: 0; }
@@ -194,6 +215,17 @@ export function printReceipt(r: ReceiptData) {
 
       <div class="payment-info">
         Paid via <strong>${r.paymentMethod}</strong>
+      </div>
+
+      <div class="signatures">
+        <div class="sig-row">
+          <span class="sig-line"></span>
+          <span class="sig-label">Customer Signature</span>
+        </div>
+        <div class="sig-row">
+          <span class="sig-line"></span>
+          <span class="sig-label">Cashier / Authorized Signature</span>
+        </div>
       </div>
 
       <div class="footer">
