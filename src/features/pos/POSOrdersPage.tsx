@@ -229,7 +229,7 @@ function POSOrdersPage() {
   );
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8 pb-24">
+    <div className="pos-backoffice-page mx-auto max-w-7xl space-y-8 pb-24">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
@@ -245,7 +245,7 @@ function POSOrdersPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
           <Link
             to="/pos"
             className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card/40 px-4 py-2.5 text-sm font-medium text-muted-foreground shadow-sm transition-all hover:border-primary/40 hover:text-foreground hover:shadow-md"
@@ -314,7 +314,7 @@ function POSOrdersPage() {
           </div>
 
           {/* Status pills */}
-          <div className="flex items-center gap-1 rounded-xl border border-border/40 bg-background/30 p-1">
+          <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-border/40 bg-background/30 p-1">
             {statuses.map((s) => (
               <button
                 key={s}
@@ -420,8 +420,8 @@ function POSOrdersPage() {
 
                 <div className="p-5 pl-6">
                   {/* Row 1: ID, status, date */}
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="font-mono text-xs font-semibold tracking-wider text-muted-foreground/60">
                         {o.id}
                       </span>
@@ -440,7 +440,7 @@ function POSOrdersPage() {
                   </div>
 
                   {/* Row 2: Main content */}
-                  <div className="mt-4 flex items-start justify-between gap-6">
+                  <div className="mt-4 flex flex-col items-start justify-between gap-4 sm:flex-row sm:gap-6">
                     {/* Left: items, table, cashier */}
                     <div className="flex-1 min-w-0 space-y-3">
                       {/* Items */}
@@ -489,7 +489,7 @@ function POSOrdersPage() {
                     </div>
 
                     {/* Right: total + actions */}
-                    <div className="flex items-center gap-4">
+                      <div className="flex w-full items-center justify-between gap-4 sm:w-auto sm:justify-start">
                       <div className="text-right">
                         <div className="text-xs text-muted-foreground/50">Total</div>
                         <div className="text-lg font-bold tracking-tight">

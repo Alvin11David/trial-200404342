@@ -164,7 +164,7 @@ function POSMenuPage() {
   const dateStr = now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
   return (
-    <div className="mx-auto max-w-7xl pb-24 relative" role="main" aria-label="Menu Items">
+    <div className="pos-backoffice-page mx-auto max-w-7xl pb-24 relative" role="main" aria-label="Menu Items">
       {/* Header */}
       <header className="group/header relative mb-6 flex flex-wrap items-end justify-between gap-4 overflow-hidden rounded-2xl border border-border/40 bg-gradient-to-br from-card/85 via-card/65 to-card/40 px-6 py-5 shadow-sm before:pointer-events-none before:absolute before:inset-0 before:rounded-2xl before:opacity-0 before:transition-opacity before:duration-500 group-hover/header:before:opacity-100 before:bg-gradient-to-r before:from-primary/[0.03] before:via-transparent before:to-primary/[0.02]">
         <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-primary/[0.07] to-transparent blur-3xl transition-all duration-700 group-hover/header:scale-110 group-hover/header:from-primary/[0.12]" />
@@ -185,7 +185,7 @@ function POSMenuPage() {
           <p className="mt-1.5 text-sm text-muted-foreground/80 leading-relaxed">Manage food, drinks and other sellable items</p>
         </div>
 
-        <div className="flex items-center gap-2 relative z-10">
+        <div className="relative z-10 flex flex-wrap items-center gap-2">
           <Link
             to="/pos"
             className="inline-flex items-center gap-1.5 rounded-xl border border-border/60 bg-card/50 px-3.5 py-2 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur-sm transition-all hover:border-primary/40 hover:text-foreground hover:bg-card/80"

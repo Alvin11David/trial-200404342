@@ -171,6 +171,7 @@ function POSPage() {
   const [orderType, setOrderType] = useState<OrderType>("dine_in");
   const [showOrderTypePicker, setShowOrderTypePicker] = useState(false);
   const [rightTab, setRightTab] = useState<"order" | "analytics">("order");
+  const [cartOpen, setCartOpen] = useState(false);
 
   const activeTab: PosTab | undefined = activeTabId ? posTabs.find((t) => t.id === activeTabId) : undefined;
   const outlet = activeTab ? storeOutlets.find((o) => o.id === activeTab.posOutletId) : undefined;
@@ -630,16 +631,41 @@ function POSPage() {
   const itemCount = unvoidedItems.reduce((s, i) => s + i.quantity, 0);
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] -mx-6 -mt-8 overflow-hidden">
+    <div className="pos-terminal relative -mx-6 -mt-8 flex h-[calc(100vh-4rem)] min-h-[560px] overflow-hidden bg-[#f7f8fb] dark:bg-background">
       {/* Left: Menu Items */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="pos-menu-column flex min-w-0 flex-1 flex-col overflow-hidden">
+        {/* POS identity strip */}
+        <div className="pos-identity-strip flex items-center justify-between border-b border-[#e5e7eb] bg-white px-5 py-3 dark:border-border dark:bg-card/80 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#18245c] text-white shadow-lg shadow-[#18245c]/15">
+              <ShoppingCart className="h-4 w-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="truncate text-[11px] font-bold uppercase tracking-[0.16em] text-[#18245c] dark:text-primary">Jambo POS</p>
+                <span className="hidden rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-emerald-700 sm:inline-flex dark:bg-emerald-950/30 dark:text-emerald-400">Live</span>
+              </div>
+              <p className="truncate text-xs text-muted-foreground">{outlet?.name ?? storeOutlets[0]?.name ?? "Main outlet"} · {cashierName}</p>
+            </div>
+          </div>
+          <div className="hidden items-center gap-2 text-right sm:flex">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Service mode</p>
+              <p className="text-xs font-semibold text-foreground">{ORDER_TYPE_OPTIONS.find((o) => o.value === orderType)?.label}</p>
+            </div>
+            <div className="h-8 w-px bg-border/70" />
+            <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#fff1f5] text-[#ff477e] dark:bg-rose-950/30 dark:text-rose-300">
+              <UtensilsCrossed className="h-4 w-4" />
+            </div>
+          </div>
+        </div>
         {/* Top bar: order type, tab selector, search, sub-nav */}
-        <div className="relative z-30 flex flex-wrap items-center gap-3 border-b border-border/60 bg-card/40 px-6 py-3 backdrop-blur">
+        <div className="pos-toolbar relative z-30 flex flex-wrap items-center gap-2.5 border-b border-[#e5e7eb] bg-white px-4 py-3 backdrop-blur dark:border-border dark:bg-card/60 sm:gap-3 sm:px-6">
           {/* Order Type Selector */}
           <div className="relative">
             <button
               onClick={() => setShowOrderTypePicker((p) => !p)}
-              className="inline-flex items-center gap-2 rounded-xl border border-border/70 bg-card/40 px-4 py-2 text-sm font-medium hover:border-primary/50"
+               className="inline-flex items-center gap-2 rounded-xl border border-[#e3e5ea] bg-[#fafbfc] px-3.5 py-2 text-sm font-semibold hover:border-[#ff477e]/60 sm:px-4 dark:border-border dark:bg-card/40"
             >
               {(() => {
                 const Icon = ORDER_TYPE_OPTIONS.find((o) => o.value === orderType)?.icon ?? UtensilsCrossed;
@@ -681,9 +707,9 @@ function POSPage() {
           {/* Shift / cashier manager */}
           <button
             onClick={() => setShiftOpen(true)}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium hover:border-primary/50",
-              activeShift ? "border-amber-400/50 bg-amber-500/10 text-amber-300" : "border-border/70 bg-card/40",
+               className={cn(
+               "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-semibold hover:border-[#ff477e]/60 sm:px-4",
+               activeShift ? "border-amber-400/50 bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300" : "border-[#e3e5ea] bg-[#fafbfc] dark:border-border dark:bg-card/40",
             )}
             title={activeShift ? "Shift open — click to close/reconcile" : "No shift open — click to open"}
           >
@@ -697,9 +723,9 @@ function POSPage() {
           <div className="relative">
             <button
               onClick={() => setShowTabPicker((p) => !p)}
-              className={cn(
-                "inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-medium hover:border-primary/50",
-                activeTab ? "border-primary/40 bg-primary/10 text-primary" : "border-border/70 bg-card/40",
+                 className={cn(
+                 "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-semibold hover:border-[#ff477e]/60 sm:px-4",
+                 activeTab ? "border-[#ff477e]/40 bg-[#fff1f5] text-[#d9265d] dark:bg-primary/10 dark:text-primary" : "border-[#e3e5ea] bg-[#fafbfc] dark:border-border dark:bg-card/40",
               )}
             >
               <Table2 className="h-4 w-4" />
@@ -748,37 +774,37 @@ function POSPage() {
             )}
           </div>
 
-          <div className="relative flex-1 max-w-md">
+           <div className="pos-search relative order-last w-full sm:order-none sm:min-w-[170px] sm:max-w-md sm:flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search menu items…"
-              className="w-full rounded-xl border border-border/70 bg-card/40 py-2 pl-9 pr-3 text-sm outline-none transition focus:border-primary/60"
+               className="w-full rounded-xl border border-[#e3e5ea] bg-[#fafbfc] py-2.5 pl-9 pr-3 text-sm outline-none transition focus:border-[#ff477e]/60 focus:ring-2 focus:ring-[#ff477e]/10 dark:border-border dark:bg-card/40"
             />
           </div>
 
-          <div className="flex items-center gap-1">
+           <div className="pos-shortcuts flex items-center gap-1">
             <button
               onClick={() => setViewMode((v) => (v === "menu" ? "floor" : "menu"))}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition",
-                viewMode === "floor" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground",
+                 className={cn(
+                 "inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold transition",
+                 viewMode === "floor" ? "bg-[#fff1f5] text-[#d9265d] dark:bg-primary/15 dark:text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
               {viewMode === "floor" ? "Menu" : "Floor Plan"}
             </button>
-            <Link
+             <Link
               to="/pos/orders"
-              className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+               className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
             >
               <ClipboardList className="h-3.5 w-3.5" />
               Orders
             </Link>
-            <Link
+             <Link
               to="/pos/menu"
-              className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+               className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
             >
               <UtensilsCrossed className="h-3.5 w-3.5" />
               Menu
@@ -789,15 +815,15 @@ function POSPage() {
         {viewMode === "menu" ? (
           <>
         {/* Category tabs */}
-        <div className="flex gap-1 border-b border-border/40 bg-card/20 px-6 py-2">
+        <div className="pos-category-tabs flex gap-1 overflow-x-auto border-b border-[#e5e7eb] bg-white px-4 py-2 dark:border-border dark:bg-card/20 sm:px-6">
           {(categoryLabels.length > 0 ? categoryLabels : ["All"]).map((cat) => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}
               className={cn(
-                "rounded-xl px-4 py-2 text-sm font-medium transition-all",
+                "shrink-0 rounded-xl px-4 py-2 text-sm font-semibold transition-all",
                 category === cat
-                  ? "bg-primary/15 text-primary shadow-inner"
+                  ? "bg-[#18245c] text-white shadow-md shadow-[#18245c]/15 dark:bg-primary/15 dark:text-primary"
                   : "text-muted-foreground hover:text-foreground hover:bg-card/40",
               )}
             >
@@ -807,8 +833,8 @@ function POSPage() {
         </div>
 
         {/* Product grid */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="pos-products flex-1 overflow-y-auto p-3 sm:p-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {filtered.map((item) => {
               const stock = menuItemStockStatus(item);
               const unavailable = !isMenuItemAvailable(item) || stock.soldOut;
@@ -819,10 +845,10 @@ function POSPage() {
                   onClick={() => handleAddItem(item)}
                   disabled={unavailable}
                   className={cn(
-                    "group relative overflow-hidden rounded-2xl border transition-all",
+                     "group relative overflow-hidden rounded-2xl border bg-white transition-all dark:bg-card",
                     unavailable
-                      ? "cursor-not-allowed border-border/40 bg-card/40 opacity-70"
-                      : "border-border/60 bg-card hover:-translate-y-1 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/20",
+                       ? "cursor-not-allowed border-border/40 opacity-70"
+                       : "border-[#e4e6eb] hover:-translate-y-1 hover:border-[#ff477e]/50 hover:shadow-xl hover:shadow-[#ff477e]/10 dark:border-border/60",
                   )}
                 >
                   <div className="aspect-[4/3] w-full overflow-hidden bg-muted">
@@ -833,7 +859,7 @@ function POSPage() {
                       loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    <span className="absolute bottom-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-white/90 text-foreground shadow-lg transition-all hover:bg-white active:scale-90">
+                     <span className="absolute bottom-2 right-2 grid h-8 w-8 place-items-center rounded-full bg-[#ff477e] text-white shadow-lg shadow-[#ff477e]/25 transition-all hover:bg-[#e93368] active:scale-90">
                       <Plus className="h-4 w-4" />
                     </span>
                     {unavailable && (
@@ -847,7 +873,7 @@ function POSPage() {
                       </span>
                     )}
                   </div>
-                  <div className="p-3">
+                   <div className="p-3 sm:p-3.5">
                     <div className="font-semibold text-sm leading-tight truncate">{item.name}</div>
                     <div className="flex items-center justify-between mt-1">
                       <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
@@ -1011,7 +1037,10 @@ function POSPage() {
       </div>
 
       {/* Right: Order / Analytics */}
-      <div className="flex w-[300px] shrink-0 flex-col border-l border-border/60 bg-card/30 backdrop-blur lg:w-[340px] xl:w-[380px]">
+      <div className={cn(
+        "pos-cart-panel flex w-[300px] shrink-0 flex-col border-l border-border/60 bg-white/95 backdrop-blur lg:w-[340px] xl:w-[380px] dark:bg-card/95",
+        cartOpen && "is-open",
+      )}>
         {/* Tabs */}
         <div className="flex items-stretch border-b border-border/60">
           <button
@@ -1357,6 +1386,35 @@ function POSPage() {
           <POSAnalytics />
         )}
       </div>
+
+      {/* Compact order access on phones — keeps the menu usable without sacrificing the cart. */}
+      {cartOpen && (
+        <button
+          type="button"
+          aria-label="Close current order"
+          onClick={() => setCartOpen(false)}
+          className="pos-cart-backdrop fixed inset-0 z-50 bg-slate-950/35 backdrop-blur-[2px] md:hidden"
+        />
+      )}
+      <button
+        type="button"
+        onClick={() => setCartOpen(true)}
+        className="pos-mobile-cart fixed bottom-4 left-3 right-3 z-40 flex items-center justify-between rounded-2xl bg-[#18245c] px-4 py-3 text-left text-white shadow-2xl shadow-[#18245c]/30 md:hidden"
+      >
+        <span className="flex items-center gap-3">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/12">
+            <ShoppingCart className="h-4 w-4" />
+          </span>
+          <span>
+            <span className="block text-xs font-semibold">{itemCount ? `${itemCount} item${itemCount !== 1 ? "s" : ""} in order` : "Your order is empty"}</span>
+            <span className="mt-0.5 block text-[10px] text-white/60">{activeTab ? `${tableLabel(activeTab.posTableId) || "Open tab"}` : "Tap to review order"}</span>
+          </span>
+        </span>
+        <span className="flex items-center gap-2">
+          <span className="text-sm font-bold tabular-nums">UGX {total.toLocaleString()}</span>
+          <ChevronDown className="h-4 w-4 -rotate-90 text-white/60" />
+        </span>
+      </button>
 
       {/* New Tab Modal */}
       {showNewTabModal && (
