@@ -189,7 +189,7 @@ function POSPage() {
   const categoryLabels = useMemo(() => activeCategories.map((c) => c.name), [activeCategories]);
   const [category, setCategory] = useState("");
   useEffect(() => {
-    if (categoryLabels.length > 0 && !categoryLabels.includes(category)) {
+    if (categoryLabels.length > 0 && category !== "All" && !categoryLabels.includes(category)) {
       setCategory(categoryLabels[0]);
     }
   }, [categoryLabels, category]);
@@ -200,6 +200,10 @@ function POSPage() {
     ? posTabs.filter((t) => t.posOutletId === activeTab.posOutletId && t.status === "open")
     : [];
   const otherOpenTabs = openTabs.filter((t) => t.id !== activeTabId);
+  const outletOpenTabs = useMemo(
+    () => posTabs.filter((t) => t.posOutletId === outletId && t.status === "open"),
+    [posTabs, outletId],
+  );
 
   /* Table label + floor plan helpers */
   const tableLabel = useMemo(() => {
@@ -629,6 +633,14 @@ function POSPage() {
   }
 
   const itemCount = unvoidedItems.reduce((s, i) => s + i.quantity, 0);
+  const seatedTables = floorTables.filter((table) => posTableStatus(table.id) === "occupied").length;
+  const kitchenQueueCount = kots.filter((kot) => !["completed", "voided", "served"].includes(String(kot.status))).length;
+  const todayRevenue = useMemo(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    return posTabs
+      .filter((tab) => tab.status === "settled" && (tab.settledAt ?? "").slice(0, 10) === today)
+      .reduce((sum, tab) => sum + (tab.totalAmount ?? 0), 0);
+  }, [posTabs]);
 
   return (
     <div className="pos-terminal relative -mx-6 -mt-8 flex h-[calc(100vh-4rem)] min-h-[560px] overflow-hidden bg-[#f7f8fb] dark:bg-background">
@@ -648,16 +660,81 @@ function POSPage() {
               <p className="truncate text-xs text-muted-foreground">{outlet?.name ?? storeOutlets[0]?.name ?? "Main outlet"} · {cashierName}</p>
             </div>
           </div>
-          <div className="hidden items-center gap-2 text-right sm:flex">
+          <div className="flex items-center gap-2 text-right">
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Service mode</p>
-              <p className="text-xs font-semibold text-foreground">{ORDER_TYPE_OPTIONS.find((o) => o.value === orderType)?.label}</p>
+              <p className="hidden text-xs font-semibold text-foreground sm:block">{ORDER_TYPE_OPTIONS.find((o) => o.value === orderType)?.label}</p>
             </div>
-            <div className="h-8 w-px bg-border/70" />
+            <div className="hidden h-8 w-px bg-border/70 sm:block" />
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#fff1f5] text-[#ff477e] dark:bg-rose-950/30 dark:text-rose-300">
               <UtensilsCrossed className="h-4 w-4" />
             </div>
+            <button
+              onClick={() => setShowNewTabModal(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#18245c] px-3 py-2 text-xs font-bold text-white shadow-lg shadow-[#18245c]/20 transition hover:-translate-y-0.5 hover:bg-[#23337b] active:scale-95 sm:px-3.5"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">New ticket</span>
+              <span className="sm:hidden">New</span>
+            </button>
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-px border-b border-[#e5e7eb] bg-[#e5e7eb] dark:border-border dark:bg-border/60 sm:grid-cols-4">
+          {[
+            {
+              label: "Open tickets",
+              value: outletOpenTabs.length,
+              detail: outletOpenTabs.length === 1 ? "in service" : "in service",
+              icon: ClipboardList,
+              tone: "text-[#d9265d] bg-[#fff1f5]",
+              onClick: () => {
+                if (outletOpenTabs[0]) setActiveTabId(outletOpenTabs[0].id);
+                else setShowNewTabModal(true);
+              },
+            },
+            {
+              label: "Floor",
+              value: `${seatedTables}/${floorTables.length}`,
+              detail: "tables occupied",
+              icon: LayoutGrid,
+              tone: "text-amber-700 bg-amber-50",
+              onClick: () => setViewMode("floor"),
+            },
+            {
+              label: "Kitchen",
+              value: kitchenQueueCount,
+              detail: kitchenQueueCount === 1 ? "ticket in queue" : "tickets in queue",
+              icon: Send,
+              tone: "text-emerald-700 bg-emerald-50",
+              onClick: () => setKotTrayOpen(true),
+            },
+            {
+              label: "Today",
+              value: `UGX ${todayRevenue.toLocaleString()}`,
+              detail: "settled revenue",
+              icon: TrendingUp,
+              tone: "text-violet-700 bg-violet-50",
+              onClick: () => setRightTab("analytics"),
+            },
+          ].map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <button
+                key={stat.label}
+                onClick={stat.onClick}
+                className="flex min-w-0 items-center gap-2.5 bg-white px-4 py-2.5 text-left transition hover:bg-[#fbfbfd] dark:bg-card/70 dark:hover:bg-card sm:px-5"
+              >
+                <span className={cn("grid h-8 w-8 shrink-0 place-items-center rounded-lg", stat.tone)}>
+                  <Icon className="h-3.5 w-3.5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/65">{stat.label}</span>
+                  <span className="block truncate text-sm font-bold tabular-nums text-foreground">{stat.value}</span>
+                  <span className="hidden truncate text-[10px] text-muted-foreground/60 md:block">{stat.detail}</span>
+                </span>
+              </button>
+            );
+          })}
         </div>
         {/* Top bar: order type, tab selector, search, sub-nav */}
         <div className="pos-toolbar relative z-30 flex flex-wrap items-center gap-2.5 border-b border-[#e5e7eb] bg-white px-4 py-3 backdrop-blur dark:border-border dark:bg-card/60 sm:gap-3 sm:px-6">
@@ -816,7 +893,7 @@ function POSPage() {
           <>
         {/* Category tabs */}
         <div className="pos-category-tabs flex gap-1 overflow-x-auto border-b border-[#e5e7eb] bg-white px-4 py-2 dark:border-border dark:bg-card/20 sm:px-6">
-          {(categoryLabels.length > 0 ? categoryLabels : ["All"]).map((cat) => (
+          {(["All", ...categoryLabels]).map((cat) => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}
@@ -888,8 +965,20 @@ function POSPage() {
               );
             })}
             {filtered.length === 0 && (
-              <div className="col-span-full py-20 text-center text-sm text-muted-foreground">
-                No items found.
+              <div className="col-span-full flex min-h-[280px] flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-white/60 px-6 text-center dark:bg-card/30">
+                <span className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-[#fff1f5] text-[#d9265d] dark:bg-primary/10 dark:text-primary">
+                  <Search className="h-5 w-5" />
+                </span>
+                <p className="text-sm font-semibold text-foreground">No menu items found</p>
+                <p className="mt-1 max-w-xs text-xs text-muted-foreground">Try another search or browse a different category.</p>
+                {(search || category !== "All") && (
+                  <button
+                    onClick={() => { setSearch(""); setCategory("All"); }}
+                    className="mt-4 rounded-xl border border-border/60 bg-card px-3 py-2 text-xs font-semibold text-primary transition hover:border-primary/40 hover:bg-primary/5"
+                  >
+                    Clear filters
+                  </button>
+                )}
               </div>
             )}
           </div>
