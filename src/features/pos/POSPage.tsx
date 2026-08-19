@@ -67,6 +67,8 @@ import {
   getUserRoleNames,
   useStore,
   upsertPosTab,
+  holdPosTab,
+  resumePosTab,
   upsertPosTabItem,
   posTabItemsByTab,
   openPosTabsByOutlet,
@@ -150,7 +152,7 @@ function POSPage() {
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
   const [showTabPicker, setShowTabPicker] = useState(false);
   const [showNewTabModal, setShowNewTabModal] = useState(false);
-  const [newTabForm, setNewTabForm] = useState({ posOutletId: "", posTableId: "", orderType: "dine_in" as OrderType, coverCount: 1, deliveryName: "", deliveryAddress: "" });
+  const [newTabForm, setNewTabForm] = useState({ posOutletId: "", posTableId: "", orderType: "dine_in" as OrderType, coverCount: 1, deliveryName: "", deliveryAddress: "", orderNotes: "" });
 
   /* Floor plan + split / merge */
   const [viewMode, setViewMode] = useState<"menu" | "floor">("menu");
@@ -170,6 +172,7 @@ function POSPage() {
   const [search, setSearch] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("dine_in");
   const [showOrderTypePicker, setShowOrderTypePicker] = useState(false);
+  const [showHeldPicker, setShowHeldPicker] = useState(false);
   const [rightTab, setRightTab] = useState<"order" | "analytics">("order");
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -202,6 +205,10 @@ function POSPage() {
   const otherOpenTabs = openTabs.filter((t) => t.id !== activeTabId);
   const outletOpenTabs = useMemo(
     () => posTabs.filter((t) => t.posOutletId === outletId && t.status === "open"),
+    [posTabs, outletId],
+  );
+  const heldTabs = useMemo(
+    () => posTabs.filter((t) => t.posOutletId === outletId && t.status === "held"),
     [posTabs, outletId],
   );
 
@@ -599,6 +606,7 @@ function POSPage() {
       orderType: newTabForm.orderType,
       deliveryName: newTabForm.orderType === "delivery" ? newTabForm.deliveryName || undefined : undefined,
       deliveryAddress: newTabForm.orderType === "delivery" ? newTabForm.deliveryAddress || undefined : undefined,
+      orderNotes: newTabForm.orderNotes.trim() || undefined,
       coverCount: newTabForm.coverCount,
       status: "open",
       subtotal: 0,
@@ -611,6 +619,23 @@ function POSPage() {
     setActiveTabId(tabId);
     setShowNewTabModal(false);
     toast.success(`Tab opened at ${outlet?.name ?? "outlet"}`);
+  }
+
+  function handleHoldTab() {
+    if (!activeTab) return;
+    if (holdPosTab(activeTab.id, cashierName)) {
+      setActiveTabId(null);
+      setCartOpen(false);
+      toast.success("Ticket parked — retrieve it from Held tickets");
+    }
+  }
+
+  function retrieveHeldTab(tabId: string) {
+    if (resumePosTab(tabId)) {
+      setActiveTabId(tabId);
+      setShowHeldPicker(false);
+      toast.success("Held ticket resumed");
+    }
   }
 
   function selectTab(tabId: string) {

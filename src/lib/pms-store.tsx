@@ -1158,7 +1158,7 @@ export type PosTable = {
   createdAt?: string;
 };
 
-export type PosTabStatus = "open" | "settled" | "room_charged" | "unrecovered" | "cancelled" | "merged";
+export type PosTabStatus = "open" | "held" | "settled" | "room_charged" | "unrecovered" | "cancelled" | "merged";
 export type PosSettlementMethod = "direct_payment" | "room_charge";
 export type OrderType = "dine_in" | "takeaway" | "room_service" | "delivery";
 
@@ -1172,6 +1172,7 @@ export type PosTab = {
   guestProfileId?: string;
   deliveryName?: string;
   deliveryAddress?: string;
+  orderNotes?: string;
   openedBy?: string;
   coverCount: number;
   status: PosTabStatus;
@@ -8166,6 +8167,31 @@ export function posTabById(id: string | undefined | null) {
 
 export function openPosTabsByOutlet(posOutletId: string) {
   return state.posTabs.filter((t) => t.posOutletId === posOutletId && t.status === "open");
+}
+
+/** Park an in-progress ticket so the counter can serve the next guest without losing the cart. */
+export function holdPosTab(tabId: string, heldBy?: string) {
+  const tab = state.posTabs.find((t) => t.id === tabId);
+  if (!tab || tab.status !== "open") return false;
+  state.posTabs = state.posTabs.map((t) =>
+    t.id === tabId
+      ? { ...t, status: "held", updatedAt: new Date().toISOString(), openedBy: t.openedBy ?? heldBy }
+      : t,
+  );
+  logAudit({ module: "pos", action: "Ticket held", entity: tabId, severity: "info" });
+  emit();
+  return true;
+}
+
+/** Return a parked ticket to the active queue. */
+export function resumePosTab(tabId: string) {
+  const tab = state.posTabs.find((t) => t.id === tabId);
+  if (!tab || tab.status !== "held") return false;
+  state.posTabs = state.posTabs.map((t) =>
+    t.id === tabId ? { ...t, status: "open", updatedAt: new Date().toISOString() } : t,
+  );
+  emit();
+  return true;
 }
 
 export function posTabsByTable(posTableId: string) {

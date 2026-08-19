@@ -1,0 +1,375 @@
+SambaPOS vs Shopify POS
+Comprehensive feature analysis, workflow breakdowns, and UI design critique — side by side.
+
+SambaPOS
+sambapos.com · Restaurant & Hospitality POS
+Windows-based POS software purpose-built for restaurants, cafes, bars, and food-service operations. Highly customizable with a scripting engine.
+
+Shopify POS
+shopify.com/pos · Retail & Omnichannel POS
+Cloud-based POS tightly integrated with the Shopify ecommerce platform. Built for retail stores, pop-ups, and omnichannel merchants.
+
+1. Order Management
+Feature Overview
+SambaPOS
+Table-centric order entry with a ticket system. Orders are attached to tables or tickets, supporting multi-course, modifiers, and shared tickets.
+
+Table/seat-level order splitting
+Order tags & modifiers per item
+Course/fire timing for kitchen
+Void & cancel with reason codes
+Move/merge orders between tables
+Fast order mode (no table needed)
+Weight-based & quantity-based items
+Shopify POS
+Cart-based order entry focused on retail. Orders are quick-add product carts for one-time transactions, with hold/park functionality for busy counters.
+
+Product search & barcode scan to cart
+Custom sale items (no SKU needed)
+Draft orders from Shopify Admin
+Hold & retrieve multiple open carts
+Notes per order or line item
+Partial payment & layaway
+Ship-to-customer from in-store order
+Workflow — SambaPOS Order
+Staff selects a table from the floor-plan view or creates a "Fast Food" ticket.
+Menu screen opens; items are organized by category buttons. Staff taps items.
+Modifier/option popup appears for items that have it (e.g., cooking preference, size).
+Order is "submitted" — ticket is sent to kitchen printer or KDS (Kitchen Display System).
+Table status icon on floor plan updates to occupied (color-coded by time/status).
+Additional rounds are added; system tracks each submission separately.
+When ready, staff selects payment, splits if needed, applies discounts, and closes the ticket.
+Workflow — Shopify POS Order
+Staff opens cart screen — a clean empty cart view.
+Scan product barcode, search by name/SKU, or tap a tile in the quick-access product grid.
+Adjust quantities, add line-item discounts or notes.
+Select customer (optional) to attach order to a profile.
+Tap "Charge" — choose tender type (card, cash, split).
+Card payment processed via Shopify Payments or connected card reader.
+Receipt sent via email/SMS or printed. Order syncs instantly to Shopify Admin.
+2. Table & Floor Plan Management (SambaPOS)
+Feature Overview — SambaPOS Exclusive
+Shopify POS has no table management (retail-only concept). SambaPOS offers a fully visual floor editor.
+
+Drag-and-drop floor plan designer — custom room layouts, multi-floor support
+Table shapes, colors, seat counts all configurable
+Real-time color indicators: free (green), occupied (red), waiting (yellow)
+Timer on table shows how long guests have been seated
+Reservation overlay — booked tables highlighted before arrival
+Merge tables for large groups; transfer tickets between tables
+Entity screens (tables, customers, rooms) — fully customizable via the entity system
+Workflow — Table Management
+Host/server opens the floor plan view (fullscreen entity screen).
+Visual map shows all tables with live status colors and occupancy timers.
+Tap a free table to open an order for it; tap an occupied table to view/edit its running ticket.
+To move guests: drag ticket to new table, or use the "Move Ticket" action.
+To split a bill: choose "Split Ticket" → assign items to seats or create equal splits.
+When payment is taken, the table resets to free (green) on the floor map.
+3. Menu & Product Management
+Feature Overview
+SambaPOS
+Menu categories & sub-categories with button layout editor
+Product tags/modifiers with forced or optional options
+Price definitions (happy hour, time-based pricing)
+Portion sizes per product
+Recipe/sub-product mapping for inventory deduction
+Combo/set meal definitions
+Product images on menu buttons
+Barcode support for retail-style scanning
+Shopify POS
+Full Shopify product catalog synced from online store
+Variants (size, color, material) and SKU management
+Product images and detailed descriptions
+Collections used as POS categories
+Customizable tile grid for quick access
+Barcode label printing for inventory
+Price overrides per location
+B2B wholesale pricing (Shopify Plus)
+4. Payment Processing
+Feature Overview
+SambaPOS
+Multiple tender types: cash, credit/debit, vouchers, loyalty points
+Split payments across any mix of tender types
+Foreign currency support with configurable exchange rates
+Integrated card payment via partner processors (Stripe, Moka, etc.)
+Tab / running account for regular customers
+Tip allocation per staff member
+Manual rounding rules (0.05 rounding, etc.)
+Change calculation and drawer open trigger
+Shopify POS
+Shopify Payments (built-in, no extra fees)
+Third-party payment providers via app
+Tap, chip & swipe via Shopify card readers
+Split tender (cash + card)
+Buy Now Pay Later via Shop Pay Installments
+Gift cards (Shopify-native)
+QR-code checkout (customers self-pay on phone)
+Tipping prompts on card reader screen
+Workflow — Checkout
+SambaPOS
+Select "Payment" from the ticket screen.
+Choose tender type button (Cash, Card, etc.).
+Enter amount; if cash, system calculates change.
+For split: tap partial amounts on different tender buttons.
+Card payment screen sends request to terminal.
+Payment confirmed; receipt prints or is emailed.
+Ticket closes; table freed or next ticket opens.
+Shopify POS
+Tap "Charge" on the cart screen.
+Select payment method tile.
+For card: reader prompts tap/chip/swipe.
+For cash: enter tendered amount, see change.
+Payment confirmed with on-screen animation.
+Receipt screen: print, email, or skip.
+Order recorded in Shopify Orders dashboard.
+5. Kitchen Display & Printing
+Feature Overview
+SambaPOS — Advanced KDS
+Built-in Kitchen Display System (KDS) screen type
+Tickets routed by product tag (e.g., grill vs. fryer)
+Color-coded timer: green → yellow → red by wait time
+Bump/recall buttons for kitchen staff
+Multiple kitchen printer zones (hot kitchen, cold kitchen, bar)
+Order modifiers printed in bold or with special formatting
+Course/fire control: print "fire course 2" on demand
+Print on settle vs. print on order configurable
+Shopify POS — Basic/App-based
+No native KDS; requires third-party app (e.g., Order Printer Pro)
+Receipt printer support via Bluetooth or LAN
+Order Printer app for kitchen ticket slips
+Limited routing logic without additional apps
+Better suited to retail packing slips than kitchen printing
+6. Inventory Management
+Feature Overview
+SambaPOS
+Recipe-based inventory: products map to raw ingredients
+Stock level tracking per ingredient
+Purchase order module for restocking
+Waste & consumption reporting
+Cost-of-goods calculation per dish
+Low-stock alerts
+Inventory count / stocktake screen
+Multiple warehouse/location support
+Shopify POS
+Real-time inventory sync across all stores and online
+Inventory transfers between locations
+Stocktake (inventory count) via POS app
+Incoming inventory tracking
+Low-stock notifications
+Inventory history per SKU
+Demand forecasting (Shopify Plus / analytics apps)
+Barcode scanning for stock counts
+7. Customer Management & Loyalty
+Feature Overview
+SambaPOS
+Customer accounts with balance/tab support
+Loyalty points module (earn & redeem)
+Customer-level discount rules
+Visit history & spend tracking
+Custom fields on customer profiles
+Membership/club tiers
+Birthday & anniversary tracking
+Customer display on ticket view
+Shopify POS
+Unified customer profile (online + in-store merged)
+Purchase history across all channels
+Customer search & creation at checkout
+Email marketing opt-in at point of sale
+Loyalty via third-party apps (Smile.io, LoyaltyLion)
+Customer tags for segmentation
+Store credit management
+Draft orders tied to customer profiles
+8. Discounts & Promotions
+Feature Overview
+SambaPOS
+Percentage & fixed-amount discounts
+Ticket-level and item-level discounts
+Happy hour pricing (time/day scheduled)
+Automation rules for automatic discount application
+Promo codes
+Manager override for discounts above threshold
+Discount reason tracking for reports
+Shopify POS
+Discount codes (synced from online store)
+Automatic discounts (buy X get Y, etc.)
+Percentage, fixed amount, or free shipping
+Stacking rules (multiple discounts per order)
+Employee-initiated custom % discount
+Gift card issuance as a promotion
+Discount usage analytics in Shopify Admin
+9. Reporting & Analytics
+Feature Overview
+SambaPOS
+End-of-day Z/X reports with cash reconciliation
+Sales by product, category, time, server
+Gross profit / cost of goods reports
+Table occupancy & turn time reports
+Discount & void analysis
+Custom report builder (with scripting)
+Tax breakdown reports
+Shift & cash drawer reconciliation
+Shopify POS
+Sales reports by product, staff, location, channel
+End-of-day cash tracking
+Finance reports in Shopify Admin
+Retail sales dashboard
+Sell-through rate & inventory reports
+Customer acquisition & retention reports
+Export to CSV for external analysis
+Advanced analytics via Shopify Plus or apps
+10. Staff & Employee Management
+Feature Overview
+SambaPOS
+PIN-based login per staff member
+Role-based permissions (cashier, manager, admin)
+Clock-in / clock-out module
+Tips tracking per server
+Sales performance per staff
+Manager override system with audit log
+Multiple staff on one terminal via PIN switching
+Shopify POS
+Staff PINs for quick switching at POS
+Role-based permissions: operator vs. manager
+Sales attribution per staff member
+Staff performance reports
+Limited to POS-scoped permissions (broader managed in Shopify Admin)
+Time clock via third-party app
+11. Integrations & Ecosystem
+Feature Overview
+SambaPOS
+Open API & webhook support
+Accounting integrations (QuickBooks, Xero via scripts)
+Online ordering integrations (Glovo, Yemeksepeti, etc.)
+Caller ID / caller management for phone orders
+SMS notification triggers
+Active Directory / Windows user integration
+Custom automation rules and scripts (Lua-based)
+Third-party payment terminal integrations
+Shopify POS
+Native sync with Shopify ecommerce (real-time)
+Shopify App Store (8,000+ apps)
+Accounting: QuickBooks, Xero, FreshBooks
+Marketing: Mailchimp, Klaviyo, SMS Bump
+Loyalty: Smile.io, LoyaltyLion, Yotpo
+Delivery: Shippo, EasyPost
+Google / Facebook ad attribution
+Shopify Flow for automation (Plus plan)
+12. Hardware Compatibility
+Overview
+SambaPOS
+Windows PC / touchscreen terminals
+Windows tablets (Surface, etc.)
+Star, Epson, and generic ESC/POS printers
+Ethernet, USB, and Bluetooth printers
+Cash drawers via printer kick port
+Barcode scanners (USB HID)
+Customer-facing displays
+Fingerprint scanner (optional login)
+Scales integration (weight-based items)
+Shopify POS
+iPad (main device) or iPhone
+Android (limited support)
+Shopify card readers (Tap & Chip, Terminal)
+Star mPOP (printer + cash drawer combo)
+Bluetooth barcode scanners
+Shopify POS Go (dedicated all-in-one hardware)
+Customer-facing display via second device or app
+13. UI Design Analysis
+SambaPOS — UI Design
+Visual Style
+Dark Theme
+Desktop-First
+Dense UI
+High Contrast
+Touchscreen Optimized
+Windows Native
+Color Palette
+Primarily dark backgrounds (#1a1a2e, deep grays) with bright color-coded action buttons. Menu item buttons use bold colors to differentiate categories (orange, blue, green, red). Floor plan uses red/green/yellow status coding.
+
+Layout Structure
+Left panel: Running ticket/order summary with item lines and totals
+Center: Menu category/product button grid — large, square tiles ideal for fat-finger touch
+Right panel: Modifier options, order actions (submit, void, discount)
+Top bar: Ticket/table number, staff name, time, and navigation shortcuts
+Bottom bar: Payment button, fast-access commands
+Navigation
+Tab-based navigation between major modules (Tables, Orders, Reports, Settings). No hamburger menus — all navigation is persistent button bars. UI is intentionally dense to minimize taps per transaction.
+
+Customization
+Extremely high UI customization: admins can redesign screens using the built-in Screen Editor, add custom buttons, map automation rules, change colors/fonts, and create entirely new screen types. This power comes at the cost of initial complexity.
+
+Strengths & Weaknesses
+✅ Optimized for speed in a busy restaurant environment
+✅ Color-coded status reduces cognitive load for staff
+✅ Works perfectly on cheap Windows touchscreens
+⚠️ Steep learning curve for setup/configuration
+⚠️ Looks dated compared to modern SaaS apps
+⚠️ Admin settings UI is complex and technical
+Shopify POS — UI Design
+Visual Style
+Light Theme
+Mobile-First (iPad)
+Clean / Minimal
+Polaris Design System
+Modern SaaS Aesthetic
+Consistent with Shopify Brand
+Color Palette
+Light white backgrounds with Shopify green (#008060) as primary action color. Cards and panels use subtle gray (#f6f6f7) backgrounds. Typography is clean Inter/system font. Minimal decorative elements — content-first approach.
+
+Layout Structure
+Left rail: Navigation icons (cart, products, customers, orders, analytics)
+Main area: Context-dependent — product grid on POS, list views in reports
+Right panel: Cart/order summary with running total
+Bottom bar (mobile): Primary actions (Charge, Discount, Add note)
+Top bar: Search, staff name, settings gear
+Navigation
+Icon-based left sidebar (iPad) with modal overlays for sub-actions. Follows iOS/iPadOS design patterns — swipe gestures, sheet slide-ups for secondary screens. Consistent with the broader Shopify Polaris design language.
+
+Customization
+Moderate customization: admins can customize the product tile grid (add/remove/reorder), set smart collections for quick access, and configure checkout fields. UI structure itself is largely fixed — you customize content, not layout.
+
+Strengths & Weaknesses
+✅ Beautiful, modern, approachable — staff learn fast
+✅ Consistent design language with Shopify Admin (zero re-learning)
+✅ Works seamlessly on iPad hardware staff already know
+⚠️ Less dense UI means more taps to complete complex transactions
+⚠️ Limited customization of screen layout
+⚠️ Relies heavily on add-on apps for non-retail workflows
+14. Feature Comparison Matrix
+Feature	SambaPOS	Shopify POS
+Table/floor plan management	✓ Native	✗ Not available
+Kitchen display system (KDS)	✓ Native	~ App only
+Course/fire timing	✓ Native	✗ Not available
+Multi-location inventory	~ Limited	✓ Native
+Omnichannel (online + in-store)	✗ Limited	✓ Native
+eCommerce sync	✗ Not native	✓ Real-time
+Recipe/ingredient inventory	✓ Native	✗ Not available
+Loyalty program	✓ Native	~ App only
+Gift cards	~ Basic	✓ Native
+Custom UI/screen builder	✓ Full	~ Limited
+Offline mode	✓ Full offline	~ Limited offline
+iPad/mobile device	✗ Windows only	✓ Native iOS
+App marketplace	~ Small	✓ 8,000+ apps
+Scripting/automation	✓ Lua scripting	~ Shopify Flow (Plus)
+Multi-currency	✓ Native	~ Shopify Payments regions
+Reservation management	~ Basic	✗ App only
+Shift/clock-in management	✓ Native	~ App only
+Pricing (entry level)	✓ Free community edition	~ $5/mo (Lite)
+15. Verdict & Best-Fit Recommendation
+Choose SambaPOS if…
+You run a restaurant, bar, cafe, or food-service venue
+You need table management and KDS
+You want deep customization and scripting power
+You are running on Windows hardware
+You need recipe-based inventory and COGS tracking
+You want a one-time license (no monthly SaaS fee)
+You operate in a region with less Shopify payment support
+Choose Shopify POS if…
+You run a retail shop, boutique, pop-up, or market stall
+You already sell (or plan to sell) online with Shopify
+You need unified inventory across multiple store locations
+You want a modern, mobile-first iPad experience
+You want a large app ecosystem for extensibility
+You want customers to have a unified online/in-store profile
+You value ease of setup and staff onboarding speed
+Made with IBM Bob
