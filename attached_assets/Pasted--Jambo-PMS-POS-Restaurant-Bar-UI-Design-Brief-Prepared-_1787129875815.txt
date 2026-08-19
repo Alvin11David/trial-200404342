@@ -1,0 +1,166 @@
+# Jambo PMS — POS (Restaurant & Bar) UI Design Brief
+**Prepared by:** Waluube Alvin David
+**For:** Richard Seko Anundu (CEO) / Otieno Fidel Jones (Co-Dev) / Frontend build reference
+**Purpose:** Redesign the POS screen UI to match industry-standard element placement (SambaPOS, Toast, Square, Lightspeed, Shopify POS) while keeping Jambo's existing workflow logic — then improve on it for the Ugandan hospitality context.
+
+---
+
+## 1. Design Philosophy
+
+Richard's direction, restated plainly:
+
+- **Workflow stays** — the order-taking → kitchen → billing flow already modeled on SambaPOS is good and should not change.
+- **UI elements change** — the *screen layout, component placement, and visual patterns* should match what staff already know from mainstream POS software, so training time is near-zero for anyone who's used a POS before.
+- **Then go beyond** — Jambo should fix the gaps those systems don't solve for us: UGX-integer pricing, MoMo/Airtel Money as first-class payment buttons (not buried), "charge to room" for hotel guests, and offline-first operation for unreliable Kampala internet.
+
+This document is written so it can be used directly as a **prompt for Figma/AI design generation** or a **build spec for the frontend team**.
+
+---
+
+## 2. Standard POS Screen Set
+
+Every mainstream POS (SambaPOS, Toast, Square, Lightspeed, Clover) is built around the same five core screens. Jambo POS should have the same five, with the same element placement conventions.
+
+| # | Screen | Industry-standard purpose |
+|---|--------|---------------------------|
+| 1 | Floor Plan / Table Selection | Visual map of tables, status at a glance |
+| 2 | Order Entry (Menu Grid) | Fast item selection, categorized |
+| 3 | Active Ticket / Cart Panel | Running order, always visible while ordering |
+| 4 | Modifier / Item Detail Modal | Customize an item after tapping it |
+| 5 | Payment / Checkout | Close out the ticket, take payment, print/send receipt |
+
+Below is each screen's standard element layout, described precisely enough to build or prompt a designer with.
+
+---
+
+### Screen 1 — Floor Plan / Table Selection
+
+**Standard layout (this is what Toast, SambaPOS, and Lightspeed all converge on):**
+
+- **Top bar:** Restaurant/venue name or outlet selector (left), staff name + clock-in status (center-right), settings/logout icon (far right)
+- **Section tabs** below top bar: e.g. "Main Hall," "Terrace," "Bar," "VIP" — horizontal scrollable tabs
+- **Main canvas:** Drag-and-drop table shapes (circle/square/rectangle) laid out to mirror the actual floor plan, not a plain list
+- **Table status color coding** (this is the single most copied convention across every POS):
+  - Green / white = Available
+  - Red / orange = Occupied, order open
+  - Yellow = Bill requested / awaiting payment
+  - Grey = Reserved
+  - Each table shows: table number, guest count, elapsed time since seated
+- **Bottom or side action bar:** "New Order," "Reservations," "Waitlist," "Search Table"
+- **Floating button (bottom-right, common on tablets):** "+" to start a new walk-in/takeaway order without a table
+
+**Jambo improvement:** tables tied to a guest folio should show a small room-icon badge if the order will be charged to a room, so wait staff instantly know it's a hotel guest, not a walk-in.
+
+---
+
+### Screen 2 — Order Entry (Menu Grid)
+
+**Standard layout:**
+
+- **Left or top:** Category tabs (Starters, Mains, Drinks, Bar, Desserts) — large tappable buttons, not a dropdown
+- **Center:** Grid of item tiles (image + name + price), 3–5 columns depending on device size
+- **Right-hand panel (fixed, ~30% width on tablets):** The Active Ticket / Cart (see Screen 3) — this is *always visible side-by-side* with the menu, never a separate screen. This is the single biggest usability pattern across all major POS systems and is the one thing worth insisting on.
+- **Top of grid:** Search bar + barcode/quick-code entry for fast-moving bar items
+- **Item tile states:** greyed out if 86'd (out of stock) — pulled from Inventory & Stock module in real time
+
+**Jambo improvement:** items linked to recipes with low stock ingredients show a subtle amber dot — ties Inventory & Stock domain directly into the ordering screen instead of staff finding out at prep time.
+
+---
+
+### Screen 3 — Active Ticket / Cart Panel
+
+**Standard layout (right-hand dock, persistent):**
+
+- **Header:** Table number / guest name / order type (Dine-in, Takeaway, Delivery)
+- **Line items list:** item name, qty stepper (+/-), modifiers shown as sub-text under each line, price per line
+- **Course/fire grouping:** items grouped and labeled by course (Starter, Main) with a "Fire Next Course" button — standard in full-service table POS
+- **Footer (always pinned to bottom, not scrollable away):**
+  - Subtotal
+  - Tax/VAT line
+  - Service charge line (if applicable)
+  - **Total**
+  - Two primary buttons: **"Send to Kitchen"** (secondary/outline style) and **"Charge / Pay"** (primary, high-contrast)
+
+**Jambo improvement:** UGX totals rendered as clean integers with thousand separators (e.g. `UGX 45,000`), never decimals — reinforces the no-floating-point rule at the UI layer too.
+
+---
+
+### Screen 4 — Modifier / Item Detail Modal
+
+**Standard layout:**
+
+- Opens as an overlay/modal on top of the menu grid (not a full page navigation) when an item is tapped
+- **Top:** Item name, image, base price
+- **Body:** Modifier groups as radio buttons (single-select, e.g. "Size") or checkboxes (multi-select, e.g. "Extras") — grouped with clear section headers
+- **Special instructions field:** free-text box for kitchen notes ("no onions")
+- **Footer:** Quantity stepper + "Add to Order" button showing live-updated price as modifiers are selected
+
+**Jambo improvement:** allergen/dietary tags (vegan, lactose-free — already scoped in the digital menu concept) shown as small icon chips at the top of the modal, visible before modifier selection.
+
+---
+
+### Screen 5 — Payment / Checkout
+
+**Standard layout:**
+
+- **Left:** Order summary (line items, collapsed, read-only at this point)
+- **Right:** Payment method grid — large tappable tiles, not a dropdown:
+  - Cash
+  - Card
+  - **MoMo / Airtel Money** (should be equally prominent tiles, not an "other" sub-menu — this is Jambo's key departure from SambaPOS/Toast defaults, which treat mobile money as an afterthought)
+  - **Charge to Room** (hotel-specific — pulls guest folio, requires room number/PIN confirmation)
+  - Split Bill (by item, by seat, or evenly — opens a sub-flow)
+- **Discount/voucher entry:** a small expandable row above the payment tiles, not hidden in a settings menu
+- **Confirm button:** large, bottom-anchored, shows amount due
+- **Post-payment:** receipt options (Print / Email / SMS / None) as a single row of icon buttons
+
+**Jambo improvement:** "Charge to Room" triggers an inline folio preview (running balance) before confirming, so staff catch billing errors before they happen — this doesn't exist in SambaPOS or Shopify POS since neither is hotel-native.
+
+---
+
+## 3. Kitchen Display / Ticket View (if in scope)
+
+Standard across Toast KDS, SambaPOS KDS, Square KDS:
+
+- Tickets appear as cards in a horizontal scrolling lane, ordered by time fired
+- Each card: table/order number, elapsed timer (color escalates red as it ages), item list with modifiers in bold
+- Bump/complete button dismisses the card to a "completed" lane
+- Course-based color bands (starter = one color, main = another) if course-firing is enabled
+
+---
+
+## 4. MVP vs Phase 2 — UI Scope
+
+| Element | MVP | Phase 2 |
+|---|---|---|
+| Floor plan drag-and-drop table layout | ✅ | — |
+| Table status color coding | ✅ | — |
+| Category tabs + item grid | ✅ | — |
+| Persistent side-cart on order screen | ✅ | — |
+| Modifier modal | ✅ | — |
+| Cash / Card / MoMo / Airtel payment tiles | ✅ | — |
+| Charge to Room with folio preview | ✅ | — |
+| Split bill (evenly) | ✅ | Split by item/seat → Phase 2 |
+| Course/fire grouping + "Fire Next Course" | Phase 2 | ✅ |
+| Kitchen Display System screen | Flagged — depends on Richard's KDS hardware decision | ✅ |
+| Low-stock amber-dot on menu tiles | Phase 2 | ✅ |
+| Allergen/dietary chip tags | Phase 2 | ✅ |
+
+---
+
+## 5. Open Decisions for Richard
+
+- Confirm whether **table drag-and-drop floor plan editing** is needed at launch, or a fixed grid list is acceptable for MVP (affects build time significantly).
+- Confirm **KDS hardware** (dedicated screen vs. tablet vs. printer-only) — determines whether Screen 6 (Kitchen Display) is MVP or Phase 2.
+- Confirm whether **split-by-item/seat** is needed for MVP given target restaurant types, or evenly-split is sufficient at launch.
+- Confirm **service charge/tipping** norms to bake into the payment footer (percentage default, editable, or off by default) — this was already flagged as an open item in the POS domain scope breakdown.
+
+---
+
+## 6. Ready-to-Use Design Prompt (for Figma/AI tools)
+
+> Design a tablet-first POS interface for a hotel restaurant & bar module. Five screens: (1) a floor-plan table selector with color-coded table status (green=available, red=occupied, yellow=bill requested, grey=reserved) and section tabs; (2) an order-entry screen with left/top category tabs and a center item grid, with a persistent right-hand cart panel always visible; (3) the cart panel itself showing line items with quantity steppers, a pinned footer with subtotal/tax/total and two buttons ("Send to Kitchen" and "Charge / Pay"); (4) a modifier modal that opens on top of the item grid with radio/checkbox modifier groups and a live-updating price; (5) a payment screen with large equal-weight tiles for Cash, Card, MoMo, Airtel Money, and "Charge to Room," plus a split-bill option. Style: clean, high-contrast, large touch targets (min 44px), currency shown as UGX integers with thousand separators, warm but professional palette suited to East African hospitality branding — not a generic blue SaaS look.
+
+---
+
+*This brief pairs with the existing POS — Restaurant & Bar domain scope breakdown and MVP/Phase 2 feature split. Once Richard confirms the open decisions above, this can move directly into Figma wireframing.*
