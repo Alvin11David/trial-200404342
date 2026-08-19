@@ -653,6 +653,7 @@ function POSPage() {
       coverCount: Math.min(2, table.seatingCapacity),
       deliveryName: "",
       deliveryAddress: "",
+      orderNotes: "",
     });
     setShowNewTabModal(true);
   }
@@ -871,6 +872,60 @@ function POSPage() {
                       <Plus className="h-3.5 w-3.5" /> New Tab
                     </button>
                   </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Parked / held tickets */}
+          <div className="relative">
+            <button
+              onClick={() => setShowHeldPicker((p) => !p)}
+              className={cn(
+                "inline-flex items-center gap-2 rounded-xl border px-3.5 py-2 text-sm font-semibold transition hover:border-[#ff477e]/60 sm:px-4",
+                heldTabs.length > 0
+                  ? "border-amber-400/50 bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"
+                  : "border-[#e3e5ea] bg-[#fafbfc] dark:border-border dark:bg-card/40",
+              )}
+              title="Retrieve parked tickets"
+            >
+              <ClipboardX className="h-4 w-4" />
+              <span className="hidden md:inline">Held</span>
+              {heldTabs.length > 0 && (
+                <span className="grid h-5 min-w-5 place-items-center rounded-full bg-amber-500 px-1 text-[10px] text-white">
+                  {heldTabs.length}
+                </span>
+              )}
+            </button>
+            {showHeldPicker && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowHeldPicker(false)} />
+                <div className="absolute left-0 top-full z-20 mt-1 w-64 rounded-xl border border-border/60 bg-popover p-1.5 shadow-xl">
+                  <div className="mb-1 flex items-center justify-between px-2 py-1">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/50">Held tickets</span>
+                    <span className="text-[10px] text-muted-foreground/50">{heldTabs.length}</span>
+                  </div>
+                  {heldTabs.length === 0 ? (
+                    <div className="px-3 py-3 text-xs text-muted-foreground/60">No parked tickets</div>
+                  ) : (
+                    heldTabs.map((t) => {
+                      const qty = posTabItemsByTab(t.id).filter((i) => !i.isVoided).reduce((s, i) => s + i.quantity, 0);
+                      const label = t.posTableId ? tableLabel(t.posTableId) : t.deliveryName || (t.orderType === "takeaway" ? "Takeaway" : "Quick ticket");
+                      return (
+                        <button
+                          key={t.id}
+                          onClick={() => retrieveHeldTab(t.id)}
+                          className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-amber-500/10"
+                        >
+                          <span className="min-w-0">
+                            <span className="block truncate font-medium">{label}</span>
+                            <span className="block text-[10px] text-muted-foreground/60">{qty} items · {fmtUGX(t.totalAmount)}</span>
+                          </span>
+                          <span className="ml-3 shrink-0 rounded-lg bg-amber-500/10 px-2 py-1 text-[10px] font-semibold text-amber-700 dark:text-amber-300">Resume</span>
+                        </button>
+                      );
+                    })
+                  )}
                 </div>
               </>
             )}
@@ -1196,6 +1251,12 @@ function POSPage() {
                     "Create or select a tab to start"
                   )}
                 </p>
+                {activeTab?.orderNotes && (
+                  <p className="mt-2 flex max-w-[260px] items-start gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-700 dark:text-amber-300">
+                    <StickyNote className="mt-0.5 h-3 w-3 shrink-0" />
+                    <span className="line-clamp-2">{activeTab.orderNotes}</span>
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1411,6 +1472,15 @@ function POSPage() {
                 {/* Split / Merge */}
                 <div className="px-5 pb-2 flex gap-2">
                   <button
+                    onClick={handleHoldTab}
+                    disabled={unvoidedItems.length === 0}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-medium text-amber-700 transition hover:bg-amber-500/20 disabled:cursor-not-allowed disabled:opacity-40 dark:text-amber-300"
+                    title="Park this ticket and serve another guest"
+                  >
+                    <ClipboardX className="h-3.5 w-3.5" />
+                    Hold
+                  </button>
+                  <button
                     onClick={() => {
                       setSplitSelected(unvoidedItems.map((i) => i.id));
                       setSplitDestTable("");
@@ -1587,6 +1657,19 @@ function POSPage() {
                   onChange={(e) => setNewTabForm({ ...newTabForm, coverCount: Math.max(1, Number(e.target.value)) })}
                   min={1}
                   className="w-full rounded-xl border border-border/50 bg-background/40 px-4 py-2.5 text-sm outline-none focus:border-primary/50"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                  <StickyNote className="h-3.5 w-3.5" />
+                  Order note <span className="font-normal text-muted-foreground/50">(optional)</span>
+                </label>
+                <textarea
+                  value={newTabForm.orderNotes}
+                  onChange={(e) => setNewTabForm({ ...newTabForm, orderNotes: e.target.value })}
+                  rows={2}
+                  placeholder="Guest preference, allergy, or service note…"
+                  className="w-full resize-none rounded-xl border border-border/50 bg-background/40 px-4 py-2.5 text-sm outline-none placeholder:text-muted-foreground/50 focus:border-primary/50"
                 />
               </div>
             </div>

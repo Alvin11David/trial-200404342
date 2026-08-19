@@ -17,6 +17,7 @@ import {
   AlertCircle,
   Receipt,
   Timer,
+  ClipboardList,
   User,
   Table2,
   Package,
@@ -34,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-type OrderStatus = "Pending" | "Completed" | "Cancelled";
+type OrderStatus = "Pending" | "Held" | "Completed" | "Cancelled";
 type PaymentMethod = "Cash" | "Card" | "Mobile Money" | "Room Charge" | "Credit";
 type OrderType = "dine_in" | "takeaway" | "room_service" | "delivery";
 
@@ -88,7 +89,7 @@ function buildLiveOrders(
     if (its.length === 0 && t.status !== "cancelled") continue;
 
     const status: OrderStatus =
-      t.status === "open" ? "Pending" : t.status === "cancelled" || t.status === "unrecovered" ? "Cancelled" : "Completed";
+      t.status === "open" ? "Pending" : t.status === "held" ? "Held" : t.status === "cancelled" || t.status === "unrecovered" ? "Cancelled" : "Completed";
     const paymentMethod: PaymentMethod =
       t.settlementMethod === "room_charge"
         ? "Room Charge"
@@ -131,6 +132,12 @@ const statusConfig: Record<OrderStatus, { label: string; icon: typeof Clock; gra
     label: "Pending",
     icon: Clock,
     gradient: "from-amber-400 to-orange-500",
+    badge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",
+  },
+  Held: {
+    label: "Held",
+    icon: ClipboardList,
+    gradient: "from-amber-400 to-yellow-500",
     badge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800",
   },
   Completed: {
