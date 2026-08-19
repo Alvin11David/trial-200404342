@@ -211,6 +211,11 @@ function POSPage() {
     () => posTabs.filter((t) => t.posOutletId === outletId && t.status === "held"),
     [posTabs, outletId],
   );
+  useEffect(() => {
+    if (!activeTabId && outletOpenTabs.length > 0) {
+      setActiveTabId(outletOpenTabs[0].id);
+    }
+  }, [activeTabId, outletOpenTabs]);
 
   /* Table label + floor plan helpers */
   const tableLabel = useMemo(() => {
@@ -276,6 +281,7 @@ function POSPage() {
   const [modifierTarget, setModifierTarget] = useState<StoreMenuItem | null>(null);
   const [itemNote, setItemNote] = useState("");
   const [itemCourse, setItemCourse] = useState(0);
+  const [itemQuantity, setItemQuantity] = useState(1);
   const [modifierSelections, setModifierSelections] = useState<Record<string, string>>({});
 
   /* Void workflow */
@@ -351,12 +357,17 @@ function POSPage() {
     }
     setItemNote("");
     setItemCourse(0);
+    setItemQuantity(1);
     setModifierTarget(item);
     setModifierSelections({});
     setShowModifierModal(true);
   }
 
-  function addItemToTab(item: StoreMenuItem, selections: Record<string, string>, opts?: { notes?: string; courseNumber?: number }) {
+  function addItemToTab(
+    item: StoreMenuItem,
+    selections: Record<string, string>,
+    opts?: { notes?: string; courseNumber?: number; quantity?: number; unitPrice?: number },
+  ) {
     if (!activeTab) {
       toast.error("Please create or select a tab first");
       return;
@@ -375,8 +386,8 @@ function POSPage() {
       id: `PTI-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       posTabId: activeTab.id,
       menuItemId: item.id,
-      quantity: 1,
-      unitPrice: item.unitPrice,
+      quantity: Math.max(1, opts?.quantity ?? 1),
+      unitPrice: opts?.unitPrice ?? item.unitPrice,
       modifierSelections: selections,
       specialNotes: specialNotes || undefined,
       courseNumber: opts?.courseNumber ?? 0,
@@ -392,7 +403,17 @@ function POSPage() {
 
   function handleModifierConfirm() {
     if (modifierTarget) {
-      addItemToTab(modifierTarget, modifierSelections, { notes: itemNote, courseNumber: itemCourse });
+      const modifierDelta = modifiersForMenuItem(modifierTarget).reduce((sum, mod) => {
+        const selected = modifierSelections[mod.id];
+        const option = mod.options.find((opt) => opt.name === selected);
+        return sum + (option?.priceDelta ?? 0);
+      }, 0);
+      addItemToTab(modifierTarget, modifierSelections, {
+        notes: itemNote,
+        courseNumber: itemCourse,
+        quantity: itemQuantity,
+        unitPrice: modifierTarget.unitPrice + modifierDelta,
+      });
     }
     setShowModifierModal(false);
     setModifierTarget(null);
@@ -995,6 +1016,7 @@ function POSPage() {
             {filtered.map((item) => {
               const stock = menuItemStockStatus(item);
               const unavailable = !isMenuItemAvailable(item) || stock.soldOut;
+              const lowStock = !unavailable && stock.remaining !== undefined && stock.remaining <= 3;
               const reason86 = item.isSoldOut || stock.soldOut;
               return (
                 <button
@@ -1027,6 +1049,15 @@ function POSPage() {
                     {modifiersForMenuItem(item).length > 0 && (
                       <span className="absolute left-2 top-2 rounded-full bg-amber-500/90 px-1.5 py-0.5 text-[9px] font-semibold text-white shadow">
                         MOD
+                      </span>
+                    )}
+                    {lowStock && (
+                      <span
+                        className="absolute bottom-2 left-2 inline-flex items-center gap-1 rounded-full bg-amber-400/95 px-1.5 py-0.5 text-[9px] font-bold text-amber-950 shadow"
+                        title={`${stock.remaining} remaining`}
+                      >
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-950" />
+                        Low stock
                       </span>
                     )}
                   </div>
@@ -2318,7 +2349,25 @@ function POSPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowModifierModal(false)}>
             <div className="w-full max-w-md rounded-2xl border border-border/60 bg-card p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-display text-lg font-bold">{modifierTarget.name}</h3>
+                <div className="flex min-w-0 items-center gap-3">
+                  <img
+                    src={productImageUrl(modifierTarget.name)}
+                    alt=""
+                    className="h-12 w-12 shrink-0 rounded-xl object-cover ring-1 ring-border/50"
+                  />
+                  <div className="min-w-0">
+                    <h3 className="truncate font-display text-lg font-bold">{modifierTarget.name}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      UGX {(
+                        modifierTarget.unitPrice +
+                        modifiersForMenuItem(modifierTarget).reduce((sum, mod) => {
+                          const selected = modifierSelections[mod.id];
+                          return sum + (mod.options.find((opt) => opt.name === selected)?.priceDelta ?? 0);
+                        }, 0)
+                      ).toLocaleString()} each
+                    </p>
+                  </div>
+                </div>
                 <button onClick={() => setShowModifierModal(false)} className="grid h-8 w-8 place-items-center rounded-xl text-muted-foreground/60 hover:text-foreground">
                   <X className="h-4 w-4" />
                 </button>
@@ -2399,11 +2448,42 @@ function POSPage() {
                     />
                   </div>
                 </div>
+                <div className="flex items-center justify-between rounded-xl border border-border/50 bg-background/30 px-3 py-2.5">
+                  <div>
+                    <p className="text-sm font-medium">Quantity</p>
+                    <p className="text-[11px] text-muted-foreground">Add multiple to this ticket</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setItemQuantity((qty) => Math.max(1, qty - 1))}
+                      className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+                      aria-label="Decrease quantity"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    <span className="min-w-8 text-center text-sm font-bold tabular-nums">{itemQuantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => setItemQuantity((qty) => qty + 1)}
+                      className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 bg-card text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+                      aria-label="Increase quantity"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
               <div className="flex justify-end gap-2 mt-6">
                 <button onClick={() => setShowModifierModal(false)} className="rounded-xl border border-border/50 px-4 py-2 text-sm font-medium">Cancel</button>
                 <button onClick={handleModifierConfirm} className="rounded-xl bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground">
-                  Add to Tab
+                  Add · UGX {(
+                    (modifierTarget.unitPrice +
+                      modifiersForMenuItem(modifierTarget).reduce((sum, mod) => {
+                        const selected = modifierSelections[mod.id];
+                        return sum + (mod.options.find((opt) => opt.name === selected)?.priceDelta ?? 0);
+                      }, 0)) * itemQuantity
+                  ).toLocaleString()}
                 </button>
               </div>
             </div>
